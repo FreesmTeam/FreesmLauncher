@@ -36,9 +36,9 @@
  */
 
 #include "ServersPage.h"
+#include "ServerPingTask.h"
 #include "ui/dialogs/CustomMessageBox.h"
 #include "ui_ServersPage.h"
-#include "ServerPingTask.h"
 
 #include <FileSystem.h>
 #include <io/stream_reader.h>
@@ -49,10 +49,10 @@
 #include <tag_string.h>
 #include <sstream>
 
+#include <tasks/ConcurrentTask.h>
 #include <QFileSystemWatcher>
 #include <QMenu>
 #include <QTimer>
-#include <tasks/ConcurrentTask.h>
 
 static const int COLUMN_COUNT = 3;  // 3 , TBD: latency and other nice things.
 
@@ -113,8 +113,8 @@ struct Server {
     // Data - temporary
     bool m_checked = false;
     bool m_up = false;
-    QString m_motd;  // https://mctools.org/motd-creator
-    std::optional<int> m_currentPlayers; // nullopt if not calculated/calculating
+    QString m_motd;                       // https://mctools.org/motd-creator
+    std::optional<int> m_currentPlayers;  // nullopt if not calculated/calculating
     int m_maxPlayers = 0;
 };
 
@@ -317,10 +317,10 @@ class ServersModel : public QAbstractListModel {
         if (row < 0 || row >= m_servers.size())
             return QVariant();
 
-        switch (column) {
-            case 0:
-                switch (role) {
-                    case Qt::DecorationRole: {
+        switch (role) {
+            case Qt::DecorationRole: {
+                switch (column) {
+                    case 0: {
                         auto& bytes = m_servers[row].m_icon;
                         if (bytes.size()) {
                             QPixmap px;
@@ -329,31 +329,32 @@ class ServersModel : public QAbstractListModel {
                         }
                         return APPLICATION->getThemedIcon("unknown_server");
                     }
-                    case Qt::DisplayRole:
-                        return m_servers[row].m_name;
-                    case ServerPtrRole:
-                        return QVariant::fromValue<void*>((void*)&m_servers[row]);
-                    default:
-                        return QVariant();
-                }
-            case 1:
-                switch (role) {
-                    case Qt::DisplayRole:
+                    case 1:
                         return m_servers[row].m_address;
                     default:
                         return QVariant();
                 }
-            case 2:
-                switch (role) {
-                    case Qt::DisplayRole:
+                case 2:
+                    if (role == Qt::DisplayRole) {
                         if (m_servers[row].m_currentPlayers) {
                             return *m_servers[row].m_currentPlayers;
                         } else {
                             return "...";
                         }
-                    default:
+                    } else {
                         return QVariant();
-                }
+                    }
+            }
+            case Qt::DisplayRole:
+                if (column == 0)
+                    return m_servers[row].m_name;
+                else
+                    return QVariant();
+            case ServerPtrRole:
+                if (column == 0)
+                    return QVariant::fromValue<void*>((void*)&m_servers[row]);
+                else
+                    return QVariant();
             default:
                 return QVariant();
         }
@@ -447,22 +448,22 @@ class ServersModel : public QAbstractListModel {
         }
 
         m_currentQueryTask = ConcurrentTask::Ptr(
-            new ConcurrentTask("Query servers status", APPLICATION->settings()->get("NumberOfConcurrentTasks").toInt())
-        );
+            new ConcurrentTask("Query servers status", APPLICATION->settings()->get("NumberOfConcurrentTasks").toInt()));
         int row = 0;
-        for (Server &server : m_servers) {
+        for (Server& server : m_servers) {
             // reset current players
             server.m_currentPlayers = {};
             emit dataChanged(index(row, 0), index(row, COLUMN_COUNT - 1));
 
             // Start task to query server status
             auto target = MinecraftTarget::parse(server.m_address, false);
-            auto *task = new ServerPingTask(target.address, target.port);
+            auto* task = new ServerPingTask(target.address, target.port);
             m_currentQueryTask->addTask(Task::Ptr(task));
 
             // Update the model when the task is done
             connect(task, &Task::finished, this, [this, task, row]() {
-                if (m_servers.size() < row) return;
+                if (m_servers.size() < row)
+                    return;
                 m_servers[row].m_currentPlayers = task->m_outputOnlinePlayers;
                 emit dataChanged(index(row, 0), index(row, COLUMN_COUNT - 1));
             });
@@ -717,7 +718,7 @@ void ServersPage::openedImpl()
 
     ui->toolBar->setVisibilityState(m_wide_bar_setting->get().toByteArray());
 
-    // ping servers 
+    // ping servers
     m_model->queryServersStatus();
 }
 
