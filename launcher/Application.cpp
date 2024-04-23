@@ -243,7 +243,9 @@ Application::Application(int& argc, char** argv) : QApplication(argc, argv)
           { { "w", "world" }, "Join the specified world on launch (only valid in combination with --launch)", "world" },
           { { "a", "profile" }, "Use the account specified by its profile name (only valid in combination with --launch)", "profile" },
           { { "o", "offline" }, "Launch offline (only valid in combination with --launch)", "offline" },
-          { { "n", "name" }, "When launching offline, use specified name (only makes sense in combination with --launch and --offline)", "name" },
+          { { "n", "name" },
+            "When launching offline, use specified name (only makes sense in combination with --launch and --offline)",
+            "name" },
           { "alive", "Write a small '" + liveCheckFile + "' file after the launcher starts" },
           { { "I", "import" }, "Import instance or resource from specified local path or URL", "url" },
           { "show", "Opens the window for the specified instance (by instance ID)", "show" } });
