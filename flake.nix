@@ -25,7 +25,7 @@
       flake = false;
     };
     libnbtplusplus = {
-      url = "github:PrismLauncher/libnbtplusplus";
+      url = "github:FreesmTeam/libnbtplusplus";
       flake = false;
     };
   };
