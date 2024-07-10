@@ -66,6 +66,8 @@ If you want to build Freesm Launcher yourself, check the [Build Instructions](ht
 - We **ARE** open to contributing our builds.
 
 
-## License [![https://github.com/PrismLauncher/PrismLauncher/blob/develop/LICENSE](https://img.shields.io/github/license/PrismLauncher/PrismLauncher?label=License&logo=gnu&color=C4282D)](LICENSE)
+## License
 
-All launcher code is available under the GPL-3.0-only license.
+All launcher code is available under the GPL-3.0-only license. 
+
+[![https://github.com/PrismLauncher/PrismLauncher/blob/develop/LICENSE](https://img.shields.io/github/license/PrismLauncher/PrismLauncher?label=License&logo=gnu&color=C4282D&style=for-the-badge)](LICENSE)
