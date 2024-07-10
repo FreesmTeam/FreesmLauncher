@@ -58,7 +58,7 @@ assert lib.assertMsg (
 ) "withWaylandGLFW is only available on Linux.";
 
 let
-  freesmlaucnher' = freesmlaucnher-unwrapped.override { inherit msaClientID gamemodeSupport; };
+  freesmlauncher' = freesmlauncher-unwrapped.override { inherit msaClientID gamemodeSupport; };
 in
 
 symlinkJoin {
