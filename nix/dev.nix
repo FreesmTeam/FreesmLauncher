@@ -27,7 +27,7 @@
         ${config.pre-commit.installationScript}
       '';
 
-      inputsFrom = [config.packages.prismlauncher-unwrapped];
+      inputsFrom = [config.packages.freesmlauncher-unwrapped];
       buildInputs = with pkgs; [ccache ninja];
     };
 
