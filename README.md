@@ -17,7 +17,7 @@
   
   <p>
     Freesm Launcher is a custom launcher for Minecraft that allows you to easily manage multiple installations of Minecraft at once and login with offline account without any restrictions.<br />
-    <br />This is a <b>fork</b> of the Prism Launcher Launcher and is <b>not</b> endorsed by it.
+    <br />This is a <b>fork</b> of the Prism Launcher Launcher and is <b>not</b> endorsed by it. <!-- isn't it good? :) -->
   </p>
 </div>
 
