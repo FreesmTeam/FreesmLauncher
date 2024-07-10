@@ -12,7 +12,7 @@
   </div>
 
   <p>
-    <strong>English</strong> | <a href="https://github.com/notwindstone/FreesmLauncher/blob/develop/README_russian.md">Русский</a><br />
+    <strong>English</strong> | <a href="https://github.com/FreesmTeam/FreesmLauncher/blob/develop/README_russian.md">Русский</a><br />
   </p>
   
   <p>
@@ -24,7 +24,7 @@
 ## Installation
 
 - All downloads and instructions for Freesm Launcher can be found on our [Website] (WIP). 
-- Release builds are located in [Github Releases](https://github.com/notwindstone/FreesmLauncher/releases) tab.
+- Release builds are located in [Github Releases](https://github.com/FreesmTeam/FreesmLauncher/releases) tab.
 - You can also install development builds.
 
 ### Development Builds
@@ -33,8 +33,8 @@ Please understand that these builds are not intended for most users. There may b
 
 There are development builds available through:
 
-- [GitHub Actions](https://github.com/notwindstone/FreesmLauncher/actions) (includes builds from pull requests opened by contribuitors)
-- [nightly.link](https://nightly.link/notwindstone/FreesmLauncher/workflows/trigger_builds/develop) (this will always point only to the latest version of develop)
+- [GitHub Actions](https://github.com/FreesmTeam/FreesmLauncher/actions) (includes builds from pull requests opened by contribuitors)
+- [nightly.link](https://nightly.link/FreesmTeam/FreesmLauncher/workflows/trigger_builds/develop) (this will always point only to the latest version of develop)
 
 These have debug information in the binaries, so their file sizes are relatively larger.
 
