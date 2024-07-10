@@ -13,10 +13,10 @@
     in {
       inherit
         (ourPackages)
-        prismlauncher-unwrapped
-        prismlauncher
+        freesmlauncher-unwrapped
+        freesmlauncher
         ;
-      default = ourPackages.prismlauncher;
+      default = ourPackages.freesmlauncher;
     };
   };
 
@@ -30,8 +30,8 @@
         inherit version;
       };
 
-      prismlauncher = prev.qt6Packages.callPackage ./pkg/wrapper.nix {
-        inherit (final) prismlauncher-unwrapped;
+      freesmlauncher = prev.qt6Packages.callPackage ./pkg/wrapper.nix {
+        inherit (final) freesmlauncher-unwrapped;
       };
     };
   };
