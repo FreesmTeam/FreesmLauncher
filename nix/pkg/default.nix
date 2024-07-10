@@ -34,7 +34,7 @@ assert lib.assertMsg (
 ) "gamemodeSupport is only available on Linux.";
 
 stdenv.mkDerivation (finalAttrs: {
-  pname = "freesmlaucnher-unwrapped";
+  pname = "freesmlaucncher-unwrapped";
   version = "8.4";
 
   src = fetchFromGitHub {
