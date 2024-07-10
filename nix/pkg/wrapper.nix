@@ -2,7 +2,7 @@
   lib,
   stdenv,
   symlinkJoin,
-  freesmlaucnher-unwrapped,
+  freesmlauncher-unwrapped,
   addOpenGLRunpath,
   flite,
   gamemode,
@@ -62,9 +62,9 @@ let
 in
 
 symlinkJoin {
-  name = "freesmlaucnher-${freesmlaucnher'.version}";
+  name = "freesmlauncher-${freesmlauncher'.version}";
 
-  paths = [ freesmlaucnher' ];
+  paths = [ freesmlauncher' ];
 
   nativeBuildInputs =
     [ kdePackages.wrapQtAppsHook ]
@@ -137,7 +137,7 @@ symlinkJoin {
     ];
 
   meta = {
-    inherit (freesmlaucnher'.meta)
+    inherit (freesmlauncher'.meta)
       description
       longDescription
       homepage
