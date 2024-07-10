@@ -26,8 +26,9 @@
     <img src="https://repology.org/badge/vertical-allrepos/prismlauncher.svg" alt="Packaging status" align="right">
 </a>
 
-- All downloads and instructions for Prism Launcher can be found on our [Website](https://prismlauncher.org/download).
-- Last build status can be found in the [GitHub Actions](https://github.com/PrismLauncher/PrismLauncher/actions) tab (this also includes the pull requests status).
+- All downloads and instructions for Freesm Launcher can be found on our [Website] (not yet).
+- Release builds are located in [Github Releases](https://github.com/notwindstone/FreesmLauncher/releases) tab.
+- You can also install development builds.
 
 ### Development Builds
 
@@ -35,34 +36,16 @@ Please understand that these builds are not intended for most users. There may b
 
 There are development builds available through:
 
-- [GitHub Actions](https://github.com/PrismLauncher/PrismLauncher/actions) (includes builds from pull requests opened by contribuitors)
-- [nightly.link](https://nightly.link/PrismLauncher/PrismLauncher/workflows/trigger_builds/develop) (this will always point only to the latest version of develop)
+- [GitHub Actions](https://github.com/notwindstone/FreesmLauncher/actions) (includes builds from pull requests opened by contribuitors)
+- [nightly.link](https://nightly.link/notwindstone/FreesmLauncher/workflows/trigger_builds/develop) (this will always point only to the latest version of develop)
 
 These have debug information in the binaries, so their file sizes are relatively larger.
 
 Prebuilt Development builds are provided for **Linux**, **Windows** and **macOS**.
 
-For **Arch**, **Debian**, **Fedora**, **OpenSUSE (Tumbleweed)** and **Gentoo**, respectively, you can use these packages for the latest development versions:
-
-[![prismlauncher-git](https://img.shields.io/badge/aur-prismlauncher--git-1793D1?label=AUR&logo=archlinux&logoColor=white)](https://aur.archlinux.org/packages/prismlauncher-git) [![prismlauncher-git](https://img.shields.io/badge/aur-prismlauncher--qt5--git-1793D1?label=AUR&logo=archlinux&logoColor=white)](https://aur.archlinux.org/packages/prismlauncher-qt5-git) [![prismlauncher-git](https://img.shields.io/badge/mpr-prismlauncher--git-A80030?label=MPR&logo=debian&logoColor=white)](https://mpr.makedeb.org/packages/prismlauncher-git)<br />[![prismlauncher-nightly](https://img.shields.io/badge/copr-prismlauncher--nightly-51A2DA?label=COPR&logo=fedora&logoColor=white)](https://copr.fedorainfracloud.org/coprs/g3tchoo/prismlauncher/) [![prismlauncher-nightly](https://img.shields.io/badge/OBS-prismlauncher--nightly-3AB6A9?logo=opensuse&logoColor=white)](https://build.opensuse.org/project/show/home:getchoo) [![prismlauncher-9999](https://img.shields.io/badge/gentoo-prismlauncher--9999-4D4270?label=Gentoo&logo=gentoo&logoColor=white)](https://packages.gentoo.org/packages/games-action/prismlauncher)
-
-These packages are also available to all the distributions based on the ones mentioned above.
-
 ## Community & Support
 
-Feel free to create a GitHub issue if you find a bug or want to suggest a new feature. We have multiple community spaces where other community members can help you:
-
-- **Our Discord server:**
-
-[![Prism Launcher Discord server](https://discordapp.com/api/guilds/1031648380885147709/widget.png?style=banner3)](https://prismlauncher.org/discord)
-
-- **Our Matrix space:**
-
-[![Prism Launcher Space](https://img.shields.io/matrix/prismlauncher:matrix.org?style=for-the-badge&label=Matrix%20Space&logo=matrix&color=purple)](https://prismlauncher.org/matrix)
-
-- **Our Subreddit:**
-
-[![r/PrismLauncher](https://img.shields.io/reddit/subreddit-subscribers/prismlauncher?style=for-the-badge&logo=reddit)](https://prismlauncher.org/reddit)
+Feel free to create a GitHub issue if you find a bug or want to suggest a new feature.
 
 ## Translations
 
@@ -70,25 +53,25 @@ The translation effort for Prism Launcher is hosted on [Weblate](https://hosted.
 
 ## Building
 
-If you want to build Prism Launcher yourself, check the [Build Instructions](https://prismlauncher.org/wiki/development/build-instructions/).
+If you want to build Freesm Launcher yourself, check the [Build Instructions](https://prismlauncher.org/wiki/development/build-instructions/).
 
 ## Sponsors & Partners
 
-We thank all the wonderful backers over at Open Collective! Support Prism Launcher by [becoming a backer](https://opencollective.com/prismlauncher).
+Support Prism Launcher by [becoming a backer](https://opencollective.com/prismlauncher).
 
 [![OpenCollective Backers](https://opencollective.com/prismlauncher/backers.svg?width=890&limit=1000)](https://opencollective.com/prismlauncher#backers)
 
-Thanks to JetBrains for providing us a few licenses for all their products, as part of their [Open Source program](https://www.jetbrains.com/opensource/).
+Thanks to JetBrains for providing Prism Launcher community a few licenses for all their products, as part of their [Open Source program](https://www.jetbrains.com/opensource/).
 
 [![JetBrains](https://resources.jetbrains.com/storage/products/company/brand/logos/jb_beam.svg)](https://www.jetbrains.com/opensource/)
 
-Thanks to Weblate for hosting our translation efforts.
+Thanks to Weblate for hosting Prism Launcher community translation efforts.
 
 <a href="https://hosted.weblate.org/engage/prismlauncher/">
 <img src="https://hosted.weblate.org/widgets/prismlauncher/-/open-graph.png" alt="Translation status" width="300" />
 </a>
 
-Thanks to Netlify for providing us their excellent web services, as part of their [Open Source program](https://www.netlify.com/open-source/).
+Thanks to Netlify for providing Prism Launcher community their excellent web services, as part of their [Open Source program](https://www.netlify.com/open-source/).
 
 <a href="https://www.netlify.com"> <img src="https://www.netlify.com/v3/img/components/netlify-color-accent.svg" alt="Deploys by Netlify" /> </a>
 
