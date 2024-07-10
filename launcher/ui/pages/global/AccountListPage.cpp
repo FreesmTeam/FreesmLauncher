@@ -175,6 +175,7 @@ void AccountListPage::on_actionAddMicrosoft_triggered()
 
 void AccountListPage::on_actionAddOffline_triggered()
 {
+    /*
     if (!m_accounts->anyAccountIsValid()) {
         QMessageBox::warning(
             this,
@@ -187,6 +188,7 @@ void AccountListPage::on_actionAddOffline_triggered()
         );
         return;
     }
+    */
 
     MinecraftAccountPtr account = OfflineLoginDialog::newAccount(
         this,
