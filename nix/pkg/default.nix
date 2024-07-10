@@ -103,8 +103,8 @@ stdenv.mkDerivation (finalAttrs: {
       their own mods, texture packs, saves, etc) and helps you manage them and
       their associated options with a simple interface.
     '';
-    homepage = "https://github.com/FreesmTeam/FreesmLauncher";
-    changelog = "https://github.com/FreesmTeam/FreesmLauncher/releases/tag/${finalAttrs.src.rev}";
+    homepage = "https://github.com/FreesmTeam/dFreesmLauncher";
+    changelog = "https://github.com/FreesmTeam/dFreesmLauncher/releases/tag/${finalAttrs.src.rev}";
     license = lib.licenses.gpl3Only;
     maintainers = with lib.maintainers; [ s0me1newithhand7s notwindstone ];
     mainProgram = "freesmlauncher";
