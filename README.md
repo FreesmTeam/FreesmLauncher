@@ -1,14 +1,23 @@
-<p align="center">
-<picture>
-  <source media="(prefers-color-scheme: dark)" srcset="/program_info/org.prismlauncher.PrismLauncher.logo-darkmode.svg">
-  <source media="(prefers-color-scheme: light)" srcset="/program_info/org.prismlauncher.PrismLauncher.logo.svg">
-  <img alt="Prism Launcher" src="/program_info/org.prismlauncher.PrismLauncher.logo.svg" width="40%">
-</picture>
-</p>
+<div align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="/program_info/org.prismlauncher.PrismLauncher.logo-darkmode.svg">
+    <source media="(prefers-color-scheme: light)" srcset="/program_info/org.prismlauncher.PrismLauncher.logo.svg">
+    <img align="center" alt="Prism Launcher" src="/program_info/org.prismlauncher.PrismLauncher.logo.svg" width="40%">
+  </picture>
+  <div>
+    <img height="8px">
+  </div>
+  <div>
+    <img align="center" alt="DRM Free" src="https://img.shields.io/badge/drm-free-d33?style=for-the-badge">
+  </div>
+  <div>
+    <img height="16px">
+  </div>
+</div>
 
 <p align="center">
-  Prism Launcher is a custom launcher for Minecraft that allows you to easily manage multiple installations of Minecraft at once.<br />
-  <br />This is a <b>fork</b> of the MultiMC Launcher and is <b>not</b> endorsed by it.
+  Freesm Launcher is a custom launcher for Minecraft that allows you to easily manage multiple installations of Minecraft at once and login with offline account without any restrictions.<br />
+  <br />This is a <b>fork</b> of the Prism Launcher Launcher and is <b>not</b> endorsed by it.
 </p>
 
 ## Installation
