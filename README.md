@@ -21,11 +21,22 @@
   </p>
 </div>
 
+## Screenshots
+
+<div align="center">
+  <img src="docs/freesmlauncher_home_screenshot.png" width="49%">
+  <img src="docs/freesmlauncher_instance_add_screenshot" width="49%">
+  <img src="docs/freesmlauncher_instance_settings_screenshot" width="49%">
+  <img src="docs/freesmlauncher_settings_theme_screenshot" width="49%">
+</div>
+
 ## Differences between Prism Launcher and Freesm Launcher
 
 - Offline mode doesn't require an account.
 
 - Custom theme with edited layout.
+
+- No welcome message on the home screen.
 
 - More cat packs.
 
