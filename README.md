@@ -23,12 +23,16 @@
 
 ## Screenshots
 
-<div align="center">
-  <img src="docs/freesmlauncher_home_screenshot.png" width="49%">
-  <img src="docs/freesmlauncher_instance_add_screenshot" width="49%">
-  <img src="docs/freesmlauncher_instance_settings_screenshot" width="49%">
-  <img src="docs/freesmlauncher_settings_theme_screenshot" width="49%">
-</div>
+<img src="docs/screenshots/freesmlauncher_home_screenshot.png">
+
+<details>
+<summary>Expand more</summary>
+
+<img src="docs/screenshots/freesmlauncher_instance_add_screenshot.png">
+<img src="docs/screenshots/freesmlauncher_instance_settings_screenshot.png">
+<img src="docs/screenshots/freesmlauncher_settings_theme_screenshot.png"">
+
+</details>
 
 ## Differences between Prism Launcher and Freesm Launcher
 
