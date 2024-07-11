@@ -108,7 +108,7 @@ QMenuBar::item:pressed {
 }
 
 QMenu {
-    background-color: #202020;
+    background-color: #11111b;
     padding-left: 1px;
     padding-top: 1px;
     border: 1px solid rgba(255, 255, 255, 8);
@@ -126,14 +126,16 @@ QMenu::item {
     border-radius: 5px;
     min-width: 60px;
     margin: 3px;
+    border: 1px solid transparent;
 }
 
 QMenu::item:selected {
-    background-color: rgba(255, 255, 255, 16);
+    background-color: rgba(203, 166, 247, 16);
 }
 
 QMenu::item:pressed {
-    background-color: rgba(255, 255, 255, 10);
+    background-color: rgba(203, 166, 247, 8);
+    border: 1px solid rgba(205, 214, 244, 8);
 }
 
 QMenu::right-arrow {
