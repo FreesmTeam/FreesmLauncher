@@ -36,8 +36,8 @@ set(Launcher_Branding_LogoQRC "program_info/freesmlauncher.qrc" PARENT_SCOPE)
 
 set(Launcher_Portable_File "program_info/portable.txt" PARENT_SCOPE)
 
-configure_file(org.freesmlauncher.FreesmLauncher.desktop.in org.freesmlauncher.FreesmLauncher.desktop)
-configure_file(org.freesmlauncher.FreesmLauncher.metainfo.xml.in org.freesmlauncher.FreesmLauncher.metainfo.xml)
+configure_file(org.freesmTeam.FreesmLauncher.desktop.in org.freesmTeam.FreesmLauncher.desktop)
+configure_file(org.freesmTeam.FreesmLauncher.metainfo.xml.in org.freesmTeam.FreesmLauncher.metainfo.xml)
 configure_file(freesmlauncher.rc.in freesmlauncher.rc @ONLY)
 configure_file(freesmlauncher.manifest.in freesmlauncher.manifest @ONLY)
 configure_file(freesmlauncher.ico freesmlauncher.ico COPYONLY)
