@@ -903,7 +903,7 @@ QSlider::groove:vertical {
 }
 
 QSlider::handle:vertical {
-    background-color: #60cdff;
+    background-color: #cba6f7;
     border: 4px solid #454545;
     height: 9px;
     min-width: 13px;
@@ -912,7 +912,7 @@ QSlider::handle:vertical {
 }
 
 QSlider::handle:vertical:hover {
-    background-color: #60cdff;
+    background-color: #cba6f7;
     border: 3px solid #454545;
     height: 11px;
     min-width: 13px;
@@ -921,7 +921,7 @@ QSlider::handle:vertical:hover {
 }
 
 QSlider::handle:vertical:pressed {
-    background-color: #60cdff;
+    background-color: #cba6f7;
     border: 5px solid #454545;
     height: 7px;
     min-width: 13px;
@@ -952,7 +952,7 @@ QSlider::groove:horizontal {
 }
 
 QSlider::handle:horizontal {
-    background-color: #60cdff;
+    background-color: #cba6f7;
     border: 4px solid #454545;
     width: 9px;
     min-height: 13px;
@@ -961,7 +961,7 @@ QSlider::handle:horizontal {
 }
 
 QSlider::handle:horizontal:hover {
-    background-color: #60cdff;
+    background-color: #cba6f7;
     border: 3px solid #454545;
     width: 11px;
     min-height: 13px;
@@ -970,7 +970,7 @@ QSlider::handle:horizontal:hover {
 }
 
 QSlider::handle:horizontal:pressed {
-    background-color: #60cdff;
+    background-color: #cba6f7;
     border: 5px solid #454545;
     width: 7px;
     min-height: 13px;
@@ -1028,8 +1028,8 @@ QGroupBox::indicator:checked,
 QMenu::indicator:checked,
 QCheckBox::indicator:checked,
 QTreeView::indicator:checked {
-    background-color: #60cdff;
-    border: 1px solid #60cdff;
+    background-color: #cba6f7;
+    border: 1px solid #cba6f7;
     image: url(theme:CheckBox.png);
 }
 
@@ -1037,16 +1037,16 @@ QGroupBox::indicator:checked:hover,
 QMenu::indicator:checked:hover,
 QCheckBox::indicator:checked:hover,
 QTreeView::indicator:checked:hover {
-    background-color: #5abce8;
-    border: 1px solid #5abce8;
+    background-color: #cba6f7;
+    border: 1px solid #cba6f7;
 }
 
 QGroupBox::indicator:checked:pressed,
 QMenu::indicator:checked:pressed,
 QCheckBox::indicator:checked:pressed,
 QTreeView::indicator:checked:pressed {
-    background-color: #53aad2;
-    border: 1px solid #53aad2;
+    background-color: #cba6f7;
+    border: 1px solid #cba6f7;
     image: url(theme:CheckBoxPressed.png);
 }
 
@@ -1054,8 +1054,8 @@ QCheckBox::indicator:indeterminate,
 QGroupBox::indicator:indeterminate,
 QTreeView::indicator:indeterminate,
 QTableView::indicator:indeterminate {
-    background-color: #60cdff;
-    border: 1px solid #60cdff;
+    background-color: #cba6f7;
+    border: 1px solid #cba6f7;
     image: url(theme:CheckBoxInterminate.png);
 }
 
@@ -1063,16 +1063,16 @@ QCheckBox::indicator:indeterminate:hover,
 QGroupBox::indicator:indeterminate:hover,
 QTreeView::indicator:indeterminate:hover,
 QTableView::indicator:indeterminate:hover {
-    background-color: #5abce8;
-    border: 1px solid #5abce8;
+    background-color: #cba6f7;
+    border: 1px solid #cba6f7;
 }
 
 QCheckBox::indicator:indeterminate:pressed,
 QGroupBox::indicator:indeterminate:pressed,
 QTreeView::indicator:indeterminate:pressed,
 QTableView::indicator:indeterminate:pressed {
-    background-color: #53aad2;
-    border: 1px solid #53aad2;
+    background-color: #cba6f7;
+    border: 1px solid #cba6f7;
     image: url(theme:CheckBoxInterminatePressed.png);
 }
 
