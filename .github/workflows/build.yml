@@ -623,5 +623,5 @@ jobs:
         if: inputs.build_type == 'Debug'
         uses: flatpak/flatpak-github-actions/flatpak-builder@v6
         with:
-          bundle: "Prism Launcher.flatpak"
-          manifest-path: flatpak/org.prismlauncher.PrismLauncher.yml
+          bundle: "Freesm Launcher.flatpak"
+          manifest-path: flatpak/org.freesmTeam.freesmlauncher.yml
