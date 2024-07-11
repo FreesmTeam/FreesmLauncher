@@ -21,6 +21,16 @@
   </p>
 </div>
 
+## Differences between Prism Launcher and Freesm Launcher
+
+- Offline mode doesn't require an account.
+
+- Custom theme with edited layout.
+
+- More cat packs.
+
+- Disabled Java compatibility checks by default.
+
 ## Installation
 
 - All downloads and instructions for Freesm Launcher can be found on our [Website] (WIP). 
