@@ -1,4 +1,4 @@
-id: org.prismlauncher.PrismLauncher
+id: org.freesmTeam.freesmlauncher
 runtime: org.kde.Platform
 runtime-version: 6.7
 sdk: org.kde.Sdk
@@ -7,7 +7,7 @@ sdk-extensions:
   - org.freedesktop.Sdk.Extension.openjdk17
   - org.freedesktop.Sdk.Extension.openjdk8
 
-command: prismlauncher
+command: freesmlauncher
 finish-args:
   - --share=ipc
   - --socket=x11
@@ -32,7 +32,7 @@ modules:
   # Needed for proper Wayland support
   - libdecor.json
 
-  - name: prismlauncher
+  - name: freesmlauncher
     buildsystem: cmake-ninja
     builddir: true
     config-opts:
