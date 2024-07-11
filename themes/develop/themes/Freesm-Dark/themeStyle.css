@@ -28,7 +28,7 @@ QObject::handle {
     background: rgb(220, 203, 255);
 }
 
-/* Styles and overrides all states except drag */
+/* Styles and overrides all states except drag, пиздец */
 QObject::handle:active {
     margin: 2px;
     background: rgba(203, 166, 247, 200);
