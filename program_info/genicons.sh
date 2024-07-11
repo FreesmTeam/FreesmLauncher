@@ -22,22 +22,22 @@ if command -v "inkscape" && command -v "icotool"; then
     # Windows ICO
     d=$(mktemp -d)
 
-    svg2png org.prismlauncher.PrismLauncher.svg "$d/prismlauncher_16.png" 16 16
-    svg2png org.prismlauncher.PrismLauncher.svg "$d/prismlauncher_24.png" 24 24
-    svg2png org.prismlauncher.PrismLauncher.svg "$d/prismlauncher_32.png" 32 32
-    svg2png org.prismlauncher.PrismLauncher.svg "$d/prismlauncher_48.png" 48 48
-    svg2png org.prismlauncher.PrismLauncher.svg "$d/prismlauncher_64.png" 64 64
-    svg2png org.prismlauncher.PrismLauncher.svg "$d/prismlauncher_128.png" 128 128
-    svg2png org.prismlauncher.PrismLauncher.svg "$d/prismlauncher_256.png" 256 256
+    svg2png org.freesmLauncher.FreesmLauncher.svg "$d/freesmlauncher_16.png" 16 16
+    svg2png org.freesmLauncher.FreesmLauncher.svg "$d/freesmlauncher_24.png" 24 24
+    svg2png org.freesmLauncher.FreesmLauncher.svg "$d/freesmlauncher_32.png" 32 32
+    svg2png org.freesmLauncher.FreesmLauncher.svg "$d/freesmlauncher_48.png" 48 48
+    svg2png org.freesmLauncher.FreesmLauncher.svg "$d/freesmlauncher_64.png" 64 64
+    svg2png org.freesmLauncher.FreesmLauncher.svg "$d/freesmlauncher_128.png" 128 128
+    svg2png org.freesmLauncher.FreesmLauncher.svg "$d/freesmlauncher_256.png" 256 256
 
-    rm prismlauncher.ico && icotool -o prismlauncher.ico -c \
-        "$d/prismlauncher_256.png"  \
-        "$d/prismlauncher_128.png"  \
-        "$d/prismlauncher_64.png"   \
-        "$d/prismlauncher_48.png"   \
-        "$d/prismlauncher_32.png"   \
-        "$d/prismlauncher_24.png"   \
-        "$d/prismlauncher_16.png"
+    rm freesmLauncher.ico && icotool -o freesmLauncher.ico -c \
+        "$d/freesmlauncher_256.png"  \
+        "$d/freesmlauncher_128.png"  \
+        "$d/freesmlauncher_64.png"   \
+        "$d/freesmlauncher_48.png"   \
+        "$d/freesmlauncher_32.png"   \
+        "$d/freesmlauncher_24.png"   \
+        "$d/freesmlauncher_16.png"
 else
     echo "ERROR: Windows icons were NOT generated!" >&2
     echo "ERROR: requires inkscape and icotool in PATH"
@@ -47,11 +47,11 @@ if command -v "inkscape" && command -v "sips" && command -v "iconutil"; then
     # macOS ICNS
     d=$(mktemp -d)
 
-    d="$d/prismlauncher.iconset"
+    d="$d/freesmlauncher.iconset"
 
     mkdir -p "$d"
 
-    svg2png org.prismlauncher.PrismLauncher.bigsur.svg "$d/icon_512x512@2x.png" 1024 1024
+    svg2png org.freesmLauncher.FreesmLauncher.bigsur.svg "$d/icon_512x512@2x.png" 1024 1024
     sipsresize "$d/icon_512x512@2.png" "$d/icon_16x16.png" 16 16
     sipsresize "$d/icon_512x512@2.png" "$d/icon_16x16@2.png" 32 32
     sipsresize "$d/icon_512x512@2.png" "$d/icon_32x32.png" 32 32
@@ -67,4 +67,4 @@ else
 fi
 
 # replace icon in themes
-cp -v org.prismlauncher.PrismLauncher.svg "../launcher/resources/multimc/scalable/launcher.svg"
+cp -v org.freesmLauncher.FreesmLauncher.svg "../launcher/resources/multimc/scalable/launcher.svg"

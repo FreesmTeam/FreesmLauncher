@@ -1,6 +1,6 @@
-# Prism Launcher Program Info
+# Freesm Launcher Program Info
 
-This is Prism Launcher's program info which contains information about:
+This is Freesm Launcher's program info which contains information about:
 
 - Application name and logo (and branding in general)
 - Various URLs and API endpoints
