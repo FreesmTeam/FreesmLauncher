@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Created with Inkscape (http://www.inkscape.org/) -->
 <svg width="48" height="48" version="1.1" viewBox="0 0 12.7 12.7" xmlns="http://www.w3.org/2000/svg" xmlns:cc="http://creativecommons.org/ns#" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
- <title>Prism Launcher Logo</title>
+ <title>Freesm Launcher Logo</title>
  <rect x="9.5367e-8" y="9.5367e-8" width="12.7" height="12.7" fill="#14191e" stroke-width=".26458"/>
  <g transform="matrix(.90909 0 0 .90909 .57737 .57727)">
   <g stroke-width=".26458">
@@ -24,37 +24,47 @@
   </g>
   <path d="m3.8299 4.8948c-0.14551 0.25205-0.14553 2.6584 0 2.9104 0.14553 0.25204 2.2292 1.4552 2.5203 1.4552v-2.9104z" fill="#d6d2d2" stroke-width=".26458"/>
  </g>
- <metadata>
-  <rdf:RDF>
-   <cc:Work rdf:about="">
-    <dc:title>Prism Launcher Logo</dc:title>
-    <dc:date>19/10/2022</dc:date>
-    <dc:creator>
-     <cc:Agent>
-      <dc:title>Prism Launcher</dc:title>
-     </cc:Agent>
-    </dc:creator>
-    <dc:contributor>
-     <cc:Agent>
-      <dc:title>AutiOne, Boba, ely, Fulmine, gon sawa, Pankakes, tobimori, Zeke</dc:title>
-     </cc:Agent>
-    </dc:contributor>
-    <dc:source>https://github.com/PrismLauncher/PrismLauncher</dc:source>
-    <dc:publisher>
-     <cc:Agent>
-      <dc:title>Prism Launcher</dc:title>
-     </cc:Agent>
-    </dc:publisher>
-    <cc:license rdf:resource="http://creativecommons.org/licenses/by-sa/4.0/"/>
-   </cc:Work>
-   <cc:License rdf:about="http://creativecommons.org/licenses/by-sa/4.0/">
-    <cc:permits rdf:resource="http://creativecommons.org/ns#Reproduction"/>
-    <cc:permits rdf:resource="http://creativecommons.org/ns#Distribution"/>
-    <cc:requires rdf:resource="http://creativecommons.org/ns#Notice"/>
-    <cc:requires rdf:resource="http://creativecommons.org/ns#Attribution"/>
-    <cc:permits rdf:resource="http://creativecommons.org/ns#DerivativeWorks"/>
-    <cc:requires rdf:resource="http://creativecommons.org/ns#ShareAlike"/>
-   </cc:License>
-  </rdf:RDF>
- </metadata>
+  <metadata
+     id="metadata259">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:title>Freesm Launcher Logo</dc:title>
+        <dc:date>19/10/2022</dc:date>
+        <dc:creator>
+          <cc:Agent>
+            <dc:title>Freesm Launcher</dc:title>
+          </cc:Agent>
+        </dc:creator>
+        <dc:contributor>
+          <cc:Agent>
+            <dc:title>NotWindstone, s0me1newithhand7s</dc:title>
+          </cc:Agent>
+        </dc:contributor>
+        <dc:source>https://github.com/FreesmTeam/FreesmLauncher</dc:source>
+        <dc:publisher>
+          <cc:Agent>
+            <dc:title>Freesm Launcher</dc:title>
+          </cc:Agent>
+        </dc:publisher>
+        <cc:license
+           rdf:resource="http://creativecommons.org/licenses/by-sa/4.0/" />
+      </cc:Work>
+      <cc:License
+         rdf:about="http://creativecommons.org/licenses/by-sa/4.0/">
+        <cc:permits
+           rdf:resource="http://creativecommons.org/ns#Reproduction" />
+        <cc:permits
+           rdf:resource="http://creativecommons.org/ns#Distribution" />
+        <cc:requires
+           rdf:resource="http://creativecommons.org/ns#Notice" />
+        <cc:requires
+           rdf:resource="http://creativecommons.org/ns#Attribution" />
+        <cc:permits
+           rdf:resource="http://creativecommons.org/ns#DerivativeWorks" />
+        <cc:requires
+           rdf:resource="http://creativecommons.org/ns#ShareAlike" />
+      </cc:License>
+    </rdf:RDF>
+  </metadata>
 </svg>

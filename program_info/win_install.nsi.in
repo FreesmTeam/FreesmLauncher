@@ -368,9 +368,9 @@ Section "@Launcher_DisplayName@"
   WriteRegStr HKCU Software\Classes\curseforge "URL Protocol" ""
   WriteRegStr HKCU Software\Classes\curseforge\shell\open\command "" '"$INSTDIR\@Launcher_APP_BINARY_NAME@.exe" "%1"'
 
-; Write the URL Handler into registry for prismlauncher
-  WriteRegStr HKCU Software\Classes\prismlauncher "URL Protocol" ""
-  WriteRegStr HKCU Software\Classes\prismlauncher\shell\open\command "" '"$INSTDIR\@Launcher_APP_BINARY_NAME@.exe" "%1"'
+; Write the URL Handler into registry for freesmlauncher
+  WriteRegStr HKCU Software\Classes\freesmlauncher "URL Protocol" ""
+  WriteRegStr HKCU Software\Classes\freesmlauncher\shell\open\command "" '"$INSTDIR\@Launcher_APP_BINARY_NAME@.exe" "%1"'
 
   ; Write the uninstall keys for Windows
   ${GetParameters} $R0

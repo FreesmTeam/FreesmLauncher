@@ -7,7 +7,7 @@
    viewBox="0 0 12.7 12.7"
    version="1.1"
    id="svg3606"
-   sodipodi:docname="org.prismlauncher.PrismLauncher.Source.svg"
+   sodipodi:docname="org.freesmlauncher.FreesmLauncher.Source.svg"
    inkscape:version="1.2.1 (9c6d41e410, 2022-07-14)"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
@@ -17,7 +17,7 @@
    xmlns:cc="http://creativecommons.org/ns#"
    xmlns:dc="http://purl.org/dc/elements/1.1/">
   <title
-     id="title261">Prism Launcher Logo</title>
+     id="title261">Freesm Launcher Logo</title>
   <sodipodi:namedview
      id="namedview3608"
      pagecolor="#ffffff"
@@ -162,22 +162,22 @@
     <rdf:RDF>
       <cc:Work
          rdf:about="">
-        <dc:title>Prism Launcher Logo</dc:title>
+        <dc:title>Freesm Launcher Logo</dc:title>
         <dc:date>19/10/2022</dc:date>
         <dc:creator>
           <cc:Agent>
-            <dc:title>Prism Launcher</dc:title>
+            <dc:title>Freesm Launcher</dc:title>
           </cc:Agent>
         </dc:creator>
         <dc:contributor>
           <cc:Agent>
-            <dc:title>AutiOne, Boba, ely, Fulmine, gon sawa, Pankakes, tobimori, Zeke</dc:title>
+            <dc:title>NotWindstone, s0me1newithhand7s</dc:title>
           </cc:Agent>
         </dc:contributor>
-        <dc:source>https://github.com/PrismLauncher/PrismLauncher</dc:source>
+        <dc:source>https://github.com/FreesmTeam/FreesmLauncher</dc:source>
         <dc:publisher>
           <cc:Agent>
-            <dc:title>Prism Launcher</dc:title>
+            <dc:title>Freesm Launcher</dc:title>
           </cc:Agent>
         </dc:publisher>
         <cc:license
