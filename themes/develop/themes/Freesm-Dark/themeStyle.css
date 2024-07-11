@@ -1,27 +1,6 @@
 QMainWindow,
 QDockWidget {
-    background-color: #11111b;
-}
-
-QToolBar {
-    background-color: transparent;
-    spacing: 0;
-    padding: 8px;
-}
-
-QToolButton {
-    padding: 4px;
-    border-radius: 4px;
-}
-
-QToolButton:hover {
-    background-color: rgba(203, 166, 247, 23);
-}
-
-/*
-QMainWindow,
-QDockWidget {
-    background-color: #11111b;
+    background-color: #202020;
 }
 
 QWidget {
@@ -47,14 +26,14 @@ QDialog,
 QWizard *,
 QCalendarWidget *,
 #qswPages > QObject {
-    background-color: #11111b;
+    background-color: #202020;
     color: #ffffff;
 }
 
 QToolBar {
     background-color: transparent;
     spacing: 0;
-    padding: 8px;
+    padding: 7px;
 }
 
 QToolBar::separator {
@@ -82,7 +61,7 @@ QToolButton:on {
 }
 
 QToolButton:hover {
-    background-color: rgba(203, 166, 247, 23);
+    background-color: rgba(255, 255, 255, 23);
 }
 
 QToolButton:pressed {
@@ -482,20 +461,6 @@ QProgressBar {
 QProgressBar::chunk {
     background-color: qlineargradient(spread:reflect, x1:0.5, y1:0.5, x2:0.5, y2:1, stop:0.119403 rgba(255, 255, 255, 250), stop:0.273632 rgba(0, 0, 0, 0));
     border-radius: 2px;
-}
-
-QProgressBar {
-    text-align: right;
-    background-color: rgba(255, 255, 255, 25);
-    border-radius: 3px;
-    margin-right: 40px;
-    margin-top: 9px;
-    margin-bottom: 9px;
-}
-
-QProgressBar::chunk {
-    background-color: #4cac77;
-    border-radius: 3px;
 }
 
 QSpinBox {
@@ -1208,4 +1173,3 @@ QToolTip {
 QListView {
     padding: 5px;
 }
-*/
