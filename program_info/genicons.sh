@@ -22,15 +22,15 @@ if command -v "inkscape" && command -v "icotool"; then
     # Windows ICO
     d=$(mktemp -d)
 
-    svg2png org.freesmLauncher.FreesmLauncher.svg "$d/freesmlauncher_16.png" 16 16
-    svg2png org.freesmLauncher.FreesmLauncher.svg "$d/freesmlauncher_24.png" 24 24
-    svg2png org.freesmLauncher.FreesmLauncher.svg "$d/freesmlauncher_32.png" 32 32
-    svg2png org.freesmLauncher.FreesmLauncher.svg "$d/freesmlauncher_48.png" 48 48
-    svg2png org.freesmLauncher.FreesmLauncher.svg "$d/freesmlauncher_64.png" 64 64
-    svg2png org.freesmLauncher.FreesmLauncher.svg "$d/freesmlauncher_128.png" 128 128
-    svg2png org.freesmLauncher.FreesmLauncher.svg "$d/freesmlauncher_256.png" 256 256
+    svg2png org.freesmTeam.freesmlauncher.svg "$d/freesmlauncher_16.png" 16 16
+    svg2png org.freesmTeam.freesmlauncher.svg "$d/freesmlauncher_24.png" 24 24
+    svg2png org.freesmTeam.freesmlauncher.svg "$d/freesmlauncher_32.png" 32 32
+    svg2png org.freesmTeam.freesmlauncher.svg "$d/freesmlauncher_48.png" 48 48
+    svg2png org.freesmTeam.freesmlauncher.svg "$d/freesmlauncher_64.png" 64 64
+    svg2png org.freesmTeam.freesmlauncher.svg "$d/freesmlauncher_128.png" 128 128
+    svg2png org.freesmTeam.freesmlauncher.svg "$d/freesmlauncher_256.png" 256 256
 
-    rm freesmLauncher.ico && icotool -o freesmLauncher.ico -c \
+    rm freesmlauncher.ico && icotool -o freesmlauncher.ico -c \
         "$d/freesmlauncher_256.png"  \
         "$d/freesmlauncher_128.png"  \
         "$d/freesmlauncher_64.png"   \
@@ -51,7 +51,7 @@ if command -v "inkscape" && command -v "sips" && command -v "iconutil"; then
 
     mkdir -p "$d"
 
-    svg2png org.freesmLauncher.FreesmLauncher.bigsur.svg "$d/icon_512x512@2x.png" 1024 1024
+    svg2png org.freesmTeam.freesmlauncher.bigsur.svg "$d/icon_512x512@2x.png" 1024 1024
     sipsresize "$d/icon_512x512@2.png" "$d/icon_16x16.png" 16 16
     sipsresize "$d/icon_512x512@2.png" "$d/icon_16x16@2.png" 32 32
     sipsresize "$d/icon_512x512@2.png" "$d/icon_32x32.png" 32 32
@@ -67,4 +67,4 @@ else
 fi
 
 # replace icon in themes
-cp -v org.freesmLauncher.FreesmLauncher.svg "../launcher/resources/multimc/scalable/launcher.svg"
+cp -v org.freesmTeam.freesmlauncher.svg "../launcher/resources/multimc/scalable/launcher.svg"
