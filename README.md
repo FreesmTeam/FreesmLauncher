@@ -23,14 +23,18 @@
 
 ## Screenshots
 
-<img src="docs/screenshots/freesmlauncher_home_screenshot.png">
+<div align="center">
+  <img src="docs/screenshots/freesmlauncher_home_screenshot.png">
+</div>
 
 <details>
 <summary>Expand more</summary>
 
-<img src="docs/screenshots/freesmlauncher_instance_add_screenshot.png">
-<img src="docs/screenshots/freesmlauncher_instance_settings_screenshot.png">
-<img src="docs/screenshots/freesmlauncher_settings_theme_screenshot.png"">
+<div align="center">
+  <img src="docs/screenshots/freesmlauncher_instance_add_screenshot.png">
+  <img src="docs/screenshots/freesmlauncher_instance_settings_screenshot.png">
+  <img src="docs/screenshots/freesmlauncher_settings_theme_screenshot.png"">
+</div>
 
 </details>
 
