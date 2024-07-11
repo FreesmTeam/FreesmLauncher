@@ -1,12 +1,12 @@
 QMainWindow,
 QDockWidget {
-    background-color: #202020;
+    background-color: #11111b;
 }
 
 QWidget {
     border-color: rgba(255, 255, 255, 8);
     font-family: "Segoe UI Variable Text Semibold", serif;
-    border-radius: 5px;
+    border-radius: 4px;
 }
 
 QObject,
@@ -26,14 +26,14 @@ QDialog,
 QWizard *,
 QCalendarWidget *,
 #qswPages > QObject {
-    background-color: #202020;
+    background-color: #11111b;
     color: #ffffff;
 }
 
 QToolBar {
     background-color: transparent;
     spacing: 0;
-    padding: 7px;
+    padding: 8px;
 }
 
 QToolBar::separator {
@@ -45,11 +45,8 @@ QToolBar::separator {
 QToolButton {
     background-color: rgba(255, 255, 255, 0);
     border: 1px solid transparent;
-    border-radius: 5px;
+    border-radius: 6px;
     padding: 2px;
-    margin: 1px;
-    margin-left: 5px;
-    margin-right: 5px;
 }
 
 QToolButton[popupMode="2"] {
@@ -57,17 +54,17 @@ QToolButton[popupMode="2"] {
 }
 
 QToolButton:on {
-    background-color: rgba(255, 255, 255, 18);
+    background-color: rgba(205, 214, 244, 18);
 }
 
 QToolButton:hover {
-    background-color: rgba(255, 255, 255, 23);
+    background-color: rgba(203, 166, 247, 23);
 }
 
 QToolButton:pressed {
-    background-color: rgba(255, 255, 255, 7);
-    border: 1px solid rgba(255, 255, 255, 8);
-    color: #c8c8c8;
+    background-color: rgba(205, 214, 244, 7);
+    border: 1px solid rgba(205, 214, 244, 8);
+    color: #cdd6f4;
 }
 
 QToolButton::menu-indicator {
