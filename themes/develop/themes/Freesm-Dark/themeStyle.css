@@ -38,8 +38,8 @@ QToolBar {
 
 QToolBar::separator {
     background: rgba(255, 255, 255, 20);
-    height: 1px;
-    margin: 3px;
+    height: 0;
+    margin: 0;
 }
 
 QToolButton {
@@ -94,7 +94,6 @@ QMenuBar {
 QMenuBar::item {
     background-color: transparent;
     padding: 6px 10px;
-    margin-left: 4px;
     border-radius: 4px;
 }
 
@@ -182,18 +181,18 @@ QPushButton:disabled {
 QGroupBox {
     border-radius: 5px;
     border: 1px solid rgba(255, 255, 255, 3);
-    margin-top: 23px;
+    margin-top: 24px;
+    margin-bottom: 4px;
     background-color: rgba(255, 255, 255, 5);
 }
 
 QGroupBox::title {
     subcontrol-origin: margin;
     subcontrol-position: top left;
-    background-color: rgba(255, 255, 255, 16);
-    padding: 3px 15px;
-    margin-left: 5px;
-    border-top-left-radius: 5px;
-    border-top-right-radius: 5px;
+    padding-bottom: 4px;
+    padding-left: 4px;
+    padding-right: 4px;
+    border-bottom: 1px solid #cba6f7;
 }
 
 QGroupBox::title::disabled {
@@ -326,13 +325,13 @@ QTabWidget::pane {
 }
 
 QTabWidget::tab-bar {
-    left: 15px;
+    left: 8px;
 }
 
 QTabBar::tab {
     background-color: rgba(255, 255, 255, 0);
     padding: 8px 15px;
-    margin-right: 2px;
+    margin-right: 8px;
     margin-bottom: 2px;
     border-radius: 5px;
 }
@@ -870,8 +869,8 @@ QRadioButton::indicator:pressed {
 }
 
 QRadioButton::indicator:checked {
-    background-color: #60cdff;
-    border: 1px solid #60cdff;
+    background-color: #cba6f7;
+    border: 1px solid #cba6f7;
     image: url(theme:RadioButton.png);
 }
 
