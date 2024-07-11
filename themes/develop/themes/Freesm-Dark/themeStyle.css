@@ -790,7 +790,7 @@ QPlainTextEdit:hover {
 
 QTextEdit:focus,
 QPlainTextEdit:focus {
-    border-bottom: 2px solid #60cdff;
+    border-bottom: 2px solid #cba6f7;
     background-color: rgba(255, 255, 255, 5);
     border-top: 1px solid rgba(255, 255, 255, 7);
     border-left: 1px solid rgba(255, 255, 255, 7);
@@ -822,7 +822,7 @@ QLineEdit:hover {
 }
 
 QLineEdit:focus {
-    border-bottom: 2px solid #60cdff;
+    border-bottom: 2px solid #cba6f7;
     background-color: rgba(255, 255, 255, 5);
     border-top: 1px solid rgba(255, 255, 255, 7);
     border-left: 1px solid rgba(255, 255, 255, 7);
