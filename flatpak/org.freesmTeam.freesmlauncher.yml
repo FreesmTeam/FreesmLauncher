@@ -158,4 +158,4 @@ modules:
       - type: file
         path: prime-run
       - type: file
-        path: prismlauncher
+        path: freesmlauncher
