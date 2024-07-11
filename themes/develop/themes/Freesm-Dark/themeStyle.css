@@ -22,6 +22,18 @@ QObject::section {
     alternate-background-color: transparent;
 }
 
+/* Styles all states */
+QObject::handle {
+    margin: 2px;
+    background: rgb(220, 203, 255);
+}
+
+/* Styles and overrides all states except drag */
+QObject::handle:active {
+    margin: 2px;
+    background: rgba(203, 166, 247, 200);
+}
+
 QDialog,
 QWizard *,
 QCalendarWidget *,
