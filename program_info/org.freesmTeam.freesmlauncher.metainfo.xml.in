@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <component type="desktop">
-  <id>org.freesmlaucnher.FreesmLauncher</id>
-  <launchable type="desktop-id">org.freesmlauncher.FreesmLauncher.desktop</launchable>
+  <id>org.freesmTeam.freesmlauncher</id>
+  <launchable type="desktop-id">org.freesmTeam.freesmlauncher.desktop</launchable>
   <name>Freesm Launcher</name>
   <developer_name>Freesm Launcher Contributors</developer_name>
   <summary>A custom launcher for Minecraft that allows you to easily manage multiple installations of Minecraft at once</summary>

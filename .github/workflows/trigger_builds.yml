@@ -5,6 +5,7 @@ on:
     branches-ignore:
       - "renovate/**"
     paths-ignore:
+      - "docs/**"
       - "**.md"
       - "**/LICENSE"
       - "flake.lock"
@@ -13,6 +14,7 @@ on:
       - ".markdownlint**"
   pull_request:
     paths-ignore:
+      - "docs/**"
       - "**.md"
       - "**/LICENSE"
       - "flake.lock"
