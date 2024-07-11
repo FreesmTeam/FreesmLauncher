@@ -764,7 +764,7 @@ QComboBox::down-arrow:disabled {
 }
 
 QComboBox QAbstractItemView {
-    background-color: #202020;
+    background-color: #181825;
     border-radius: 0px;
     border: 1px solid rgba(255, 255, 255, 8);
     selection-color: #ffffff;
