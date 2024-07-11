@@ -1010,6 +1010,10 @@ QRadioButton {
     font-style: normal;
 }
 
+QLabel {
+    min-height: fit-content;
+}
+
 QGroupBox::indicator,
 QMenu::indicator,
 QCheckBox::indicator,
