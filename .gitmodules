@@ -9,7 +9,7 @@
 	url = https://github.com/gulrak/filesystem
 [submodule "libraries/libnbtplusplus"]
 	path = libraries/libnbtplusplus
-	url = https://github.com/PrismLauncher/libnbtplusplus.git
+	url = https://github.com/FreesmTeam/libnbtplusplus.git
 [submodule "libraries/zlib"]
 	path = libraries/zlib
 	url = https://github.com/madler/zlib.git

@@ -3,7 +3,7 @@ freesmlauncher(6)
 
 # NAME
 
-freesmlauncher - a launcher and instance manager for Minecraft.
+Freesm Launcher - a launcher and instance manager for Minecraft.
 
 
 # SYNOPSIS
