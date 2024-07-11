@@ -154,15 +154,16 @@ QMenu::item:disabled {
 }
 
 QPushButton {
-    background-color: rgba(255, 255, 255, 18);
+    background-color: rgba(203, 166, 247, 18);
     border-radius: 5px;
     color: #ffffff;
     padding: 7px 20px;
     margin-right: 5px;
+    border: 1px solid transparent;
 }
 
 QPushButton:hover {
-    background-color: rgba(255, 255, 255, 23);
+    background-color: rgba(203, 166, 247, 40);
 }
 
 QPushButton:pressed,
@@ -170,6 +171,7 @@ QPushButton:pressed:focus {
     background-color: rgba(255, 255, 255, 7);
     border: 1px solid rgba(255, 255, 255, 8);
     color: #c8c8c8;
+    border: 1px solid rgba(205, 214, 244, 8);
 }
 
 QPushButton:disabled {
