@@ -1,1 +1,1 @@
-<a href="https://github.com/notwindstone/FreesmLauncher/blob/develop/README.md">English</a> | <strong>Русский</strong><br />
+<a href="https://github.com/FreesmTeam/FreesmLauncher/blob/develop/README.md">English</a> | <strong>Русский</strong><br />
