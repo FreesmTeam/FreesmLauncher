@@ -771,6 +771,7 @@ SET(LAUNCHER_SOURCES
     resources/breeze_light/breeze_light.qrc
     resources/OSX/OSX.qrc
     resources/iOS/iOS.qrc
+    resources/fluent/fluent.qrc
     resources/fluent_dark/fluent_dark.qrc
     resources/flat/flat.qrc
     resources/flat_white/flat_white.qrc
