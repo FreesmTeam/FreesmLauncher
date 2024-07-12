@@ -55,7 +55,7 @@ jobs:
 
           tar --exclude='.git' -czf FreesmLauncher-${{ env.VERSION }}.tar.gz FreesmLauncher-${{ env.VERSION }}
 
-          for d in FreesmLauncher-Windows-MSVC*; do
+          for d in PrismLauncher-Windows-MSVC*; do
             cd "${d}" || continue
             LEGACY="$(echo -n ${d} | grep -o Legacy || true)"
             ARM64="$(echo -n ${d} | grep -o arm64 || true)"
@@ -70,7 +70,7 @@ jobs:
             cd ..
           done
 
-          for d in FreesmLauncher-Windows-MinGW-w64*; do
+          for d in PrismLauncher-Windows-MinGW-w64*; do
             cd "${d}" || continue
             INST="$(echo -n ${d} | grep -o Setup || true)"
             PORT="$(echo -n ${d} | grep -o Portable || true)"
