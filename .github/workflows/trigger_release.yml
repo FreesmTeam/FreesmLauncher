@@ -46,12 +46,12 @@ jobs:
       - name: Package artifacts properly
         run: |
           mv ${{ github.workspace }}/FreesmLauncher-source FreesmLauncher-${{ env.VERSION }}
-          mv FreesmLauncher-Linux-Qt6-Portable*/FreesmLauncher-portable.tar.gz FreesmLauncher-Linux-Qt6-Portable-${{ env.VERSION }}.tar.gz
-          mv FreesmLauncher-Linux-Qt5-Portable*/FreesmLauncher-portable.tar.gz FreesmLauncher-Linux-Qt5-Portable-${{ env.VERSION }}.tar.gz
-          mv FreesmLauncher-*.AppImage/FreesmLauncher-*.AppImage FreesmLauncher-Linux-x86_64.AppImage
-          mv FreesmLauncher-*.AppImage.zsync/FreesmLauncher-*.AppImage.zsync FreesmLauncher-Linux-x86_64.AppImage.zsync
-          mv FreesmLauncher-macOS-Legacy*/FreesmLauncher.zip FreesmLauncher-macOS-Legacy-${{ env.VERSION }}.zip
-          mv FreesmLauncher-macOS*/FreesmLauncher.zip FreesmLauncher-macOS-${{ env.VERSION }}.zip
+          mv PrismLauncher-Linux-Qt6-Portable*/FreesmLauncher-portable.tar.gz FreesmLauncher-Linux-Qt6-Portable-${{ env.VERSION }}.tar.gz
+          mv PrismLauncher-Linux-Qt5-Portable*/PrismLauncher-portable.tar.gz FreesmLauncher-Linux-Qt5-Portable-${{ env.VERSION }}.tar.gz
+          mv PrismLauncher-*.AppImage/FreesmLauncher-*.AppImage FreesmLauncher-Linux-x86_64.AppImage
+          mv PrismLauncher-*.AppImage.zsync/FreesmLauncher-*.AppImage.zsync FreesmLauncher-Linux-x86_64.AppImage.zsync
+          mv PrismLauncher-macOS-Legacy*/FreesmLauncher.zip FreesmLauncher-macOS-Legacy-${{ env.VERSION }}.zip
+          mv PrismLauncher-macOS*/FreesmLauncher.zip FreesmLauncher-macOS-${{ env.VERSION }}.zip
 
           tar --exclude='.git' -czf FreesmLauncher-${{ env.VERSION }}.tar.gz FreesmLauncher-${{ env.VERSION }}
 
