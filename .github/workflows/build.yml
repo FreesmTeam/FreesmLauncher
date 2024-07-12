@@ -485,7 +485,7 @@ jobs:
         run: |
           cmake --install ${{ env.BUILD_DIR }} --prefix ${{ env.INSTALL_APPIMAGE_DIR }}/usr
 
-          mv ${{ env.INSTALL_APPIMAGE_DIR }}/usr/share/metainfo/org.prismlauncher.PrismLauncher.metainfo.xml ${{ env.INSTALL_APPIMAGE_DIR }}/usr/share/metainfo/org.prismlauncher.PrismLauncher.appdata.xml
+          mv ${{ env.INSTALL_APPIMAGE_DIR }}/usr/share/metainfo/org.freesmTeam.freesmlauncher.metainfo.xml ${{ env.INSTALL_APPIMAGE_DIR }}/usr/share/metainfo/org.prismlauncher.PrismLauncher.appdata.xml
           export "NO_APPSTREAM=1" # we have to skip appstream checking because appstream on ubuntu 20.04 is outdated
 
           export OUTPUT="PrismLauncher-Linux-x86_64.AppImage"
@@ -519,7 +519,7 @@ jobs:
             echo ":warning: Skipped code signing for Linux AppImage, as gpg key was not present." >> $GITHUB_STEP_SUMMARY
           fi
 
-          ./linuxdeploy-x86_64.AppImage --appdir ${{ env.INSTALL_APPIMAGE_DIR }} --output appimage --plugin qt -i ${{ env.INSTALL_APPIMAGE_DIR }}/usr/share/icons/hicolor/scalable/apps/org.prismlauncher.PrismLauncher.svg
+          ./linuxdeploy-x86_64.AppImage --appdir ${{ env.INSTALL_APPIMAGE_DIR }} --output appimage --plugin qt -i ${{ env.INSTALL_APPIMAGE_DIR }}/usr/share/icons/hicolor/scalable/apps/org.freesmTeam.freesmlauncher.svg
 
           mv "PrismLauncher-Linux-x86_64.AppImage" "PrismLauncher-Linux-${{ env.VERSION }}-${{ inputs.build_type }}-x86_64.AppImage"
 
