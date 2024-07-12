@@ -48,10 +48,10 @@ jobs:
           mv ${{ github.workspace }}/FreesmLauncher-source FreesmLauncher-${{ env.VERSION }}
           mv FreesmLauncher-Linux-Qt6-Portable*/FreesmLauncher-portable.tar.gz FreesmLauncher-Linux-Qt6-Portable-${{ env.VERSION }}.tar.gz
           mv FreesmLauncher-Linux-Qt5-Portable*/FreesmLauncher-portable.tar.gz FreesmLauncher-Linux-Qt5-Portable-${{ env.VERSION }}.tar.gz
-          mv FreesmLauncher-*.AppImage/PrismLauncher-*.AppImage FreesmLauncher-Linux-x86_64.AppImage
-          mv FreesmLauncher-*.AppImage.zsync/PrismLauncher-*.AppImage.zsync FreesmLauncher-Linux-x86_64.AppImage.zsync
-          mv FreesmLauncher-macOS-Legacy*/PrismLauncher.zip FreesmLauncher-macOS-Legacy-${{ env.VERSION }}.zip
-          mv FreesmLauncher-macOS*/PrismLauncher.zip FreesmLauncher-macOS-${{ env.VERSION }}.zip
+          mv FreesmLauncher-*.AppImage/FreesmLauncher-*.AppImage FreesmLauncher-Linux-x86_64.AppImage
+          mv FreesmLauncher-*.AppImage.zsync/FreesmLauncher-*.AppImage.zsync FreesmLauncher-Linux-x86_64.AppImage.zsync
+          mv FreesmLauncher-macOS-Legacy*/FreesmLauncher.zip FreesmLauncher-macOS-Legacy-${{ env.VERSION }}.zip
+          mv FreesmLauncher-macOS*/FreesmLauncher.zip FreesmLauncher-macOS-${{ env.VERSION }}.zip
 
           tar --exclude='.git' -czf FreesmLauncher-${{ env.VERSION }}.tar.gz FreesmLauncher-${{ env.VERSION }}
 
@@ -74,7 +74,7 @@ jobs:
             cd "${d}" || continue
             INST="$(echo -n ${d} | grep -o Setup || true)"
             PORT="$(echo -n ${d} | grep -o Portable || true)"
-            NAME="PrismLauncher-Windows-MinGW-w64"
+            NAME="FreesmLauncher-Windows-MinGW-w64"
             test -z "${PORT}" || NAME="${NAME}-Portable"
             test -z "${INST}" || mv FreesmLauncher-*.exe ../${NAME}-Setup-${{ env.VERSION }}.exe
             test -n "${INST}" || zip -r -9 "../${NAME}-${{ env.VERSION }}.zip" *
