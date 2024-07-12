@@ -548,9 +548,9 @@ Application::Application(int& argc, char** argv) : QApplication(argc, argv)
         m_settings.reset(new INISettingsObject({ BuildConfig.LAUNCHER_CONFIGFILE, "polymc.cfg", "multimc.cfg" }, this));
 
         // Theming
-        m_settings->registerSetting("IconTheme", QString("Freesm-Dark"));
-        m_settings->registerSetting("ApplicationTheme", QString("Freesm-Dark"));
-        m_settings->registerSetting("BackgroundCat", QString("Typescript"));
+        m_settings->registerSetting("IconTheme", QString("fluent-dark"));
+        m_settings->registerSetting("ApplicationTheme", QString("dark"));
+        m_settings->registerSetting("BackgroundCat", QString("typescript"));
 
         // Remembered state
         m_settings->registerSetting("LastUsedGroupForNewInstance", QString());
@@ -1075,7 +1075,7 @@ bool Application::createSetupWizard()
         if (!validIcons)
             settings()->set("IconTheme", QString("fluent_dark"));
         if (!validWidgets)
-            settings()->set("ApplicationTheme", QString("dark"));
+            settings()->set("ApplicationTheme", QString("system"));
 
         m_themeManager->applyCurrentlySelectedTheme(true);
 
