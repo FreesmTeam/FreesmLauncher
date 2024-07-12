@@ -36,7 +36,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           submodules: "true"
-          path: "PrismLauncher-source"
+          path: "FreesmLauncher-source"
       - name: Download artifacts
         uses: actions/download-artifact@v4
       - name: Grab and store version
@@ -45,7 +45,7 @@ jobs:
           echo "VERSION=$tag_name" >> $GITHUB_ENV
       - name: Package artifacts properly
         run: |
-          mv ${{ github.workspace }}/FreesmTeam-source FreesmLauncher-${{ env.VERSION }}
+          mv ${{ github.workspace }}/FreesmLauncher-source FreesmLauncher-${{ env.VERSION }}
           mv FreesmLauncher-Linux-Qt6-Portable*/FreesmLauncher-portable.tar.gz FreesmLauncher-Linux-Qt6-Portable-${{ env.VERSION }}.tar.gz
           mv FreesmLauncher-Linux-Qt5-Portable*/FreesmLauncher-portable.tar.gz FreesmLauncher-Linux-Qt5-Portable-${{ env.VERSION }}.tar.gz
           mv FreesmLauncher-*.AppImage/PrismLauncher-*.AppImage FreesmLauncher-Linux-x86_64.AppImage
@@ -53,7 +53,7 @@ jobs:
           mv FreesmLauncher-macOS-Legacy*/PrismLauncher.zip FreesmLauncher-macOS-Legacy-${{ env.VERSION }}.zip
           mv FreesmLauncher-macOS*/PrismLauncher.zip FreesmLauncher-macOS-${{ env.VERSION }}.zip
 
-          tar --exclude='.git' -czf FreesmTeam-${{ env.VERSION }}.tar.gz FreesmLauncher-${{ env.VERSION }}
+          tar --exclude='.git' -czf FreesmLauncher-${{ env.VERSION }}.tar.gz FreesmLauncher-${{ env.VERSION }}
 
           for d in FreesmLauncher-Windows-MSVC*; do
             cd "${d}" || continue
