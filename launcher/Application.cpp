@@ -548,9 +548,9 @@ Application::Application(int& argc, char** argv) : QApplication(argc, argv)
         m_settings.reset(new INISettingsObject({ BuildConfig.LAUNCHER_CONFIGFILE, "polymc.cfg", "multimc.cfg" }, this));
 
         // Theming
-        m_settings->registerSetting("IconTheme", QString());
-        m_settings->registerSetting("ApplicationTheme", QString());
-        m_settings->registerSetting("BackgroundCat", QString("kitteh"));
+        m_settings->registerSetting("IconTheme", QString("Freesm-Dark"));
+        m_settings->registerSetting("ApplicationTheme", QString("Freesm-Dark"));
+        m_settings->registerSetting("BackgroundCat", QString("Typescript"));
 
         // Remembered state
         m_settings->registerSetting("LastUsedGroupForNewInstance", QString());
