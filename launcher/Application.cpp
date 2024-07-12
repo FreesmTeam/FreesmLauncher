@@ -549,7 +549,7 @@ Application::Application(int& argc, char** argv) : QApplication(argc, argv)
 
         // Theming
         m_settings->registerSetting("IconTheme", QString("fluent_dark"));
-        m_settings->registerSetting("ApplicationTheme", QString("freesm_dark"));
+        m_settings->registerSetting("ApplicationTheme", QString("freesm"));
         m_settings->registerSetting("BackgroundCat", QString("typescript"));
 
         // Remembered state
@@ -1075,7 +1075,7 @@ bool Application::createSetupWizard()
         if (!validIcons)
             settings()->set("IconTheme", QString("fluent_dark"));
         if (!validWidgets)
-            settings()->set("ApplicationTheme", QString("freesm_dark"));
+            settings()->set("ApplicationTheme", QString("freesm"));
 
         m_themeManager->applyCurrentlySelectedTheme(true);
 
