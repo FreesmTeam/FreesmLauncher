@@ -1073,9 +1073,9 @@ bool Application::createSetupWizard()
     if (wizardRequired) {
         // set default theme after going into theme wizard
         if (!validIcons)
-            settings()->set("IconTheme", QString("pe_colored"));
+            settings()->set("IconTheme", QString("fluent_dark"));
         if (!validWidgets)
-            settings()->set("ApplicationTheme", QString("system"));
+            settings()->set("ApplicationTheme", QString("dark"));
 
         m_themeManager->applyCurrentlySelectedTheme(true);
 
