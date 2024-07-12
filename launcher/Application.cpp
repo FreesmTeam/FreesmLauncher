@@ -549,7 +549,7 @@ Application::Application(int& argc, char** argv) : QApplication(argc, argv)
 
         // Theming
         m_settings->registerSetting("IconTheme", QString("fluent-dark"));
-        m_settings->registerSetting("ApplicationTheme", QString("dark"));
+        m_settings->registerSetting("ApplicationTheme", QString("freesm-dark"));
         m_settings->registerSetting("BackgroundCat", QString("typescript"));
 
         // Remembered state
