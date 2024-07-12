@@ -372,7 +372,7 @@ jobs:
           fi
 
           sudo codesign --sign "$APPLE_CODESIGN_ID" --deep --force --entitlements "../program_info/App.entitlements" --options runtime "FreesmLauncher.app/Contents/MacOS/freesmlauncher"
-          mv "PrismLauncher.app" "Prism Launcher.app"
+          mv "FreesmLauncher.app" "Freesm Launcher.app"
 
       - name: Notarize (macOS)
         if: runner.os == 'macOS'
