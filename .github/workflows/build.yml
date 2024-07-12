@@ -380,18 +380,18 @@ jobs:
           cd ${{ env.INSTALL_DIR }}
 
           if [ -n '${{ secrets.APPLE_NOTARIZE_PASSWORD }}' ]; then
-            ditto -c -k --sequesterRsrc --keepParent "Prism Launcher.app" ../PrismLauncher.zip
+            ditto -c -k --sequesterRsrc --keepParent "Freesm Launcher.app" ../PrismLauncher.zip
             xcrun notarytool submit ../PrismLauncher.zip \
               --wait --progress \
               --apple-id '${{ secrets.APPLE_NOTARIZE_APPLE_ID }}' \
               --team-id '${{ secrets.APPLE_NOTARIZE_TEAM_ID }}' \
               --password '${{ secrets.APPLE_NOTARIZE_PASSWORD }}'
 
-            xcrun stapler staple "Prism Launcher.app"
+            xcrun stapler staple "Freesm Launcher.app"
           else
             echo ":warning: Skipping notarization as credentials are not present." >> $GITHUB_STEP_SUMMARY
           fi
-          ditto -c -k --sequesterRsrc --keepParent "Prism Launcher.app" ../PrismLauncher.zip
+          ditto -c -k --sequesterRsrc --keepParent "Freesm Launcher.app" ../PrismLauncher.zip
 
       - name: Make Sparkle signature (macOS)
         if: matrix.name == 'macOS'
