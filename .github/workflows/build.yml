@@ -472,7 +472,7 @@ jobs:
         if: runner.os == 'Windows'
         run: |
           if (Get-Content ./codesign.pfx){
-            SignTool sign /fd sha256 /td sha256 /f codesign.pfx /p '${{ secrets.WINDOWS_CODESIGN_PASSWORD }}' /tr http://timestamp.digicert.com PrismLauncher-Setup.exe
+            SignTool sign /fd sha256 /td sha256 /f codesign.pfx /p '${{ secrets.WINDOWS_CODESIGN_PASSWORD }}' /tr http://timestamp.digicert.com FreesmLauncher-Setup.exe
           } else {
             ":warning: Skipped code signing for Windows, as certificate was not present." >> $env:GITHUB_STEP_SUMMARY
           }
@@ -572,7 +572,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: PrismLauncher-${{ matrix.name }}-Setup-${{ env.VERSION }}-${{ inputs.build_type }}
-          path: PrismLauncher-Setup.exe
+          path: FreesmLauncher-Setup.exe
 
       - name: Upload binary tarball (Linux, portable, Qt 5)
         if: runner.os == 'Linux' && matrix.qt_ver != 6
