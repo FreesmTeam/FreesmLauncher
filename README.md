@@ -1,15 +1,11 @@
 <div align="center">
-  <div>
-    <img height="8px">
-  </div>
+  <br />
   
   <div>
     <img align="center" alt="DRM Free" src="https://img.shields.io/badge/drm-free-d33?style=for-the-badge">
   </div>
   
-  <div>
-    <img height="16px">
-  </div>
+  <br />
 
   <p>
     <strong>English</strong> | <a href="https://github.com/FreesmTeam/FreesmLauncher/blob/develop/README_russian.md">Русский</a><br />
