@@ -65,7 +65,7 @@ jobs:
             test -z "${LEGACY}" || NAME="${NAME}-Legacy"
             test -z "${ARM64}" || NAME="${NAME}-arm64"
             test -z "${PORT}" || NAME="${NAME}-Portable"
-            test -z "${INST}" || mv PrismLauncher-*.exe ../${NAME}-Setup-${{ env.VERSION }}.exe
+            test -z "${INST}" || mv FreesmLauncher-*.exe ../${NAME}-Setup-${{ env.VERSION }}.exe
             test -n "${INST}" || zip -r -9 "../${NAME}-${{ env.VERSION }}.zip" *
             cd ..
           done
@@ -76,7 +76,7 @@ jobs:
             PORT="$(echo -n ${d} | grep -o Portable || true)"
             NAME="FreesmLauncher-Windows-MinGW-w64"
             test -z "${PORT}" || NAME="${NAME}-Portable"
-            test -z "${INST}" || mv PrismLauncher-*.exe ../${NAME}-Setup-${{ env.VERSION }}.exe
+            test -z "${INST}" || mv FreesmLauncher-*.exe ../${NAME}-Setup-${{ env.VERSION }}.exe
             test -n "${INST}" || zip -r -9 "../${NAME}-${{ env.VERSION }}.zip" *
             cd ..
           done
