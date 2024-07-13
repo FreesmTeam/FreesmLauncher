@@ -31,9 +31,10 @@
 <summary>Expand more</summary>
 
 <div align="center">
+  <img src="docs/screenshots/freesmlauncher_settings_accounts_screenshot.png">
   <img src="docs/screenshots/freesmlauncher_instance_add_screenshot.png">
   <img src="docs/screenshots/freesmlauncher_instance_settings_screenshot.png">
-  <img src="docs/screenshots/freesmlauncher_settings_theme_screenshot.png"">
+  <img src="docs/screenshots/freesmlauncher_settings_theme_screenshot.png">
 </div>
 
 </details>
