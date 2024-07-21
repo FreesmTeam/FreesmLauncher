@@ -1,15 +1,11 @@
 <div align="center">
-  <div>
-    <img height="8px">
-  </div>
+  <br />
   
   <div>
     <img align="center" alt="DRM Free" src="https://img.shields.io/badge/drm-free-d33?style=for-the-badge">
   </div>
   
-  <div>
-    <img height="16px">
-  </div>
+  <br />
 
   <p>
     <strong>English</strong> | <a href="https://github.com/FreesmTeam/FreesmLauncher/blob/develop/README_russian.md">Русский</a><br />
@@ -31,9 +27,10 @@
 <summary>Expand more</summary>
 
 <div align="center">
+  <img src="docs/screenshots/freesmlauncher_settings_accounts_screenshot.png">
   <img src="docs/screenshots/freesmlauncher_instance_add_screenshot.png">
   <img src="docs/screenshots/freesmlauncher_instance_settings_screenshot.png">
-  <img src="docs/screenshots/freesmlauncher_settings_theme_screenshot.png"">
+  <img src="docs/screenshots/freesmlauncher_settings_theme_screenshot.png">
 </div>
 
 </details>
