@@ -37,15 +37,15 @@
 
 ## Разница между лаунчером Prism и лаунчером Freesm
 
-- Offline mode doesn't require an account.
+- Для офлайн-игры не требуется лицензионный аккаунт.
 
-- Custom theme with edited layout.
+- Добавлены кастомные иконки и тема.
 
-- No welcome message on the home screen.
+- Убрано приветственное сообщение на главном экране.
 
-- More cat packs.
+- Больше "кот" паков (сплеш скринов).
 
-- Disabled Java compatibility checks by default.
+- Выключенные проверки Java по умолчанию.
 
 ## Установка
 
@@ -53,7 +53,7 @@
 - Release builds are located in [Github Releases](https://github.com/FreesmTeam/FreesmLauncher/releases) tab.
 - You can also install development builds.
 
-### Development Builds
+### Нестабильные сборки
 
 Please understand that these builds are not intended for most users. There may be bugs, and other instabilities. You have been warned.
 
@@ -66,22 +66,22 @@ These have debug information in the binaries, so their file sizes are relatively
 
 Prebuilt Development builds are provided for **Linux**, **Windows** and **macOS**.
 
-## Community & Support
+## Тех. поддержка и сообщества
 
 Feel free to create a GitHub issue if you find a bug or want to suggest a new feature.
 
 > [!WARNING]
 > Do not mention Freesm Launcher on Prism Launcher Discord, Forum, GitHub and etc. Freesm - standalone project, that only takes code base from Prism and (mayber in future) will have it's own site, Discord and etc. 
 
-## Translations
+## Переводы
 
 The translation effort for Prism Launcher is hosted on [Weblate](https://hosted.weblate.org/projects/prismlauncher/launcher/) and information about translating Prism Launcher is available at <https://github.com/PrismLauncher/Translations>.
 
-## Building
+## Сборка
 
 If you want to build Freesm Launcher yourself, check the [Build Instructions](https://prismlauncher.org/wiki/development/build-instructions/).
 
-## Basic info
+## Прочая информация
 
 - We **ARE NOT** related to the [Prism Launcher](https://prismlauncher.org).
 
@@ -92,7 +92,7 @@ If you want to build Freesm Launcher yourself, check the [Build Instructions](ht
 - We **ARE** open to contributing our builds.
 
 
-## License
+## Лицензия
 
 All launcher code is available under the GPL-3.0-only license. 
 
