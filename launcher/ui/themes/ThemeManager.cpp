@@ -27,6 +27,7 @@
 #include <QStyleFactory>
 #include "Exception.h"
 #include "ui/themes/BrightTheme.h"
+#include "ui/themes/FreesmTheme.h"
 #include "ui/themes/CatPack.h"
 #include "ui/themes/CustomTheme.h"
 #include "ui/themes/DarkTheme.h"
@@ -131,6 +132,7 @@ void ThemeManager::initializeWidgets()
     auto darkThemeId = addTheme(std::make_unique<DarkTheme>());
     themeDebugLog() << "Loading Built-in Theme:" << darkThemeId;
     themeDebugLog() << "Loading Built-in Theme:" << addTheme(std::make_unique<BrightTheme>());
+    themeDebugLog() << "Loading Built-in Theme:" << addTheme(std::make_unique<FreesmTheme>());
 
     themeDebugLog() << "<> Initializing System Widget Themes";
     QStringList styles = QStyleFactory::keys();
@@ -291,6 +293,7 @@ QString ThemeManager::addCatPack(std::unique_ptr<CatPack> catPack)
 void ThemeManager::initializeCatPacks()
 {
     QList<std::pair<QString, QString>> defaultCats{ { "kitteh", QObject::tr("Background Cat (from MultiMC)") },
+                                                    { "typescript", QObject::tr("You should have used Typescript") },
                                                     { "rory", QObject::tr("Rory ID 11 (drawn by Ashtaka)") },
                                                     { "rory-flat", QObject::tr("Rory ID 11 (flat edition, drawn by Ashtaka)") },
                                                     { "teawie", QObject::tr("Teawie (drawn by SympathyTea)") } };

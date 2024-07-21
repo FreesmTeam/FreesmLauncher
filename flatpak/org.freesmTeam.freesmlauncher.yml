@@ -152,10 +152,10 @@ modules:
     buildsystem: simple
     build-commands:
       - install -Dm755 prime-run /app/bin/prime-run
-      - mv /app/bin/prismlauncher /app/bin/prismrun
-      - install -Dm755 prismlauncher /app/bin/prismlauncher
+      - mv /app/bin/freesmlauncher /app/bin/prismrun
+      - install -Dm755 freesmlauncher /app/bin/freesmlauncher
     sources:
       - type: file
         path: prime-run
       - type: file
-        path: prismlauncher
+        path: freesmlauncher

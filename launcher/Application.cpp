@@ -548,9 +548,9 @@ Application::Application(int& argc, char** argv) : QApplication(argc, argv)
         m_settings.reset(new INISettingsObject({ BuildConfig.LAUNCHER_CONFIGFILE, "polymc.cfg", "multimc.cfg" }, this));
 
         // Theming
-        m_settings->registerSetting("IconTheme", QString());
-        m_settings->registerSetting("ApplicationTheme", QString());
-        m_settings->registerSetting("BackgroundCat", QString("kitteh"));
+        m_settings->registerSetting("IconTheme", QString("fluent_dark"));
+        m_settings->registerSetting("ApplicationTheme", QString("freesm"));
+        m_settings->registerSetting("BackgroundCat", QString("typescript"));
 
         // Remembered state
         m_settings->registerSetting("LastUsedGroupForNewInstance", QString());
@@ -675,7 +675,7 @@ Application::Application(int& argc, char** argv) : QApplication(argc, argv)
         m_settings->registerSetting({ "PostExitCommand", "PostExitCmd" }, "");
 
         // The cat
-        m_settings->registerSetting("TheCat", false);
+        m_settings->registerSetting("TheCat", true);
         m_settings->registerSetting("CatOpacity", 100);
 
         m_settings->registerSetting("StatusBarVisible", true);
@@ -1073,9 +1073,9 @@ bool Application::createSetupWizard()
     if (wizardRequired) {
         // set default theme after going into theme wizard
         if (!validIcons)
-            settings()->set("IconTheme", QString("pe_colored"));
+            settings()->set("IconTheme", QString("fluent_dark"));
         if (!validWidgets)
-            settings()->set("ApplicationTheme", QString("system"));
+            settings()->set("ApplicationTheme", QString("freesm"));
 
         m_themeManager->applyCurrentlySelectedTheme(true);
 
