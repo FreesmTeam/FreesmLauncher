@@ -2,7 +2,7 @@
   lib,
   stdenv,
   symlinkJoin,
-  freesmlauncher-unwrapped,
+  prismlauncher-unwrapped,
   addOpenGLRunpath,
   flite,
   gamemode,
@@ -22,7 +22,6 @@
   udev,
   vulkan-loader,
   xorg,
-
   additionalLibs ? [ ],
   additionalPrograms ? [ ],
   controllerSupport ? stdenv.isLinux,
@@ -34,7 +33,6 @@
   ],
   msaClientID ? null,
   textToSpeechSupport ? stdenv.isLinux,
-
   # Adds `glfw-wayland-minecraft` to `LD_LIBRARY_PATH`
   # when launched on wayland, allowing for the game to be run natively.
   # Make sure to enable "Use system installation of GLFW" in instance settings
@@ -58,13 +56,12 @@ assert lib.assertMsg (
 ) "withWaylandGLFW is only available on Linux.";
 
 let
-  freesmlauncher' = freesmlauncher-unwrapped.override { inherit msaClientID gamemodeSupport; };
+  prismlauncher' = prismlauncher-unwrapped.override { inherit msaClientID gamemodeSupport; };
 in
-
 symlinkJoin {
-  name = "freesmlauncher-${freesmlauncher'.version}";
+  name = "prismlauncher-${prismlauncher'.version}";
 
-  paths = [ freesmlauncher' ];
+  paths = [ prismlauncher' ];
 
   nativeBuildInputs =
     [ kdePackages.wrapQtAppsHook ]
@@ -128,16 +125,15 @@ symlinkJoin {
         pciutils # need lspci
         xorg.xrandr # needed for LWJGL [2.9.2, 3) https://github.com/LWJGL/lwjgl/issues/128
       ] ++ additionalPrograms;
-
     in
-    [ "--prefix FREESMLAUNCHER_JAVA_PATHS : ${lib.makeSearchPath "bin/java" jdks}" ]
+    [ "--prefix PRISMLAUNCHER_JAVA_PATHS : ${lib.makeSearchPath "bin/java" jdks}" ]
     ++ lib.optionals stdenv.isLinux [
       "--set LD_LIBRARY_PATH ${addOpenGLRunpath.driverLink}/lib:${lib.makeLibraryPath runtimeLibs}"
       "--prefix PATH : ${lib.makeBinPath runtimePrograms}"
     ];
 
   meta = {
-    inherit (freesmlauncher'.meta)
+    inherit (prismlauncher'.meta)
       description
       longDescription
       homepage
