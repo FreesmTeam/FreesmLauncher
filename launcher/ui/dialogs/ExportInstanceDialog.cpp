@@ -51,6 +51,8 @@
 #include <icons/IconList.h>
 #include <QDebug>
 #include <QFileInfo>
+#include <QPushButton>
+#include <QSaveFile>
 #include <QSortFilterProxyModel>
 #include <QStack>
 #include <functional>
@@ -84,6 +86,9 @@ ExportInstanceDialog::ExportInstanceDialog(InstancePtr instance, QWidget* parent
     auto headerView = ui->treeView->header();
     headerView->setSectionResizeMode(QHeaderView::ResizeToContents);
     headerView->setSectionResizeMode(0, QHeaderView::Stretch);
+
+    ui->buttonBox->button(QDialogButtonBox::Cancel)->setText(tr("Cancel"));
+    ui->buttonBox->button(QDialogButtonBox::Ok)->setText(tr("OK"));
 }
 
 ExportInstanceDialog::~ExportInstanceDialog()
