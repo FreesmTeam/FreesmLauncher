@@ -522,7 +522,8 @@ QStringList MinecraftInstance::javaArguments()
 
     if (javaVersion.isModular() && shouldApplyOnlineFixes())
         // allow reflective access to java.net - required by the skin fix
-        args << "--add-opens" << "java.base/java.net=ALL-UNNAMED";
+        args << "--add-opens"
+             << "java.base/java.net=ALL-UNNAMED";
 
     return args;
 }
@@ -796,8 +797,10 @@ QString MinecraftInstance::createLaunchScript(AuthSessionPtr session, MinecraftT
 QStringList MinecraftInstance::verboseDescription(AuthSessionPtr session, MinecraftTarget::Ptr targetToJoin)
 {
     QStringList out;
-    out << "Main Class:" << "  " + getMainClass() << "";
-    out << "Native path:" << "  " + getNativePath() << "";
+    out << "Main Class:"
+        << "  " + getMainClass() << "";
+    out << "Native path:"
+        << "  " + getNativePath() << "";
 
     auto profile = m_components->getProfile();
 
@@ -1225,6 +1228,11 @@ std::shared_ptr<ShaderPackFolderModel> MinecraftInstance::shaderPackList()
         m_shader_pack_list.reset(new ShaderPackFolderModel(shaderPacksDir(), this, is_indexed, true));
     }
     return m_shader_pack_list;
+}
+
+QList<std::shared_ptr<ResourceFolderModel>> MinecraftInstance::resourceLists()
+{
+    return { loaderModList(), coreModList(), nilModList(), resourcePackList(), texturePackList(), shaderPackList() };
 }
 
 std::shared_ptr<WorldList> MinecraftInstance::worldList()

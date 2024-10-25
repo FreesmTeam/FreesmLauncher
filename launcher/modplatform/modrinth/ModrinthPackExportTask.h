@@ -29,12 +29,12 @@
 class ModrinthPackExportTask : public Task {
     Q_OBJECT
    public:
-    ModrinthPackExportTask(const QString& name,
-                           const QString& version,
-                           const QString& summary,
+    ModrinthPackExportTask(QString name,
+                           QString version,
+                           QString summary,
                            bool optionalFiles,
-                           InstancePtr instance,
-                           const QString& output,
+                           MinecraftInstancePtr instance,
+                           QString output,
                            MMCZip::FilterFunction filter);
 
    protected:
@@ -54,8 +54,7 @@ class ModrinthPackExportTask : public Task {
     // inputs
     const QString name, version, summary;
     const bool optionalFiles;
-    const InstancePtr instance;
-    MinecraftInstance* mcInstance;
+    const MinecraftInstancePtr instance;
     const QDir gameRoot;
     const QString output;
     const MMCZip::FilterFunction filter;

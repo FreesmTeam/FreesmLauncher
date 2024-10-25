@@ -18,6 +18,7 @@
 
 #pragma once
 
+#include <minecraft/MinecraftInstance.h>
 #include <QDialog>
 #include "BaseInstance.h"
 #include "FastFileIconProvider.h"
@@ -32,7 +33,7 @@ class ExportPackDialog : public QDialog {
     Q_OBJECT
 
    public:
-    explicit ExportPackDialog(InstancePtr instance,
+    explicit ExportPackDialog(const MinecraftInstancePtr& instance,
                               QWidget* parent = nullptr,
                               ModPlatform::ResourceProvider provider = ModPlatform::ResourceProvider::MODRINTH);
     ~ExportPackDialog();
@@ -41,7 +42,7 @@ class ExportPackDialog : public QDialog {
     void validate();
 
    private:
-    const InstancePtr instance;
+    const MinecraftInstancePtr instance;
     Ui::ExportPackDialog* ui;
     FileIgnoreProxy* proxy;
     FastFileIconProvider icons;

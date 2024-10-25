@@ -34,7 +34,7 @@
 #include "MMCZip.h"
 #include "modplatform/modrinth/ModrinthPackExportTask.h"
 
-ExportPackDialog::ExportPackDialog(InstancePtr instance, QWidget* parent, ModPlatform::ResourceProvider provider)
+ExportPackDialog::ExportPackDialog(const MinecraftInstancePtr& instance, QWidget* parent, ModPlatform::ResourceProvider provider)
     : QDialog(parent), instance(instance), ui(new Ui::ExportPackDialog), m_provider(provider)
 {
     Q_ASSERT(m_provider == ModPlatform::ResourceProvider::MODRINTH || m_provider == ModPlatform::ResourceProvider::FLAME);
@@ -86,12 +86,9 @@ ExportPackDialog::ExportPackDialog(InstancePtr instance, QWidget* parent, ModPla
             proxy->blockedPaths().insert(file);
     }
 
-    MinecraftInstance* mcInstance = dynamic_cast<MinecraftInstance*>(instance.get());
-    if (mcInstance) {
-        const QDir index = mcInstance->loaderModList()->indexDir();
-        if (index.exists())
-            proxy->ignoreFilesWithPath().insert(root.relativeFilePath(index.absolutePath()));
-    }
+    for (auto& resourceModel : instance->resourceLists())
+        if (resourceModel->indexDir().exists())
+            proxy->ignoreFilesWithPath().insert(root.relativeFilePath(resourceModel->indexDir().absolutePath()));
 
     ui->files->setModel(proxy);
     ui->files->setRootIndex(proxy->mapFromSource(model->index(instance->gameRoot())));
