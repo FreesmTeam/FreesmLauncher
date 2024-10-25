@@ -165,9 +165,7 @@ class MainWindow : public QMainWindow {
 
     void on_actionEditInstance_triggered();
 
-    inline void on_actionCreateInstanceShortcut_triggered() {
-        on_actionCreateInstanceShortcutDesktop_triggered();
-    };
+    void on_actionCreateInstanceShortcut_triggered();
 
     void on_actionCreateInstanceShortcutDesktop_triggered();
     void on_actionCreateInstanceShortcutApplications_triggered();

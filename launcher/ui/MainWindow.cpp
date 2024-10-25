@@ -1651,6 +1651,16 @@ void MainWindow::on_actionCreateInstanceShortcutOther_triggered() {
         QMessageBox::information(this, tr("Create instance shortcut"), tr("Created a shortcut to this instance!"));
 }
 
+void MainWindow::on_actionCreateInstanceShortcut_triggered() {
+    if(!m_selectedInstance)
+        return;
+
+    if(DesktopServices::isFlatpak())
+        onactionCreateInstanceShortcutOther_triggered();
+    else
+        on_actionCreateInstanceShortcutDesktop_triggered();
+}
+
 void MainWindow::on_actionCreateInstanceShortcutDesktop_triggered() {
         if (!m_selectedInstance)
                 return;
