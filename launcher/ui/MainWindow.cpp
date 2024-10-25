@@ -1506,6 +1506,8 @@ void MainWindow::on_actionKillInstance_triggered()
 }
 
 void MainWindow::createInstanceShortcut(QString shortcutFilePath) {
+    if(!m_selectedInstance)
+        return;
 
     QString appPath = QApplication::applicationFilePath();
     QString iconPath;
@@ -1643,7 +1645,7 @@ void MainWindow::on_actionCreateInstanceShortcutOther_triggered() {
         // workaround to make sure the portal file dialog opens in the desktop directory
         fileDialog.setDirectoryUrl(defaultedDir);
 
-        shortcutFilePath = fileDialog.getSaveFileName(this, tr("Create Shortcut"), shortcutFilePath, tr("Desktop Entries") + " (*.desktop)");
+        shortcutFilePath = fileDialog.getSaveFileName(this, tr("Create Shortcut"), shortcutFilePath, tr("Desktop Entries") + " (*." + extension + ")");
         if (shortcutFilePath.isEmpty())
             return;  // file dialog canceled by user
 
@@ -1655,6 +1657,12 @@ void MainWindow::on_actionCreateInstanceShortcutDesktop_triggered() {
         if (!m_selectedInstance)
                 return;
 
+        QString desktopDir = FS::getDesktopDir();
+        if (desktopDir.isEmpty()) {
+            QMessageBox::critical(this, tr("Create instance shortcut"), tr("Couldn't find desktop?!"));
+            return;
+        }
+
         QString shortcutFilePath = FS::PathCombine(FS::getDesktopDir(), FS::RemoveInvalidFilenameChars(m_selectedInstance->name()));
         createInstanceShortcut(shortcutFilePath);
         QMessageBox::information(this, tr("Create instance shortcut"), tr("Created a shortcut to this instance on your desktop!"));
@@ -1665,7 +1673,13 @@ void MainWindow::on_actionCreateInstanceShortcutApplications_triggered()
     if (!m_selectedInstance)
         return;
 
-    QString shortcutFilePath = FS::PathCombine(FS::getApplicationsDir(), FS::RemoveInvalidFilenameChars(m_selectedInstance->name()));
+    QString applicationsDir = FS::getApplicationsDir();
+    if (applicationsDir.isEmpty()) {
+        QMessageBox::critical(this, tr("Create instance shortcut"), tr("Couldn't find applications folder?!"));
+        return;
+    }
+
+    QString shortcutFilePath = FS::PathCombine(applicationsDir, FS::RemoveInvalidFilenameChars(m_selectedInstance->name()));
     createInstanceShortcut(shortcutFilePath);
     QMessageBox::information(this, tr("Create instance shortcut"), tr("Created a shortcut to this instance in your applications folder!"));
 }
