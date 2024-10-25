@@ -1643,7 +1643,7 @@ void MainWindow::on_actionCreateInstanceShortcutOther_triggered() {
         // workaround to make sure the portal file dialog opens in the desktop directory
         fileDialog.setDirectoryUrl(defaultedDir);
 
-        shortcutFilePath = fileDialog.getSaveFileName(this, tr("Create Shortcut"), shortcutFilePath, tr("Desktop Entries") + " (*." + extension + ")");
+        shortcutFilePath = fileDialog.getSaveFileName(this, tr("Create Shortcut"), shortcutFilePath, tr("Desktop Entries") + " (*" + extension + ")");
         if (shortcutFilePath.isEmpty())
             return;  // file dialog canceled by user
 
