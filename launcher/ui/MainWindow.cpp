@@ -243,12 +243,10 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent), ui(new Ui::MainWi
 
         ui->actionViewJavaFolder->setEnabled(BuildConfig.JAVA_DOWNLOADER_ENABLED);
 
-#if defined(Q_OS_LINUX) || defined(Q_OS_FREEBSD) || defined(Q_OS_OPENBSD)
         bool isFlatpak = DesktopServices::isFlatpak();
 
         ui->actionCreateInstanceShortcutDesktop->setEnabled(isFlatpak);
         ui->actionCreateInstanceShortcutApplications->setEnabled(isFlatpak);
-#endif
     }
 
     // add the toolbar toggles to the view menu
