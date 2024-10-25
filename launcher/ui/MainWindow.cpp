@@ -1656,7 +1656,7 @@ void MainWindow::on_actionCreateInstanceShortcut_triggered() {
         return;
 
     if(DesktopServices::isFlatpak())
-        onactionCreateInstanceShortcutOther_triggered();
+        on_actionCreateInstanceShortcutOther_triggered();
     else
         on_actionCreateInstanceShortcutDesktop_triggered();
 }
