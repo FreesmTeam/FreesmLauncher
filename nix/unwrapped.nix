@@ -15,7 +15,6 @@
   self,
   stripJavaArchivesHook,
   tomlplusplus,
-  version,
   zlib,
 
   msaClientID ? null,
@@ -28,7 +27,7 @@ assert lib.assertMsg (
 
 stdenv.mkDerivation {
   pname = "prismlauncher-unwrapped";
-  inherit version;
+  version = self.shortRev or self.dirtyShortRev or "unknown";
 
   src = nix-filter.lib {
     root = self;
