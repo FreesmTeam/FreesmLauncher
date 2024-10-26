@@ -28,6 +28,7 @@
 #include <algorithm>
 #include <iterator>
 #include <memory>
+#include <utility>
 #include "Application.h"
 #include "Json.h"
 #include "MMCZip.h"
@@ -39,24 +40,23 @@
 #include "tasks/Task.h"
 
 const QString FlamePackExportTask::TEMPLATE = "<li><a href=\"{url}\">{name}{authors}</a></li>\n";
-const QStringList FlamePackExportTask::FILE_EXTENSIONS({ "jar", "zip" });
+const QStringList FlamePackExportTask::FILE_EXTENSIONS({ "jar", "litemod", "zip" });
 
-FlamePackExportTask::FlamePackExportTask(const QString& name,
-                                         const QString& version,
-                                         const QString& author,
+FlamePackExportTask::FlamePackExportTask(QString name,
+                                         QString version,
+                                         QString author,
                                          bool optionalFiles,
-                                         InstancePtr instance,
-                                         const QString& output,
+                                         MinecraftInstancePtr instance,
+                                         QString output,
                                          MMCZip::FilterFunction filter)
-    : name(name)
-    , version(version)
-    , author(author)
+    : name(std::move(name))
+    , version(std::move(version))
+    , author(std::move(author))
     , optionalFiles(optionalFiles)
-    , instance(instance)
-    , mcInstance(dynamic_cast<MinecraftInstance*>(instance.get()))
-    , gameRoot(instance->gameRoot())
-    , output(output)
-    , filter(filter)
+    , instance(std::move(instance))
+    , gameRoot(this->instance->gameRoot())
+    , output(std::move(output))
+    , filter(std::move(filter))
 {}
 
 void FlamePackExportTask::executeTask()
@@ -90,11 +90,7 @@ void FlamePackExportTask::collectFiles()
     pendingHashes.clear();
     resolvedFiles.clear();
 
-    if (mcInstance != nullptr) {
-        mcInstance->loaderModList()->update();
-        connect(mcInstance->loaderModList().get(), &ModFolderModel::updateFinished, this, &FlamePackExportTask::collectHashes);
-    } else
-        collectHashes();
+    collectHashes();
 }
 
 void FlamePackExportTask::collectHashes()
@@ -102,7 +98,7 @@ void FlamePackExportTask::collectHashes()
     setAbortable(true);
     setStatus(tr("Finding file hashes..."));
     setProgress(1, 5);
-    auto allMods = mcInstance->loaderModList()->allMods();
+    auto allMods = instance->loaderModList()->allMods();
     ConcurrentTask::Ptr hashingTask(
         new ConcurrentTask(this, "MakeHashesTask", APPLICATION->settings()->get("NumberOfConcurrentTasks").toInt()));
     task.reset(hashingTask);
@@ -379,9 +375,9 @@ QByteArray FlamePackExportTask::generateIndex()
     obj["version"] = version;
     obj["author"] = author;
     obj["overrides"] = "overrides";
-    if (mcInstance) {
+    if (instance) {
         QJsonObject version;
-        auto profile = mcInstance->getPackProfile();
+        auto profile = instance->getPackProfile();
         // collect all supported components
         const ComponentPtr minecraft = profile->getComponent("net.minecraft");
         const ComponentPtr quilt = profile->getComponent("org.quiltmc.quilt-loader");

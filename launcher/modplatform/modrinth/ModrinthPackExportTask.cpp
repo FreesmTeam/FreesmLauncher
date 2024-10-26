@@ -31,7 +31,6 @@
 #include "modplatform/helpers/HashUtils.h"
 #include "tasks/Task.h"
 
-const QStringList ModrinthPackExportTask::PREFIXES({ "mods/", "coremods/", "resourcepacks/", "texturepacks/", "shaderpacks/" });
 const QStringList ModrinthPackExportTask::FILE_EXTENSIONS({ "jar", "litemod", "zip" });
 
 ModrinthPackExportTask::ModrinthPackExportTask(QString name,
@@ -87,15 +86,21 @@ void ModrinthPackExportTask::collectFiles()
 
 void ModrinthPackExportTask::collectHashes()
 {
+    // TODO make this just use EnsureMetadataTask
+
     setStatus(tr("Finding file hashes..."));
 
+    QStringList prefixes;
+
     for (const auto& model : instance->resourceLists()) {
-        QCoreApplication::processEvents(); // TODO: maybe don't do this?
+        QCoreApplication::processEvents();
 
         QEventLoop loop;
         connect(model.get(), &ModFolderModel::updateFinished, &loop, &QEventLoop::quit);
         model->update();
         loop.exec();
+
+        prefixes.append(gameRoot.relativeFilePath(model->dir().absolutePath()) + '/');
 
         for (const Resource* resource : model->allResources()) {
             QCoreApplication::processEvents();
@@ -163,7 +168,7 @@ void ModrinthPackExportTask::collectHashes()
             continue;
 
         // require sensible file types
-        if (!std::any_of(PREFIXES.begin(), PREFIXES.end(), [&relative](const QString& prefix) { return relative.startsWith(prefix); }))
+        if (!std::any_of(prefixes.begin(), prefixes.end(), [&relative](const QString& prefix) { return relative.startsWith(prefix); }))
             continue;
         if (!std::any_of(FILE_EXTENSIONS.begin(), FILE_EXTENSIONS.end(), [&relative](const QString& extension) {
                 return relative.endsWith('.' + extension) || relative.endsWith('.' + extension + ".disabled");

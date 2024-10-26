@@ -48,7 +48,6 @@ class ModrinthPackExportTask : public Task {
         Metadata::ModSide side;
     };
 
-    static const QStringList PREFIXES;
     static const QStringList FILE_EXTENSIONS;
 
     // inputs
