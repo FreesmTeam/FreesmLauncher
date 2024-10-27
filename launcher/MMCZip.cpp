@@ -577,7 +577,7 @@ auto ExtractZipTask::extractZip() -> ZipResult
 
         auto relative_file_name = QDir::fromNativeSeparators(file_name.mid(m_subdirectory.size()));
         auto original_name = relative_file_name;
-        setStatus("Unziping: " + relative_file_name);
+        setStatus("Unzipping: " + relative_file_name);
 
         // Fix subdirs/files ending with a / getting transformed into absolute paths
         if (relative_file_name.startsWith('/'))
