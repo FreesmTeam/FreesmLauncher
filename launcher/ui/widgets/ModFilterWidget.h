@@ -64,11 +64,12 @@ class ModFilterWidget : public QTabWidget {
         QString side;
         bool hideInstalled;
         QStringList categoryIds;
+        bool openSource;
 
         bool operator==(const Filter& other) const
         {
             return hideInstalled == other.hideInstalled && side == other.side && loaders == other.loaders && versions == other.versions &&
-                   releases == other.releases && categoryIds == other.categoryIds;
+                   releases == other.releases && categoryIds == other.categoryIds && openSource == other.openSource;
         }
         bool operator!=(const Filter& other) const { return !(*this == other); }
 
@@ -107,6 +108,7 @@ class ModFilterWidget : public QTabWidget {
     void onSideFilterChanged();
     void onHideInstalledFilterChanged();
     void onShowAllVersionsChanged();
+    void onOpenSourceFilterChanged();
 
    private:
     Ui::ModFilterWidget* ui;

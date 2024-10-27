@@ -134,6 +134,7 @@ ModFilterWidget::ModFilterWidget(MinecraftInstance* instance, bool extended, QWi
         ui->versions->hide();
         ui->showAllVersions->hide();
         ui->environmentGroup->hide();
+        ui->openSource->hide();
     }
 
     ui->versions->setStyleSheet("combobox-popup: 0;");
@@ -159,6 +160,7 @@ ModFilterWidget::ModFilterWidget(MinecraftInstance* instance, bool extended, QWi
     }
 
     connect(ui->hideInstalled, &QCheckBox::stateChanged, this, &ModFilterWidget::onHideInstalledFilterChanged);
+    connect(ui->openSource, &QCheckBox::stateChanged, this, &ModFilterWidget::onOpenSourceFilterChanged);
 
     setHidden(true);
     loadVersionList();
@@ -208,6 +210,7 @@ void ModFilterWidget::loadVersionList()
 
 void ModFilterWidget::prepareBasicFilter()
 {
+    m_filter->openSource = false;
     if (m_instance) {
         m_filter->hideInstalled = false;
         m_filter->side = "";  // or "both"
@@ -335,6 +338,15 @@ void ModFilterWidget::setCategories(const QList<ModPlatform::Category>& categori
             emit filterChanged();
         });
     }
+}
+
+void ModFilterWidget::onOpenSourceFilterChanged()
+{
+    auto open = ui->openSource->isChecked();
+    m_filter_changed = open != m_filter->openSource;
+    m_filter->openSource = open;
+    if (m_filter_changed)
+        emit filterChanged();
 }
 
 #include "ModFilterWidget.moc"

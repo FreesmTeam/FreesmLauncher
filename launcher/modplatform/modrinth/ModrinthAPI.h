@@ -116,6 +116,8 @@ class ModrinthAPI : public NetworkResourceAPI {
         }
         if (args.categoryIds.has_value() && !args.categoryIds->empty())
             facets_list.append(QString("[%1]").arg(getCategoriesFilters(args.categoryIds.value())));
+        if (args.openSource)
+            facets_list.append("[\"open_source:true\"]");
 
         facets_list.append(QString("[\"project_type:%1\"]").arg(resourceTypeParameter(args.type)));
 
