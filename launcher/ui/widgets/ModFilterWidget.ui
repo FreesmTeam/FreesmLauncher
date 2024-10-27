@@ -191,7 +191,7 @@
        <item>
         <widget class="QCheckBox" name="openSource">
          <property name="text">
-          <string>Open Source only</string>
+          <string>Open source only</string>
          </property>
         </widget>
        </item>
