@@ -484,11 +484,13 @@ void ResourcePage::openProject(QVariant projectID)
     connect(cancelBtn, &QPushButton::clicked, m_parentDialog, &ResourceDownloadDialog::reject);
     m_ui->gridLayout_4->addWidget(buttonBox, 1, 2);
 
-    auto jump = [this, okBtn] {
+    connect(m_ui->versionSelectionBox, QOverload<int>::of(&QComboBox::currentIndexChanged), this,
+            [this, okBtn] { okBtn->setEnabled(m_ui->versionSelectionBox->currentData().toInt() >= 0); });
+
+    auto jump = [this] {
         for (int row = 0; row < m_model->rowCount({}); row++) {
             const QModelIndex index = m_model->index(row);
             m_ui->packView->setCurrentIndex(index);
-            okBtn->setEnabled(true);
             return;
         }
         m_ui->packDescription->setText(tr("The resource was not found"));
