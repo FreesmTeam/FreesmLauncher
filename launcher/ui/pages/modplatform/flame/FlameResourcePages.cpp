@@ -209,7 +209,7 @@ auto FlameShaderPackPage::shouldDisplay() const -> bool
 
 unique_qobject_ptr<ModFilterWidget> FlameModPage::createFilterWidget()
 {
-    return ModFilterWidget::create(&static_cast<MinecraftInstance&>(m_base_instance), false, this);
+    return ModFilterWidget::create(&static_cast<MinecraftInstance&>(m_baseInstance), false, this);
 }
 
 void FlameModPage::prepareProviderCategories()
