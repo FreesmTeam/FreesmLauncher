@@ -109,6 +109,7 @@ class ModFilterWidget : public QTabWidget {
     void onHideInstalledFilterChanged();
     void onShowAllVersionsChanged();
     void onOpenSourceFilterChanged();
+    void onReleaseFilterChanged();
 
    private:
     Ui::ModFilterWidget* ui;
