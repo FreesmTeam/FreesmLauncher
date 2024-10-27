@@ -77,7 +77,7 @@ QString getCreditsHtml()
     stream << QString("<p>d-513 %1</p>\n").arg(getGitHub("d-513"));
     stream << QString("<p>txtsd %1</p>\n").arg(getWebsite("https://ihavea.quest"));
     stream << QString("<p>timoreo %1</p>\n").arg(getGitHub("timoreo22"));
-    stream << QString("<p>Ezekiel Smith (ZekeSmith) %1</p>\n").arg(getGitHub("ZekeSmith"));
+    stream << QString("<p>ZekeZ %1</p>\n").arg(getGitHub("ZekeZDev"));
     stream << QString("<p>cozyGalvinism %1</p>\n").arg(getGitHub("cozyGalvinism"));
     stream << QString("<p>DioEgizio %1</p>\n").arg(getGitHub("DioEgizio"));
     stream << QString("<p>flowln %1</p>\n").arg(getGitHub("flowln"));
