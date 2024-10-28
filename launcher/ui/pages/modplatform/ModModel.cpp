@@ -39,7 +39,9 @@ ResourceAPI::SearchArgs ModModel::createSearchArguments()
 
     auto sort = getCurrentSortingMethodByIndex();
 
-    return { ModPlatform::ResourceType::MOD, m_next_search_offset, m_search_term, sort, loaders, versions, side, categories };
+    return {
+        ModPlatform::ResourceType::MOD, m_next_search_offset, m_search_term, sort, loaders, versions, side, categories, m_filter->openSource
+    };
 }
 
 ResourceAPI::VersionSearchArgs ModModel::createVersionsArguments(QModelIndex& entry)
