@@ -107,11 +107,11 @@ ModFolderPage::ModFolderPage(BaseInstance* inst, std::shared_ptr<ModFolderModel>
     connect(ui->actionChangeVersion, &QAction::triggered, this, &ModFolderPage::changeModVersion);
     ui->actionsToolbar->insertActionAfter(ui->actionUpdateItem, ui->actionChangeVersion);
 
+    ui->actionViewHomepage->setToolTip(tr("View the homepages of all selected mods."));
+
     ui->actionExportMetadata->setToolTip(tr("Export mod's metadata to text."));
     connect(ui->actionExportMetadata, &QAction::triggered, this, &ModFolderPage::exportModMetadata);
-    ui->actionsToolbar->insertActionAfter(ui->actionDisableItem, ui->actionExportMetadata);
-
-    ui->actionsToolbar->insertSeparator(ui->actionExportMetadata);
+    ui->actionsToolbar->insertActionAfter(ui->actionViewHomepage, ui->actionExportMetadata);
 }
 
 bool ModFolderPage::shouldDisplay() const

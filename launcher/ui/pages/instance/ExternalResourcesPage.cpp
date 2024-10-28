@@ -74,6 +74,7 @@ ExternalResourcesPage::ExternalResourcesPage(BaseInstance* instance, std::shared
     connect(ui->actionRemoveItem, &QAction::triggered, this, &ExternalResourcesPage::removeItem);
     connect(ui->actionEnableItem, &QAction::triggered, this, &ExternalResourcesPage::enableItem);
     connect(ui->actionDisableItem, &QAction::triggered, this, &ExternalResourcesPage::disableItem);
+    connect(ui->actionViewHomepage, &QAction::triggered, this, &ExternalResourcesPage::viewHomepage);
     connect(ui->actionViewConfigs, &QAction::triggered, this, &ExternalResourcesPage::viewConfigs);
     connect(ui->actionViewFolder, &QAction::triggered, this, &ExternalResourcesPage::viewFolder);
 
@@ -301,6 +302,27 @@ void ExternalResourcesPage::disableItem()
     m_model->setResourceEnabled(selection.indexes(), EnableAction::DISABLE);
 }
 
+void ExternalResourcesPage::viewHomepage()
+{
+    auto selection = m_filterModel->mapSelectionToSource(ui->treeView->selectionModel()->selection()).indexes();
+    bool openedAny = false;
+    for (auto resource : m_model->selectedResources(selection)) {
+        auto url = resource->homepage();
+        if (!url.isEmpty()) {
+            DesktopServices::openUrl(url);
+            openedAny = true;
+        }
+    }
+
+    // TODO: just disable button
+    // just doing this for now to prevent race conditions which may be worse with implementation changes
+    if (!openedAny) {
+        CustomMessageBox::selectable(this, tr("No homepages found"), tr("None of the selected resources had an available homepage."),
+                                     QMessageBox::Warning, QMessageBox::Ok, QMessageBox::Ok)
+            ->exec();
+    }
+}
+
 void ExternalResourcesPage::viewConfigs()
 {
     DesktopServices::openPath(m_instance->instanceConfigFolder(), true);
@@ -314,16 +336,18 @@ void ExternalResourcesPage::viewFolder()
 void ExternalResourcesPage::updateActions()
 {
     const bool hasSelection = ui->treeView->selectionModel()->hasSelection();
+    const QModelIndexList rows = ui->treeView->selectionModel()->selectedRows();
+
     ui->actionUpdateItem->setEnabled(!m_model->empty());
     ui->actionResetItemMetadata->setEnabled(hasSelection);
 
-    const QModelIndexList rows = ui->treeView->selectionModel()->selectedRows();
     ui->actionChangeVersion->setEnabled(rows.count() == 1 && m_model->at(m_filterModel->mapToSource(rows[0]).row()).metadata() != nullptr);
 
     ui->actionRemoveItem->setEnabled(hasSelection);
     ui->actionEnableItem->setEnabled(hasSelection);
     ui->actionDisableItem->setEnabled(hasSelection);
 
+    ui->actionViewHomepage->setEnabled(hasSelection);
     ui->actionExportMetadata->setEnabled(!m_model->empty());
 }
 

@@ -95,6 +95,14 @@ auto Resource::provider() const -> QString
     return tr("Unknown");
 }
 
+auto Resource::homepage() const -> QString
+{
+    if (metadata())
+        return ModPlatform::getMetaURL(metadata()->provider, metadata()->project_id);
+
+    return {};
+}
+
 void Resource::setMetadata(std::shared_ptr<Metadata::ModStruct>&& metadata)
 {
     if (status() == ResourceStatus::NO_METADATA)

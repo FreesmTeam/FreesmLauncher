@@ -90,6 +90,8 @@
    <addaction name="actionRemoveItem"/>
    <addaction name="actionEnableItem"/>
    <addaction name="actionDisableItem"/>
+   <addaction name="separator"/>
+   <addaction name="actionViewHomepage"/>
    <addaction name="actionViewConfigs"/>
    <addaction name="actionViewFolder"/>
   </widget>
@@ -211,6 +213,17 @@
    </property>
    <property name="menuRole">
     <enum>QAction::NoRole</enum>
+   </property>
+  </action>
+  <action name="actionViewHomepage">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>View Homepage</string>
+   </property>
+   <property name="toolTip">
+    <string>View the homepages of all selected items.</string>
    </property>
   </action>
  </widget>

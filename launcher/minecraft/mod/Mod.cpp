@@ -141,16 +141,14 @@ auto Mod::version() const -> QString
     return details().version;
 }
 
-auto Mod::homeurl() const -> QString
+auto Mod::homepage() const -> QString
 {
-    return details().homeurl;
-}
+    QString metaUrl = Resource::homepage();
 
-auto Mod::metaurl() const -> QString
-{
-    if (metadata() == nullptr)
-        return homeurl();
-    return ModPlatform::getMetaURL(metadata()->provider, metadata()->project_id);
+    if (metaUrl.isEmpty())
+        return details().homeurl;
+    else
+        return metaUrl;
 }
 
 auto Mod::loaders() const -> QString
