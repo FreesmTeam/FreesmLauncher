@@ -162,6 +162,11 @@ ModFilterWidget::ModFilterWidget(MinecraftInstance* instance, bool extended, QWi
     connect(ui->hideInstalled, &QCheckBox::stateChanged, this, &ModFilterWidget::onHideInstalledFilterChanged);
     connect(ui->openSource, &QCheckBox::stateChanged, this, &ModFilterWidget::onOpenSourceFilterChanged);
 
+    connect(ui->releaseCb, &QCheckBox::stateChanged, this, &ModFilterWidget::onReleaseFilterChanged);
+    connect(ui->betaCb, &QCheckBox::stateChanged, this, &ModFilterWidget::onReleaseFilterChanged);
+    connect(ui->alphaCb, &QCheckBox::stateChanged, this, &ModFilterWidget::onReleaseFilterChanged);
+    connect(ui->unknownCb, &QCheckBox::stateChanged, this, &ModFilterWidget::onReleaseFilterChanged);
+
     setHidden(true);
     loadVersionList();
     prepareBasicFilter();
@@ -345,6 +350,23 @@ void ModFilterWidget::onOpenSourceFilterChanged()
     auto open = ui->openSource->isChecked();
     m_filter_changed = open != m_filter->openSource;
     m_filter->openSource = open;
+    if (m_filter_changed)
+        emit filterChanged();
+}
+
+void ModFilterWidget::onReleaseFilterChanged()
+{
+    std::list<ModPlatform::IndexedVersionType> releases;
+    if (ui->releaseCb->isChecked())
+        releases.push_back(ModPlatform::IndexedVersionType(ModPlatform::IndexedVersionType::VersionType::Release));
+    if (ui->betaCb->isChecked())
+        releases.push_back(ModPlatform::IndexedVersionType(ModPlatform::IndexedVersionType::VersionType::Beta));
+    if (ui->alphaCb->isChecked())
+        releases.push_back(ModPlatform::IndexedVersionType(ModPlatform::IndexedVersionType::VersionType::Alpha));
+    if (ui->unknownCb->isChecked())
+        releases.push_back(ModPlatform::IndexedVersionType(ModPlatform::IndexedVersionType::VersionType::Unknown));
+    m_filter_changed = releases != m_filter->releases;
+    m_filter->releases = releases;
     if (m_filter_changed)
         emit filterChanged();
 }
