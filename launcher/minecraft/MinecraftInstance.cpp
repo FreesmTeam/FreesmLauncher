@@ -1227,6 +1227,11 @@ std::shared_ptr<ShaderPackFolderModel> MinecraftInstance::shaderPackList()
     return m_shader_pack_list;
 }
 
+QList<std::shared_ptr<ResourceFolderModel>> MinecraftInstance::resourceLists()
+{
+    return { loaderModList(), coreModList(), nilModList(), resourcePackList(), texturePackList(), shaderPackList() };
+}
+
 std::shared_ptr<WorldList> MinecraftInstance::worldList()
 {
     if (!m_world_list) {
