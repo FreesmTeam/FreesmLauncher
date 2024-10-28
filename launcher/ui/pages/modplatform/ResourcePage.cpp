@@ -325,9 +325,9 @@ void ResourcePage::onSelectionChanged(QModelIndex curr, [[maybe_unused]] QModelI
     updateUi();
 }
 
-void ResourcePage::onVersionSelectionChanged(int)
+void ResourcePage::onVersionSelectionChanged(int index)
 {
-    m_selectedVersionIndex = m_ui->versionSelectionBox->currentData().toInt();
+    m_selectedVersionIndex = m_ui->versionSelectionBox->itemData(index).toInt();
     updateSelectionButton();
 }
 
@@ -364,10 +364,10 @@ void ResourcePage::onResourceSelected()
 
     auto& version = current_pack->versions[m_selectedVersionIndex];
     if (version.downloadUrl.isNull()) {
-        CustomMessageBox::selectable(this, tr("How?"),
-                                     "You managed to select a resource that doesn't have a download link. Because of this missing "
-                                     "information prism will not try to download it.",
-                                     QMessageBox::Warning)
+        CustomMessageBox::selectable(
+            this, tr("Download Link Missing"),
+            tr("It looks like the resource you selected doesn't have a download link, so Prism won't attempt to download it."),
+            QMessageBox::Warning)
             ->show();
         return;
     }
@@ -485,7 +485,7 @@ void ResourcePage::openProject(QVariant projectID)
     m_ui->gridLayout_4->addWidget(buttonBox, 1, 2);
 
     connect(m_ui->versionSelectionBox, QOverload<int>::of(&QComboBox::currentIndexChanged), this,
-            [this, okBtn] { okBtn->setEnabled(m_ui->versionSelectionBox->currentData().toInt() >= 0); });
+            [this, okBtn](int index) { okBtn->setEnabled(m_ui->versionSelectionBox->itemData(index).toInt() >= 0); });
 
     auto jump = [this] {
         for (int row = 0; row < m_model->rowCount({}); row++) {

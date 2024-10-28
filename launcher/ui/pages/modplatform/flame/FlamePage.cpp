@@ -273,7 +273,7 @@ void FlamePage::suggestCurrent()
 void FlamePage::onVersionSelectionChanged(int index)
 {
     bool is_blocked = false;
-    ui->versionSelectionBox->currentData().toInt(&is_blocked);
+    ui->versionSelectionBox->itemData(index).toInt(&is_blocked);
 
     if (index == -1 || is_blocked) {
         m_selected_version_index = -1;
