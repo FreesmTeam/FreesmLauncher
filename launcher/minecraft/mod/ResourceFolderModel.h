@@ -151,7 +151,7 @@ class ResourceFolderModel : public QAbstractListModel {
     /* Qt behavior */
 
     /* Basic columns */
-    enum Columns { ACTIVE_COLUMN = 0, NAME_COLUMN, DATE_COLUMN, PROVIDER_COLUMN, SIZE_COLUMN, NUM_COLUMNS };
+    enum Columns { ActiveColumn = 0, NameColumn, DateColumn, ProviderColumn, SizeColumn, NUM_COLUMNS };
 
     QStringList columnNames(bool translated = true) const { return translated ? m_column_names_translated : m_column_names; }
 
