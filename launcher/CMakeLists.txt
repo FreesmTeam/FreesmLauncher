@@ -349,8 +349,8 @@ set(MINECRAFT_SOURCES
     minecraft/mod/tasks/ResourceFolderLoadTask.cpp
     minecraft/mod/tasks/LocalModParseTask.h
     minecraft/mod/tasks/LocalModParseTask.cpp
-        minecraft/mod/tasks/LocalResourceUpdateTask.h
-        minecraft/mod/tasks/LocalResourceUpdateTask.cpp
+    minecraft/mod/tasks/LocalResourceUpdateTask.h
+    minecraft/mod/tasks/LocalResourceUpdateTask.cpp
     minecraft/mod/tasks/LocalDataPackParseTask.h
     minecraft/mod/tasks/LocalDataPackParseTask.cpp
     minecraft/mod/tasks/LocalResourcePackParseTask.h
@@ -1068,8 +1068,8 @@ SET(LAUNCHER_SOURCES
     ui/dialogs/BlockedModsDialog.h
     ui/dialogs/ChooseProviderDialog.h
     ui/dialogs/ChooseProviderDialog.cpp
-        ui/dialogs/ResourceUpdateDialog.cpp
-        ui/dialogs/ResourceUpdateDialog.h
+    ui/dialogs/ResourceUpdateDialog.cpp
+    ui/dialogs/ResourceUpdateDialog.h
     ui/dialogs/InstallLoaderDialog.cpp
     ui/dialogs/InstallLoaderDialog.h
 
