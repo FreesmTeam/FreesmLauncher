@@ -283,11 +283,15 @@ void ResourcePage::updateVersionList()
             if (!m_model->checkVersionFilters(version))
                 continue;
 
-            auto release_type = current_pack->versions[i].version_type.isValid()
-                                    ? QString(" [%1]").arg(current_pack->versions[i].version_type.toString())
-                                    : "";
+            auto versionText = version.version;
+            if (version.version_type.isValid()) {
+                versionText += QString(" [%1]").arg(version.version_type.toString());
+            }
+            if (version.fileId == installedVersion) {
+                versionText += tr(" [installed]", "Mod version select");
+            }
 
-            m_ui->versionSelectionBox->addItem(QString("%1%2").arg(version.version, release_type), QVariant(i));
+            m_ui->versionSelectionBox->addItem(versionText, QVariant(i));
         }
     }
     if (m_ui->versionSelectionBox->count() == 0) {
