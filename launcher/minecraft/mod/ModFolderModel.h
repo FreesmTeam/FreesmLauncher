@@ -75,7 +75,6 @@ class ModFolderModel : public ResourceFolderModel {
         ReleaseTypeColumn,
         NUM_COLUMNS
     };
-    enum ModStatusAction { Disable, Enable, Toggle };
     ModFolderModel(const QDir& dir, BaseInstance* instance, bool is_indexed, bool create_dir, QObject* parent = nullptr);
 
     virtual QString id() const override { return "mods"; }
