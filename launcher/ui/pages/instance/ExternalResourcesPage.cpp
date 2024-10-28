@@ -323,6 +323,8 @@ void ExternalResourcesPage::updateActions()
     ui->actionRemoveItem->setEnabled(hasSelection);
     ui->actionEnableItem->setEnabled(hasSelection);
     ui->actionDisableItem->setEnabled(hasSelection);
+
+    ui->actionExportMetadata->setEnabled(!m_model->empty());
 }
 
 void ExternalResourcesPage::updateFrame(const QModelIndex& current, [[maybe_unused]] const QModelIndex& previous)

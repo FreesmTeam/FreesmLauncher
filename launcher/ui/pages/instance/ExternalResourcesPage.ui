@@ -190,7 +190,7 @@
   </action>
   <action name="actionExportMetadata">
    <property name="enabled">
-    <bool>true</bool>
+    <bool>false</bool>
    </property>
    <property name="text">
     <string>Export List</string>
