@@ -147,11 +147,11 @@ void InfoFrame::updateWithResource(const Resource& resource)
 {
     const QString homepage = resource.homepage();
 
-    if (!homepage.isEmpty()) {
+    if (!homepage.isEmpty())
+        setName("<a href=\"" + homepage + "\">" + resource.name() + "</a>");
+    else
+        setName(resource.name());
 
-    }
-
-    setName(resource.name());
     setImage();
 }
 
