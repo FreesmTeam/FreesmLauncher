@@ -32,16 +32,16 @@
    <item>
     <layout class="QHBoxLayout" name="horizontalLayout">
      <item>
-      <widget class="QLineEdit" name="searchEdit">
-       <property name="placeholderText">
-        <string>Search and filter...</string>
+      <widget class="QPushButton" name="filterButton">
+       <property name="text">
+        <string>Filter options</string>
        </property>
       </widget>
      </item>
      <item>
-      <widget class="QPushButton" name="filterButton">
-       <property name="text">
-        <string>Filter</string>
+      <widget class="QLineEdit" name="searchEdit">
+       <property name="placeholderText">
+        <string>Search and filter...</string>
        </property>
       </widget>
      </item>
