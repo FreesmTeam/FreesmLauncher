@@ -115,7 +115,7 @@ QString hash(QIODevice* device, Algorithm type)
 
     QCryptographicHash hash(alg);
     if (!hash.addData(device))
-        qCritical() << "Failed to read file to create hash!";
+        qCritical() << "Failed to read JAR to create hash!";
 
     Q_ASSERT(hash.result().length() == hash.hashLength(alg));
     auto result = hash.result().toHex();

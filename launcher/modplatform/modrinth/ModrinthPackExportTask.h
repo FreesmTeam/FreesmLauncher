@@ -29,12 +29,12 @@
 class ModrinthPackExportTask : public Task {
     Q_OBJECT
    public:
-    ModrinthPackExportTask(QString name,
-                           QString version,
-                           QString summary,
+    ModrinthPackExportTask(const QString& name,
+                           const QString& version,
+                           const QString& summary,
                            bool optionalFiles,
-                           MinecraftInstancePtr instance,
-                           QString output,
+                           InstancePtr instance,
+                           const QString& output,
                            MMCZip::FilterFunction filter);
 
    protected:
@@ -48,12 +48,14 @@ class ModrinthPackExportTask : public Task {
         Metadata::ModSide side;
     };
 
+    static const QStringList PREFIXES;
     static const QStringList FILE_EXTENSIONS;
 
     // inputs
     const QString name, version, summary;
     const bool optionalFiles;
-    const MinecraftInstancePtr instance;
+    const InstancePtr instance;
+    MinecraftInstance* mcInstance;
     const QDir gameRoot;
     const QString output;
     const MMCZip::FilterFunction filter;

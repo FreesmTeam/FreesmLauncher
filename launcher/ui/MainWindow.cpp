@@ -1403,26 +1403,27 @@ void MainWindow::on_actionExportInstanceZip_triggered()
 
 void MainWindow::on_actionExportInstanceMrPack_triggered()
 {
-    auto instance = std::dynamic_pointer_cast<MinecraftInstance>(m_selectedInstance);
-    if (instance) {
-        ExportPackDialog dlg(std::move(instance), this);
+    if (m_selectedInstance) {
+        ExportPackDialog dlg(m_selectedInstance, this);
         dlg.exec();
     }
 }
 
 void MainWindow::on_actionExportInstanceFlamePack_triggered()
 {
-    auto instance = std::dynamic_pointer_cast<MinecraftInstance>(m_selectedInstance);
-    if (instance) {
-        if (auto cmp = instance->getPackProfile()->getComponent("net.minecraft");
-            cmp && cmp->getVersionFile() && cmp->getVersionFile()->type == "snapshot") {
-            QMessageBox msgBox(this);
-            msgBox.setText("Snapshots are currently not supported by CurseForge modpacks.");
-            msgBox.exec();
-            return;
+    if (m_selectedInstance) {
+        auto instance = dynamic_cast<MinecraftInstance*>(m_selectedInstance.get());
+        if (instance) {
+            if (auto cmp = instance->getPackProfile()->getComponent("net.minecraft");
+                cmp && cmp->getVersionFile() && cmp->getVersionFile()->type == "snapshot") {
+                QMessageBox msgBox(this);
+                msgBox.setText("Snapshots are currently not supported by CurseForge modpacks.");
+                msgBox.exec();
+                return;
+            }
+            ExportPackDialog dlg(m_selectedInstance, this, ModPlatform::ResourceProvider::FLAME);
+            dlg.exec();
         }
-        ExportPackDialog dlg(std::move(instance), this, ModPlatform::ResourceProvider::FLAME);
-        dlg.exec();
     }
 }
 
