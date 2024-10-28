@@ -377,7 +377,7 @@ QList<BasePage*> ShaderPackDownloadDialog::getPages()
     return pages;
 }
 
-void ModDownloadDialog::setModMetadata(std::shared_ptr<Metadata::ModStruct> meta)
+void ResourceDownloadDialog::setResourceMetadata(const std::shared_ptr<Metadata::ModStruct>& meta)
 {
     switch (meta->provider) {
         case ModPlatform::ResourceProvider::MODRINTH:

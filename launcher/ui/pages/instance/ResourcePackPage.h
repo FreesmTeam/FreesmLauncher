@@ -64,6 +64,7 @@ class ResourcePackPage : public ExternalResourcesPage {
     void downloadResourcePacks();
     void updateResourcePacks();
     void deleteResourcePackMetadata();
+    void changeResourcePackVersion();
 
    protected:
     std::shared_ptr<ResourcePackFolderModel> m_model;

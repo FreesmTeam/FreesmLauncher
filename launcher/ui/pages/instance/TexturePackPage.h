@@ -59,6 +59,7 @@ class TexturePackPage : public ExternalResourcesPage {
     void downloadTexturePacks();
     void updateTexturePacks();
     void deleteTexturePackMetadata();
+    void changeTexturePackVersion();
 
    private:
     std::shared_ptr<TexturePackFolderModel> m_model;

@@ -67,6 +67,10 @@ ResourcePackPage::ResourcePackPage(MinecraftInstance* instance, std::shared_ptr<
     connect(ui->actionResetItemMetadata, &QAction::triggered, this, &ResourcePackPage::deleteResourcePackMetadata);
 
     ui->actionUpdateItem->setMenu(updateMenu);
+
+    ui->actionChangeVersion->setToolTip(tr("Change a mod's version."));
+    connect(ui->actionChangeVersion, &QAction::triggered, this, &ResourcePackPage::changeResourcePackVersion);
+    ui->actionsToolbar->insertActionAfter(ui->actionUpdateItem, ui->actionChangeVersion);
 }
 
 void ResourcePackPage::updateFrame(const QModelIndex& current, [[maybe_unused]] const QModelIndex& previous)
@@ -213,4 +217,57 @@ void ResourcePackPage::deleteResourcePackMetadata()
     }
 
     m_model->deleteMetadata(selection);
+}
+
+void ResourcePackPage::changeResourcePackVersion()
+{
+    if (m_instance->typeName() != "Minecraft")
+        return;  // this is a null instance or a legacy instance
+
+    if (APPLICATION->settings()->get("ModMetadataDisabled").toBool()) {
+        QMessageBox::critical(this, tr("Error"), tr("Resource pack updates are unavailable when metadata is disabled!"));
+        return;
+    }
+
+    const QModelIndexList rows = ui->treeView->selectionModel()->selectedRows();
+
+    if (rows.count() != 1)
+        return;
+
+    Resource &resource = m_model->at(m_filterModel->mapToSource(rows[0]).row());
+
+    if (resource.metadata() == nullptr)
+        return;
+
+    ResourceDownload::ResourcePackDownloadDialog mdownload(this, m_model, m_instance);
+    mdownload.setResourceMetadata(resource.metadata());
+    if (mdownload.exec()) {
+        auto tasks =
+            new ConcurrentTask(this, "Download Resource Packs", APPLICATION->settings()->get("NumberOfConcurrentDownloads").toInt());
+        connect(tasks, &Task::failed, [this, tasks](QString reason) {
+            CustomMessageBox::selectable(this, tr("Error"), reason, QMessageBox::Critical)->show();
+            tasks->deleteLater();
+        });
+        connect(tasks, &Task::aborted, [this, tasks]() {
+            CustomMessageBox::selectable(this, tr("Aborted"), tr("Download stopped by user."), QMessageBox::Information)->show();
+            tasks->deleteLater();
+        });
+        connect(tasks, &Task::succeeded, [this, tasks]() {
+            QStringList warnings = tasks->warnings();
+            if (warnings.count())
+                CustomMessageBox::selectable(this, tr("Warnings"), warnings.join('\n'), QMessageBox::Warning)->show();
+
+            tasks->deleteLater();
+        });
+
+        for (auto& task : mdownload.getTasks()) {
+            tasks->addTask(task);
+        }
+
+        ProgressDialog loadDialog(this);
+        loadDialog.setSkipButton(true, tr("Abort"));
+        loadDialog.execWithTask(tasks);
+
+        m_model->update();
+    }
 }

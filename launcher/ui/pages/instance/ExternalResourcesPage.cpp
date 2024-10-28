@@ -316,6 +316,10 @@ void ExternalResourcesPage::updateActions()
     const bool hasSelection = ui->treeView->selectionModel()->hasSelection();
     ui->actionUpdateItem->setEnabled(!m_model->empty());
     ui->actionResetItemMetadata->setEnabled(hasSelection);
+
+    const QModelIndexList rows = ui->treeView->selectionModel()->selectedRows();
+    ui->actionChangeVersion->setEnabled(rows.count() == 1 && m_model->at(m_filterModel->mapToSource(rows[0]).row()).metadata() != nullptr);
+
     ui->actionRemoveItem->setEnabled(hasSelection);
     ui->actionEnableItem->setEnabled(hasSelection);
     ui->actionDisableItem->setEnabled(hasSelection);

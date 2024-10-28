@@ -56,6 +56,7 @@ class ShaderPackPage : public ExternalResourcesPage {
     void downloadShaderPack();
     void updateShaderPacks();
     void deleteShaderPackMetadata();
+    void changeShaderPackVersion();
 
    private:
     std::shared_ptr<ShaderPackFolderModel> m_model;

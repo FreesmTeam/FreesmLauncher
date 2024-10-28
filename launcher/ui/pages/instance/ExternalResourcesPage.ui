@@ -60,7 +60,7 @@
        <bool>true</bool>
       </property>
       <property name="dragDropMode">
-       <enum>QAbstractItemView::DragDropMode::DropOnly</enum>
+       <enum>QAbstractItemView::NoDragDrop</enum>
       </property>
       <property name="uniformRowHeights">
        <bool>true</bool>
@@ -74,7 +74,7 @@
     <string>Actions</string>
    </property>
    <property name="toolButtonStyle">
-    <enum>Qt::ToolButtonStyle::ToolButtonTextOnly</enum>
+    <enum>Qt::ToolButtonIconOnly</enum>
    </property>
    <property name="useDefaultAction" stdset="0">
     <bool>true</bool>
@@ -177,7 +177,7 @@
     <string>Reset Update Metadata</string>
    </property>
    <property name="menuRole">
-    <enum>QAction::MenuRole::NoRole</enum>
+    <enum>QAction::NoRole</enum>
    </property>
   </action>
   <action name="actionVerifyItemDependencies">
@@ -185,7 +185,7 @@
     <string>Verify Dependencies</string>
    </property>
    <property name="menuRole">
-    <enum>QAction::MenuRole::NoRole</enum>
+    <enum>QAction::NoRole</enum>
    </property>
   </action>
   <action name="actionExportMetadata">
@@ -200,6 +200,9 @@
    </property>
   </action>
   <action name="actionChangeVersion">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
    <property name="text">
     <string>Change Version</string>
    </property>
@@ -207,7 +210,7 @@
     <string>Change a resource's version.</string>
    </property>
    <property name="menuRole">
-    <enum>QAction::MenuRole::NoRole</enum>
+    <enum>QAction::NoRole</enum>
    </property>
   </action>
  </widget>

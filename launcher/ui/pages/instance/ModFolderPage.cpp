@@ -308,7 +308,7 @@ void ModFolderPage::changeModVersion()
         return;
 
     ResourceDownload::ModDownloadDialog mdownload(this, m_model, m_instance);
-    mdownload.setModMetadata((*mods_list.begin())->metadata());
+    mdownload.setResourceMetadata((*mods_list.begin())->metadata());
     if (mdownload.exec()) {
         auto tasks = new ConcurrentTask(this, "Download Mods", APPLICATION->settings()->get("NumberOfConcurrentDownloads").toInt());
         connect(tasks, &Task::failed, [this, tasks](QString reason) {
