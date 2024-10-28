@@ -363,10 +363,7 @@ void ResourcePage::onResourceSelected()
         return;
 
     auto& version = current_pack->versions[m_selectedVersionIndex];
-    if (version.downloadUrl.isNull()) {
-        qCritical() << tr("It looks like the resource you selected doesn't have a download link, so Prism won't attempt to download it.");
-        return;
-    }
+    Q_ASSERT(!version.downloadUrl.isNull());
     if (version.is_currently_selected)
         removeResourceFromDialog(current_pack->name);
     else
