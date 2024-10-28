@@ -92,8 +92,7 @@ void TexturePackPage::downloadTexturePacks()
 
     ResourceDownload::TexturePackDownloadDialog mdownload(this, m_model, m_instance);
     if (mdownload.exec()) {
-        auto tasks =
-            new ConcurrentTask(this, "Download Texture Packs", APPLICATION->settings()->get("NumberOfConcurrentDownloads").toInt());
+        auto tasks = new ConcurrentTask("Download Texture Packs", APPLICATION->settings()->get("NumberOfConcurrentDownloads").toInt());
         connect(tasks, &Task::failed, [this, tasks](QString reason) {
             CustomMessageBox::selectable(this, tr("Error"), reason, QMessageBox::Critical)->show();
             tasks->deleteLater();
@@ -172,8 +171,7 @@ void TexturePackPage::updateTexturePacks()
     }
 
     if (update_dialog.exec()) {
-        auto tasks =
-            new ConcurrentTask(this, "Download Texture Packs", APPLICATION->settings()->get("NumberOfConcurrentDownloads").toInt());
+        auto tasks = new ConcurrentTask("Download Texture Packs", APPLICATION->settings()->get("NumberOfConcurrentDownloads").toInt());
         connect(tasks, &Task::failed, [this, tasks](QString reason) {
             CustomMessageBox::selectable(this, tr("Error"), reason, QMessageBox::Critical)->show();
             tasks->deleteLater();
@@ -223,7 +221,8 @@ void TexturePackPage::deleteTexturePackMetadata()
     m_model->deleteMetadata(selection);
 }
 
-void TexturePackPage::changeTexturePackVersion() {
+void TexturePackPage::changeTexturePackVersion()
+{
     if (m_instance->typeName() != "Minecraft")
         return;  // this is a null instance or a legacy instance
 
@@ -237,7 +236,7 @@ void TexturePackPage::changeTexturePackVersion() {
     if (rows.count() != 1)
         return;
 
-    Resource &resource = m_model->at(m_filterModel->mapToSource(rows[0]).row());
+    Resource& resource = m_model->at(m_filterModel->mapToSource(rows[0]).row());
 
     if (resource.metadata() == nullptr)
         return;
@@ -245,8 +244,7 @@ void TexturePackPage::changeTexturePackVersion() {
     ResourceDownload::TexturePackDownloadDialog mdownload(this, m_model, m_instance);
     mdownload.setResourceMetadata(resource.metadata());
     if (mdownload.exec()) {
-        auto tasks =
-            new ConcurrentTask(this, "Download Texture Packs", APPLICATION->settings()->get("NumberOfConcurrentDownloads").toInt());
+        auto tasks = new ConcurrentTask("Download Texture Packs", APPLICATION->settings()->get("NumberOfConcurrentDownloads").toInt());
         connect(tasks, &Task::failed, [this, tasks](QString reason) {
             CustomMessageBox::selectable(this, tr("Error"), reason, QMessageBox::Critical)->show();
             tasks->deleteLater();
