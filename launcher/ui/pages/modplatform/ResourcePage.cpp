@@ -364,11 +364,7 @@ void ResourcePage::onResourceSelected()
 
     auto& version = current_pack->versions[m_selectedVersionIndex];
     if (version.downloadUrl.isNull()) {
-        CustomMessageBox::selectable(
-            this, tr("Download Link Missing"),
-            tr("It looks like the resource you selected doesn't have a download link, so Prism won't attempt to download it."),
-            QMessageBox::Warning)
-            ->show();
+        qCritical() << tr("It looks like the resource you selected doesn't have a download link, so Prism won't attempt to download it.");
         return;
     }
     if (version.is_currently_selected)
