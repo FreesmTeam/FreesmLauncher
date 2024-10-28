@@ -40,7 +40,7 @@ void ModrinthCheckUpdate::executeTask()
     setProgress(0, 9);
 
     auto hashing_task =
-        makeShared<ConcurrentTask>(this, "MakeModrinthHashesTask", APPLICATION->settings()->get("NumberOfConcurrentTasks").toInt());
+        makeShared<ConcurrentTask>("MakeModrinthHashesTask", APPLICATION->settings()->get("NumberOfConcurrentTasks").toInt());
     for (auto* mod : m_mods) {
         auto hash = mod->metadata()->hash;
 
@@ -91,7 +91,6 @@ void ModrinthCheckUpdate::checkVersionsResponse(std::shared_ptr<QByteArray> resp
             // it means this specific version is not available
             if (project_obj.isEmpty()) {
                 qDebug() << "Mod " << m_mappings.find(hash).value()->name() << " got an empty response." << "Hash: " << hash;
-
                 continue;
             }
 

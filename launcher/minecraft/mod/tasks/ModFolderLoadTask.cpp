@@ -43,7 +43,7 @@
 #include <QThread>
 
 ModFolderLoadTask::ModFolderLoadTask(QDir mods_dir, QDir index_dir, bool is_indexed, bool clean_orphan)
-    : Task(nullptr, false)
+    : Task(false)
     , m_mods_dir(mods_dir)
     , m_index_dir(index_dir)
     , m_is_indexed(is_indexed)

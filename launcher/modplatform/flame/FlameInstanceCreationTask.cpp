@@ -677,7 +677,7 @@ void FlameCreationTask::validateZIPResources(QEventLoop& loop)
                 break;
         }
     }
-    auto task = makeShared<ConcurrentTask>(this, "CreateModMetadata", APPLICATION->settings()->get("NumberOfConcurrentTasks").toInt());
+    auto task = makeShared<ConcurrentTask>("CreateModMetadata", APPLICATION->settings()->get("NumberOfConcurrentTasks").toInt());
     auto results = m_mod_id_resolver->getResults().files;
     auto folder = FS::PathCombine(m_stagingPath, "minecraft", "mods", ".index");
     for (auto file : results) {

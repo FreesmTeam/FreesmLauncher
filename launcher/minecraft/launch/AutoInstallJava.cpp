@@ -57,9 +57,7 @@
 #include "tasks/SequentialTask.h"
 
 AutoInstallJava::AutoInstallJava(LaunchTask* parent)
-    : LaunchStep(parent)
-    , m_instance(m_parent->instance())
-    , m_supported_arch(SysInfo::getSupportedJavaArchitecture()) {};
+    : LaunchStep(parent), m_instance(m_parent->instance()), m_supported_arch(SysInfo::getSupportedJavaArchitecture()) {};
 
 void AutoInstallJava::executeTask()
 {
@@ -179,7 +177,7 @@ void AutoInstallJava::downloadJava(Meta::Version::Ptr version, QString javaName)
                     return;
             }
 #if defined(Q_OS_MACOS)
-            auto seq = makeShared<SequentialTask>(this, tr("Install Java"));
+            auto seq = makeShared<SequentialTask>(tr("Install Java"));
             seq->addTask(m_current_task);
             seq->addTask(makeShared<Java::SymlinkTask>(final_path));
             m_current_task = seq;
