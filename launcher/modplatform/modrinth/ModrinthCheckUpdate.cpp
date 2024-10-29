@@ -168,13 +168,12 @@ void ModrinthCheckUpdate::checkNextLoader()
         return;
     }
 
-    if (m_loaders_list.size() == 0) {
-        if (m_loader_idx == 0) {
-            getUpdateModsForLoader({});
-            m_loader_idx++;
-            return;
-        }
+    if (m_loaders_list.isEmpty() && m_loader_idx == 0) {
+        getUpdateModsForLoader({});
+        m_loader_idx++;
+        return;
     }
+    
     if (m_loader_idx < m_loaders_list.size()) {
         getUpdateModsForLoader(m_loaders_list.at(m_loader_idx));
         m_loader_idx++;
