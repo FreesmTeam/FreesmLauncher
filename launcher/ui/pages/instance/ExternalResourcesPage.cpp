@@ -338,7 +338,7 @@ void ExternalResourcesPage::updateActions()
     ui->actionDisableItem->setEnabled(hasSelection);
 
     ui->actionViewHomepage->setEnabled(hasSelection && std::any_of(selectedResources.begin(), selectedResources.end(),
-                                                                   [](Resource* resource) { return !resource->homepage().isEmpty() }));
+                                                                   [](Resource* resource) { return !resource->homepage().isEmpty(); }));
     ui->actionExportMetadata->setEnabled(!m_model->empty());
 }
 
