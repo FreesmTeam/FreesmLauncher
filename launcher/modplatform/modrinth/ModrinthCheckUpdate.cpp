@@ -148,7 +148,7 @@ void ModrinthCheckUpdate::checkVersionsResponse(std::shared_ptr<QByteArray> resp
                 }
 
                 m_updates.emplace_back(pack->name, hash, old_version, project_ver.version_number, project_ver.version_type,
-                                       project_ver.changelog, ModPlatform::ResourceProvider::MODRINTH, download_task);
+                                       project_ver.changelog, ModPlatform::ResourceProvider::MODRINTH, download_task, resource->enabled());
             }
             m_deps.append(std::make_shared<GetModDependenciesTask::PackDependency>(pack, project_ver));
 
@@ -177,7 +177,7 @@ void ModrinthCheckUpdate::checkNextLoader()
     if (m_loader_idx < m_loaders_list.size()) {
         getUpdateModsForLoader(m_loaders_list.at(m_loader_idx));
         m_loader_idx++;
-        return; 
+        return;
     }
 
     for (auto resource : m_mappings) {

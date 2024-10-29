@@ -17,7 +17,7 @@ class CheckUpdateTask : public Task {
                     std::list<Version>& mcVersions,
                     QList<ModPlatform::ModLoaderType> loadersList,
                     std::shared_ptr<ResourceFolderModel> resourceModel)
-        : Task(nullptr)
+        : Task()
         , m_resources(resources)
         , m_game_versions(mcVersions)
         , m_loaders_list(std::move(loadersList))

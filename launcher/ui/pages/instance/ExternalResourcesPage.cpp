@@ -305,21 +305,10 @@ void ExternalResourcesPage::disableItem()
 void ExternalResourcesPage::viewHomepage()
 {
     auto selection = m_filterModel->mapSelectionToSource(ui->treeView->selectionModel()->selection()).indexes();
-    bool openedAny = false;
     for (auto resource : m_model->selectedResources(selection)) {
         auto url = resource->homepage();
-        if (!url.isEmpty()) {
+        if (!url.isEmpty())
             DesktopServices::openUrl(url);
-            openedAny = true;
-        }
-    }
-
-    // TODO: just disable button
-    // just doing this for now to prevent race conditions which may be worse with implementation changes
-    if (!openedAny) {
-        CustomMessageBox::selectable(this, tr("No homepages found"), tr("None of the selected resources had an available homepage."),
-                                     QMessageBox::Warning, QMessageBox::Ok, QMessageBox::Ok)
-            ->exec();
     }
 }
 
@@ -336,18 +325,20 @@ void ExternalResourcesPage::viewFolder()
 void ExternalResourcesPage::updateActions()
 {
     const bool hasSelection = ui->treeView->selectionModel()->hasSelection();
-    const QModelIndexList rows = ui->treeView->selectionModel()->selectedRows();
+    const QModelIndexList selection = m_filterModel->mapSelectionToSource(ui->treeView->selectionModel()->selection()).indexes();
+    const QList<Resource*> selectedResources = m_model->selectedResources(selection);
 
     ui->actionUpdateItem->setEnabled(!m_model->empty());
     ui->actionResetItemMetadata->setEnabled(hasSelection);
 
-    ui->actionChangeVersion->setEnabled(rows.count() == 1 && m_model->at(m_filterModel->mapToSource(rows[0]).row()).metadata() != nullptr);
+    ui->actionChangeVersion->setEnabled(selectedResources.size() == 1 && selectedResources[0]->metadata() != nullptr);
 
     ui->actionRemoveItem->setEnabled(hasSelection);
     ui->actionEnableItem->setEnabled(hasSelection);
     ui->actionDisableItem->setEnabled(hasSelection);
 
-    ui->actionViewHomepage->setEnabled(hasSelection);
+    ui->actionViewHomepage->setEnabled(hasSelection && std::any_of(selectedResources.begin(), selectedResources.end(),
+                                                                   [](Resource* resource) { return !resource->homepage().isEmpty() }));
     ui->actionExportMetadata->setEnabled(!m_model->empty());
 }
 

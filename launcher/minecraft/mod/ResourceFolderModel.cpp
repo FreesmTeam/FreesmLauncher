@@ -166,7 +166,7 @@ bool ResourceFolderModel::installResource(QString original_path)
     return false;
 }
 
-bool ResourceFolderModel::installResource(QString path, ModPlatform::IndexedVersion& vers)
+bool ResourceFolderModel::installResourceWithFlameMetadata(QString path, ModPlatform::IndexedVersion& vers)
 {
     if (vers.addonId.isValid()) {
         ModPlatform::IndexedPack pack{
