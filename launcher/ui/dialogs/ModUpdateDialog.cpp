@@ -106,9 +106,9 @@ void ModUpdateDialog::checkCandidates()
     }
 
     connect(&check_task, &Task::failed, this,
-            [&](QString reason) { CustomMessageBox::selectable(this, tr("Error"), reason, QMessageBox::Critical)->exec(); });
+            [this](QString reason) { CustomMessageBox::selectable(this, tr("Error"), reason, QMessageBox::Critical)->exec(); });
 
-    connect(&check_task, &Task::succeeded, this, [&]() {
+    connect(&check_task, &Task::succeeded, this, [this, &check_task]() {
         QStringList warnings = check_task.warnings();
         if (warnings.count()) {
             CustomMessageBox::selectable(this, tr("Warnings"), warnings.join('\n'), QMessageBox::Warning)->exec();
@@ -190,10 +190,14 @@ void ModUpdateDialog::checkCandidates()
         auto depTask = makeShared<GetModDependenciesTask>(this, m_instance, m_mod_model.get(), selectedVers);
 
         connect(depTask.get(), &Task::failed, this,
-                [&](QString reason) { CustomMessageBox::selectable(this, tr("Error"), reason, QMessageBox::Critical)->exec(); });
+                [this](QString reason) { CustomMessageBox::selectable(this, tr("Error"), reason, QMessageBox::Critical)->exec(); });
 
-        connect(depTask.get(), &Task::succeeded, this, [&]() {
-            QStringList warnings = depTask->warnings();
+        auto weak = depTask.toWeakRef();
+        connect(depTask.get(), &Task::succeeded, this, [this, weak]() {
+            QStringList warnings;
+            if (auto depTask = weak.lock()) {
+                warnings = depTask->warnings();
+            }
             if (warnings.count()) {
                 CustomMessageBox::selectable(this, tr("Warnings"), warnings.join('\n'), QMessageBox::Warning)->exec();
             }
@@ -273,7 +277,7 @@ auto ModUpdateDialog::ensureMetadata() -> bool
     bool skip_rest = false;
     ModPlatform::ResourceProvider provider_rest = ModPlatform::ResourceProvider::MODRINTH;
 
-    auto addToTmp = [&](Mod* m, ModPlatform::ResourceProvider p) {
+    auto addToTmp = [&modrinth_tmp, &flame_tmp](Mod* m, ModPlatform::ResourceProvider p) {
         switch (p) {
             case ModPlatform::ResourceProvider::MODRINTH:
                 modrinth_tmp.push_back(m);

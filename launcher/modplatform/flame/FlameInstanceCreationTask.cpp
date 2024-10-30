@@ -439,7 +439,7 @@ bool FlameCreationTask::createInstance()
 
     m_mod_id_resolver.reset(new Flame::FileResolvingTask(APPLICATION->network(), m_pack));
     connect(m_mod_id_resolver.get(), &Flame::FileResolvingTask::succeeded, this, [this, &loop] { idResolverSucceeded(loop); });
-    connect(m_mod_id_resolver.get(), &Flame::FileResolvingTask::failed, [&](QString reason) {
+    connect(m_mod_id_resolver.get(), &Flame::FileResolvingTask::failed, [this, &loop](QString reason) {
         m_mod_id_resolver.reset();
         setError(tr("Unable to resolve mod IDs:\n") + reason);
         loop.quit();
@@ -561,7 +561,7 @@ void FlameCreationTask::setupDownloadJob(QEventLoop& loop)
         m_files_job.reset();
         validateZIPResources(loop);
     });
-    connect(m_files_job.get(), &NetJob::failed, [&](QString reason) {
+    connect(m_files_job.get(), &NetJob::failed, [this](QString reason) {
         m_files_job.reset();
         setError(reason);
     });

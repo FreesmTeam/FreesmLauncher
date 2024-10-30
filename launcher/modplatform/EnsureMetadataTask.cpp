@@ -144,7 +144,7 @@ void EnsureMetadataTask::executeTask()
             return;
         }
 
-        connect(project_task.get(), &Task::finished, this, [=] {
+        connect(project_task.get(), &Task::finished, this, [this, invalidade_leftover, project_task] {
             invalidade_leftover();
             project_task->deleteLater();
             if (m_current_task)
@@ -156,7 +156,7 @@ void EnsureMetadataTask::executeTask()
         project_task->start();
     });
 
-    connect(version_task.get(), &Task::finished, [=] {
+    connect(version_task.get(), &Task::finished, [this, version_task] {
         version_task->deleteLater();
         if (m_current_task)
             m_current_task.reset();

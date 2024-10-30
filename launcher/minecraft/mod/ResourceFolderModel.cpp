@@ -245,7 +245,7 @@ bool ResourceFolderModel::update()
     connect(m_current_update_task.get(), &Task::failed, this, &ResourceFolderModel::onUpdateFailed, Qt::ConnectionType::QueuedConnection);
     connect(
         m_current_update_task.get(), &Task::finished, this,
-        [=] {
+        [this] {
             m_current_update_task.reset();
             if (m_scheduled_update) {
                 m_scheduled_update = false;
@@ -277,11 +277,14 @@ void ResourceFolderModel::resolveResource(Resource* res)
     m_active_parse_tasks.insert(ticket, task);
 
     connect(
-        task.get(), &Task::succeeded, this, [=] { onParseSucceeded(ticket, res->internal_id()); }, Qt::ConnectionType::QueuedConnection);
-    connect(task.get(), &Task::failed, this, [=] { onParseFailed(ticket, res->internal_id()); }, Qt::ConnectionType::QueuedConnection);
+        task.get(), &Task::succeeded, this, [this, ticket, res] { onParseSucceeded(ticket, res->internal_id()); },
+        Qt::ConnectionType::QueuedConnection);
+    connect(
+        task.get(), &Task::failed, this, [this, ticket, res] { onParseFailed(ticket, res->internal_id()); },
+        Qt::ConnectionType::QueuedConnection);
     connect(
         task.get(), &Task::finished, this,
-        [=] {
+        [this, ticket] {
             m_active_parse_tasks.remove(ticket);
             emit parseFinished();
         },

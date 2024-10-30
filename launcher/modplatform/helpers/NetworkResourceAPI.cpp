@@ -141,7 +141,7 @@ Task::Ptr NetworkResourceAPI::getDependencyVersion(DependencySearchArgs&& args, 
 
     netJob->addNetAction(Net::ApiDownload::makeByteArray(versions_url, response));
 
-    QObject::connect(netJob.get(), &NetJob::succeeded, [=] {
+    QObject::connect(netJob.get(), &NetJob::succeeded, [response, callbacks, args] {
         QJsonParseError parse_error{};
         QJsonDocument doc = QJsonDocument::fromJson(*response, &parse_error);
         if (parse_error.error != QJsonParseError::NoError) {

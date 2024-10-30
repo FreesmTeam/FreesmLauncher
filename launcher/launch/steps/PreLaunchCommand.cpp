@@ -65,7 +65,7 @@ void PreLaunchCommand::executeTask()
 
 void PreLaunchCommand::on_state(LoggedProcess::State state)
 {
-    auto getError = [&]() { return tr("Pre-Launch command failed with code %1.\n\n").arg(m_process.exitCode()); };
+    auto getError = [this]() { return tr("Pre-Launch command failed with code %1.\n\n").arg(m_process.exitCode()); };
     switch (state) {
         case LoggedProcess::Aborted:
         case LoggedProcess::Crashed:
