@@ -280,6 +280,7 @@ class Application : public QApplication {
         shared_qobject_ptr<LaunchController> controller;
     };
     std::map<QString, InstanceXtras> m_instanceExtras;
+    mutable QMutex m_instanceExtrasMutex;
 
     // main state variables
     size_t m_openWindows = 0;
