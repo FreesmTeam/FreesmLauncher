@@ -235,10 +235,15 @@ void LaunchController::login()
                 if (!m_session->wants_online) {
                     // we ask the user for a player name
                     bool ok = false;
-                    auto name = askOfflineName(m_session->player_name, m_session->demo, ok);
-                    if (!ok) {
-                        tryagain = false;
-                        break;
+                    QString name;
+                    if (m_offlineName.isEmpty()) {
+                        name = askOfflineName(m_session->player_name, m_session->demo, ok);
+                        if (!ok) {
+                            tryagain = false;
+                            break;
+                        }
+                    } else {
+                        name = m_offlineName;
                     }
                     m_session->MakeOffline(name);
                     // offline flavored game from here :3
