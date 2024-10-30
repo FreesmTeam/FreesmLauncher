@@ -88,9 +88,9 @@ ExportPackDialog::ExportPackDialog(InstancePtr instance, QWidget* parent, ModPla
 
     MinecraftInstance* mcInstance = dynamic_cast<MinecraftInstance*>(instance.get());
     if (mcInstance) {
-        const QDir index = mcInstance->loaderModList()->indexDir();
-        if (index.exists())
-            proxy->ignoreFilesWithPath().insert(root.relativeFilePath(index.absolutePath()));
+        for (auto& resourceModel : mcInstance->resourceLists())
+            if (resourceModel->indexDir().exists())
+                proxy->ignoreFilesWithPath().insert(root.relativeFilePath(resourceModel->indexDir().absolutePath()));
     }
 
     ui->files->setModel(proxy);
