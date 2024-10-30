@@ -56,7 +56,7 @@ class LaunchController : public Task {
 
     void setOnline(bool online) { m_online = online; }
 
-    void setOfflineName(const QString &offlineName) { m_offlineName = offlineName; }
+    void setOfflineName(const QString& offlineName) { m_offlineName = offlineName; }
 
     void setDemo(bool demo) { m_demo = demo; }
 

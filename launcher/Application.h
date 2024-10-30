@@ -212,7 +212,7 @@ class Application : public QApplication {
                 bool demo = false,
                 MinecraftTarget::Ptr targetToJoin = nullptr,
                 MinecraftAccountPtr accountToUse = nullptr,
-                const QString &offlineName = QString());
+                const QString& offlineName = QString());
     bool kill(InstancePtr instance);
     void closeCurrentWindow();
 
