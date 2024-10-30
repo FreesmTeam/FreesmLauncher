@@ -42,12 +42,13 @@
 #include "ui/dialogs/CustomMessageBox.h"
 #include "ui_ResourcePage.h"
 
+#include <StringUtils.h>
 #include <QDesktopServices>
 #include <QKeyEvent>
 
 #include "Markdown.h"
 
-#include "StringUtils.h"
+#include "Application.h"
 #include "ui/dialogs/ResourceDownloadDialog.h"
 #include "ui/pages/modplatform/ResourceModel.h"
 #include "ui/widgets/ProjectItem.h"
@@ -349,7 +350,8 @@ void ResourcePage::addResourceToPage(ModPlatform::IndexedPack::Ptr pack,
                                      ModPlatform::IndexedVersion& ver,
                                      const std::shared_ptr<ResourceFolderModel> base_model)
 {
-    m_model->addPack(pack, ver, base_model);
+    bool is_indexed = !APPLICATION->settings()->get("ModMetadataDisabled").toBool();
+    m_model->addPack(pack, ver, base_model, is_indexed);
 }
 
 void ResourcePage::removeResourceFromPage(const QString& name)
