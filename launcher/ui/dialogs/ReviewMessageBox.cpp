@@ -41,7 +41,7 @@ void ReviewMessageBox::appendResource(ResourceInformation&& info)
     itemTop->setCheckState(0, info.enabled ? Qt::CheckState::Checked : Qt::CheckState::Unchecked);
     itemTop->setText(0, info.name);
     if (!info.enabled) {
-        itemTop->setToolTip(0, tr("Mod was disabled as it may be already instaled."));
+        itemTop->setToolTip(0, tr("Mod was disabled as it may be already installed."));
     }
 
     auto filenameItem = new QTreeWidgetItem(itemTop);
