@@ -34,7 +34,7 @@ Task::Ptr ModrinthAPI::currentVersions(const QStringList& hashes, QString hash_f
     auto body_raw = body.toJson();
 
     netJob->addNetAction(Net::ApiUpload::makeByteArray(QString(BuildConfig.MODRINTH_PROD_URL + "/version_files"), response, body_raw));
-
+    netJob->setAskRetry(false);
     return netJob;
 }
 
