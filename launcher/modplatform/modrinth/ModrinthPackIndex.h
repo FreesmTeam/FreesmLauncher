@@ -19,7 +19,6 @@
 
 #include "modplatform/ModIndex.h"
 
-#include <QNetworkAccessManager>
 #include "BaseInstance.h"
 
 namespace Modrinth {
