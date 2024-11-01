@@ -8,6 +8,7 @@
 #include "QObjectPtr.h"
 #include "ResourceDownloadTask.h"
 
+#include "modplatform/ModIndex.h"
 #include "modplatform/helpers/HashUtils.h"
 
 #include "tasks/ConcurrentTask.h"
@@ -99,8 +100,7 @@ void ModrinthCheckUpdate::checkVersionsResponse(std::shared_ptr<QByteArray> resp
             // If the returned project is empty, but we have Modrinth metadata,
             // it means this specific version is not available
             if (project_obj.isEmpty()) {
-                qDebug() << "Mod " << m_mappings.find(hash).value()->name() << " got an empty response."
-                         << "Hash: " << hash;
+                qDebug() << "Mod " << m_mappings.find(hash).value()->name() << " got an empty response." << "Hash: " << hash;
                 ++iter;
                 continue;
             }
@@ -108,10 +108,8 @@ void ModrinthCheckUpdate::checkVersionsResponse(std::shared_ptr<QByteArray> resp
             // Sometimes a version may have multiple files, one with "forge" and one with "fabric",
             // so we may want to filter it
             QString loader_filter;
-            static auto flags = { ModPlatform::ModLoaderType::NeoForge, ModPlatform::ModLoaderType::Forge,
-                                  ModPlatform::ModLoaderType::Quilt, ModPlatform::ModLoaderType::Fabric };
-            for (auto flag : flags) {
-                if (loader.has_value() && loader->testFlag(flag)) {
+            if (loader.has_value()) {
+                for (auto flag : ModPlatform::modLoaderTypesToList(*loader)) {
                     loader_filter = ModPlatform::getModLoaderAsString(flag);
                     break;
                 }
@@ -173,7 +171,7 @@ void ModrinthCheckUpdate::checkNextLoader()
         m_loader_idx++;
         return;
     }
-    
+
     if (m_loader_idx < m_loaders_list.size()) {
         getUpdateModsForLoader(m_loaders_list.at(m_loader_idx));
         m_loader_idx++;
