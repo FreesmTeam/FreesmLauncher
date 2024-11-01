@@ -76,7 +76,7 @@ static QString enumToString(int hash_algorithm)
     }
 }
 
-void FlameMod::loadIndexedPackVersions(ModPlatform::IndexedPack& pack, QJsonArray& arr, const BaseInstance* inst)
+void FlameMod::loadIndexedPackVersions(ModPlatform::IndexedPack& pack, QJsonArray& arr)
 {
     QVector<ModPlatform::IndexedVersion> unsortedVersions;
     for (auto versionIter : arr) {
