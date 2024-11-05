@@ -59,14 +59,14 @@ jobs:
             qt_ver: 5
             qt_host: linux
             qt_arch: ""
-            qt_version: "5.12.8"
+            qt_version: "5.15.2"
             qt_modules: "qtnetworkauth"
 
           - os: ubuntu-20.04
             qt_ver: 6
             qt_host: linux
             qt_arch: ""
-            qt_version: "6.2.4"
+            qt_version: "6.5.3"
             qt_modules: "qt5compat qtimageformats qtnetworkauth"
 
           - os: windows-2022
