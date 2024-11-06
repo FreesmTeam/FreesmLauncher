@@ -6,11 +6,13 @@ All files are formatted with `clang-format` using the configuration in `.clang-f
 
 We have no tool for enforcing names but please follow the following conventions for C++:
 - Class and type names should be formatted as `PascalCase`: `MyClass`.
-- Private, non-`static const` class data members should be formatted as `camelCase` prefixed with `m_`: `m_myCounter`.
-- Public, non-`static const` should be the same but without the prefix: `dateOfBirth`. 
+- Private or protected class data members should be formatted as `camelCase` prefixed with `m_`: `m_myCounter`.
+- Private or protected `static` class data members should be formatted as `camelCase` prefixed with `s_`: `s_instance`.
+- Public class data members should be formatted as `camelCase` without the prefix: `dateOfBirth`. 
+- Public, private or protected `static const` class data members should be formatted as `SCREAMING_SNAKE_CASE`: `MAX_VALUE`.
 - Class function members should be formatted as `camelCase` without a prefix: `incrementCounter`.
 - Non-`const` global variables should be formatted as `camelCase` without a prefix: `globalData`. And, of course, should be avoided where possible.
-- `const` global variables, `static const` class data members, macros, and enum constants should be formatted as `SCREAMING_SNAKE_CASE`: `LIGHT_GRAY`.
+- `const` global variables, macros, and enum constants should be formatted as `SCREAMING_SNAKE_CASE`: `LIGHT_GRAY`.
 - Avoid inventing acronyms or abbreviations especially for a name of multiple words - like `tp` for `texturePack`.
 
 Here is what these conventions with the formatting configuration look like:
