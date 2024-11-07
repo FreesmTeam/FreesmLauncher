@@ -22,12 +22,12 @@ class QSpacerItem;
 /**
  * This is a widget for all the Java settings dialogs and pages.
  */
-class JavaSettingsWidget : public QWidget {
+class JavaWizardWidget : public QWidget {
     Q_OBJECT
 
    public:
-    explicit JavaSettingsWidget(QWidget* parent);
-    virtual ~JavaSettingsWidget();
+    explicit JavaWizardWidget(QWidget* parent);
+    virtual ~JavaWizardWidget();
 
     enum class JavaStatus { NotSet, Pending, Good, DoesNotExist, DoesNotStart, ReturnedInvalidData } javaStatus = JavaStatus::NotSet;
 

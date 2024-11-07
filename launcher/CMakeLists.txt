@@ -1085,8 +1085,8 @@ SET(LAUNCHER_SOURCES
     ui/widgets/FocusLineEdit.h
     ui/widgets/IconLabel.cpp
     ui/widgets/IconLabel.h
-    ui/widgets/JavaSettingsWidget.cpp
-    ui/widgets/JavaSettingsWidget.h
+    ui/widgets/JavaWizardWidget.cpp
+    ui/widgets/JavaWizardWidget.h
     ui/widgets/LabeledToolButton.cpp
     ui/widgets/LabeledToolButton.h
     ui/widgets/LanguageSelectionWidget.cpp
