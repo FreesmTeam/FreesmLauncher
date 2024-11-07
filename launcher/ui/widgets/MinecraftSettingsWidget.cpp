@@ -51,7 +51,7 @@ MinecraftSettingsWidget::MinecraftSettingsWidget(InstancePtr instance, QWidget* 
         m_ui->settingsTabs->removeTab(1);
         // Launch
         m_ui->settingsTabs->removeTab(2);
-        m_ui->openGlobalJavaSettingsButton->setVisible(false);
+        m_ui->openGlobalSettingsButton->setVisible(false);
     } else {
         m_ui->showGameTime->setText(tr("Show time &playing this instance"));
         m_ui->recordGameTime->setText(tr("&Record time playing this instance"));
@@ -61,12 +61,18 @@ MinecraftSettingsWidget::MinecraftSettingsWidget(InstancePtr instance, QWidget* 
         m_ui->maximizedWarning->setText(
             tr("<span style=\" font-weight:600; color:#f5c211;\">Warning</span><span style=\" color:#f5c211;\">: The maximized option is "
                "not fully supported on this Minecraft version.</span>"));
+
+        connect(m_ui->openGlobalSettingsButton, &QCommandLinkButton::clicked, this, &MinecraftSettingsWidget::openGlobalSettings);
     }
 
     m_ui->maximizedWarning->hide();
 
     connect(m_ui->maximizedCheckBox, &QCheckBox::toggled, this,
             [this](const bool value) { m_ui->maximizedWarning->setVisible(value && (m_instance == nullptr || !m_instance->isLegacy())); });
+
+#if !defined(Q_OS_LINUX)
+    m_ui->perfomanceGroupBox->hide();
+#endif
 
     loadSettings();
 }
@@ -135,10 +141,6 @@ void MinecraftSettingsWidget::loadSettings()
     m_ui->enableMangoHud->setChecked(settings->get("EnableMangoHud").toBool());
     m_ui->useDiscreteGpuCheck->setChecked(settings->get("UseDiscreteGpu").toBool());
     m_ui->useZink->setChecked(settings->get("UseZink").toBool());
-
-#if !defined(Q_OS_LINUX)
-    m_ui->perfomanceGroupBox->hide();
-#endif
 
     if (!(APPLICATION->capabilities() & Application::SupportsGameMode)) {
         m_ui->enableFeralGamemodeCheck->setDisabled(true);
@@ -309,6 +311,16 @@ void MinecraftSettingsWidget::saveSettings()
 
     if (m_instance != nullptr)
         m_instance->updateRuntimeContext();
+}
+
+void MinecraftSettingsWidget::openGlobalSettings()
+{
+    const QString id = m_ui->settingsTabs->currentWidget()->objectName();
+
+    if (id == "javaPage")
+        APPLICATION->ShowGlobalSettings(this, "java-settings");
+    else  // TODO select tab
+        APPLICATION->ShowGlobalSettings(this, "minecraft-settings");
 }
 
 SettingsObjectPtr MinecraftSettingsWidget::getSettings() const

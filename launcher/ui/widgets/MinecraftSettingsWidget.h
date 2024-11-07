@@ -51,6 +51,8 @@ class MinecraftSettingsWidget : public QWidget {
     void loadSettings();
     void saveSettings();
 
+    void openGlobalSettings();
+
    private:
     SettingsObjectPtr getSettings() const;
 
