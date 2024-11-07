@@ -418,7 +418,7 @@ void ModUpdateDialog::appendMod(CheckUpdateTask::UpdatableMod const& info, QStri
     auto item_top = new QTreeWidgetItem(ui->modTreeWidget);
     item_top->setCheckState(0, info.enabled ? Qt::CheckState::Checked : Qt::CheckState::Unchecked);
     if (!info.enabled) {
-        item_top->setToolTip(0, tr("Mod was disabled as it may be already instaled."));
+        item_top->setToolTip(0, tr("Mod was disabled as it may be already installed."));
     }
     item_top->setText(0, info.name);
     item_top->setExpanded(true);
