@@ -148,10 +148,14 @@ void ResourceDownloadDialog::confirm()
     QStringList depNames;
     if (auto task = getModDependenciesTask(); task) {
         connect(task.get(), &Task::failed, this,
-                [&](QString reason) { CustomMessageBox::selectable(this, tr("Error"), reason, QMessageBox::Critical)->exec(); });
+                [this](QString reason) { CustomMessageBox::selectable(this, tr("Error"), reason, QMessageBox::Critical)->exec(); });
 
-        connect(task.get(), &Task::succeeded, this, [&]() {
-            QStringList warnings = task->warnings();
+        auto weak = task.toWeakRef();
+        connect(task.get(), &Task::succeeded, this, [this, weak]() {
+            QStringList warnings;
+            if (auto task = weak.lock()) {
+                warnings = task->warnings();
+            }
             if (warnings.count()) {
                 CustomMessageBox::selectable(this, tr("Warnings"), warnings.join('\n'), QMessageBox::Warning)->exec();
             }

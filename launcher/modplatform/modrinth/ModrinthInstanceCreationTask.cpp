@@ -284,13 +284,13 @@ bool ModrinthCreationTask::createInstance()
 
     bool ended_well = false;
 
-    connect(downloadMods.get(), &NetJob::succeeded, this, [&]() { ended_well = true; });
-    connect(downloadMods.get(), &NetJob::failed, [&](const QString& reason) {
+    connect(downloadMods.get(), &NetJob::succeeded, this, [&ended_well]() { ended_well = true; });
+    connect(downloadMods.get(), &NetJob::failed, [this, &ended_well](const QString& reason) {
         ended_well = false;
         setError(reason);
     });
     connect(downloadMods.get(), &NetJob::finished, &loop, &QEventLoop::quit);
-    connect(downloadMods.get(), &NetJob::progress, [&](qint64 current, qint64 total) {
+    connect(downloadMods.get(), &NetJob::progress, [this](qint64 current, qint64 total) {
         setDetails(tr("%1 out of %2 complete").arg(current).arg(total));
         setProgress(current, total);
     });
@@ -312,9 +312,9 @@ bool ModrinthCreationTask::createInstance()
     QEventLoop ensureMetaLoop;
     QDir folder = FS::PathCombine(instance.modsRoot(), ".index");
     auto ensureMetadataTask = makeShared<EnsureMetadataTask>(resources, folder, ModPlatform::ResourceProvider::MODRINTH);
-    connect(ensureMetadataTask.get(), &Task::succeeded, this, [&]() { ended_well = true; });
+    connect(ensureMetadataTask.get(), &Task::succeeded, this, [&ended_well]() { ended_well = true; });
     connect(ensureMetadataTask.get(), &Task::finished, &ensureMetaLoop, &QEventLoop::quit);
-    connect(ensureMetadataTask.get(), &Task::progress, [&](qint64 current, qint64 total) {
+    connect(ensureMetadataTask.get(), &Task::progress, [this](qint64 current, qint64 total) {
         setDetails(tr("%1 out of %2 complete").arg(current).arg(total));
         setProgress(current, total);
     });
