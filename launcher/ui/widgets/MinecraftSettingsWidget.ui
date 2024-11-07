@@ -181,7 +181,7 @@
               <item>
                <widget class="QCheckBox" name="showGlobalGameTime">
                 <property name="text">
-                 <string>Show &amp;total of time played across instances</string>
+                 <string>Show the &amp;total time played across instances</string>
                 </property>
                </widget>
               </item>
