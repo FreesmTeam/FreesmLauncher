@@ -1489,7 +1489,7 @@ void Application::controllerSucceeded()
     // on success, do...
     if (controller->instance()->settings()->get("AutoCloseConsole").toBool()) {
         if (extras.window) {
-            extras.window->close();
+            QMetaObject::invokeMethod(extras.window, &QWidget::close, Qt::QueuedConnection);
         }
     }
     extras.controller.reset();
