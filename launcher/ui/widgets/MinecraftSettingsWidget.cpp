@@ -137,7 +137,7 @@ void MinecraftSettingsWidget::loadSettings()
     m_ui->useZink->setChecked(settings->get("UseZink").toBool());
 
 #if !defined(Q_OS_LINUX)
-    m_ui->settingsTabs->setTabVisible(ui->settingsTabs->indexOf(ui->performancePage), false);
+    m_ui->perfomanceGroupBox->hide();
 #endif
 
     if (!(APPLICATION->capabilities() & Application::SupportsGameMode)) {
