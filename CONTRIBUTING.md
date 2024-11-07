@@ -11,7 +11,7 @@ We have no tool for enforcing names but please follow the following conventions 
 - Public class data members should be formatted as `camelCase` without the prefix: `dateOfBirth`. 
 - Public, private or protected `static const` class data members should be formatted as `SCREAMING_SNAKE_CASE`: `MAX_VALUE`.
 - Class function members should be formatted as `camelCase` without a prefix: `incrementCounter`.
-- Non-`const` global variables should be formatted as `camelCase` without a prefix: `globalData`. And, of course, should be avoided where possible.
+- Global functions and non-`const` global variables should be formatted as `camelCase` without a prefix: `globalData`.
 - `const` global variables, macros, and enum constants should be formatted as `SCREAMING_SNAKE_CASE`: `LIGHT_GRAY`.
 - Avoid inventing acronyms or abbreviations especially for a name of multiple words - like `tp` for `texturePack`.
 
