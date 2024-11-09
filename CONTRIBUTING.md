@@ -5,10 +5,11 @@
 All files are formatted with `clang-format` using the configuration in `.clang-format`. Ensure it is run on changed files before committing!
 
 We have no tool for enforcing names but please follow the following conventions for C++:
+
 - Class and type names should be formatted as `PascalCase`: `MyClass`.
 - Private or protected class data members should be formatted as `camelCase` prefixed with `m_`: `m_myCounter`.
 - Private or protected `static` class data members should be formatted as `camelCase` prefixed with `s_`: `s_instance`.
-- Public class data members should be formatted as `camelCase` without the prefix: `dateOfBirth`. 
+- Public class data members should be formatted as `camelCase` without the prefix: `dateOfBirth`.
 - Public, private or protected `static const` class data members should be formatted as `SCREAMING_SNAKE_CASE`: `MAX_VALUE`.
 - Class function members should be formatted as `camelCase` without a prefix: `incrementCounter`.
 - Global functions and non-`const` global variables should be formatted as `camelCase` without a prefix: `globalData`.
