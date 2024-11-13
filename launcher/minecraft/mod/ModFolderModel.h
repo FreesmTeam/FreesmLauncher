@@ -47,10 +47,6 @@
 #include "Mod.h"
 #include "ResourceFolderModel.h"
 
-#include "minecraft/mod/tasks/LocalModParseTask.h"
-#include "minecraft/mod/tasks/ResourceFolderLoadTask.h"
-#include "modplatform/ModIndex.h"
-
 class BaseInstance;
 class QFileSystemWatcher;
 
