@@ -734,4 +734,9 @@ void ServersPage::on_actionJoin_triggered()
     APPLICATION->launch(m_inst, true, false, std::make_shared<MinecraftTarget>(MinecraftTarget::parse(address, false)));
 }
 
+void ServersPage::on_actionRefresh_triggered()
+{
+    qDebug() << "Action clicked";
+}
+
 #include "ServersPage.moc"
