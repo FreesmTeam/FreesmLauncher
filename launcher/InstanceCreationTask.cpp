@@ -61,6 +61,6 @@ void InstanceCreationTask::executeTask()
             return;
         }
     }
-
-    emitSucceeded();
+    if (!m_abort)
+        emitSucceeded();
 }
