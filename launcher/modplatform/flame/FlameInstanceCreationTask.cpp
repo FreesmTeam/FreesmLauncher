@@ -444,6 +444,7 @@ bool FlameCreationTask::createInstance()
         setError(tr("Unable to resolve mod IDs:\n") + reason);
         loop.quit();
     });
+    connect(m_mod_id_resolver.get(), &Flame::FileResolvingTask::aborted, &loop, &QEventLoop::quit);
     connect(m_mod_id_resolver.get(), &Flame::FileResolvingTask::progress, this, &FlameCreationTask::setProgress);
     connect(m_mod_id_resolver.get(), &Flame::FileResolvingTask::status, this, &FlameCreationTask::setStatus);
     connect(m_mod_id_resolver.get(), &Flame::FileResolvingTask::stepProgress, this, &FlameCreationTask::propagateStepProgress);
