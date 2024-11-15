@@ -7,14 +7,14 @@
 class MCResolver : public QObject {
     Q_OBJECT
 
-    std::string constrDomain;
+    QString constrDomain;
     int constrPort;
 
 public:
-    explicit MCResolver(QObject *parent, std::string domain, int port): QObject(parent), constrDomain(domain), constrPort(port) {}
+    explicit MCResolver(QObject *parent, QString domain, int port): QObject(parent), constrDomain(domain), constrPort(port) {}
 
     void ping() {
-        pingWithDomainSRV(QString::fromStdString(constrDomain), constrPort);
+        pingWithDomainSRV(constrDomain, constrPort);
     }
 
 private:

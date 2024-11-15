@@ -39,6 +39,9 @@
 #include "ui/dialogs/CustomMessageBox.h"
 #include "ui_ServersPage.h"
 
+#include "McClient.hpp"
+#include "McResolver.hpp"
+
 #include <FileSystem.h>
 #include <io/stream_reader.h>
 #include <minecraft/MinecraftInstance.h>
@@ -52,7 +55,7 @@
 #include <QMenu>
 #include <QTimer>
 
-static const int COLUMN_COUNT = 2;  // 3 , TBD: latency and other nice things.
+static const int COLUMN_COUNT = 3;  // 3 , TBD: latency and other nice things.
 
 struct Server {
     // Types
@@ -88,6 +91,29 @@ struct Server {
         }
     }
 
+    std::tuple<QString, int> splitAddress() {
+        auto parts = m_address.split(":");
+        if (parts.size() == 1) {
+            return std::make_tuple(parts[0], 25565);
+        } else {
+            return std::make_tuple(parts[0], parts[1].toInt());
+        }
+    }
+
+    void queryStatus() {
+        auto [domain, port] = splitAddress();
+        MCResolver resolver(nullptr, domain, port);
+        QObject::connect(&resolver, &MCResolver::succeed, [&](QString ip, int port) {
+            qDebug() << "Resolved Addresse for" << domain << ": " << ip << ":" << port;
+            McClient client(nullptr, domain, ip, port);
+            int online = client.getOnlinePlayers();
+            printf("Online players: %d\n", online);
+
+            client.close();
+        });
+        resolver.ping();
+    }
+
     void serialize(nbt::tag_compound& server)
     {
         server.insert("name", m_name.trimmed().toUtf8().toStdString());
@@ -112,7 +138,6 @@ struct Server {
     bool m_checked = false;
     bool m_up = false;
     QString m_motd;  // https://mctools.org/motd-creator
-    int m_ping = 0;
     int m_currentPlayers = 0;
     int m_maxPlayers = 0;
 };
@@ -296,7 +321,7 @@ class ServersModel : public QAbstractListModel {
                 case 1:
                     return tr("Address");
                 case 2:
-                    return tr("Latency");
+                    return tr("Online");
             }
         }
 
@@ -345,7 +370,7 @@ class ServersModel : public QAbstractListModel {
             case 2:
                 switch (role) {
                     case Qt::DisplayRole:
-                        return m_servers[row].m_ping;
+                        return m_servers[row].m_currentPlayers;
                     default:
                         return QVariant();
                 }
@@ -430,6 +455,14 @@ class ServersModel : public QAbstractListModel {
     {
         if (saveIsScheduled()) {
             save_internal();
+        }
+    }
+
+
+    void queryServersStatus()
+    {
+        for (auto& server : m_servers) {
+            server.queryStatus();
         }
     }
 
@@ -737,6 +770,7 @@ void ServersPage::on_actionJoin_triggered()
 void ServersPage::on_actionRefresh_triggered()
 {
     qDebug() << "Action clicked";
+    m_model->queryServersStatus();
 }
 
 #include "ServersPage.moc"
