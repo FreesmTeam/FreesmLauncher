@@ -458,7 +458,6 @@ class ServersModel : public QAbstractListModel {
         }
     }
 
-
     void queryServersStatus()
     {
         for (auto& server : m_servers) {
