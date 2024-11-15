@@ -87,7 +87,7 @@ void FlameCheckUpdate::getLatestVersionCallback(Resource* resource, std::shared_
         qCritical() << e.what();
         qDebug() << doc;
     }
-    auto latest_ver = api.getLatestVersion(pack->versions, m_loadersList, resource->metadata()->loaders);
+    auto latest_ver = api.getLatestVersion(pack->versions, m_loadersList, resource->metadata()->loaders, !m_loadersList.isEmpty());
 
     setStatus(tr("Parsing the API response from CurseForge for '%1'...").arg(resource->name()));
 

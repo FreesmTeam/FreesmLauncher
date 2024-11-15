@@ -9,17 +9,14 @@ class ModrinthCheckUpdate : public CheckUpdateTask {
     ModrinthCheckUpdate(QList<Resource*>& resources,
                         std::list<Version>& mcVersions,
                         QList<ModPlatform::ModLoaderType> loadersList,
-                        std::shared_ptr<ResourceFolderModel> resourceModel)
-        : CheckUpdateTask(resources, mcVersions, std::move(loadersList), std::move(resourceModel))
-        , m_hashType(ModPlatform::ProviderCapabilities::hashType(ModPlatform::ResourceProvider::MODRINTH).first())
-    {}
+                        std::shared_ptr<ResourceFolderModel> resourceModel);
 
    public slots:
     bool abort() override;
 
    protected slots:
     void executeTask() override;
-    void getUpdateModsForLoader(std::optional<ModPlatform::ModLoaderTypes> loader);
+    void getUpdateModsForLoader(std::optional<ModPlatform::ModLoaderTypes> loader = {}, bool forceModLoaderCheck = false);
     void checkVersionsResponse(std::shared_ptr<QByteArray> response, std::optional<ModPlatform::ModLoaderTypes> loader);
     void checkNextLoader();
 
@@ -28,4 +25,5 @@ class ModrinthCheckUpdate : public CheckUpdateTask {
     QHash<QString, Resource*> m_mappings;
     QString m_hashType;
     int m_loaderIdx = 0;
+    int m_initialSize = 0;
 };
