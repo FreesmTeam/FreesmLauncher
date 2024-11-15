@@ -112,6 +112,7 @@ ExternalResourcesPage::ExternalResourcesPage(BaseInstance* instance, std::shared
 
     m_model->loadColumns(ui->treeView);
     connect(ui->treeView->header(), &QHeaderView::sectionResized, this, [this] { m_model->saveColumns(ui->treeView); });
+    connect(ui->filterEdit, &QLineEdit::textChanged, this, &ExternalResourcesPage::filterTextChanged);
 }
 
 ExternalResourcesPage::~ExternalResourcesPage()
