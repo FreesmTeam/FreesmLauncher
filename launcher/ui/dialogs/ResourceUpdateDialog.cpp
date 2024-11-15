@@ -45,8 +45,7 @@ ResourceUpdateDialog::ResourceUpdateDialog(QWidget* parent,
     , m_parent(parent)
     , m_resource_model(resource_model)
     , m_candidates(search_for)
-    , m_second_try_metadata(
-          new ConcurrentTask(nullptr, "Second Metadata Search", APPLICATION->settings()->get("NumberOfConcurrentTasks").toInt()))
+    , m_second_try_metadata(new ConcurrentTask("Second Metadata Search", APPLICATION->settings()->get("NumberOfConcurrentTasks").toInt()))
     , m_instance(instance)
     , m_include_deps(include_deps)
     , m_filter_loaders(filter_loaders)
@@ -90,7 +89,7 @@ void ResourceUpdateDialog::checkCandidates()
     auto versions = mcVersions(m_instance);
     auto loadersList = m_filter_loaders ? mcLoadersList(m_instance) : QList<ModPlatform::ModLoaderType>();
 
-    SequentialTask check_task(m_parent, tr("Checking for updates"));
+    SequentialTask check_task(tr("Checking for updates"));
 
     if (!m_modrinth_to_update.empty()) {
         m_modrinth_check_task.reset(new ModrinthCheckUpdate(m_modrinth_to_update, versions, loadersList, m_resource_model));
@@ -195,7 +194,7 @@ void ResourceUpdateDialog::checkCandidates()
         auto* mod_model = dynamic_cast<ModFolderModel*>(m_resource_model.get());
 
         if (mod_model != nullptr) {
-            auto depTask = makeShared<GetModDependenciesTask>(this, m_instance, mod_model, selectedVers);
+            auto depTask = makeShared<GetModDependenciesTask>(m_instance, mod_model, selectedVers);
 
             connect(depTask.get(), &Task::failed, this, [this](const QString& reason) {
                 CustomMessageBox::selectable(this, tr("Error"), reason, QMessageBox::Critical)->exec();
@@ -269,7 +268,7 @@ auto ResourceUpdateDialog::ensureMetadata() -> bool
 {
     auto index_dir = indexDir();
 
-    SequentialTask seq(m_parent, tr("Looking for metadata"));
+    SequentialTask seq(tr("Looking for metadata"));
 
     // A better use of data structures here could remove the need for this QHash
     QHash<QString, bool> should_try_others;
