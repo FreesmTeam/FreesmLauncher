@@ -37,8 +37,6 @@
 
 #include "ResourcePackPage.h"
 
-#include "ResourceDownloadTask.h"
-
 #include "ui/dialogs/CustomMessageBox.h"
 #include "ui/dialogs/ProgressDialog.h"
 #include "ui/dialogs/ResourceDownloadDialog.h"

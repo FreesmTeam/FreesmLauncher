@@ -51,22 +51,15 @@
 
 #include "Application.h"
 
-#include "ui/GuiUtil.h"
 #include "ui/dialogs/CustomMessageBox.h"
 #include "ui/dialogs/ResourceDownloadDialog.h"
 #include "ui/dialogs/ResourceUpdateDialog.h"
-
-#include "DesktopServices.h"
 
 #include "minecraft/PackProfile.h"
 #include "minecraft/VersionFilterData.h"
 #include "minecraft/mod/Mod.h"
 #include "minecraft/mod/ModFolderModel.h"
 
-#include "modplatform/ModIndex.h"
-#include "modplatform/ResourceAPI.h"
-
-#include "Version.h"
 #include "tasks/ConcurrentTask.h"
 #include "tasks/Task.h"
 #include "ui/dialogs/ProgressDialog.h"

@@ -41,7 +41,6 @@
 #include <QPointer>
 
 #include "MetadataHandler.h"
-#include "ModDetails.h"
 #include "QObjectPtr.h"
 
 enum class ResourceType {

@@ -45,7 +45,6 @@
 #include "Version.h"
 
 #include "minecraft/mod/tasks/LocalResourcePackParseTask.h"
-#include "minecraft/mod/tasks/ResourceFolderLoadTask.h"
 
 ResourcePackFolderModel::ResourcePackFolderModel(const QDir& dir, BaseInstance* instance, bool is_indexed, bool create_dir, QObject* parent)
     : ResourceFolderModel(dir, instance, is_indexed, create_dir, parent)
@@ -55,7 +54,7 @@ ResourcePackFolderModel::ResourcePackFolderModel(const QDir& dir, BaseInstance* 
         QStringList({ tr("Enable"), tr("Image"), tr("Name"), tr("Pack Format"), tr("Last Modified"), tr("Provider"), tr("Size") });
     m_column_sort_keys = { SortType::ENABLED, SortType::NAME,     SortType::NAME, SortType::PACK_FORMAT,
                            SortType::DATE,    SortType::PROVIDER, SortType::SIZE };
-    m_column_resize_modes = { QHeaderView::Interactive, QHeaderView::Interactive, QHeaderView::Stretch, QHeaderView::Interactive,
+    m_column_resize_modes = { QHeaderView::Interactive, QHeaderView::Interactive, QHeaderView::Stretch,    QHeaderView::Interactive,
                               QHeaderView::Interactive, QHeaderView::Interactive, QHeaderView::Interactive };
     m_columnsHideable = { false, true, false, true, true, true, true };
 }
