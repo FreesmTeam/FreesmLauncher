@@ -46,7 +46,7 @@ BlockedModsDialog::BlockedModsDialog(QWidget* parent, const QString& title, cons
     : QDialog(parent), ui(new Ui::BlockedModsDialog), m_mods(mods), m_hash_type(hash_type)
 {
     m_hashing_task = shared_qobject_ptr<ConcurrentTask>(
-        new ConcurrentTask(this, "MakeHashesTask", APPLICATION->settings()->get("NumberOfConcurrentTasks").toInt()));
+        new ConcurrentTask("MakeHashesTask", APPLICATION->settings()->get("NumberOfConcurrentTasks").toInt()));
     connect(m_hashing_task.get(), &Task::finished, this, &BlockedModsDialog::hashTaskFinished);
 
     ui->setupUi(this);

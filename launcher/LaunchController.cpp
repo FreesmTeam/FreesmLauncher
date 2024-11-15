@@ -61,7 +61,7 @@
 #include "launch/steps/TextPrint.h"
 #include "tasks/Task.h"
 
-LaunchController::LaunchController(QObject* parent) : Task(parent) {}
+LaunchController::LaunchController() : Task() {}
 
 void LaunchController::executeTask()
 {

@@ -19,7 +19,7 @@ static ModrinthAPI modrinth_api;
 static FlameAPI flame_api;
 
 EnsureMetadataTask::EnsureMetadataTask(Mod* mod, QDir dir, ModPlatform::ResourceProvider prov)
-    : Task(nullptr), m_index_dir(dir), m_provider(prov), m_hashing_task(nullptr), m_current_task(nullptr)
+    : Task(), m_index_dir(dir), m_provider(prov), m_hashing_task(nullptr), m_current_task(nullptr)
 {
     auto hash_task = createNewHash(mod);
     if (!hash_task)
@@ -30,9 +30,9 @@ EnsureMetadataTask::EnsureMetadataTask(Mod* mod, QDir dir, ModPlatform::Resource
 }
 
 EnsureMetadataTask::EnsureMetadataTask(QList<Mod*>& mods, QDir dir, ModPlatform::ResourceProvider prov)
-    : Task(nullptr), m_index_dir(dir), m_provider(prov), m_current_task(nullptr)
+    : Task(), m_index_dir(dir), m_provider(prov), m_current_task(nullptr)
 {
-    m_hashing_task.reset(new ConcurrentTask(this, "MakeHashesTask", APPLICATION->settings()->get("NumberOfConcurrentTasks").toInt()));
+    m_hashing_task.reset(new ConcurrentTask("MakeHashesTask", APPLICATION->settings()->get("NumberOfConcurrentTasks").toInt()));
     for (auto* mod : mods) {
         auto hash_task = createNewHash(mod);
         if (!hash_task)
@@ -43,7 +43,7 @@ EnsureMetadataTask::EnsureMetadataTask(QList<Mod*>& mods, QDir dir, ModPlatform:
     }
 }
 EnsureMetadataTask::EnsureMetadataTask(QHash<QString, Mod*>& mods, QDir dir, ModPlatform::ResourceProvider prov)
-    : Task(nullptr), m_mods(mods), m_index_dir(dir), m_provider(prov), m_current_task(nullptr)
+    : Task(), m_mods(mods), m_index_dir(dir), m_provider(prov), m_current_task(nullptr)
 {}
 
 Hashing::Hasher::Ptr EnsureMetadataTask::createNewHash(Mod* mod)

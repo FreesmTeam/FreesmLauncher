@@ -2,9 +2,7 @@
 #include "MinecraftInstance.h"
 #include "PackProfile.h"
 
-MinecraftLoadAndCheck::MinecraftLoadAndCheck(MinecraftInstance* inst, Net::Mode netmode, QObject* parent)
-    : Task(parent), m_inst(inst), m_netmode(netmode)
-{}
+MinecraftLoadAndCheck::MinecraftLoadAndCheck(MinecraftInstance* inst, Net::Mode netmode) : m_inst(inst), m_netmode(netmode) {}
 
 void MinecraftLoadAndCheck::executeTask()
 {

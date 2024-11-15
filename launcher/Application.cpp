@@ -1853,7 +1853,7 @@ bool Application::handleDataMigration(const QString& currentData,
         matcher->add(std::make_shared<SimplePrefixMatcher>("themes/"));
 
         ProgressDialog diag;
-        DataMigrationTask task(nullptr, oldData, currentData, matcher);
+        DataMigrationTask task(oldData, currentData, matcher);
         if (diag.execWithTask(&task)) {
             qDebug() << "<> Migration succeeded";
             setDoNotMigrate();
