@@ -101,6 +101,7 @@ struct Server {
     }
 
     void queryStatus() {
+        qDebug() << "Querying status of " << m_address;
         auto [domain, port] = splitAddress();
         MCResolver resolver(nullptr, domain, port);
         QObject::connect(&resolver, &MCResolver::succeed, [&](QString ip, int port) {
