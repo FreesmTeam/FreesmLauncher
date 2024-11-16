@@ -30,14 +30,14 @@ private:
             lookup->deleteLater();
 
             if (lookup->error() != QDnsLookup::NoError) {
-                printf("Warning: SRV record lookup failed (%v), trying A record lookup\n", lookup->errorString().toStdString());
+                qDebug() << "Warning: SRV record lookup failed (" << lookup->errorString().toStdString() << "), trying A record lookup";
                 pingWithDomainA(domain, port);
                 return;
             }
 
             auto records = lookup->serviceRecords();
             if (records.isEmpty()) {
-                printf("Warning: no SRV entries found for domain, trying A record lookup\n");
+                qDebug() << "Warning: no SRV entries found for domain, trying A record lookup";
                 pingWithDomainA(domain, port);
                 return;
             }
@@ -71,7 +71,7 @@ private:
     }
 
     void emitFail(std::string error) {
-        printf("Ping error: %s\n", error.c_str());
+        qDebug() << "Ping error:" << QString::fromStdString(error);
         emit fail();
     }
 

@@ -76,7 +76,7 @@ public:
         readBytesExactFromSocket(resp, length-resp.size());
 
         if (length != resp.size()) {
-            printf("Warning: Packet length doesn't match actual packet size (%d expected vs %d received)\n", length, resp.size());
+            qDebug() << "Warning: Packet length doesn't match actual packet size (" << length << " expected vs " << resp.size() << " received)";
         }
         qDebug() << "Received response successfully";
 
