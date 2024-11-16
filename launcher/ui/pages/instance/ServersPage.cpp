@@ -125,7 +125,7 @@ struct Server {
     bool m_checked = false;
     bool m_up = false;
     QString m_motd;  // https://mctools.org/motd-creator
-    int m_currentPlayers = 0;
+    std::optional<int> m_currentPlayers; // nullopt if not calculated/calculating
     int m_maxPlayers = 0;
 };
 
@@ -146,6 +146,7 @@ class ServerPingTask : public Task {
             qDebug() << "Resolved Addresse for" << domain << ": " << ip << ":" << port;
             McClient client(nullptr, domain, ip, port);
             int online = client.getOnlinePlayers();
+            qDebug() << "Online players: " << online;
             m_server.m_currentPlayers = online;
 
             client.close();
@@ -385,7 +386,11 @@ class ServersModel : public QAbstractListModel {
             case 2:
                 switch (role) {
                     case Qt::DisplayRole:
-                        return m_servers[row].m_currentPlayers;
+                        if (m_servers[row].m_currentPlayers) {
+                            return *m_servers[row].m_currentPlayers;
+                        } else {
+                            return "...";
+                        }
                     default:
                         return QVariant();
                 }
