@@ -132,7 +132,7 @@ struct Server {
 class ServerPingTask : public Task {
     Q_OBJECT
   public:
-    explicit ServerPingTask(QObject* parent, const Server &server) : Task(parent), m_server(server) {}
+    explicit ServerPingTask(QObject* parent, Server &server) : Task(parent), m_server(server) {}
     ~ServerPingTask() override = default;
 
 
@@ -146,7 +146,7 @@ class ServerPingTask : public Task {
             qDebug() << "Resolved Addresse for" << domain << ": " << ip << ":" << port;
             McClient client(nullptr, domain, ip, port);
             int online = client.getOnlinePlayers();
-            printf("Online players: %d\n", online);
+            m_server.m_currentPlayers = online;
 
             client.close();
         });
@@ -154,7 +154,7 @@ class ServerPingTask : public Task {
     }
     
   private:
-    const Server &m_server;
+    Server &m_server;
 };
 
 static std::unique_ptr<nbt::tag_compound> parseServersDat(const QString& filename)
