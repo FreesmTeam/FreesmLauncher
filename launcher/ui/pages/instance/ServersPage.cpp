@@ -54,6 +54,7 @@
 #include <QFileSystemWatcher>
 #include <QMenu>
 #include <QTimer>
+#include <tasks/ConcurrentTask.h>
 
 static const int COLUMN_COUNT = 3;  // 3 , TBD: latency and other nice things.
 
@@ -100,21 +101,6 @@ struct Server {
         }
     }
 
-    void queryStatus() {
-        qDebug() << "Querying status of " << m_address;
-        auto [domain, port] = splitAddress();
-        MCResolver resolver(nullptr, domain, port);
-        QObject::connect(&resolver, &MCResolver::succeed, [&](QString ip, int port) {
-            qDebug() << "Resolved Addresse for" << domain << ": " << ip << ":" << port;
-            McClient client(nullptr, domain, ip, port);
-            int online = client.getOnlinePlayers();
-            printf("Online players: %d\n", online);
-
-            client.close();
-        });
-        resolver.ping();
-    }
-
     void serialize(nbt::tag_compound& server)
     {
         server.insert("name", m_name.trimmed().toUtf8().toStdString());
@@ -141,6 +127,33 @@ struct Server {
     QString m_motd;  // https://mctools.org/motd-creator
     int m_currentPlayers = 0;
     int m_maxPlayers = 0;
+};
+
+class ServerPingTask : public Task {
+    Q_OBJECT
+  public:
+    explicit ServerPingTask(QObject* parent, const Server &server) : Task(parent), m_server(server) {}
+    ~ServerPingTask() override = default;
+
+
+  protected:
+    virtual void executeTask() override {
+        qDebug() << "Querying status of " << m_server.m_address;
+        auto [domain, port] = m_server.splitAddress();
+        MCResolver resolver(nullptr, domain, port);
+        QObject::connect(&resolver, &MCResolver::succeed, [&](QString ip, int port) {
+            qDebug() << "Resolved Addresse for" << domain << ": " << ip << ":" << port;
+            McClient client(nullptr, domain, ip, port);
+            int online = client.getOnlinePlayers();
+            printf("Online players: %d\n", online);
+
+            client.close();
+        });
+        resolver.ping();
+    }
+    
+  private:
+    const Server &m_server;
 };
 
 static std::unique_ptr<nbt::tag_compound> parseServersDat(const QString& filename)
@@ -461,9 +474,12 @@ class ServersModel : public QAbstractListModel {
 
     void queryServersStatus()
     {
+        ConcurrentTask::Ptr job(new ConcurrentTask(this, "Query servers status", APPLICATION->settings()->get("NumberOfConcurrentTasks").toInt()));
         for (auto& server : m_servers) {
-            server.queryStatus();
+            ServerPingTask *task = new ServerPingTask(this, server);
+            job->addTask(Task::Ptr(task));
         }
+        job->start();
     }
 
    public slots:
