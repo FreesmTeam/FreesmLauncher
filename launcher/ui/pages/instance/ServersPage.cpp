@@ -91,7 +91,7 @@ struct Server {
         }
     }
 
-    std::tuple<QString, int> splitAddress() {
+    std::tuple<QString, int> splitAddress() const {
         auto parts = m_address.split(":");
         if (parts.size() == 1) {
             return std::make_tuple(parts[0], 25565);
