@@ -39,8 +39,8 @@
 #include "ui/dialogs/CustomMessageBox.h"
 #include "ui_ServersPage.h"
 
-#include "McClient.hpp"
-#include "McResolver.hpp"
+#include "McClient.h"
+#include "McResolver.h"
 
 #include <FileSystem.h>
 #include <io/stream_reader.h>

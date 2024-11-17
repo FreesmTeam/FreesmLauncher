@@ -919,9 +919,9 @@ SET(LAUNCHER_SOURCES
     ui/pages/instance/WorldListPage.cpp
     ui/pages/instance/WorldListPage.h
     ui/pages/instance/McClient.cpp
-    ui/pages/instance/McClient.hpp
+    ui/pages/instance/McClient.h
     ui/pages/instance/McResolver.cpp
-    ui/pages/instance/McResolver.hpp
+    ui/pages/instance/McResolver.h
     
     # GUI - global settings pages
     ui/pages/global/AccountListPage.cpp

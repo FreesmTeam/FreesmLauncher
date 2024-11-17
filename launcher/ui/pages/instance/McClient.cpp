@@ -4,7 +4,7 @@
 #include <QJsonObject>
 
 #include <Exception.h>
-#include "McClient.hpp"
+#include "McClient.h"
 
 #define SEGMENT_BITS 0x7F
 #define CONTINUE_BIT 0x80

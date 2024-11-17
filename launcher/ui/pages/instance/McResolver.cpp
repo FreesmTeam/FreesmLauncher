@@ -3,7 +3,7 @@
 #include <QtNetwork/qtcpsocket.h>
 #include <QHostInfo>
 
-#include "McResolver.hpp"
+#include "McResolver.h"
 
 McResolver::McResolver(QObject *parent, QString domain, int port): QObject(parent), constrDomain(domain), constrPort(port) {}
 
