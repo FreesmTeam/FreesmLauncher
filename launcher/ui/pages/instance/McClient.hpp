@@ -90,7 +90,7 @@ public:
             );
         }
 
-        int jsonLength = readVarInt(resp);
+        Q_UNUSED(readVarInt(resp)); // json length
         std::string json = resp.toStdString();
 
         QJsonDocument doc = QJsonDocument::fromJson(QByteArray::fromStdString(json));
