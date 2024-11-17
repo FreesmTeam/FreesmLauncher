@@ -150,8 +150,8 @@ private:
         }
     }
 
-    void writeString(QByteArray &data, std::string value) {
-        data.append(value);
+    void writeString(QByteArray &data, const std::string &value) {
+        data.append(value.c_str());
     }
 
     void writePacketToSocket(QByteArray &data) {
