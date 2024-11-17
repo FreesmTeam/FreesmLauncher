@@ -145,9 +145,14 @@ class ServerPingTask : public Task {
             resolver->deleteLater();
             qDebug() << "Resolved Addresse for" << domain << ": " << ip << ":" << port;
             McClient client(nullptr, domain, ip, port);
-            int online = client.getOnlinePlayers();
-            qDebug() << "Online players: " << online;
-            m_server.m_currentPlayers = online;
+
+            try {
+                int online = client.getOnlinePlayers();
+                qDebug() << "Online players: " << online;
+                m_server.m_currentPlayers = online;
+            } catch(const Exception& e) {
+                qDebug() << "Failed to get online players: " << e.cause();
+            }
         });
         resolver->ping();
     }

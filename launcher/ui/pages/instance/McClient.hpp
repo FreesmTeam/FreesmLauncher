@@ -3,6 +3,8 @@
 #include <QJsonDocument>
 #include <QJsonObject>
 
+#include <Exception.h>
+
 #define SEGMENT_BITS 0x7F
 #define CONTINUE_BIT 0x80
 
@@ -23,13 +25,13 @@ public:
         socket.connectToHost(ip, port);
 
         if (!socket.waitForConnected(3000)) {
-            throw std::runtime_error("Failed to connect to socket");
+            throw Exception("Failed to connect to socket");
         }
         qDebug() << "Connected to socket successfully";
         sendRequest();
 
         if (!socket.waitForReadyRead(3000)) {
-            throw std::runtime_error("Socket didn't send anything to read");
+            throw Exception("Socket didn't send anything to read");
         }
         return readResponse();
     }
@@ -59,7 +61,7 @@ public:
         while (bytesToRead > 0) {
             qDebug() << bytesToRead << " bytes left to read";
             if (!socket.waitForReadyRead()) {
-                throw std::runtime_error("Read timeout or error");
+                throw Exception("Read timeout or error");
             }
 
             QByteArray chunk = socket.read(qMin(bytesToRead, socket.bytesAvailable()));
@@ -82,9 +84,9 @@ public:
 
         int packetID = readVarInt(resp);
         if (packetID != 0x00) {
-            throw std::runtime_error(
+            throw Exception(
                 QString("Packet ID doesn't match expected value (0x00 vs 0x%1)")
-                .arg(packetID, 0, 16).toStdString()
+                .arg(packetID, 0, 16)
             );
         }
 
@@ -125,7 +127,7 @@ private:
 
             position += 7;
 
-            if (position >= 32) throw std::runtime_error("VarInt is too big");
+            if (position >= 32) throw Exception("VarInt is too big");
         }
 
         return value;
@@ -133,7 +135,7 @@ private:
 
     char readByte(QByteArray &data) {
         if (data.isEmpty()) {
-            throw std::runtime_error("No more bytes to read");
+            throw Exception("No more bytes to read");
         }
 
         char byte = data.at(0);
