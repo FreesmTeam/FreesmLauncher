@@ -18,150 +18,19 @@ class McClient : public QObject {
     QTcpSocket socket;
 
 public:
-    explicit McClient(QObject *parent, QString domain, QString ip, short port): QObject(parent), domain(domain), ip(ip), port(port) {}
-
-    QJsonObject getStatusData() {
-        qDebug() << "Connecting to socket..";
-        socket.connectToHost(ip, port);
-
-        if (!socket.waitForConnected(3000)) {
-            throw Exception("Failed to connect to socket");
-        }
-        qDebug() << "Connected to socket successfully";
-        sendRequest();
-
-        if (!socket.waitForReadyRead(3000)) {
-            throw Exception("Socket didn't send anything to read");
-        }
-        return readResponse();
-    }
-
-    int getOnlinePlayers() {
-        auto status = getStatusData();
-        return status.value("players").toObject().value("online").toInt();
-    }
-
-    void sendRequest() {
-        QByteArray data;
-        writeVarInt(data, 0x00); // packet ID
-        writeVarInt(data, 0x760); // protocol version
-        writeVarInt(data, domain.size()); // server address length
-        writeString(data, domain.toStdString()); // server address
-        writeFixedInt(data, port, 2); // server port
-        writeVarInt(data, 0x01); // next state
-        writePacketToSocket(data); // send handshake packet
-
-        data.clear();
-
-        writeVarInt(data, 0x00); // packet ID
-        writePacketToSocket(data); // send status packet
-    }
-
-    void readBytesExactFromSocket(QByteArray &resp, int bytesToRead) {
-        while (bytesToRead > 0) {
-            qDebug() << bytesToRead << " bytes left to read";
-            if (!socket.waitForReadyRead()) {
-                throw Exception("Read timeout or error");
-            }
-
-            QByteArray chunk = socket.read(qMin(bytesToRead, socket.bytesAvailable()));
-            resp.append(chunk);
-            bytesToRead -= chunk.size();
-        }
-    }
-
-    QJsonObject readResponse() {
-        auto resp = socket.readAll();
-        int length = readVarInt(resp);
-
-        // finish ready response
-        readBytesExactFromSocket(resp, length-resp.size());
-
-        if (length != resp.size()) {
-            qDebug() << "Warning: Packet length doesn't match actual packet size (" << length << " expected vs " << resp.size() << " received)";
-        }
-        qDebug() << "Received response successfully";
-
-        int packetID = readVarInt(resp);
-        if (packetID != 0x00) {
-            throw Exception(
-                QString("Packet ID doesn't match expected value (0x00 vs 0x%1)")
-                .arg(packetID, 0, 16)
-            );
-        }
-
-        Q_UNUSED(readVarInt(resp)); // json length
-
-        // 'resp' should now be the JSON string
-        QJsonDocument doc = QJsonDocument::fromJson(resp);
-        return doc.object();
-    }
-
+    explicit McClient(QObject *parent, QString domain, QString ip, short port);
+    QJsonObject getStatusData();
+    int getOnlinePlayers();
+    void sendRequest();
+    void readBytesExactFromSocket(QByteArray &resp, int bytesToRead);
+    QJsonObject readResponse();
 private:
-    // From https://wiki.vg/Protocol#VarInt_and_VarLong
-    void writeVarInt(QByteArray &data, int value) {
-        while (true) {
-            if ((value & ~SEGMENT_BITS) == 0) {
-                data.append(value);
-                return;
-            }
-
-            data.append((value & SEGMENT_BITS) | CONTINUE_BIT);
-
-            // Note: >>> means that the sign bit is shifted with the rest of the number rather than being left alone
-            value >>= 7;
-        }
-    }
-
-    // From https://wiki.vg/Protocol#VarInt_and_VarLong
-    int readVarInt(QByteArray &data) {
-        int value = 0;
-        int position = 0;
-        char currentByte;
-
-        while (true) {
-            currentByte = readByte(data);
-            value |= (currentByte & SEGMENT_BITS) << position;
-
-            if ((currentByte & CONTINUE_BIT) == 0) break;
-
-            position += 7;
-
-            if (position >= 32) throw Exception("VarInt is too big");
-        }
-
-        return value;
-    }
-
-    char readByte(QByteArray &data) {
-        if (data.isEmpty()) {
-            throw Exception("No more bytes to read");
-        }
-
-        char byte = data.at(0);
-        data.remove(0, 1);
-        return byte;
-    }
-
+    void writeVarInt(QByteArray &data, int value);
+    int readVarInt(QByteArray &data);
+    char readByte(QByteArray &data);
     // write number with specified size in big endian format
-    void writeFixedInt(QByteArray &data, int value, int size) {
-        for (int i = size - 1; i >= 0; i--) {
-            data.append((value >> (i * 8)) & 0xFF);
-        }
-    }
+    void writeFixedInt(QByteArray &data, int value, int size);
+    void writeString(QByteArray &data, const std::string &value);
 
-    void writeString(QByteArray &data, const std::string &value) {
-        data.append(value.c_str());
-    }
-
-    void writePacketToSocket(QByteArray &data) {
-        // we prefix the packet with its length
-        QByteArray dataWithSize;
-        writeVarInt(dataWithSize, data.size());
-        dataWithSize.append(data);
-
-        // write it to the socket
-        socket.write(dataWithSize);
-        socket.flush();
-    }
+    void writePacketToSocket(QByteArray &data);
 };
