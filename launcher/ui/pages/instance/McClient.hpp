@@ -91,9 +91,9 @@ public:
         }
 
         Q_UNUSED(readVarInt(resp)); // json length
-        std::string json = resp.toStdString();
 
-        QJsonDocument doc = QJsonDocument::fromJson(QByteArray::fromStdString(json));
+        // 'resp' should now be the JSON string
+        QJsonDocument doc = QJsonDocument::fromJson(resp);
         return doc.object();
     }
 
