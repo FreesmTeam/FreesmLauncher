@@ -147,22 +147,23 @@ QStringList IconList::getIconFilePaths() const
     return iconFiles;
 }
 
-QString formatName(const QDir& iconsDir, const QFileInfo& file)
+QString formatName(const QDir& iconsDir, const QFileInfo& iconFile)
 {
-    if (file.dir() == iconsDir)
-        return file.baseName();
+    if (iconFile.dir() == iconsDir)
+        return iconFile.baseName();
 
     constexpr auto delimiter = " » ";
-    QString relativePathWithoutExtension = iconsDir.relativeFilePath(file.dir().path()) + QDir::separator() + file.baseName();
+    QString relativePathWithoutExtension = iconsDir.relativeFilePath(iconFile.dir().path()) + QDir::separator() + iconFile.baseName();
     return relativePathWithoutExtension.replace(QDir::separator(), delimiter);
 }
 
-QSet<QString> toStringSet(const QList<QString>& list) // Split into a separate function because the preprocessing impedes readability
+/// Split into a separate function because the preprocessing impedes readability
+QSet<QString> toStringSet(const QList<QString>& list)
 {
 #if QT_VERSION >= QT_VERSION_CHECK(5, 14, 0)
     QSet<QString> set(list.begin(), list.end());
 #else
-    auto set = list.toSet();
+    QSet<QString> set = list.toSet();
 #endif
     return set;
 }
@@ -171,7 +172,8 @@ void IconList::directoryChanged(const QString& path)
 {
     QDir newDir(path);
     if (m_dir.absolutePath() != newDir.absolutePath()) {
-        m_dir.setPath(path);
+        if (!path.startsWith(m_dir.absolutePath()))
+            m_dir.setPath(path);
         m_dir.refresh();
         if (is_watching)
             stopWatching();
@@ -192,9 +194,9 @@ void IconList::directoryChanged(const QString& path)
     QSet<QString> toRemove = currentSet - newSet;
     QSet<QString> toAdd = newSet - currentSet;
 
-    for (const auto& remove : toRemove) {
-        qDebug() << "Removing " << remove;
-        QFileInfo removedFile(remove);
+    for (const QString& removedPath : toRemove) {
+        qDebug() << "Removing icon " << removedPath;
+        QFileInfo removedFile(removedPath);
         QString key = m_dir.relativeFilePath(removedFile.absoluteFilePath());
 
         int idx = getIconIndex(key);
@@ -209,19 +211,19 @@ void IconList::directoryChanged(const QString& path)
         } else {
             dataChanged(index(idx), index(idx));
         }
-        m_watcher->removePath(remove);
+        m_watcher->removePath(removedPath);
         emit iconUpdated(key);
     }
 
-    for (const auto& add : toAdd) {
-        qDebug() << "Adding " << add;
+    for (const QString& addedPath : toAdd) {
+        qDebug() << "Adding icon " << addedPath;
 
-        QFileInfo addfile(add);
+        QFileInfo addfile(addedPath);
         QString key = m_dir.relativeFilePath(addfile.absoluteFilePath());
         QString name = formatName(m_dir, addfile);
 
         if (addIcon(key, name, addfile.filePath(), IconType::FileBased)) {
-            m_watcher->addPath(add);
+            m_watcher->addPath(addedPath);
             emit iconUpdated(key);
         }
     }
@@ -231,7 +233,7 @@ void IconList::directoryChanged(const QString& path)
 
 void IconList::fileChanged(const QString& path)
 {
-    qDebug() << "Checking " << path;
+    qDebug() << "Checking icon " << path;
     QFileInfo checkfile(path);
     if (!checkfile.exists())
         return;
