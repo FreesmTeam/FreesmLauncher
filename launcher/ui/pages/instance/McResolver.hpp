@@ -5,14 +5,14 @@
 #include <QHostInfo>
 
 // resolve the IP and port of a Minecraft server
-class MCResolver : public QObject {
+class McResolver : public QObject {
     Q_OBJECT
 
     QString constrDomain;
     int constrPort;
 
 public:
-    explicit MCResolver(QObject *parent, QString domain, int port);
+    explicit McResolver(QObject *parent, QString domain, int port);
     void ping();
 
 private:

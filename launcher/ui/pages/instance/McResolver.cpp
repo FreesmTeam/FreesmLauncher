@@ -5,13 +5,13 @@
 
 #include "McResolver.hpp"
 
-MCResolver::MCResolver(QObject *parent, QString domain, int port): QObject(parent), constrDomain(domain), constrPort(port) {}
+McResolver::McResolver(QObject *parent, QString domain, int port): QObject(parent), constrDomain(domain), constrPort(port) {}
 
-void MCResolver::ping() {
+void McResolver::ping() {
     pingWithDomainSRV(constrDomain, constrPort);
 }
 
-void MCResolver::pingWithDomainSRV(QString domain, int port) {
+void McResolver::pingWithDomainSRV(QString domain, int port) {
     QDnsLookup *lookup = new QDnsLookup(this);
     lookup->setName(QString("_minecraft._tcp.%1").arg(domain));
     lookup->setType(QDnsLookup::SRV);
@@ -44,7 +44,7 @@ void MCResolver::pingWithDomainSRV(QString domain, int port) {
     lookup->lookup();
 }
 
-void MCResolver::pingWithDomainA(QString domain, int port) {
+void McResolver::pingWithDomainA(QString domain, int port) {
     QHostInfo::lookupHost(domain, this, [&, port](const QHostInfo &hostInfo){
         if (hostInfo.error() != QHostInfo::NoError) {
             emitFail("A record lookup failed");
@@ -62,11 +62,11 @@ void MCResolver::pingWithDomainA(QString domain, int port) {
     });        
 }
 
-void MCResolver::emitFail(std::string error) {
+void McResolver::emitFail(std::string error) {
     qDebug() << "Ping error:" << QString::fromStdString(error);
     emit fail();
 }
 
-void MCResolver::emitSucceed(QString ip, int port) {
+void McResolver::emitSucceed(QString ip, int port) {
     emit succeed(ip, port);
 }
