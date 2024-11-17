@@ -83,7 +83,7 @@ void ShaderPackPage::downloadShaderPack()
 
     ResourceDownload::ShaderPackDownloadDialog mdownload(this, m_model, m_instance);
     if (mdownload.exec()) {
-        auto tasks = new ConcurrentTask(this, "Download Shader Packs", APPLICATION->settings()->get("NumberOfConcurrentDownloads").toInt());
+        auto tasks = new ConcurrentTask("Download Shader Packs", APPLICATION->settings()->get("NumberOfConcurrentDownloads").toInt());
         connect(tasks, &Task::failed, [this, tasks](QString reason) {
             CustomMessageBox::selectable(this, tr("Error"), reason, QMessageBox::Critical)->show();
             tasks->deleteLater();
@@ -162,7 +162,7 @@ void ShaderPackPage::updateShaderPacks()
     }
 
     if (update_dialog.exec()) {
-        auto tasks = new ConcurrentTask(this, "Download Shader Packs", APPLICATION->settings()->get("NumberOfConcurrentDownloads").toInt());
+        auto tasks = new ConcurrentTask("Download Shader Packs", APPLICATION->settings()->get("NumberOfConcurrentDownloads").toInt());
         connect(tasks, &Task::failed, [this, tasks](QString reason) {
             CustomMessageBox::selectable(this, tr("Error"), reason, QMessageBox::Critical)->show();
             tasks->deleteLater();
@@ -227,7 +227,7 @@ void ShaderPackPage::changeShaderPackVersion()
     if (rows.count() != 1)
         return;
 
-    Resource &resource = m_model->at(m_filterModel->mapToSource(rows[0]).row());
+    Resource& resource = m_model->at(m_filterModel->mapToSource(rows[0]).row());
 
     if (resource.metadata() == nullptr)
         return;
@@ -235,8 +235,7 @@ void ShaderPackPage::changeShaderPackVersion()
     ResourceDownload::ShaderPackDownloadDialog mdownload(this, m_model, m_instance);
     mdownload.setResourceMetadata(resource.metadata());
     if (mdownload.exec()) {
-        auto tasks =
-            new ConcurrentTask(this, "Download Shader Packs", APPLICATION->settings()->get("NumberOfConcurrentDownloads").toInt());
+        auto tasks = new ConcurrentTask("Download Shader Packs", APPLICATION->settings()->get("NumberOfConcurrentDownloads").toInt());
         connect(tasks, &Task::failed, [this, tasks](QString reason) {
             CustomMessageBox::selectable(this, tr("Error"), reason, QMessageBox::Critical)->show();
             tasks->deleteLater();

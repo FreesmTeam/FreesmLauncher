@@ -730,7 +730,7 @@ bool loadIconFile(const Mod& mod, QPixmap* pixmap)
 }  // namespace ModUtils
 
 LocalModParseTask::LocalModParseTask(int token, ResourceType type, const QFileInfo& modFile)
-    : Task(nullptr, false), m_token(token), m_type(type), m_modFile(modFile), m_result(new Result())
+    : Task(false), m_token(token), m_type(type), m_modFile(modFile), m_result(new Result())
 {}
 
 bool LocalModParseTask::abort()

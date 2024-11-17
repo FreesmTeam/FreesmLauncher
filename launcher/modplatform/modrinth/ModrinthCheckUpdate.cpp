@@ -32,7 +32,7 @@ void ModrinthCheckUpdate::executeTask()
     setProgress(0, (m_loaders_list.isEmpty() ? 1 : m_loaders_list.length()) * 2 + 1);
 
     auto hashing_task =
-        makeShared<ConcurrentTask>(this, "MakeModrinthHashesTask", APPLICATION->settings()->get("NumberOfConcurrentTasks").toInt());
+        makeShared<ConcurrentTask>("MakeModrinthHashesTask", APPLICATION->settings()->get("NumberOfConcurrentTasks").toInt());
     for (auto* resource : m_resources) {
         auto hash = resource->metadata()->hash;
 
@@ -99,8 +99,7 @@ void ModrinthCheckUpdate::checkVersionsResponse(std::shared_ptr<QByteArray> resp
             // If the returned project is empty, but we have Modrinth metadata,
             // it means this specific version is not available
             if (project_obj.isEmpty()) {
-                qDebug() << "Mod " << m_mappings.find(hash).value()->name() << " got an empty response."
-                         << "Hash: " << hash;
+                qDebug() << "Mod " << m_mappings.find(hash).value()->name() << " got an empty response." << "Hash: " << hash;
                 ++iter;
                 continue;
             }
@@ -173,7 +172,7 @@ void ModrinthCheckUpdate::checkNextLoader()
         m_loader_idx++;
         return;
     }
-    
+
     if (m_loader_idx < m_loaders_list.size()) {
         getUpdateModsForLoader(m_loaders_list.at(m_loader_idx));
         m_loader_idx++;

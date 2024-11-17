@@ -48,16 +48,10 @@
 #include <QThreadPool>
 #include <QUrl>
 #include <QUuid>
-#include <algorithm>
 
 #include "Application.h"
 
-#include "Json.h"
 #include "minecraft/mod/tasks/LocalModParseTask.h"
-#include "minecraft/mod/tasks/LocalResourceUpdateTask.h"
-#include "modplatform/ModIndex.h"
-#include "modplatform/flame/FlameAPI.h"
-#include "modplatform/flame/FlameModIndex.h"
 
 ModFolderModel::ModFolderModel(const QDir& dir, BaseInstance* instance, bool is_indexed, bool create_dir, QObject* parent)
     : ResourceFolderModel(QDir(dir), instance, is_indexed, create_dir, parent)
@@ -246,7 +240,7 @@ void ModFolderModel::onParseSucceeded(int ticket, QString mod_id)
 
     auto result = cast_task->result();
     if (result && resource)
-        resource->finishResolvingWithDetails(std::move(result->details));
+        static_cast<Mod*>(resource.get())->finishResolvingWithDetails(std::move(result->details));
 
     emit dataChanged(index(row), index(row, columnCount(QModelIndex()) - 1));
 }

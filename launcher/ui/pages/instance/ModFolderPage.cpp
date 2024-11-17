@@ -51,22 +51,15 @@
 
 #include "Application.h"
 
-#include "ui/GuiUtil.h"
 #include "ui/dialogs/CustomMessageBox.h"
 #include "ui/dialogs/ResourceDownloadDialog.h"
 #include "ui/dialogs/ResourceUpdateDialog.h"
-
-#include "DesktopServices.h"
 
 #include "minecraft/PackProfile.h"
 #include "minecraft/VersionFilterData.h"
 #include "minecraft/mod/Mod.h"
 #include "minecraft/mod/ModFolderModel.h"
 
-#include "modplatform/ModIndex.h"
-#include "modplatform/ResourceAPI.h"
-
-#include "Version.h"
 #include "tasks/ConcurrentTask.h"
 #include "tasks/Task.h"
 #include "ui/dialogs/ProgressDialog.h"
@@ -155,7 +148,7 @@ void ModFolderPage::downloadMods()
 
     ResourceDownload::ModDownloadDialog mdownload(this, m_model, m_instance);
     if (mdownload.exec()) {
-        auto tasks = new ConcurrentTask(this, tr("Download Mods"), APPLICATION->settings()->get("NumberOfConcurrentDownloads").toInt());
+        auto tasks = new ConcurrentTask(tr("Download Mods"), APPLICATION->settings()->get("NumberOfConcurrentDownloads").toInt());
         connect(tasks, &Task::failed, [this, tasks](QString reason) {
             CustomMessageBox::selectable(this, tr("Error"), reason, QMessageBox::Critical)->show();
             tasks->deleteLater();
@@ -238,7 +231,7 @@ void ModFolderPage::updateMods(bool includeDeps)
     }
 
     if (update_dialog.exec()) {
-        auto tasks = new ConcurrentTask(this, "Download Mods", APPLICATION->settings()->get("NumberOfConcurrentDownloads").toInt());
+        auto tasks = new ConcurrentTask("Download Mods", APPLICATION->settings()->get("NumberOfConcurrentDownloads").toInt());
         connect(tasks, &Task::failed, [this, tasks](QString reason) {
             CustomMessageBox::selectable(this, tr("Error"), reason, QMessageBox::Critical)->show();
             tasks->deleteLater();
@@ -310,7 +303,7 @@ void ModFolderPage::changeModVersion()
     ResourceDownload::ModDownloadDialog mdownload(this, m_model, m_instance);
     mdownload.setResourceMetadata((*mods_list.begin())->metadata());
     if (mdownload.exec()) {
-        auto tasks = new ConcurrentTask(this, "Download Mods", APPLICATION->settings()->get("NumberOfConcurrentDownloads").toInt());
+        auto tasks = new ConcurrentTask("Download Mods", APPLICATION->settings()->get("NumberOfConcurrentDownloads").toInt());
         connect(tasks, &Task::failed, [this, tasks](QString reason) {
             CustomMessageBox::selectable(this, tr("Error"), reason, QMessageBox::Critical)->show();
             tasks->deleteLater();

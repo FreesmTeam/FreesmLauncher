@@ -435,7 +435,7 @@ void VersionPage::on_actionDownload_All_triggered()
     if (updateTasks.isEmpty()) {
         return;
     }
-    auto task = makeShared<SequentialTask>(this);
+    auto task = makeShared<SequentialTask>();
     for (auto t : updateTasks) {
         task->addTask(t);
     }

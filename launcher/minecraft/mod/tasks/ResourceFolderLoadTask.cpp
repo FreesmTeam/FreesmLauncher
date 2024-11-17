@@ -47,7 +47,7 @@ ResourceFolderLoadTask::ResourceFolderLoadTask(const QDir& resource_dir,
                                                bool is_indexed,
                                                bool clean_orphan,
                                                std::function<Resource*(const QFileInfo&)> create_function)
-    : Task(nullptr, false)
+    : Task(false)
     , m_resource_dir(resource_dir)
     , m_index_dir(index_dir)
     , m_is_indexed(is_indexed)
