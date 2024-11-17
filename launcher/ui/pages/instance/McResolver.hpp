@@ -30,7 +30,7 @@ private:
             lookup->deleteLater();
 
             if (lookup->error() != QDnsLookup::NoError) {
-                qDebug() << "Warning: SRV record lookup failed (" << lookup->errorString().toStdString() << "), trying A record lookup";
+                qDebug() << QString("Warning: SRV record lookup failed (%1), trying A record lookup").arg(lookup->errorString());
                 pingWithDomainA(domain, port);
                 return;
             }
