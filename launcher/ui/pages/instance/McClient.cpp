@@ -55,7 +55,7 @@ void McClient::readBytesExactFromSocket(QByteArray &resp, int bytesToRead) {
             throw Exception("Read timeout or error");
         }
 
-        QByteArray chunk = socket.read(qMin(bytesToRead, socket.bytesAvailable()));
+        QByteArray chunk = socket.read(bytesToRead);
         resp.append(chunk);
         bytesToRead -= chunk.size();
     }
