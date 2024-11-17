@@ -95,10 +95,6 @@ public:
         return doc.object();
     }
 
-    void close() {
-        socket.close();
-    }
-
 private:
     // From https://wiki.vg/Protocol#VarInt_and_VarLong
     void writeVarInt(QByteArray &data, int value) {

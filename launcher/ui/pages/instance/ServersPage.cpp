@@ -148,8 +148,6 @@ class ServerPingTask : public Task {
             int online = client.getOnlinePlayers();
             qDebug() << "Online players: " << online;
             m_server.m_currentPlayers = online;
-
-            client.close();
         });
         resolver->ping();
     }
