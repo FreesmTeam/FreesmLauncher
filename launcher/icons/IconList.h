@@ -93,7 +93,6 @@ class IconList : public QAbstractListModel {
     void reindex();
     void sortIconList();
     bool addPathRecursively(const QString& path);
-    void removePathRecursively(const QString& path);
     QStringList getIconFilePaths() const;
 
    public slots:

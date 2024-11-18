@@ -108,28 +108,6 @@ bool IconList::addPathRecursively(const QString& path)
     return watching;
 }
 
-void IconList::removePathRecursively(const QString& path)
-{
-    QFileInfo file_info(path);
-    if (file_info.isFile()) {
-        // Remove the icon belonging to the file
-        QString key = m_dir.relativeFilePath(file_info.absoluteFilePath());
-        int idx = getIconIndex(key);
-        if (idx == -1)
-            return;
-
-    } else if (file_info.isDir()) {
-        // Remove the directory itself
-        m_watcher->removePath(path);
-
-        const QDir dir(path);
-        // Remove all files within the directory
-        for (const QFileInfo& file : dir.entryInfoList(QDir::Dirs | QDir::NoDotAndDotDot)) {
-            removePathRecursively(file.absoluteFilePath());
-        }
-    }
-}
-
 QStringList IconList::getIconFilePaths() const
 {
     QStringList iconFiles{};
@@ -179,9 +157,8 @@ void IconList::directoryChanged(const QString& path)
             stopWatching();
         startWatching();
     }
-    if (!m_dir.exists())
-        if (!FS::ensureFolderPathExists(m_dir.absolutePath()))
-            return;
+    if (!m_dir.exists() && !FS::ensureFolderPathExists(m_dir.absolutePath()))
+        return;
     m_dir.refresh();
     const QStringList newFileNamesList = getIconFilePaths();
     const QSet<QString> newSet = toStringSet(newFileNamesList);
