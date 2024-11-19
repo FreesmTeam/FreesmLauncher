@@ -794,7 +794,6 @@ void ServersPage::on_actionJoin_triggered()
 
 void ServersPage::on_actionRefresh_triggered()
 {
-    qDebug() << "Action clicked";
     m_model->queryServersStatus();
 }
 
