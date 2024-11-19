@@ -734,6 +734,9 @@ void ServersPage::openedImpl()
         m_wide_bar_setting = APPLICATION->settings()->getSetting(setting_name);
 
     ui->toolBar->setVisibilityState(m_wide_bar_setting->get().toByteArray());
+
+    // ping servers 
+    m_model->queryServersStatus();
 }
 
 void ServersPage::closedImpl()
