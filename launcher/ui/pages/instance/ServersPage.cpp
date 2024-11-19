@@ -132,7 +132,7 @@ struct Server {
 class ServerPingTask : public Task {
     Q_OBJECT
   public:
-    explicit ServerPingTask(QObject* parent, Server &server) : Task(parent), m_server(server) {}
+    explicit ServerPingTask(Server &server) : Task(), m_server(server) {}
     ~ServerPingTask() override = default;
 
 
@@ -485,7 +485,7 @@ class ServersModel : public QAbstractListModel {
     {
         ConcurrentTask::Ptr job(new ConcurrentTask("Query servers status", APPLICATION->settings()->get("NumberOfConcurrentTasks").toInt()));
         for (auto& server : m_servers) {
-            ServerPingTask *task = new ServerPingTask(this, server);
+            ServerPingTask *task = new ServerPingTask(server);
             job->addTask(Task::Ptr(task));
         }
         job->start();
