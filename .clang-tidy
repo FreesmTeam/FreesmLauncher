@@ -1,8 +1,8 @@
-Checks: >
-  modernize-use-using
-  readability-avoid-const-params-in-decls
-  misc-unused-parameters,
-  readability-identifier-naming
+Checks:
+  - modernize-use-using
+  - readability-avoid-const-params-in-decls
+  - misc-unused-parameters,
+  - readability-identifier-naming
 
 # ^ Without unused-parameters the readability-identifier-naming check doesn't cause any warnings.
 
