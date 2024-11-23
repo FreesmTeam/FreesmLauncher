@@ -64,7 +64,7 @@ IconList::IconList(const QStringList& builtinPaths, const QString& path, QObject
     }
 
     m_watcher.reset(new QFileSystemWatcher());
-    m_is_watching = false;
+    m_isWatching = false;
     connect(m_watcher.get(), &QFileSystemWatcher::directoryChanged, this, &IconList::directoryChanged);
     connect(m_watcher.get(), &QFileSystemWatcher::fileChanged, this, &IconList::fileChanged);
 
@@ -153,7 +153,7 @@ void IconList::directoryChanged(const QString& path)
         if (!path.startsWith(m_dir.absolutePath()))
             m_dir.setPath(path);
         m_dir.refresh();
-        if (m_is_watching)
+        if (m_isWatching)
             stopWatching();
         startWatching();
     }
@@ -239,8 +239,8 @@ void IconList::startWatching()
 {
     auto abs_path = m_dir.absolutePath();
     FS::ensureFolderPathExists(abs_path);
-    m_is_watching = addPathRecursively(abs_path);
-    if (m_is_watching) {
+    m_isWatching = addPathRecursively(abs_path);
+    if (m_isWatching) {
         qDebug() << "Started watching " << abs_path;
     } else {
         qDebug() << "Failed to start watching " << abs_path;
@@ -251,7 +251,7 @@ void IconList::stopWatching()
 {
     m_watcher->removePaths(m_watcher->files());
     m_watcher->removePaths(m_watcher->directories());
-    m_is_watching = false;
+    m_isWatching = false;
 }
 
 QStringList IconList::mimeTypes() const
@@ -372,8 +372,8 @@ bool IconList::trashIcon(const QString& key)
 
 bool IconList::addThemeIcon(const QString& key)
 {
-    auto iter = m_name_index.find(key);
-    if (iter != m_name_index.end()) {
+    auto iter = m_nameIndex.find(key);
+    if (iter != m_nameIndex.end()) {
         auto& oldOne = m_icons[*iter];
         oldOne.replace(Builtin, key);
         dataChanged(index(*iter), index(*iter));
@@ -387,7 +387,7 @@ bool IconList::addThemeIcon(const QString& key)
         mmc_icon.m_key = key;
         mmc_icon.replace(Builtin, key);
         m_icons.push_back(mmc_icon);
-        m_name_index[key] = m_icons.size() - 1;
+        m_nameIndex[key] = m_icons.size() - 1;
     }
     endInsertRows();
     return true;
@@ -399,8 +399,8 @@ bool IconList::addIcon(const QString& key, const QString& name, const QString& p
     QIcon icon(path);
     if (icon.isNull())
         return false;
-    auto iter = m_name_index.find(key);
-    if (iter != m_name_index.end()) {
+    auto iter = m_nameIndex.find(key);
+    if (iter != m_nameIndex.end()) {
         auto& oldOne = m_icons[*iter];
         oldOne.replace(type, icon, path);
         dataChanged(index(*iter), index(*iter));
@@ -414,7 +414,7 @@ bool IconList::addIcon(const QString& key, const QString& name, const QString& p
         mmc_icon.m_key = key;
         mmc_icon.replace(type, icon, path);
         m_icons.push_back(mmc_icon);
-        m_name_index[key] = m_icons.size() - 1;
+        m_nameIndex[key] = m_icons.size() - 1;
     }
     endInsertRows();
     return true;
@@ -429,9 +429,9 @@ void IconList::saveIcon(const QString& key, const QString& path, const char* for
 
 void IconList::reindex()
 {
-    m_name_index.clear();
+    m_nameIndex.clear();
     for (int i = 0; i < m_icons.size(); i++) {
-        m_name_index[m_icons[i].m_key] = i;
+        m_nameIndex[m_icons[i].m_key] = i;
         emit iconUpdated(m_icons[i].m_key);  // prevents incorrect indices with proxy model
     }
 }
@@ -453,8 +453,8 @@ QIcon IconList::getIcon(const QString& key) const
 
 int IconList::getIconIndex(const QString& key) const
 {
-    auto iter = m_name_index.find(key == "default" ? "grass" : key);
-    if (iter != m_name_index.end())
+    auto iter = m_nameIndex.find(key == "default" ? "grass" : key);
+    if (iter != m_nameIndex.end())
         return *iter;
 
     return -1;
@@ -470,8 +470,8 @@ QString IconList::iconDirectory(const QString& key) const
 {
     for (const auto& mmcIcon : m_icons) {
         if (mmcIcon.m_key == key && mmcIcon.has(IconType::FileBased)) {
-            QFileInfo icon_file(mmcIcon.getFilePath());
-            return icon_file.dir().path();
+            QFileInfo iconFile(mmcIcon.getFilePath());
+            return iconFile.dir().path();
         }
     }
     return getDirectory();
