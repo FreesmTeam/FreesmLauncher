@@ -150,8 +150,10 @@ class ServerPingTask : public Task {
                 int online = client.getOnlinePlayers();
                 qDebug() << "Online players: " << online;
                 m_server.m_currentPlayers = online;
+                emitSucceeded();
             } catch(const Exception& e) {
                 qDebug() << "Failed to get online players: " << e.cause();
+                emitFailed(e.cause());
             }
         });
         resolver->ping();
