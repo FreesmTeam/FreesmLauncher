@@ -483,12 +483,16 @@ class ServersModel : public QAbstractListModel {
 
     void queryServersStatus()
     {
-        ConcurrentTask::Ptr job(new ConcurrentTask("Query servers status", APPLICATION->settings()->get("NumberOfConcurrentTasks").toInt()));
+        auto *job = new ConcurrentTask("Query servers status", APPLICATION->settings()->get("NumberOfConcurrentTasks").toInt());
         for (auto& server : m_servers) {
             ServerPingTask *task = new ServerPingTask(server);
             job->addTask(Task::Ptr(task));
         }
         job->start();
+
+        connect(job, &ConcurrentTask::finished, [job]() {
+            job->deleteLater();
+        });
     }
 
    public slots:
