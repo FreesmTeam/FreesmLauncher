@@ -144,7 +144,7 @@ class ServerPingTask : public Task {
         auto [domain, port] = m_server.splitAddress();
         McResolver *resolver = new McResolver(nullptr, domain, port);
         QObject::connect(resolver, &McResolver::succeed, [this, resolver, domain](QString ip, int port) {
-            qDebug() << "Resolved Addresse for" << domain << ": " << ip << ":" << port;
+            qDebug() << "Resolved Address for" << domain << ": " << ip << ":" << port;
 
             // Now that we have the IP and port, query the server
             McClient client(nullptr, domain, ip, port);
@@ -494,8 +494,7 @@ class ServersModel : public QAbstractListModel {
     {
         auto *job = new ConcurrentTask("Query servers status", APPLICATION->settings()->get("NumberOfConcurrentTasks").toInt());
         for (auto& server : m_servers) {
-            ServerPingTask *task = new ServerPingTask(server);
-            job->addTask(Task::Ptr(task));
+            job->addTask(Task::Ptr(new ServerPingTask(server)));
         }
         job->start();
 
