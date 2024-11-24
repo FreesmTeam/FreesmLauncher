@@ -4,7 +4,7 @@
 
 All files are formatted with `clang-format` using the configuration in `.clang-format`. Ensure it is run on changed files before committing!
 
-We have no tool for enforcing names but please follow the following conventions for C++:
+Please also follow the project's conventions for C++:
 
 - Class and type names should be formatted as `PascalCase`: `MyClass`.
 - Private or protected class data members should be formatted as `camelCase` prefixed with `m_`: `m_myCounter`.
@@ -15,6 +15,8 @@ We have no tool for enforcing names but please follow the following conventions 
 - Global functions and non-`const` global variables should be formatted as `camelCase` without a prefix: `globalData`.
 - `const` global variables, macros, and enum constants should be formatted as `SCREAMING_SNAKE_CASE`: `LIGHT_GRAY`.
 - Avoid inventing acronyms or abbreviations especially for a name of multiple words - like `tp` for `texturePack`.
+
+Most of these rules are included in the `.clang-tidy` file, so you can run `clang-tidy` to check for any violations.
 
 Here is what these conventions with the formatting configuration look like:
 
