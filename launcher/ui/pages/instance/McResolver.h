@@ -24,4 +24,5 @@ private:
 signals:
     void succeed(QString ip, int port);
     void fail();
+    void finish();
 };

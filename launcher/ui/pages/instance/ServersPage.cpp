@@ -139,13 +139,15 @@ class ServerPingTask : public Task {
   protected:
     virtual void executeTask() override {
         qDebug() << "Querying status of " << m_server.m_address;
+
+        // Resolve the actual IP and port for the server
         auto [domain, port] = m_server.splitAddress();
         McResolver *resolver = new McResolver(nullptr, domain, port);
         QObject::connect(resolver, &McResolver::succeed, [this, resolver, domain](QString ip, int port) {
-            resolver->deleteLater();
             qDebug() << "Resolved Addresse for" << domain << ": " << ip << ":" << port;
-            McClient client(nullptr, domain, ip, port);
 
+            // Now that we have the IP and port, query the server
+            McClient client(nullptr, domain, ip, port);
             try {
                 int online = client.getOnlinePlayers();
                 qDebug() << "Online players: " << online;
@@ -155,6 +157,11 @@ class ServerPingTask : public Task {
                 qDebug() << "Failed to get online players: " << e.cause();
                 emitFailed(e.cause());
             }
+        });
+
+        // Delete McResolver object when done
+        QObject::connect(resolver, &McResolver::finish, [resolver]() {
+            resolver->deleteLater();
         });
         resolver->ping();
     }
