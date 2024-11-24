@@ -141,7 +141,7 @@ class ServerPingTask : public Task {
         qDebug() << "Querying status of " << m_server.m_address;
         auto [domain, port] = m_server.splitAddress();
         McResolver *resolver = new McResolver(nullptr, domain, port);
-        QObject::connect(resolver, &McResolver::succeed, [=](QString ip, int port) {
+        QObject::connect(resolver, &McResolver::succeed, [this, resolver, domain](QString ip, int port) {
             resolver->deleteLater();
             qDebug() << "Resolved Addresse for" << domain << ": " << ip << ":" << port;
             McClient client(nullptr, domain, ip, port);
