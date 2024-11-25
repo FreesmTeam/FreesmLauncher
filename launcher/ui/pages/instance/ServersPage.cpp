@@ -143,7 +143,7 @@ class ServerPingTask : public Task {
         // Resolve the actual IP and port for the server
         auto [domain, port] = m_server.splitAddress();
         McResolver *resolver = new McResolver(nullptr, domain, port);
-        QObject::connect(resolver, &McResolver::succeed, [this, resolver, domain](QString ip, int port) {
+        QObject::connect(resolver, &McResolver::succeeded, [this, resolver, domain](QString ip, int port) {
             qDebug() << "Resolved Address for" << domain << ": " << ip << ":" << port;
 
             // Now that we have the IP and port, query the server
@@ -160,7 +160,7 @@ class ServerPingTask : public Task {
         });
 
         // Delete McResolver object when done
-        QObject::connect(resolver, &McResolver::finish, [resolver]() {
+        QObject::connect(resolver, &McResolver::finished, [resolver]() {
             resolver->deleteLater();
         });
         resolver->ping();

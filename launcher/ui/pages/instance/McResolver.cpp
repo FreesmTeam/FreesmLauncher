@@ -64,11 +64,11 @@ void McResolver::pingWithDomainA(QString domain, int port) {
 
 void McResolver::emitFail(std::string error) {
     qDebug() << "Ping error:" << QString::fromStdString(error);
-    emit fail();
-    emit finish();
+    emit failed();
+    emit finished();
 }
 
 void McResolver::emitSucceed(QString ip, int port) {
-    emit succeed(ip, port);
-    emit finish();
+    emit succeeded(ip, port);
+    emit finished();
 }

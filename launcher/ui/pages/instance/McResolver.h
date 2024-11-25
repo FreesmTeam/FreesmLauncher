@@ -22,7 +22,7 @@ private:
     void emitSucceed(QString ip, int port);
 
 signals:
-    void succeed(QString ip, int port);
-    void fail();
-    void finish();
+    void succeeded(QString ip, int port);
+    void failed();
+    void finished();
 };
