@@ -79,6 +79,13 @@ Q_DECLARE_METATYPE(TaskStepProgress)
 
 using TaskStepProgressList = QList<std::shared_ptr<TaskStepProgress>>;
 
+
+/*!
+ * Represents a task that has to be done.
+ * To create a task, you need to subclass this class, implement the executeTask() method and call
+ * emitSucceeded() or emitFailed() when the task is done.
+ * the caller needs to call start() to start the task.
+ */
 class Task : public QObject, public QRunnable {
     Q_OBJECT
    public:
@@ -130,9 +137,10 @@ class Task : public QObject, public QRunnable {
    signals:
     void started();
     void progress(qint64 current, qint64 total);
+    //! called when a task has eother succeeded, aborted or failed.
     void finished();
-    void succeeded();
-    void aborted();
+    void succeeded(); // called when a task has succeeded
+    void aborted(); // called when a task has been aborted by calling abort()
     void failed(QString reason);
     void status(QString status);
     void details(QString details);
@@ -146,6 +154,7 @@ class Task : public QObject, public QRunnable {
     // QRunnable's interface
     void run() override { start(); }
 
+    // used by the task caller to start the task
     virtual void start();
     virtual bool abort()
     {
@@ -161,11 +170,17 @@ class Task : public QObject, public QRunnable {
     }
 
    protected:
+    /*!
+     * The task subclass must implement this method. This method is called to start to run the task.
+     * The task is not finished when this method returns. the subclass must manually call emitSucceeded() or emitFailed() instead.
+     */
     virtual void executeTask() = 0;
 
    protected slots:
+    //! The Task subclass must call this method when the task has succeeded 
     virtual void emitSucceeded();
     virtual void emitAborted();
+    //! The Task subclass must call this method when the task has failed
     virtual void emitFailed(QString reason = "");
 
     virtual void propagateStepProgress(TaskStepProgress const& task_progress);
