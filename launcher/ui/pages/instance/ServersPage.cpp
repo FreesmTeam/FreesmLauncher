@@ -505,8 +505,14 @@ class ServersModel : public QAbstractListModel {
     void queryServersStatus()
     {
         auto *job = new ConcurrentTask("Query servers status", APPLICATION->settings()->get("NumberOfConcurrentTasks").toInt());
+        int row = 0;
         for (auto& server : m_servers) {
-            job->addTask(Task::Ptr(new ServerPingTask(server)));
+            auto *task = new ServerPingTask(server);
+            job->addTask(Task::Ptr(task));
+            connect(task, &Task::finished, [this, row]() {
+                emit dataChanged(index(row, 0), index(row, COLUMN_COUNT - 1));
+            });
+            row++;
         }
         job->start();
 
