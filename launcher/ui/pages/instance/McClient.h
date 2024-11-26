@@ -20,12 +20,13 @@ class McClient : public QObject {
 
 public:
     explicit McClient(QObject *parent, QString domain, QString ip, short port);
-    QJsonObject getStatusDataBlocking();
     QFuture<int> getOnlinePlayers();
-    void sendRequest();
-    void readBytesExactFromSocket(QByteArray &resp, int bytesToRead);
-    QJsonObject readResponse();
 private:
+    QJsonObject getStatusDataBlocking();
+    void sendRequest();
+    QJsonObject readResponse();
+    void readBytesExactFromSocket(QByteArray &resp, int bytesToRead);
+
     void writeVarInt(QByteArray &data, int value);
     int readVarInt(QByteArray &data);
     char readByte(QByteArray &data);
