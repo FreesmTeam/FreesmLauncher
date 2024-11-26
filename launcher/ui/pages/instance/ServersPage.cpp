@@ -54,6 +54,7 @@
 #include <QFileSystemWatcher>
 #include <QMenu>
 #include <QTimer>
+#include <QFutureWatcher>
 #include <tasks/ConcurrentTask.h>
 
 static const int COLUMN_COUNT = 3;  // 3 , TBD: latency and other nice things.
@@ -147,16 +148,27 @@ class ServerPingTask : public Task {
             qDebug() << "Resolved Address for" << domain << ": " << ip << ":" << port;
 
             // Now that we have the IP and port, query the server
-            McClient client(nullptr, domain, ip, port);
-            try {
-                int online = client.getOnlinePlayers();
-                qDebug() << "Online players: " << online;
-                m_server.m_currentPlayers = online;
-                emitSucceeded();
-            } catch(const Exception& e) {
-                qDebug() << "Failed to get online players: " << e.cause();
-                emitFailed(e.cause());
-            }
+            McClient *client = new McClient(nullptr, domain, ip, port);
+            auto onlineFuture = client->getOnlinePlayers();
+
+            // Wait for query to finish
+            QFutureWatcher<int> *watcher = new QFutureWatcher<int>();
+            QObject::connect(watcher, &QFutureWatcher<int>::finished, [this, client, onlineFuture, watcher]() {
+                client->deleteLater();
+                watcher->deleteLater();
+
+                int online = onlineFuture.result();
+                if (online == -1) {
+                    qDebug() << "Failed to get online players";
+                    emitFailed();
+                    return;
+                } else {
+                    qDebug() << "Online players: " << online;
+                    m_server.m_currentPlayers = online;
+                    emitSucceeded();
+                }
+            });
+            watcher->setFuture(onlineFuture);
         });
 
         // Delete McResolver object when done

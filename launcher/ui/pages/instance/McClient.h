@@ -2,6 +2,7 @@
 #include <QTcpSocket>
 #include <QJsonDocument>
 #include <QJsonObject>
+#include <QFuture>
 
 #include <Exception.h>
 
@@ -19,8 +20,8 @@ class McClient : public QObject {
 
 public:
     explicit McClient(QObject *parent, QString domain, QString ip, short port);
-    QJsonObject getStatusData();
-    int getOnlinePlayers();
+    QJsonObject getStatusDataBlocking();
+    QFuture<int> getOnlinePlayers();
     void sendRequest();
     void readBytesExactFromSocket(QByteArray &resp, int bytesToRead);
     QJsonObject readResponse();

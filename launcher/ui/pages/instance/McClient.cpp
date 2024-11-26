@@ -5,13 +5,14 @@
 
 #include <Exception.h>
 #include "McClient.h"
+#include <qtconcurrentrun.h>
 
 #define SEGMENT_BITS 0x7F
 #define CONTINUE_BIT 0x80
 
 McClient::McClient(QObject *parent, QString domain, QString ip, short port): QObject(parent), domain(domain), ip(ip), port(port) {}
 
-QJsonObject McClient::getStatusData() {
+QJsonObject McClient::getStatusDataBlocking() {
     qDebug() << "Connecting to socket..";
     socket.connectToHost(ip, port);
 
@@ -27,9 +28,17 @@ QJsonObject McClient::getStatusData() {
     return readResponse();
 }
 
-int McClient::getOnlinePlayers() {
-    auto status = getStatusData();
-    return status.value("players").toObject().value("online").toInt();
+QFuture<int> McClient::getOnlinePlayers() {
+    return QtConcurrent::run([this]() {
+        try {
+            auto status = getStatusDataBlocking();
+            int onlinePlayers = status.value("players").toObject().value("online").toInt();
+            return onlinePlayers;
+        } catch (const Exception &e) {
+            qDebug() << "Error: " << e.what();
+            return -1;
+        }
+    });
 }
 
 void McClient::sendRequest() {
