@@ -49,16 +49,16 @@ void McResolver::pingWithDomainA(QString domain, int port) {
         if (hostInfo.error() != QHostInfo::NoError) {
             emitFail("A record lookup failed");
             return;
-        } else {
-            auto records = hostInfo.addresses();
-            if (records.isEmpty()) {
-                emitFail("No A entries found for domain");
-                return;
-            }
-            
-            const auto& firstRecord = records.at(0);
-            emitSucceed(firstRecord.toString(), port);
         }
+
+        auto records = hostInfo.addresses();
+        if (records.isEmpty()) {
+            emitFail("No A entries found for domain");
+            return;
+        }
+        
+        const auto& firstRecord = records.at(0);
+        emitSucceed(firstRecord.toString(), port);
     });        
 }
 
