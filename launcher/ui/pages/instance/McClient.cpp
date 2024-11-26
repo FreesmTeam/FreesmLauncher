@@ -16,13 +16,13 @@ QJsonObject McClient::getStatusDataBlocking() {
     qDebug() << "Connecting to socket..";
     socket.connectToHost(ip, port);
 
-    if (!socket.waitForConnected(3000)) {
+    if (!socket.waitForConnected()) {
         throw Exception("Failed to connect to socket");
     }
     qDebug() << "Connected to socket successfully";
     sendRequest();
 
-    if (!socket.waitForReadyRead(3000)) {
+    if (!socket.waitForReadyRead()) {
         throw Exception("Socket didn't send anything to read");
     }
     return readResponse();
