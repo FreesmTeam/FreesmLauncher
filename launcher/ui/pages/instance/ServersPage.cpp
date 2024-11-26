@@ -133,22 +133,25 @@ struct Server {
 class ServerPingTask : public Task {
     Q_OBJECT
   public:
-    explicit ServerPingTask(Server &server) : Task(), m_server(server) {}
+    explicit ServerPingTask(QString domain, int port) : Task(), m_domain(domain), m_port(port) {}
     ~ServerPingTask() override = default;
+    int m_outputOnlinePlayers = -1;
 
+  private:
+    QString m_domain;
+    int m_port;
 
   protected:
     virtual void executeTask() override {
-        qDebug() << "Querying status of " << m_server.m_address;
+        qDebug() << "Querying status of " << QString("%1:%2").arg(m_domain).arg(m_port);
 
         // Resolve the actual IP and port for the server
-        auto [domain, port] = m_server.splitAddress();
-        McResolver *resolver = new McResolver(nullptr, domain, port);
-        QObject::connect(resolver, &McResolver::succeeded, [this, resolver, domain](QString ip, int port) {
-            qDebug() << "Resolved Address for" << domain << ": " << ip << ":" << port;
+        McResolver *resolver = new McResolver(nullptr, m_domain, m_port);
+        QObject::connect(resolver, &McResolver::succeeded, [this, resolver](QString ip, int port) {
+            qDebug() << "Resolved Address for" << m_domain << ": " << ip << ":" << port;
 
             // Now that we have the IP and port, query the server
-            McClient *client = new McClient(nullptr, domain, ip, port);
+            McClient *client = new McClient(nullptr, m_domain, ip, port);
             auto onlineFuture = client->getOnlinePlayers();
 
             // Wait for query to finish
@@ -164,7 +167,7 @@ class ServerPingTask : public Task {
                     return;
                 } else {
                     qDebug() << "Online players: " << online;
-                    m_server.m_currentPlayers = online;
+                    m_outputOnlinePlayers = online;
                     emitSucceeded();
                 }
             });
@@ -177,9 +180,6 @@ class ServerPingTask : public Task {
         });
         resolver->ping();
     }
-    
-  private:
-    Server &m_server;
 };
 
 static std::unique_ptr<nbt::tag_compound> parseServersDat(const QString& filename)
@@ -506,10 +506,12 @@ class ServersModel : public QAbstractListModel {
     {
         auto *job = new ConcurrentTask("Query servers status", APPLICATION->settings()->get("NumberOfConcurrentTasks").toInt());
         int row = 0;
-        for (auto& server : m_servers) {
-            auto *task = new ServerPingTask(server);
+        for (Server &server : m_servers) {
+            auto [domain, port] = server.splitAddress();
+            auto *task = new ServerPingTask(domain, port);
             job->addTask(Task::Ptr(task));
-            connect(task, &Task::finished, [this, row]() {
+            connect(task, &Task::finished, [this, task, row, &server]() {
+                server.m_currentPlayers = task->m_outputOnlinePlayers;
                 emit dataChanged(index(row, 0), index(row, COLUMN_COUNT - 1));
             });
             row++;
