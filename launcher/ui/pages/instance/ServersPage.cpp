@@ -510,7 +510,7 @@ class ServersModel : public QAbstractListModel {
             auto [domain, port] = server.splitAddress();
             auto *task = new ServerPingTask(domain, port);
             job->addTask(Task::Ptr(task));
-            connect(task, &Task::finished, [this, task, row, &server]() {
+            connect(task, &Task::finished, this, [this, task, row, &server]() {
                 server.m_currentPlayers = task->m_outputOnlinePlayers;
                 emit dataChanged(index(row, 0), index(row, COLUMN_COUNT - 1));
             });
