@@ -516,11 +516,12 @@ class ServersModel : public QAbstractListModel {
             });
             row++;
         }
-        job->start();
 
         connect(job, &ConcurrentTask::finished, [job]() {
             job->deleteLater();
         });
+
+        job->start();
     }
 
    public slots:
