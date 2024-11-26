@@ -18,7 +18,7 @@ public:
 private:
     void pingWithDomainSRV(QString domain, int port);
     void pingWithDomainA(QString domain, int port);
-    void emitFail(std::string error);
+    void emitFail(QString error);
     void emitSucceed(QString ip, int port);
 
 signals:

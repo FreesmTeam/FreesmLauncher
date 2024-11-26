@@ -62,8 +62,8 @@ void McResolver::pingWithDomainA(QString domain, int port) {
     });        
 }
 
-void McResolver::emitFail(std::string error) {
-    qDebug() << "Ping error:" << QString::fromStdString(error);
+void McResolver::emitFail(QString error) {
+    qDebug() << "Ping error:" << error;
     emit failed();
     emit finished();
 }
