@@ -16,7 +16,7 @@ void McResolver::pingWithDomainSRV(QString domain, int port) {
     lookup->setName(QString("_minecraft._tcp.%1").arg(domain));
     lookup->setType(QDnsLookup::SRV);
 
-    connect(lookup, &QDnsLookup::finished, this, [&, domain, port]() {
+    connect(lookup, &QDnsLookup::finished, this, [this, domain, port]() {
         QDnsLookup *lookup = qobject_cast<QDnsLookup *>(sender());
 
         lookup->deleteLater();
@@ -45,7 +45,7 @@ void McResolver::pingWithDomainSRV(QString domain, int port) {
 }
 
 void McResolver::pingWithDomainA(QString domain, int port) {
-    QHostInfo::lookupHost(domain, this, [&, port](const QHostInfo &hostInfo){
+    QHostInfo::lookupHost(domain, this, [this, port](const QHostInfo &hostInfo){
         if (hostInfo.error() != QHostInfo::NoError) {
             emitFail("A record lookup failed");
             return;
