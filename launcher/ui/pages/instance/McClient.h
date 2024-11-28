@@ -30,7 +30,7 @@ private:
     void writeVarInt(QByteArray &data, int value);
     int readVarInt(QByteArray &data);
     char readByte(QByteArray &data);
-    // write number with specified size in big endian format
+    //! write number with specified size in big endian format
     void writeFixedInt(QByteArray &data, int value, int size);
     void writeString(QByteArray &data, const std::string &value);
 

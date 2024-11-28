@@ -139,8 +139,10 @@ class Task : public QObject, public QRunnable {
     void progress(qint64 current, qint64 total);
     //! called when a task has eother succeeded, aborted or failed.
     void finished();
-    void succeeded(); // called when a task has succeeded
-    void aborted(); // called when a task has been aborted by calling abort()
+    //! called when a task has succeeded
+    void succeeded();
+    //! called when a task has been aborted by calling abort()
+    void aborted();
     void failed(QString reason);
     void status(QString status);
     void details(QString details);
@@ -170,10 +172,8 @@ class Task : public QObject, public QRunnable {
     }
 
    protected:
-    /*!
-     * The task subclass must implement this method. This method is called to start to run the task.
-     * The task is not finished when this method returns. the subclass must manually call emitSucceeded() or emitFailed() instead.
-     */
+    //! The task subclass must implement this method. This method is called to start to run the task.
+    //! The task is not finished when this method returns. the subclass must manually call emitSucceeded() or emitFailed() instead.
     virtual void executeTask() = 0;
 
    protected slots:

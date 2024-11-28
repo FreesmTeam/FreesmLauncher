@@ -10,6 +10,7 @@
 
 // 7 first bits 
 #define SEGMENT_BITS 0x7F
+// last bit
 #define CONTINUE_BIT 0x80
 
 McClient::McClient(QObject *parent, QString domain, QString ip, short port): QObject(parent), domain(domain), ip(ip), port(port) {}
