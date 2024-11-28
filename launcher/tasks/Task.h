@@ -156,6 +156,7 @@ class Task : public QObject, public QRunnable {
 
     // used by the task caller to start the task
     virtual void start();
+    //! used by external code to ask the task to aborta
     virtual bool abort()
     {
         if (canAbort())
@@ -179,6 +180,7 @@ class Task : public QObject, public QRunnable {
    protected slots:
     //! The Task subclass must call this method when the task has succeeded 
     virtual void emitSucceeded();
+    //! **The Task subclass** must call this method when the task has succeeded. External code should call abort() instead. 
     virtual void emitAborted();
     //! The Task subclass must call this method when the task has failed
     virtual void emitFailed(QString reason = "");
