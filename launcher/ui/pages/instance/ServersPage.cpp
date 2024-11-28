@@ -459,9 +459,16 @@ class ServersModel : public QAbstractListModel {
         currentQueryTask = new ConcurrentTask("Query servers status", APPLICATION->settings()->get("NumberOfConcurrentTasks").toInt());
         int row = 0;
         for (Server &server : m_servers) {
+            // reset current players
+            server.m_currentPlayers = {};
+            emit dataChanged(index(row, 0), index(row, COLUMN_COUNT - 1));
+
+            // Start task to query server status
             auto [domain, port] = server.splitAddress();
             auto *task = new ServerPingTask(domain, port);
             currentQueryTask->addTask(Task::Ptr(task));
+
+            // Update the model when the task is done
             connect(task, &Task::finished, this, [this, task, row, &server]() {
                 server.m_currentPlayers = task->m_outputOnlinePlayers;
                 emit dataChanged(index(row, 0), index(row, COLUMN_COUNT - 1));
