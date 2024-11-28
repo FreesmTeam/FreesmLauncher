@@ -450,12 +450,18 @@ class ServersModel : public QAbstractListModel {
 
     void queryServersStatus()
     {
-        auto *job = new ConcurrentTask("Query servers status", APPLICATION->settings()->get("NumberOfConcurrentTasks").toInt());
+        // Abort the currently running task if present
+        if (currentQueryTask != nullptr) {
+            currentQueryTask->abort();
+            qDebug() << "Aborted previous server query task";
+        }
+
+        currentQueryTask = new ConcurrentTask("Query servers status", APPLICATION->settings()->get("NumberOfConcurrentTasks").toInt());
         int row = 0;
         for (Server &server : m_servers) {
             auto [domain, port] = server.splitAddress();
             auto *task = new ServerPingTask(domain, port);
-            job->addTask(Task::Ptr(task));
+            currentQueryTask->addTask(Task::Ptr(task));
             connect(task, &Task::finished, this, [this, task, row, &server]() {
                 server.m_currentPlayers = task->m_outputOnlinePlayers;
                 emit dataChanged(index(row, 0), index(row, COLUMN_COUNT - 1));
@@ -463,11 +469,18 @@ class ServersModel : public QAbstractListModel {
             row++;
         }
 
-        connect(job, &ConcurrentTask::finished, [job]() {
-            job->deleteLater();
+        // make task delete itself when done
+        auto *c = currentQueryTask;
+        connect(currentQueryTask, &ConcurrentTask::finished, [c]() {
+            c->deleteLater();
         });
 
-        job->start();
+        // Also delete it from the model, if the model itself hasn't been deleted
+        connect(currentQueryTask, &ConcurrentTask::finished, this, [this, c]() {
+            if (c == currentQueryTask) currentQueryTask = nullptr;
+        });
+
+        currentQueryTask->start();
     }
 
    public slots:
@@ -557,6 +570,7 @@ class ServersModel : public QAbstractListModel {
     QList<Server> m_servers;
     QFileSystemWatcher* m_watcher = nullptr;
     QTimer m_saveTimer;
+    ConcurrentTask *currentQueryTask = nullptr;
 };
 
 ServersPage::ServersPage(InstancePtr inst, QWidget* parent) : QMainWindow(parent), ui(new Ui::ServersPage)
