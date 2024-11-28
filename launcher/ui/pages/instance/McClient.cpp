@@ -53,8 +53,6 @@ void McClient::sendRequest() {
     writeVarInt(data, 0x01); // next state
     writePacketToSocket(data); // send handshake packet
 
-    data.clear();
-
     writeVarInt(data, 0x00); // packet ID
     writePacketToSocket(data); // send status packet
 }
@@ -162,4 +160,6 @@ void McClient::writePacketToSocket(QByteArray &data) {
     // write it to the socket
     socket.write(dataWithSize);
     socket.flush();
+
+    data.clear();
 }
