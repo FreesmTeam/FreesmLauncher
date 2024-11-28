@@ -146,15 +146,14 @@ class Task : public QObject, public QRunnable {
     void details(QString details);
     void stepProgress(TaskStepProgress const& task_progress);
 
-    /** Emitted when the canAbort() status has changed.
-     */
+    //! Emitted when the canAbort() status has changed. */
     void abortStatusChanged(bool can_abort);
 
    public slots:
     // QRunnable's interface
     void run() override { start(); }
 
-    // used by the task caller to start the task
+    //! used by the task caller to start the task
     virtual void start();
     //! used by external code to ask the task to aborta
     virtual bool abort()
