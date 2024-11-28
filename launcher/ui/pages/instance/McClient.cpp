@@ -2,10 +2,11 @@
 #include <QTcpSocket>
 #include <QJsonDocument>
 #include <QJsonObject>
+#include <qtconcurrentrun.h>
 
 #include <Exception.h>
 #include "McClient.h"
-#include <qtconcurrentrun.h>
+#include "Json.h"
 
 // 7 first bits 
 #define SEGMENT_BITS 0x7F
@@ -33,8 +34,8 @@ QFuture<int> McClient::getOnlinePlayers() {
     return QtConcurrent::run([this]() {
         try {
             auto status = getStatusDataBlocking();
-            int onlinePlayers = status.value("players").toObject().value("online").toInt();
-            return onlinePlayers;
+            auto players = Json::requireObject(status, "players");
+            return Json::requireInteger(players, "online");
         } catch (const Exception &e) {
             qDebug() << "Error: " << e.what();
             return -1;
