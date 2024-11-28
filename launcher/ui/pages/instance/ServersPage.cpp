@@ -38,9 +38,7 @@
 #include "ServersPage.h"
 #include "ui/dialogs/CustomMessageBox.h"
 #include "ui_ServersPage.h"
-
-#include "McClient.h"
-#include "McResolver.h"
+#include "ServerPingTask.h"
 
 #include <FileSystem.h>
 #include <io/stream_reader.h>
@@ -128,58 +126,6 @@ struct Server {
     QString m_motd;  // https://mctools.org/motd-creator
     std::optional<int> m_currentPlayers; // nullopt if not calculated/calculating
     int m_maxPlayers = 0;
-};
-
-class ServerPingTask : public Task {
-    Q_OBJECT
-  public:
-    explicit ServerPingTask(QString domain, int port) : Task(), m_domain(domain), m_port(port) {}
-    ~ServerPingTask() override = default;
-    int m_outputOnlinePlayers = -1;
-
-  private:
-    QString m_domain;
-    int m_port;
-
-  protected:
-    virtual void executeTask() override {
-        qDebug() << "Querying status of " << QString("%1:%2").arg(m_domain).arg(m_port);
-
-        // Resolve the actual IP and port for the server
-        McResolver *resolver = new McResolver(nullptr, m_domain, m_port);
-        QObject::connect(resolver, &McResolver::succeeded, [this, resolver](QString ip, int port) {
-            qDebug() << "Resolved Address for" << m_domain << ": " << ip << ":" << port;
-
-            // Now that we have the IP and port, query the server
-            McClient *client = new McClient(nullptr, m_domain, ip, port);
-            auto onlineFuture = client->getOnlinePlayers();
-
-            // Wait for query to finish
-            QFutureWatcher<int> *watcher = new QFutureWatcher<int>();
-            QObject::connect(watcher, &QFutureWatcher<int>::finished, [this, client, onlineFuture, watcher]() {
-                client->deleteLater();
-                watcher->deleteLater();
-
-                int online = onlineFuture.result();
-                if (online == -1) {
-                    qDebug() << "Failed to get online players";
-                    emitFailed();
-                    return;
-                } else {
-                    qDebug() << "Online players: " << online;
-                    m_outputOnlinePlayers = online;
-                    emitSucceeded();
-                }
-            });
-            watcher->setFuture(onlineFuture);
-        });
-
-        // Delete McResolver object when done
-        QObject::connect(resolver, &McResolver::finished, [resolver]() {
-            resolver->deleteLater();
-        });
-        resolver->ping();
-    }
 };
 
 static std::unique_ptr<nbt::tag_compound> parseServersDat(const QString& filename)
