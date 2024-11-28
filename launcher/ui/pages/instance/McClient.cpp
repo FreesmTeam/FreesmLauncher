@@ -117,16 +117,16 @@ int McClient::readVarInt(QByteArray &data) {
     int position = 0;
     char currentByte;
 
-    while (true) {
+    while (position < 32) {
         currentByte = readByte(data);
         value |= (currentByte & SEGMENT_BITS) << position;
 
         if ((currentByte & CONTINUE_BIT) == 0) break;
 
         position += 7;
-
-        if (position >= 32) throw Exception("VarInt is too big");
     }
+
+    if (position >= 32) throw Exception("VarInt is too big");
 
     return value;
 }
