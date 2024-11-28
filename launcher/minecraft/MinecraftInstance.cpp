@@ -99,7 +99,47 @@
 #include "MangoHud.h"
 #endif
 
+#ifdef WITH_QTDBUS
+#include <QtDBus/QtDBus>
+#endif
+
 #define IBUS "@im=ibus"
+
+static bool switcherooSetupGPU(QProcessEnvironment& env)
+{
+#ifdef WITH_QTDBUS
+    if (!QDBusConnection::systemBus().isConnected())
+        return false;
+
+    QDBusInterface switcheroo("net.hadess.SwitcherooControl", "/net/hadess/SwitcherooControl", "org.freedesktop.DBus.Properties",
+                              QDBusConnection::systemBus());
+
+    if (!switcheroo.isValid())
+        return false;
+
+    QDBusReply<QDBusVariant> reply =
+        switcheroo.call(QStringLiteral("Get"), QStringLiteral("net.hadess.SwitcherooControl"), QStringLiteral("GPUs"));
+    if (!reply.isValid())
+        return false;
+
+    QDBusArgument arg = qvariant_cast<QDBusArgument>(reply.value().variant());
+    QList<QVariantMap> gpus;
+    arg >> gpus;
+
+    for (const auto& gpu : gpus) {
+        QString name = qvariant_cast<QString>(gpu[QStringLiteral("Name")]);
+        bool defaultGpu = qvariant_cast<bool>(gpu[QStringLiteral("Default")]);
+        if (!defaultGpu) {
+            QStringList envList = qvariant_cast<QStringList>(gpu[QStringLiteral("Environment")]);
+            for (int i = 0; i + 1 < envList.size(); i += 2) {
+                env.insert(envList[i], envList[i + 1]);
+            }
+            return true;
+        }
+    }
+#endif
+    return false;
+}
 
 // all of this because keeping things compatible with deprecated old settings
 // if either of the settings {a, b} is true, this also resolves to true
@@ -617,12 +657,14 @@ QProcessEnvironment MinecraftInstance::createLaunchEnvironment()
     }
 
     if (settings()->get("UseDiscreteGpu").toBool()) {
-        // Open Source Drivers
-        env.insert("DRI_PRIME", "1");
-        // Proprietary Nvidia Drivers
-        env.insert("__NV_PRIME_RENDER_OFFLOAD", "1");
-        env.insert("__VK_LAYER_NV_optimus", "NVIDIA_only");
-        env.insert("__GLX_VENDOR_LIBRARY_NAME", "nvidia");
+        if (!switcherooSetupGPU(env)) {
+            // Open Source Drivers
+            env.insert("DRI_PRIME", "1");
+            // Proprietary Nvidia Drivers
+            env.insert("__NV_PRIME_RENDER_OFFLOAD", "1");
+            env.insert("__VK_LAYER_NV_optimus", "NVIDIA_only");
+            env.insert("__GLX_VENDOR_LIBRARY_NAME", "nvidia");
+        }
     }
 
     if (settings()->get("UseZink").toBool()) {
