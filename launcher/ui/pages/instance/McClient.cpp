@@ -7,6 +7,7 @@
 #include "McClient.h"
 #include <qtconcurrentrun.h>
 
+// 7 first bits 
 #define SEGMENT_BITS 0x7F
 #define CONTINUE_BIT 0x80
 
@@ -99,17 +100,15 @@ QJsonObject McClient::readResponse() {
 
 // From https://wiki.vg/Protocol#VarInt_and_VarLong
 void McClient::writeVarInt(QByteArray &data, int value) {
-    while (true) {
-        if ((value & ~SEGMENT_BITS) == 0) {
-            data.append(value);
-            return;
-        }
-
+    while ((value & ~SEGMENT_BITS)) { // check if the value is too big to fit in 7 bits
+        // Write 7 bits
         data.append((value & SEGMENT_BITS) | CONTINUE_BIT);
 
+        // Erase theses 7 bits from the value to write
         // Note: >>> means that the sign bit is shifted with the rest of the number rather than being left alone
         value >>= 7;
     }
+    data.append(value);
 }
 
 // From https://wiki.vg/Protocol#VarInt_and_VarLong
