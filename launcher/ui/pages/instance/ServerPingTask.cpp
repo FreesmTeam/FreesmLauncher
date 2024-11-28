@@ -9,7 +9,7 @@ void ServerPingTask::executeTask() {
 
     // Resolve the actual IP and port for the server
     McResolver *resolver = new McResolver(nullptr, m_domain, m_port);
-    QObject::connect(resolver, &McResolver::succeeded, [this, resolver](QString ip, int port) {
+    QObject::connect(resolver, &McResolver::succeeded, this, [this, resolver](QString ip, int port) {
         qDebug() << "Resolved Address for" << m_domain << ": " << ip << ":" << port;
 
         // Now that we have the IP and port, query the server
@@ -18,7 +18,7 @@ void ServerPingTask::executeTask() {
 
         // Wait for query to finish
         QFutureWatcher<int> *watcher = new QFutureWatcher<int>();
-        QObject::connect(watcher, &QFutureWatcher<int>::finished, [this, client, onlineFuture, watcher]() {
+        QObject::connect(watcher, &QFutureWatcher<int>::finished, this, [this, client, onlineFuture, watcher]() {
             client->deleteLater();
             watcher->deleteLater();
 
