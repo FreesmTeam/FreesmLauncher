@@ -155,7 +155,7 @@ class Task : public QObject, public QRunnable {
 
     //! used by the task caller to start the task
     virtual void start();
-    //! used by external code to ask the task to aborta
+    //! used by external code to ask the task to abort
     virtual bool abort()
     {
         if (canAbort())
