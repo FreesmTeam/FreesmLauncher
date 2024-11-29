@@ -52,7 +52,6 @@
 #include <QFileSystemWatcher>
 #include <QMenu>
 #include <QTimer>
-#include <QFutureWatcher>
 #include <tasks/ConcurrentTask.h>
 
 static const int COLUMN_COUNT = 3;  // 3 , TBD: latency and other nice things.
@@ -469,8 +468,9 @@ class ServersModel : public QAbstractListModel {
             currentQueryTask->addTask(Task::Ptr(task));
 
             // Update the model when the task is done
-            connect(task, &Task::finished, this, [this, task, row, &server]() {
-                server.m_currentPlayers = task->m_outputOnlinePlayers;
+            connect(task, &Task::finished, this, [this, task, row]() {
+                if (m_servers.size() < row) return;
+                m_servers[row].m_currentPlayers = task->m_outputOnlinePlayers;
                 emit dataChanged(index(row, 0), index(row, COLUMN_COUNT - 1));
             });
             row++;
