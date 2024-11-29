@@ -455,7 +455,9 @@ class ServersModel : public QAbstractListModel {
             qDebug() << "Aborted previous server query task";
         }
 
-        currentQueryTask = new ConcurrentTask("Query servers status", APPLICATION->settings()->get("NumberOfConcurrentTasks").toInt());
+        currentQueryTask = ConcurrentTask::Ptr(
+            new ConcurrentTask("Query servers status", APPLICATION->settings()->get("NumberOfConcurrentTasks").toInt())
+        );
         int row = 0;
         for (Server &server : m_servers) {
             // reset current players
@@ -476,15 +478,9 @@ class ServersModel : public QAbstractListModel {
             row++;
         }
 
-        // make task delete itself when done
-        auto *c = currentQueryTask;
-        connect(currentQueryTask, &ConcurrentTask::finished, [c]() {
-            c->deleteLater();
-        });
-
-        // Also delete it from the model, if the model itself hasn't been deleted
-        connect(currentQueryTask, &ConcurrentTask::finished, this, [this, c]() {
-            if (c == currentQueryTask) currentQueryTask = nullptr;
+        // Destroy task when done
+        connect(currentQueryTask.get(), &ConcurrentTask::finished, this, [this]() {
+            currentQueryTask = nullptr;
         });
 
         currentQueryTask->start();
@@ -577,7 +573,7 @@ class ServersModel : public QAbstractListModel {
     QList<Server> m_servers;
     QFileSystemWatcher* m_watcher = nullptr;
     QTimer m_saveTimer;
-    ConcurrentTask *currentQueryTask = nullptr;
+    ConcurrentTask::Ptr currentQueryTask = nullptr;
 };
 
 ServersPage::ServersPage(InstancePtr inst, QWidget* parent) : QMainWindow(parent), ui(new Ui::ServersPage)
