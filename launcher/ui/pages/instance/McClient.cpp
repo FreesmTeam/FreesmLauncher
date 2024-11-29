@@ -13,19 +13,19 @@
 // last bit
 #define CONTINUE_BIT 0x80
 
-McClient::McClient(QObject *parent, QString domain, QString ip, short port): QObject(parent), domain(domain), ip(ip), port(port) {}
+McClient::McClient(QObject *parent, QString domain, QString ip, short port): QObject(parent), m_domain(domain), m_ip(ip), m_port(port) {}
 
 QJsonObject McClient::getStatusDataBlocking() {
     qDebug() << "Connecting to socket..";
-    socket.connectToHost(ip, port);
+    m_socket.connectToHost(m_ip, m_port);
 
-    if (!socket.waitForConnected()) {
+    if (!m_socket.waitForConnected()) {
         throw Exception("Failed to connect to socket");
     }
     qDebug() << "Connected to socket successfully";
     sendRequest();
 
-    if (!socket.waitForReadyRead()) {
+    if (!m_socket.waitForReadyRead()) {
         throw Exception("Socket didn't send anything to read");
     }
     return readResponse();
@@ -48,9 +48,9 @@ void McClient::sendRequest() {
     QByteArray data;
     writeVarInt(data, 0x00); // packet ID
     writeVarInt(data, 0x760); // protocol version
-    writeVarInt(data, domain.size()); // server address length
-    writeString(data, domain.toStdString()); // server address
-    writeFixedInt(data, port, 2); // server port
+    writeVarInt(data, m_domain.size()); // server address length
+    writeString(data, m_domain.toStdString()); // server address
+    writeFixedInt(data, m_port, 2); // server port
     writeVarInt(data, 0x01); // next state
     writePacketToSocket(data); // send handshake packet
 
@@ -61,18 +61,18 @@ void McClient::sendRequest() {
 void McClient::readBytesExactFromSocket(QByteArray &resp, int bytesToRead) {
     while (bytesToRead > 0) {
         qDebug() << bytesToRead << " bytes left to read";
-        if (!socket.waitForReadyRead()) {
+        if (!m_socket.waitForReadyRead()) {
             throw Exception("Read timeout or error");
         }
 
-        QByteArray chunk = socket.read(bytesToRead);
+        QByteArray chunk = m_socket.read(bytesToRead);
         resp.append(chunk);
         bytesToRead -= chunk.size();
     }
 }
 
 QJsonObject McClient::readResponse() {
-    auto resp = socket.readAll();
+    auto resp = m_socket.readAll();
     int length = readVarInt(resp);
 
     // finish ready response
@@ -159,8 +159,8 @@ void McClient::writePacketToSocket(QByteArray &data) {
     dataWithSize.append(data);
 
     // write it to the socket
-    socket.write(dataWithSize);
-    socket.flush();
+    m_socket.write(dataWithSize);
+    m_socket.flush();
 
     data.clear();
 }

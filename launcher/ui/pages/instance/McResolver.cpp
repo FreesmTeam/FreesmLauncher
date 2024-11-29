@@ -5,10 +5,10 @@
 
 #include "McResolver.h"
 
-McResolver::McResolver(QObject *parent, QString domain, int port): QObject(parent), constrDomain(domain), constrPort(port) {}
+McResolver::McResolver(QObject *parent, QString domain, int port): QObject(parent), m_constrDomain(domain), m_constrPort(port) {}
 
 void McResolver::ping() {
-    pingWithDomainSRV(constrDomain, constrPort);
+    pingWithDomainSRV(m_constrDomain, m_constrPort);
 }
 
 void McResolver::pingWithDomainSRV(QString domain, int port) {

@@ -8,8 +8,8 @@
 class McResolver : public QObject {
     Q_OBJECT
 
-    QString constrDomain;
-    int constrPort;
+    QString m_constrDomain;
+    int m_constrPort;
 
 public:
     explicit McResolver(QObject *parent, QString domain, int port);

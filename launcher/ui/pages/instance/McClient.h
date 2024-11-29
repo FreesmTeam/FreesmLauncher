@@ -13,10 +13,10 @@
 class McClient : public QObject {
     Q_OBJECT
 
-    QString domain;
-    QString ip;
-    short port;
-    QTcpSocket socket;
+    QString m_domain;
+    QString m_ip;
+    short m_port;
+    QTcpSocket m_socket;
 
 public:
     explicit McClient(QObject *parent, QString domain, QString ip, short port);
