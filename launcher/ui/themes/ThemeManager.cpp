@@ -36,6 +36,7 @@
 
 ThemeManager::ThemeManager()
 {
+    QIcon::setFallbackThemeName(QIcon::themeName());
     themeDebugLog() << "Determining System Widget Theme...";
     const auto& style = QApplication::style();
     m_defaultStyle = style->objectName();
