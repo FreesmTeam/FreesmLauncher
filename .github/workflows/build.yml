@@ -380,11 +380,13 @@ jobs:
 
           if [ -n '${{ secrets.APPLE_CODESIGN_ID }}' ]; then
             APPLE_CODESIGN_ID='${{ secrets.APPLE_CODESIGN_ID }}'
+            ENTITLEMENTS_FILE='../program_info/App.entitlements'
           else
             APPLE_CODESIGN_ID='-'
+            ENTITLEMENTS_FILE='../program_info/AdhocSignedApp.entitlements'
           fi
 
-          sudo codesign --sign "$APPLE_CODESIGN_ID" --deep --force --entitlements "../program_info/App.entitlements" --options runtime "PrismLauncher.app/Contents/MacOS/prismlauncher"
+          sudo codesign --sign "$APPLE_CODESIGN_ID" --deep --force --entitlements "$ENTITLEMENTS_FILE" --options runtime "PrismLauncher.app/Contents/MacOS/prismlauncher"
           mv "PrismLauncher.app" "Prism Launcher.app"
 
       - name: Notarize (macOS)
