@@ -633,19 +633,24 @@ jobs:
   flatpak:
     runs-on: ubuntu-latest
     container:
-      image: bilelmoussaoui/flatpak-github-actions:kde-6.7
+      image: ghcr.io/flathub-infra/flatpak-github-actions:kde-6.8
       options: --privileged
     steps:
       - name: Checkout
         uses: actions/checkout@v4
         if: inputs.build_type == 'Debug'
         with:
-          submodules: "true"
+          submodules: true
+
+      - name: Set short version
+        shell: bash
+        run: echo "VERSION=${GITHUB_SHA::7}" >> $GITHUB_ENV
+
       - name: Build Flatpak (Linux)
         if: inputs.build_type == 'Debug'
         uses: flatpak/flatpak-github-actions/flatpak-builder@v6
         with:
-          bundle: "Prism Launcher.flatpak"
+          bundle: PrismLauncher-${{ runner.os }}-${{ env.VERSION }}-Flatpak.flatpak
           manifest-path: flatpak/org.prismlauncher.PrismLauncher.yml
 
   nix:
