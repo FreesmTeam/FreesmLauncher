@@ -709,6 +709,16 @@ Application::Application(int& argc, char** argv) : QApplication(argc, argv)
         m_settings->registerSetting("SkinsDir", "skins");
         m_settings->registerSetting("JavaDir", "java");
 
+#ifdef Q_OS_MACOS
+        // Folder security-scoped bookmarks
+        m_settings->registerSetting("InstanceDirBookmark", "");
+        m_settings->registerSetting("CentralModsDirBookmark", "");
+        m_settings->registerSetting("IconsDirBookmark", "");
+        m_settings->registerSetting("DownloadsDirBookmark", "");
+        m_settings->registerSetting("SkinsDirBookmark", "");
+        m_settings->registerSetting("JavaDirBookmark", "");
+#endif
+
         // Editors
         m_settings->registerSetting("JsonEditor", QString());
 
@@ -964,7 +974,7 @@ Application::Application(int& argc, char** argv) : QApplication(argc, argv)
         auto InstDirSetting = m_settings->getSetting("InstanceDir");
         // instance path: check for problems with '!' in instance path and warn the user in the log
         // and remember that we have to show him a dialog when the gui starts (if it does so)
-        QString instDir = InstDirSetting->get().toString();
+        QString instDir = m_settings->get("InstanceDir").toString();
         qInfo() << "Instance path              : " << instDir;
         if (FS::checkProblemticPathJava(QDir(instDir))) {
             qWarning() << "Your instance path contains \'!\' and this is known to cause java problems!";
