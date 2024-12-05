@@ -478,11 +478,6 @@ class ServersModel : public QAbstractListModel {
             row++;
         }
 
-        // Destroy task when done
-        connect(m_currentQueryTask.get(), &ConcurrentTask::finished, this, [this]() {
-            m_currentQueryTask = nullptr;
-        });
-
         m_currentQueryTask->start();
     }
 
