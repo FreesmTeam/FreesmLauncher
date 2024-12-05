@@ -450,12 +450,12 @@ class ServersModel : public QAbstractListModel {
     void queryServersStatus()
     {
         // Abort the currently running task if present
-        if (currentQueryTask != nullptr) {
-            currentQueryTask->abort();
+        if (m_currentQueryTask != nullptr) {
+            m_currentQueryTask->abort();
             qDebug() << "Aborted previous server query task";
         }
 
-        currentQueryTask = ConcurrentTask::Ptr(
+        m_currentQueryTask = ConcurrentTask::Ptr(
             new ConcurrentTask("Query servers status", APPLICATION->settings()->get("NumberOfConcurrentTasks").toInt())
         );
         int row = 0;
@@ -467,7 +467,7 @@ class ServersModel : public QAbstractListModel {
             // Start task to query server status
             auto [domain, port] = server.splitAddress();
             auto *task = new ServerPingTask(domain, port);
-            currentQueryTask->addTask(Task::Ptr(task));
+            m_currentQueryTask->addTask(Task::Ptr(task));
 
             // Update the model when the task is done
             connect(task, &Task::finished, this, [this, task, row]() {
@@ -479,11 +479,11 @@ class ServersModel : public QAbstractListModel {
         }
 
         // Destroy task when done
-        connect(currentQueryTask.get(), &ConcurrentTask::finished, this, [this]() {
-            currentQueryTask = nullptr;
+        connect(m_currentQueryTask.get(), &ConcurrentTask::finished, this, [this]() {
+            m_currentQueryTask = nullptr;
         });
 
-        currentQueryTask->start();
+        m_currentQueryTask->start();
     }
 
    public slots:
@@ -573,7 +573,7 @@ class ServersModel : public QAbstractListModel {
     QList<Server> m_servers;
     QFileSystemWatcher* m_watcher = nullptr;
     QTimer m_saveTimer;
-    ConcurrentTask::Ptr currentQueryTask = nullptr;
+    ConcurrentTask::Ptr m_currentQueryTask = nullptr;
 };
 
 ServersPage::ServersPage(InstancePtr inst, QWidget* parent) : QMainWindow(parent), ui(new Ui::ServersPage)
