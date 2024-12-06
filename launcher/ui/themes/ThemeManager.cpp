@@ -37,7 +37,8 @@
 ThemeManager::ThemeManager()
 {
     QIcon::setFallbackThemeName(QIcon::themeName());
-    QIcon::setFallbackSearchPaths(QIcon::themeSearchPaths());
+    QIcon::setThemeSearchPaths(QIcon::themeSearchPaths() << m_iconThemeFolder.path());
+
     themeDebugLog() << "Determining System Widget Theme...";
     const auto& style = QApplication::style();
     m_defaultStyle = style->objectName();
@@ -94,8 +95,6 @@ void ThemeManager::initializeIcons()
     // TODO: icon themes and instance icons do not mesh well together. Rearrange and fix discrepancies!
     // set icon theme search path!
     themeDebugLog() << "<> Initializing Icon Themes";
-
-    QIcon::setThemeSearchPaths({ m_iconThemeFolder.path(), ":/icons" });
 
     for (const QString& id : builtinIcons) {
         IconTheme theme(id, QString(":/icons/%1").arg(id));
