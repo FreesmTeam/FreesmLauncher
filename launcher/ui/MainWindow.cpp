@@ -1658,6 +1658,8 @@ void MainWindow::on_actionCreateInstanceShortcutOther_triggered()
     if (shortcutFilePath.isEmpty())
         return;  // file dialog canceled by user
 
+    if(shortcutFilePath.endsWith(extension))
+        shortcutFilePath = shortcutFilePath.mid(0, shortcutFilePath.length() - extension.length());
     createInstanceShortcut(shortcutFilePath);
     QMessageBox::information(this, tr("Create instance shortcut"), tr("Created a shortcut to this instance!"));
 }
@@ -1699,6 +1701,16 @@ void MainWindow::on_actionCreateInstanceShortcutApplications_triggered()
         QMessageBox::critical(this, tr("Create instance shortcut"), tr("Couldn't find applications folder?!"));
         return;
     }
+
+#if defined(Q_OS_MACOS) || defined(Q_OS_WIN)
+    applicationsDir = FS::PathCombine(applicationsDir, BuildConfig.LAUNCHER_DISPLAYNAME + " Instances");
+
+    QDir applicationsDirQ(applicationsDir);
+    if (!applicationsDirQ.mkpath(".")) {
+        QMessageBox::critical(this, tr("Create instance shortcut"), tr("Failed to create instances folder in applications folder!"));
+        return;
+    }
+#endif
 
     QString shortcutFilePath = FS::PathCombine(applicationsDir, FS::RemoveInvalidFilenameChars(m_selectedInstance->name()));
     createInstanceShortcut(shortcutFilePath);
