@@ -370,3 +370,4 @@ void LauncherPage::retranslate()
 {
     ui->retranslateUi(this);
 }
+
