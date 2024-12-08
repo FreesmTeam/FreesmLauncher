@@ -1083,6 +1083,12 @@ shared_qobject_ptr<LaunchTask> MinecraftInstance::createLaunchTask(AuthSessionPt
         process->appendStep(step);
     }
 
+    // load meta
+    {
+        auto mode = session->status != AuthSession::PlayableOffline ? Net::Mode::Online : Net::Mode::Offline;
+        process->appendStep(makeShared<TaskStepWrapper>(pptr, makeShared<MinecraftLoadAndCheck>(this, mode, pptr)));
+    }
+
     // check java
     {
         process->appendStep(makeShared<AutoInstallJava>(pptr));
@@ -1094,12 +1100,6 @@ shared_qobject_ptr<LaunchTask> MinecraftInstance::createLaunchTask(AuthSessionPt
         auto step = makeShared<PreLaunchCommand>(pptr);
         step->setWorkingDirectory(gameRoot());
         process->appendStep(step);
-    }
-
-    // load meta
-    {
-        auto mode = session->status != AuthSession::PlayableOffline ? Net::Mode::Online : Net::Mode::Offline;
-        process->appendStep(makeShared<TaskStepWrapper>(pptr, makeShared<MinecraftLoadAndCheck>(this, mode, pptr)));
     }
 
     // if we aren't in offline mode,.
