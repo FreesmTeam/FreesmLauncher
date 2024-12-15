@@ -969,6 +969,21 @@ Application::Application(int& argc, char** argv) : QApplication(argc, argv)
     // Themes
     m_themeManager = std::make_unique<ThemeManager>();
 
+#ifdef Q_OS_MACOS
+    // for macOS: getting directory settings will generate URL security-scoped bookmarks if needed and not present
+    // this facilitates a smooth transition from a non-sandboxed version of the launcher, that likely can access the directory,
+    // and a sandboxed version that can't access the directory without a bookmark
+    // this section can likely be removed once the sandboxed version has been released for a while and migrations aren't done anymore
+    {
+        m_settings->get("InstanceDir");
+        m_settings->get("CentralModsDir");
+        m_settings->get("IconsDir");
+        m_settings->get("DownloadsDir");
+        m_settings->get("SkinsDir");
+        m_settings->get("JavaDir");
+    }
+#endif
+
     // initialize and load all instances
     {
         auto InstDirSetting = m_settings->getSetting("InstanceDir");

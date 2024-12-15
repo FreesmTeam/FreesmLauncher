@@ -1177,8 +1177,8 @@ if (APPLE)
     set(LAUNCHER_SOURCES
         ${LAUNCHER_SOURCES}
 
-            macsandbox/SecurityBookmarkFileAccess.h
-            macsandbox/SecurityBookmarkFileAccess.mm
+        macsandbox/SecurityBookmarkFileAccess.h
+        macsandbox/SecurityBookmarkFileAccess.mm
     )
 endif()
 
