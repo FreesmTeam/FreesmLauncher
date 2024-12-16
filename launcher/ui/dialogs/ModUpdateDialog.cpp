@@ -8,6 +8,7 @@
 #include "minecraft/mod/tasks/GetModDependenciesTask.h"
 #include "modplatform/ModIndex.h"
 #include "modplatform/flame/FlameAPI.h"
+#include "tasks/SequentialTask.h"
 #include "ui_ReviewMessageBox.h"
 
 #include "Markdown.h"
@@ -402,9 +403,15 @@ void ModUpdateDialog::onMetadataFailed(Mod* mod, bool try_others, ModPlatform::R
         connect(task.get(), &EnsureMetadataTask::metadataReady, [this](Mod* candidate) { onMetadataEnsured(candidate); });
         connect(task.get(), &EnsureMetadataTask::metadataFailed, [this](Mod* candidate) { onMetadataFailed(candidate, false); });
         connect(task.get(), &EnsureMetadataTask::failed,
-                [this](QString reason) { CustomMessageBox::selectable(this, tr("Error"), reason, QMessageBox::Critical)->exec(); });
-
-        m_second_try_metadata->addTask(task);
+                [this](const QString& reason) { CustomMessageBox::selectable(this, tr("Error"), reason, QMessageBox::Critical)->exec(); });
+        if (task->getHashingTask()) {
+            auto seq = makeShared<SequentialTask>();
+            seq->addTask(task->getHashingTask());
+            seq->addTask(task);
+            m_second_try_metadata->addTask(seq);
+        } else {
+            m_second_try_metadata->addTask(task);
+        }
     } else {
         QString reason{ tr("Couldn't find a valid version on the selected mod provider(s)") };
 
