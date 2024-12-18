@@ -8,6 +8,7 @@
 #include "QObjectPtr.h"
 #include "ResourceDownloadTask.h"
 
+#include "modplatform/ModIndex.h"
 #include "modplatform/helpers/HashUtils.h"
 
 #include "tasks/ConcurrentTask.h"
@@ -97,13 +98,9 @@ void ModrinthCheckUpdate::checkVersionsResponse(std::shared_ptr<QByteArray> resp
             // Sometimes a version may have multiple files, one with "forge" and one with "fabric",
             // so we may want to filter it
             QString loader_filter;
-            static auto flags = { ModPlatform::ModLoaderType::NeoForge, ModPlatform::ModLoaderType::Forge,
-                                  ModPlatform::ModLoaderType::Quilt, ModPlatform::ModLoaderType::Fabric };
-            for (auto flag : flags) {
-                if (loader.testFlag(flag)) {
-                    loader_filter = ModPlatform::getModLoaderAsString(flag);
-                    break;
-                }
+            for (auto flag : ModPlatform::modLoaderTypesToList(loader)) {
+                loader_filter = ModPlatform::getModLoaderAsString(flag);
+                break;
             }
 
             // Currently, we rely on a couple heuristics to determine whether an update is actually available or not:
