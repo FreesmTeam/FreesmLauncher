@@ -1,4 +1,5 @@
 #include "ResourceUpdateDialog.h"
+#include "Application.h"
 #include "ChooseProviderDialog.h"
 #include "CustomMessageBox.h"
 #include "ProgressDialog.h"
