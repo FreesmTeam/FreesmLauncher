@@ -19,27 +19,28 @@ static ModrinthAPI modrinth_api;
 static FlameAPI flame_api;
 
 EnsureMetadataTask::EnsureMetadataTask(Mod* mod, QDir dir, ModPlatform::ResourceProvider prov)
-    : Task(), m_index_dir(dir), m_provider(prov), m_hashing_task(nullptr), m_current_task(nullptr)
+    : Task(), m_index_dir(dir), m_provider(prov), m_hashingTask(nullptr), m_current_task(nullptr)
 {
-    auto hash_task = createNewHash(mod);
-    if (!hash_task)
+    auto hashTask = createNewHash(mod);
+    if (!hashTask)
         return;
-    connect(hash_task.get(), &Hashing::Hasher::resultsReady, [this, mod](QString hash) { m_mods.insert(hash, mod); });
-    connect(hash_task.get(), &Task::failed, [this, mod] { emitFail(mod, "", RemoveFromList::No); });
-    hash_task->start();
+    connect(hashTask.get(), &Hashing::Hasher::resultsReady, [this, mod](QString hash) { m_mods.insert(hash, mod); });
+    connect(hashTask.get(), &Task::failed, [this, mod] { emitFail(mod, "", RemoveFromList::No); });
+    m_hashingTask = hashTask;
 }
 
 EnsureMetadataTask::EnsureMetadataTask(QList<Mod*>& mods, QDir dir, ModPlatform::ResourceProvider prov)
     : Task(), m_index_dir(dir), m_provider(prov), m_current_task(nullptr)
 {
-    m_hashing_task.reset(new ConcurrentTask("MakeHashesTask", APPLICATION->settings()->get("NumberOfConcurrentTasks").toInt()));
+    auto hashTask = makeShared<ConcurrentTask>("MakeHashesTask", APPLICATION->settings()->get("NumberOfConcurrentTasks").toInt());
+    m_hashingTask = hashTask;
     for (auto* mod : mods) {
         auto hash_task = createNewHash(mod);
         if (!hash_task)
             continue;
         connect(hash_task.get(), &Hashing::Hasher::resultsReady, [this, mod](QString hash) { m_mods.insert(hash, mod); });
         connect(hash_task.get(), &Task::failed, [this, mod] { emitFail(mod, "", RemoveFromList::No); });
-        m_hashing_task->addTask(hash_task);
+        hashTask->addTask(hash_task);
     }
 }
 EnsureMetadataTask::EnsureMetadataTask(QHash<QString, Mod*>& mods, QDir dir, ModPlatform::ResourceProvider prov)

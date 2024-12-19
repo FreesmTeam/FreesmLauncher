@@ -20,7 +20,7 @@ class EnsureMetadataTask : public Task {
 
     ~EnsureMetadataTask() = default;
 
-    Task::Ptr getHashingTask() { return m_hashing_task; }
+    Task::Ptr getHashingTask() { return m_hashingTask; }
 
    public slots:
     bool abort() override;
@@ -58,6 +58,6 @@ class EnsureMetadataTask : public Task {
     ModPlatform::ResourceProvider m_provider;
 
     QHash<QString, ModPlatform::IndexedVersion> m_temp_versions;
-    ConcurrentTask::Ptr m_hashing_task;
+    Task::Ptr m_hashingTask;
     Task::Ptr m_current_task;
 };
