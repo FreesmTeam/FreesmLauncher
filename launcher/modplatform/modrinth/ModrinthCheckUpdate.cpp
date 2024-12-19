@@ -30,7 +30,7 @@ bool ModrinthCheckUpdate::abort()
 void ModrinthCheckUpdate::executeTask()
 {
     setStatus(tr("Preparing resources for Modrinth..."));
-    setProgress(0, (m_loaders_list.isEmpty() ? 1 : m_loaders_list.length()) * 2 + 1);
+    setProgress(0, (m_loadersList.isEmpty() ? 1 : m_loadersList.length()) * 2 + 1);
 
     auto hashing_task =
         makeShared<ConcurrentTask>("MakeModrinthHashesTask", APPLICATION->settings()->get("NumberOfConcurrentTasks").toInt());
@@ -40,7 +40,7 @@ void ModrinthCheckUpdate::executeTask()
         // Sadly the API can only handle one hash type per call, se we
         // need to generate a new hash if the current one is innadequate
         // (though it will rarely happen, if at all)
-        if (resource->metadata()->hash_format != m_hash_type) {
+        if (resource->metadata()->hash_format != m_hashType) {
             auto hash_task = Hashing::createHasher(resource->fileinfo().absoluteFilePath(), ModPlatform::ResourceProvider::MODRINTH);
             connect(hash_task.get(), &Hashing::Hasher::resultsReady, [this, resource](QString hash) { m_mappings.insert(hash, resource); });
             connect(hash_task.get(), &Task::failed, [this] { failed("Failed to generate hash"); });
@@ -62,7 +62,7 @@ void ModrinthCheckUpdate::getUpdateModsForLoader(std::optional<ModPlatform::ModL
 
     auto response = std::make_shared<QByteArray>();
     QStringList hashes = m_mappings.keys();
-    auto job = api.latestVersions(hashes, m_hash_type, m_game_versions, loader, response);
+    auto job = api.latestVersions(hashes, m_hashType, m_gameVersions, loader, response);
 
     connect(job.get(), &Task::succeeded, this, [this, response, loader] { checkVersionsResponse(response, loader); });
 
@@ -121,7 +121,7 @@ void ModrinthCheckUpdate::checkVersionsResponse(std::shared_ptr<QByteArray> resp
             // - The version reported by the JAR is different from the version reported by the indexed version (it's usually the case)
             // Such is the pain of having arbitrary files for a given version .-.
 
-            auto project_ver = Modrinth::loadIndexedPackVersion(project_obj, m_hash_type, loader_filter);
+            auto project_ver = Modrinth::loadIndexedPackVersion(project_obj, m_hashType, loader_filter);
             if (project_ver.downloadUrl.isEmpty()) {
                 qCritical() << "Modrinth mod without download url!" << project_ver.fileName;
                 ++iter;
@@ -135,7 +135,7 @@ void ModrinthCheckUpdate::checkVersionsResponse(std::shared_ptr<QByteArray> resp
             pack->addonId = resource->metadata()->project_id;
             pack->provider = ModPlatform::ResourceProvider::MODRINTH;
             if ((project_ver.hash != hash && project_ver.is_preferred) || (resource->status() == ResourceStatus::NOT_INSTALLED)) {
-                auto download_task = makeShared<ResourceDownloadTask>(pack, project_ver, m_resource_model);
+                auto download_task = makeShared<ResourceDownloadTask>(pack, project_ver, m_resourceModel);
 
                 QString old_version = resource->metadata()->version_number;
                 if (old_version.isEmpty()) {
@@ -166,15 +166,15 @@ void ModrinthCheckUpdate::checkNextLoader()
         return;
     }
 
-    if (m_loaders_list.isEmpty() && m_loader_idx == 0) {
+    if (m_loadersList.isEmpty() && m_loaderIdx == 0) {
         getUpdateModsForLoader({});
-        m_loader_idx++;
+        m_loaderIdx++;
         return;
     }
 
-    if (m_loader_idx < m_loaders_list.size()) {
-        getUpdateModsForLoader(m_loaders_list.at(m_loader_idx));
-        m_loader_idx++;
+    if (m_loaderIdx < m_loadersList.size()) {
+        getUpdateModsForLoader(m_loadersList.at(m_loaderIdx));
+        m_loaderIdx++;
         return;
     }
 

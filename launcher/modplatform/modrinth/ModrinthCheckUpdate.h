@@ -11,7 +11,7 @@ class ModrinthCheckUpdate : public CheckUpdateTask {
                         QList<ModPlatform::ModLoaderType> loadersList,
                         std::shared_ptr<ResourceFolderModel> resourceModel)
         : CheckUpdateTask(resources, mcVersions, std::move(loadersList), std::move(resourceModel))
-        , m_hash_type(ModPlatform::ProviderCapabilities::hashType(ModPlatform::ResourceProvider::MODRINTH).first())
+        , m_hashType(ModPlatform::ProviderCapabilities::hashType(ModPlatform::ResourceProvider::MODRINTH).first())
     {}
 
    public slots:
@@ -26,6 +26,6 @@ class ModrinthCheckUpdate : public CheckUpdateTask {
    private:
     Task::Ptr m_job = nullptr;
     QHash<QString, Resource*> m_mappings;
-    QString m_hash_type;
-    int m_loader_idx = 0;
+    QString m_hashType;
+    int m_loaderIdx = 0;
 };
