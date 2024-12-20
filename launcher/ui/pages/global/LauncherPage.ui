@@ -35,7 +35,7 @@
       <string notr="true"/>
      </property>
      <property name="tabShape">
-      <enum>QTabWidget::TabShape::Rounded</enum>
+      <enum>QTabWidget::Rounded</enum>
      </property>
      <property name="currentIndex">
       <number>0</number>
@@ -48,7 +48,7 @@
        <item>
         <widget class="QScrollArea" name="scrollArea">
          <property name="horizontalScrollBarPolicy">
-          <enum>Qt::ScrollBarPolicy::ScrollBarAlwaysOff</enum>
+          <enum>Qt::ScrollBarAsNeeded</enum>
          </property>
          <property name="widgetResizable">
           <bool>true</bool>
@@ -156,14 +156,28 @@
                </widget>
               </item>
               <item row="9" column="1" colspan="2">
-               <widget class="QCheckBox" name="downloadsDirWatchRecursiveCheckBox">
-                <property name="toolTip">
-                 <string>When enabled, in addition to the downloads folder, its sub folders will also be searched when looking for resources (e.g. when looking for blocked mods on CurseForge).</string>
-                </property>
-                <property name="text">
-                 <string>Check downloads folder recursively</string>
-                </property>
-               </widget>
+               <layout class="QHBoxLayout" name="downloadModsCheckLayout">
+                <item>
+                 <widget class="QCheckBox" name="downloadsDirWatchRecursiveCheckBox">
+                  <property name="toolTip">
+                   <string>When enabled, in addition to the downloads folder, its sub folders will also be searched when looking for resources (e.g. when looking for blocked mods on CurseForge).</string>
+                  </property>
+                  <property name="text">
+                   <string>Check downloads folder recursively</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QCheckBox" name="downloadsDirMoveCheckBox">
+                  <property name="toolTip">
+                   <string>When enabled, it will move blocked resources instead of copying them.</string>
+                  </property>
+                  <property name="text">
+                   <string>Move blocked resources</string>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
               </item>
               <item row="8" column="1">
                <widget class="QLineEdit" name="downloadsDirTextBox"/>
@@ -365,7 +379,7 @@
            <item>
             <spacer name="verticalSpacer_FeaturesTab">
              <property name="orientation">
-              <enum>Qt::Orientation::Vertical</enum>
+              <enum>Qt::Vertical</enum>
              </property>
              <property name="sizeHint" stdset="0">
               <size>
@@ -465,7 +479,7 @@
           <item row="0" column="1">
            <spacer name="horizontalSpacer">
             <property name="orientation">
-             <enum>Qt::Orientation::Horizontal</enum>
+             <enum>Qt::Horizontal</enum>
             </property>
             <property name="sizeHint" stdset="0">
              <size>
@@ -506,7 +520,7 @@
        <item>
         <spacer name="verticalSpacer_UserInterfaceTab">
          <property name="orientation">
-          <enum>Qt::Orientation::Vertical</enum>
+          <enum>Qt::Vertical</enum>
          </property>
          <property name="sizeHint" stdset="0">
           <size>
@@ -615,13 +629,13 @@
              </sizepolicy>
             </property>
             <property name="horizontalScrollBarPolicy">
-             <enum>Qt::ScrollBarPolicy::ScrollBarAlwaysOff</enum>
+             <enum>Qt::ScrollBarAsNeeded</enum>
             </property>
             <property name="undoRedoEnabled">
              <bool>false</bool>
             </property>
             <property name="textInteractionFlags">
-             <set>Qt::TextInteractionFlag::TextSelectableByKeyboard|Qt::TextInteractionFlag::TextSelectableByMouse</set>
+             <set>Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse</set>
             </property>
            </widget>
           </item>
