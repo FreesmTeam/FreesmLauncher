@@ -46,11 +46,6 @@ QString FreesmTheme::name()
     return QObject::tr("Freesm");
 }
 
-bool FreesmTheme::hasColorScheme()
-{
-    return true;
-}
-
 QPalette FreesmTheme::colorScheme()
 {
     QPalette darkPalette;
