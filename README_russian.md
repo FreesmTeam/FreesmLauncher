@@ -55,47 +55,49 @@
 
 ### Сборки разработчика
 
+Сборки разработчика могут содержать баги и быть нестабильны. Рекомендуем использовать релизные версии.
 
+Данные сборки доступны в следующих местах:
 
-Please understand that these builds are not intended for most users. There may be bugs, and other instabilities. You have been warned.
+- [GitHub Actions](https://github.com/FreesmTeam/FreesmLauncher/actions)
+- [nightly.link](https://nightly.link/FreesmTeam/FreesmLauncher/workflows/trigger_builds/develop) (ссылка всегда будет указывать на последнюю версию сборки)
 
-There are development builds available through:
+В этих версиях присутствует отладочная информация, поэтому размеры лаунчера будут больше, чем у релизных версий.
 
-- [GitHub Actions](https://github.com/FreesmTeam/FreesmLauncher/actions) (includes builds from pull requests opened by contribuitors)
-- [nightly.link](https://nightly.link/FreesmTeam/FreesmLauncher/workflows/trigger_builds/develop) (this will always point only to the latest version of develop)
-
-These have debug information in the binaries, so their file sizes are relatively larger.
+Готовые сборки разработчика представлены для: **Linux**, **Windows** и **macOS**.
 
 Prebuilt Development builds are provided for **Linux**, **Windows** and **macOS**.
 
 ## Тех. поддержка и сообщества
 
-Feel free to create a GitHub issue if you find a bug or want to suggest a new feature.
+Смело открывайте GitHub issue, если Вы вдруг нашли какой-то баг или хотите предложить что-то новое.
 
 > [!WARNING]
-> Do not mention Freesm Launcher on Prism Launcher Discord, Forum, GitHub and etc. Freesm - standalone project, that only takes code base from Prism and (mayber in future) will have it's own site, Discord and etc. 
+> Не упоминайте Freesm Launcher в дискорде, форуме, гитхабе и т.п. Prism Launcher'а. Freesm - это проект, который лишь основан на коде Prism Launcher'а. В будущем планируется создать отдельный сайт, дискорд-сервер и т.д.
 
 ## Переводы
 
-The translation effort for Prism Launcher is hosted on [Weblate](https://hosted.weblate.org/projects/prismlauncher/launcher/) and information about translating Prism Launcher is available at <https://github.com/PrismLauncher/Translations>.
+Freesm Launcher базируется на переводах Prism Launcher'а.
+
+Переводы для Prism хостятся на [Weblate](https://hosted.weblate.org/projects/prismlauncher/launcher/), и вся информация по ним доступна на <https://github.com/PrismLauncher/Translations>.
 
 ## Сборка
 
-If you want to build Freesm Launcher yourself, check the [Build Instructions](https://prismlauncher.org/wiki/development/build-instructions/).
+Если Вы хотите собрать Freesm Launcher самостоятельно, используйте [инструкции для сборки Prism Launcher'а](https://prismlauncher.org/wiki/development/build-instructions/).
 
 ## Прочая информация
 
-- We **ARE NOT** related to the [Prism Launcher](https://prismlauncher.org).
+- Мы **НЕ** связаны с командой [Prism Launcher](https://prismlauncher.org).
 
-- We **ARE NOT** collecting your information. Don't trust? - Check it yourself.
+- Мы **НЕ** не собираем какую-либо информацию. Не верите? Проверьте сами.
 
-- We **ARE** providing _the_ way to play Minecraft for free.
+- Мы **ПРЕДОСТАВЛЯЕМ** _возможность_ игры в Minecraft бесплатно.
 
-- We **ARE** open to contributing our builds.
+- Мы **ОТКРЫТЫ** к коммитам сообщества.
 
 
 ## Лицензия
 
-All launcher code is available under the GPL-3.0-only license. 
+Весь код лаунчера находится под лицензией GPL-3.0.
 
 [![https://github.com/PrismLauncher/PrismLauncher/blob/develop/LICENSE](https://img.shields.io/github/license/PrismLauncher/PrismLauncher?label=License&logo=gnu&color=C4282D&style=for-the-badge)](LICENSE)
