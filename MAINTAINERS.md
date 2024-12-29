@@ -1,4 +1,4 @@
-<div align="center"> 
+<div align="center">
   <h1>Maintainers - those who related to Freesm Launcher.</h1>
 </div>
 

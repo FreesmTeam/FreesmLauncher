@@ -20,17 +20,17 @@
 ## Скриншоты
 
 <div align="center">
-  <img src="docs/screenshots/freesmlauncher_home_screenshot.png">
+  <img src="docs/screenshots/freesmlauncher_home_screenshot.png" alt="home page screenshot">
 </div>
 
 <details>
 <summary>Раскрыть ещё</summary>
 
 <div align="center">
-  <img src="docs/screenshots/freesmlauncher_settings_accounts_screenshot.png">
-  <img src="docs/screenshots/freesmlauncher_instance_add_screenshot.png">
-  <img src="docs/screenshots/freesmlauncher_instance_settings_screenshot.png">
-  <img src="docs/screenshots/freesmlauncher_settings_theme_screenshot.png">
+  <img src="docs/screenshots/freesmlauncher_settings_accounts_screenshot.png" alt="settings accounts page screenshot">
+  <img src="docs/screenshots/freesmlauncher_instance_add_screenshot.png" alt="instance creation page screenshot">
+  <img src="docs/screenshots/freesmlauncher_instance_settings_screenshot.png" alt="instance settings page screenshot">
+  <img src="docs/screenshots/freesmlauncher_settings_theme_screenshot.png" alt="settings theme page screenshot">
 </div>
 
 </details>
@@ -94,7 +94,6 @@ Freesm Launcher базируется на переводах Prism Launcher'а.
 - Мы **ПРЕДОСТАВЛЯЕМ** _возможность_ игры в Minecraft бесплатно.
 
 - Мы **ОТКРЫТЫ** к коммитам сообщества.
-
 
 ## Лицензия
 

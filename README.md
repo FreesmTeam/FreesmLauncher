@@ -20,17 +20,17 @@
 ## Screenshots
 
 <div align="center">
-  <img src="docs/screenshots/freesmlauncher_home_screenshot.png">
+  <img src="docs/screenshots/freesmlauncher_home_screenshot.png" alt="home page screenshot">
 </div>
 
 <details>
 <summary>Expand more</summary>
 
 <div align="center">
-  <img src="docs/screenshots/freesmlauncher_settings_accounts_screenshot.png">
-  <img src="docs/screenshots/freesmlauncher_instance_add_screenshot.png">
-  <img src="docs/screenshots/freesmlauncher_instance_settings_screenshot.png">
-  <img src="docs/screenshots/freesmlauncher_settings_theme_screenshot.png">
+  <img src="docs/screenshots/freesmlauncher_settings_accounts_screenshot.png" alt="settings accounts page screenshot">
+  <img src="docs/screenshots/freesmlauncher_instance_add_screenshot.png" alt="instance creation page screenshot">
+  <img src="docs/screenshots/freesmlauncher_instance_settings_screenshot.png" alt="instance settings page screenshot">
+  <img src="docs/screenshots/freesmlauncher_settings_theme_screenshot.png" alt="settings theme page screenshot">
 </div>
 
 </details>
@@ -49,7 +49,7 @@
 
 ## Installation
 
-- All downloads and instructions for Freesm Launcher can be found on our [Website] (WIP). 
+- All downloads and instructions for Freesm Launcher can be found on our [Website] (WIP).
 - Release builds are located in [Github Releases](https://github.com/FreesmTeam/FreesmLauncher/releases) tab.
 - You can also install development builds.
 
@@ -71,7 +71,7 @@ Prebuilt Development builds are provided for **Linux**, **Windows** and **macOS*
 Feel free to create a GitHub issue if you find a bug or want to suggest a new feature.
 
 > [!WARNING]
-> Do not mention Freesm Launcher on Prism Launcher Discord, Forum, GitHub and etc. Freesm - standalone project, that only takes code base from Prism and (mayber in future) will have it's own site, Discord and etc. 
+> Do not mention Freesm Launcher on Prism Launcher Discord, Forum, GitHub and etc. Freesm - standalone project, that only takes code base from Prism and (mayber in future) will have it's own site, Discord and etc.
 
 ## Translations
 
@@ -93,9 +93,8 @@ If you want to build Freesm Launcher yourself, check the [Build Instructions for
 
 - We **ARE** open to contributing our builds.
 
-
 ## License
 
-All launcher code is available under the GPL-3.0-only license. 
+All launcher code is available under the GPL-3.0-only license.
 
 [![https://github.com/PrismLauncher/PrismLauncher/blob/develop/LICENSE](https://img.shields.io/github/license/PrismLauncher/PrismLauncher?label=License&logo=gnu&color=C4282D&style=for-the-badge)](LICENSE)
