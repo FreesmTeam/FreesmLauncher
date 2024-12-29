@@ -93,7 +93,7 @@ jobs:
             qt_version: "6.7.2"
             qt_modules: "qt5compat qtimageformats qtnetworkauth"
 
-          - os: macos-12
+          - os: macos-14
             name: macOS
             macosx_deployment_target: 11.0
             qt_ver: 6
@@ -102,7 +102,7 @@ jobs:
             qt_version: "6.7.2"
             qt_modules: "qt5compat qtimageformats qtnetworkauth"
 
-          - os: macos-12
+          - os: macos-14
             name: macOS-Legacy
             macosx_deployment_target: 10.13
             qt_ver: 5
