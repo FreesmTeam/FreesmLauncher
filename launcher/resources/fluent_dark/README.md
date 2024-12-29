@@ -6,10 +6,14 @@ SPDX-License-Identifier: CC0-1.0
 
 Fluent-Dark
 ---
+
 Microsoft Fluent Design inspired dark theme for Freesm Launcher.
 
-## License
-```
+License
+---
+
+```plain
+
 MIT License
 
 Copyright (c) 2022 JoeGaming
