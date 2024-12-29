@@ -39,7 +39,7 @@
 
 - Offline mode doesn't require an account.
 
-- Custom theme with edited layout.
+- Custom theme.
 
 - No welcome message on the home screen.
 
@@ -75,15 +75,17 @@ Feel free to create a GitHub issue if you find a bug or want to suggest a new fe
 
 ## Translations
 
+Freesm Launcher is based on Prism Launcher, including translations.
+
 The translation effort for Prism Launcher is hosted on [Weblate](https://hosted.weblate.org/projects/prismlauncher/launcher/) and information about translating Prism Launcher is available at <https://github.com/PrismLauncher/Translations>.
 
 ## Building
 
-If you want to build Freesm Launcher yourself, check the [Build Instructions](https://prismlauncher.org/wiki/development/build-instructions/).
+If you want to build Freesm Launcher yourself, check the [Build Instructions for Prism Launcher](https://prismlauncher.org/wiki/development/build-instructions/).
 
 ## Basic info
 
-- We **ARE NOT** related to the [Prism Launcher](https://prismlauncher.org).
+- We **ARE NOT** related to the [Prism Launcher](https://prismlauncher.org) team.
 
 - We **ARE NOT** collecting your information. Don't trust? - Check it yourself.
 
