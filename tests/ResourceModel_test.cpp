@@ -67,7 +67,24 @@ class ResourceModelTest : public QObject {
 
     void test_search()
     {
-        
+        auto model = new DummyResourceModel;
+
+        QVERIFY(model->m_packs.isEmpty());
+
+        EXEC_TASK(model->search());
+
+        QVERIFY(model->m_packs.size() == 1);
+        QVERIFY(model->m_search_state == DummyResourceModel::SearchState::Finished);
+
+        auto processed_pack = model->m_packs.at(0);
+        auto search_json = DummyResourceAPI::searchRequestResult();
+        auto processed_response = model->documentToArray(search_json).first().toObject();
+
+        QVERIFY(processed_pack->addonId.toString() == Json::requireString(processed_response, "project_id"));
+        QVERIFY(processed_pack->description == Json::requireString(processed_response, "description"));
+        QVERIFY(processed_pack->authors.first().name == Json::requireString(processed_response, "author"));
+
+        delete model;
     }
 };
 
