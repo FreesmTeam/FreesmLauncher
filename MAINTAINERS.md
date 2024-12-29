@@ -2,7 +2,7 @@
   <h1>Maintainers - those who related to Freesm Launcher.</h1>
 </div>
 
-[Windstone](https://github.com/notwindstone)
+[windstone](https://github.com/notwindstone)
 
 <!-- say little about youself here -->
 
