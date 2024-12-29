@@ -12,7 +12,7 @@
   </p>
   
   <p>
-    Freesm Launcher - лаунчер Minecraft с открытым исходным кодом, офлайн-игрой без лицензии и возможностью управления несколькими версиями, учетными записями и модами.<br />
+    Freesm Launcher - это лаунчер Minecraft с открытым исходным кодом, офлайн-игрой без лицензии и возможностью управления несколькими версиями, учетными записями и модами.<br />
     <br />Это <b>форк</b> Prism лаунчера, который <b>не</b> поддерживается им. <!-- isn't it good? :) -->
   </p>
 </div>
@@ -35,7 +35,7 @@
 
 </details>
 
-## Разница между лаунчером Prism и лаунчером Freesm
+## Разница между Prism и Freesm лаунчерами
 
 - Для офлайн-игры не требуется лицензионный аккаунт.
 
@@ -43,17 +43,19 @@
 
 - Убрано приветственное сообщение на главном экране.
 
-- Больше "кот" паков (сплеш скринов).
+- Больше "cat" паков (сплеш скринов).
 
 - Выключенные проверки Java по умолчанию.
 
 ## Установка
 
-- All downloads and instructions for Freesm Launcher can be found on our [Website] (WIP). 
-- Release builds are located in [Github Releases](https://github.com/FreesmTeam/FreesmLauncher/releases) tab.
-- You can also install development builds.
+- Все ссылки на скачивание и инструкции для Freesm Launcher'а могут быть найдены на нашем веб-сайте (WIP)
+- Релизные версии находятся во вкладке [Github Releases](https://github.com/FreesmTeam/FreesmLauncher/releases).
+- Вы также можете установить сборки разработчика.
 
-### Нестабильные сборки
+### Сборки разработчика
+
+
 
 Please understand that these builds are not intended for most users. There may be bugs, and other instabilities. You have been warned.
 
