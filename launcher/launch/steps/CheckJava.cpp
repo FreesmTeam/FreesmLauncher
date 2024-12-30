@@ -94,7 +94,7 @@ void CheckJava::executeTask()
     // if timestamps are not the same, or something is missing, check!
     if (m_javaSignature != storedSignature || storedVersion.size() == 0 || storedArchitecture.size() == 0 ||
         storedRealArchitecture.size() == 0 || storedVendor.size() == 0) {
-        m_JavaChecker.reset(new JavaChecker(realJavaPath, "", 0, 0, 0, 0, this));
+        m_JavaChecker.reset(new JavaChecker(realJavaPath, "", 0, 0, 0, 0));
         emit logLine(QString("Checking Java version..."), MessageLevel::Launcher);
         connect(m_JavaChecker.get(), &JavaChecker::checkFinished, this, &CheckJava::checkJavaFinished);
         m_JavaChecker->start();
@@ -106,6 +106,7 @@ void CheckJava::executeTask()
         auto vendorString = instance->settings()->get("JavaVendor").toString();
         printJavaInfo(verString, archString, realArchString, vendorString);
     }
+    m_parent->instance()->updateRuntimeContext();
     emitSucceeded();
 }
 
@@ -124,6 +125,7 @@ void CheckJava::checkJavaFinished(const JavaChecker::Result& result)
             emit logLine(QString("Java checker returned some invalid data we don't understand:"), MessageLevel::Error);
             emit logLines(result.outLog.split('\n'), MessageLevel::Warning);
             emit logLine("\nMinecraft might not start properly.", MessageLevel::Launcher);
+            m_parent->instance()->updateRuntimeContext();
             emitSucceeded();
             return;
         }
@@ -135,6 +137,7 @@ void CheckJava::checkJavaFinished(const JavaChecker::Result& result)
             instance->settings()->set("JavaRealArchitecture", result.realPlatform);
             instance->settings()->set("JavaVendor", result.javaVendor);
             instance->settings()->set("JavaSignature", m_javaSignature);
+            m_parent->instance()->updateRuntimeContext();
             emitSucceeded();
             return;
         }

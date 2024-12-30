@@ -99,7 +99,7 @@ if ((CMAKE_BUILD_TYPE STREQUAL "Debug" OR CMAKE_BUILD_TYPE STREQUAL "RelWithDebI
     message(STATUS "Address Sanitizer enabled for Debug builds, Turn it off with -DDEBUG_ADDRESS_SANITIZER=off")
     if ("${CMAKE_CXX_COMPILER_ID}" MATCHES "Clang")
         if (CMAKE_CXX_COMPILER_FRONTEND_VARIANT STREQUAL "MSVC")
-            # using clang with clang-cl front end 
+            # using clang with clang-cl front end
             message(STATUS "Address Sanitizer available on Clang MSVC frontend")
             set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /fsanitize=address /Oy-")
             set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /fsanitize=address /Oy-")
@@ -176,10 +176,12 @@ endif()
 set(Launcher_NEWS_RSS_URL "https://prismlauncher.org/feed/feed.xml" CACHE STRING "URL to fetch Prism Launcher's news RSS feed from.")
 set(Launcher_NEWS_OPEN_URL "https://prismlauncher.org/news" CACHE STRING "URL that gets opened when the user clicks 'More News'")
 set(Launcher_HELP_URL "https://prismlauncher.org/wiki/help-pages/%1" CACHE STRING "URL (with arg %1 to be substituted with page-id) that gets opened when the user requests help")
+set(Launcher_LOGIN_CALLBACK_URL "https://prismlauncher.org/successful-login" CACHE STRING "URL that gets opened when the user successfully logins.")
+set(Launcher_FMLLIBS_BASE_URL "https://files.prismlauncher.org/fmllibs/" CACHE STRING "URL for FML Libraries.")
 
 ######## Set version numbers ########
 set(Launcher_VERSION_MAJOR 9)
-set(Launcher_VERSION_MINOR 0)
+set(Launcher_VERSION_MINOR 2)
 
 set(Launcher_VERSION_NAME "${Launcher_VERSION_MAJOR}.${Launcher_VERSION_MINOR}")
 set(Launcher_VERSION_NAME4 "${Launcher_VERSION_MAJOR}.${Launcher_VERSION_MINOR}.0.0")
@@ -204,33 +206,34 @@ set(Launcher_IMGUR_CLIENT_ID "5b97b0713fba4a3" CACHE STRING "Client ID you can g
 set(Launcher_BUG_TRACKER_URL "https://github.com/PrismLauncher/PrismLauncher/issues" CACHE STRING "URL for the bug tracker.")
 
 # Translations Platform URL
-set(Launcher_TRANSLATIONS_URL "https://hosted.weblate.org/projects/launcher/launcher/" CACHE STRING "URL for the translations platform.")
+set(Launcher_TRANSLATIONS_URL "https://hosted.weblate.org/projects/prismlauncher/launcher/" CACHE STRING "URL for the translations platform.")
+set(Launcher_TRANSLATION_FILES_URL "https://i18n.prismlauncher.org/" CACHE STRING "URL for the translations files.")
 
 # Matrix Space
-set(Launcher_MATRIX_URL "https://launcher.org/matrix" CACHE STRING "URL to the Matrix Space")
+set(Launcher_MATRIX_URL "https://prismlauncher.org/matrix" CACHE STRING "URL to the Matrix Space")
 
 # Discord URL
-set(Launcher_DISCORD_URL "https://launcher.org/discord" CACHE STRING "URL for the Discord guild.")
+set(Launcher_DISCORD_URL "https://prismlauncher.org/discord" CACHE STRING "URL for the Discord guild.")
 
 # Subreddit URL
-set(Launcher_SUBREDDIT_URL "https://launcher.org/reddit" CACHE STRING "URL for the subreddit.")
+set(Launcher_SUBREDDIT_URL "https://prismlauncher.org/reddit" CACHE STRING "URL for the subreddit.")
 
 # Builds
 set(Launcher_FORCE_BUNDLED_LIBS OFF CACHE BOOL "Prevent using system libraries, if they are available as submodules")
 set(Launcher_QT_VERSION_MAJOR "6" CACHE STRING "Major Qt version to build against")
 
 # Java downloader
-set(ENABLE_JAVA_DOWNLOADER_DEFAULT ON)
+set(Launcher_ENABLE_JAVA_DOWNLOADER_DEFAULT ON)
 
-# Although we recommend enabling this, we cannot guarantee binary compatibility on 
+# Although we recommend enabling this, we cannot guarantee binary compatibility on
 # differing Linux/BSD/etc distributions. Downstream packagers should be explicitly opt-ing into this
 # feature if they know it will work with their distribution.
 if(UNIX AND NOT APPLE)
-  set(ENABLE_JAVA_DOWNLOADER_DEFAULT OFF)
+  set(Launcher_ENABLE_JAVA_DOWNLOADER_DEFAULT OFF)
 endif()
 
 # Java downloader
-option(ENABLE_JAVA_DOWNLOADER "Build the java downloader feature" ${ENABLE_JAVA_DOWNLOADER_DEFAULT})
+option(Launcher_ENABLE_JAVA_DOWNLOADER "Build the java downloader feature" ${Launcher_ENABLE_JAVA_DOWNLOADER_DEFAULT})
 
 # Native libraries
 if(UNIX AND APPLE)
@@ -258,7 +261,7 @@ set(Launcher_MSA_CLIENT_ID "c36a9fb6-4f2a-41ff-90bd-ae7cc92031eb" CACHE STRING "
 # By using this key in your builds you accept the terms and conditions laid down in
 # https://support.curseforge.com/en/support/solutions/articles/9000207405-curse-forge-3rd-party-api-terms-and-conditions
 # NOTE: CurseForge requires you to change this if you make any kind of derivative work.
-# This key was issued specifically for  Launcher
+# This key was issued specifically for Prism Launcher
 set(Launcher_CURSEFORGE_API_KEY "$2a$10$wuAJuNZuted3NORVmpgUC.m8sI.pv1tOPKZyBgLFGjxFp/br0lZCC" CACHE STRING "API key for the CurseForge platform")
 
 set(Launcher_COMPILER_NAME ${CMAKE_CXX_COMPILER_ID})
@@ -394,8 +397,8 @@ if(UNIX AND APPLE)
     set(MACOSX_SPARKLE_UPDATE_PUBLIC_KEY "v55ZWWD6QlPoXGV6VLzOTZxZUggWeE51X8cRQyQh6vA=" CACHE STRING "Public key for Sparkle update feed")
     set(MACOSX_SPARKLE_UPDATE_FEED_URL "https://prismlauncher.org/feed/appcast.xml" CACHE STRING "URL for Sparkle update feed")
 
-    set(MACOSX_SPARKLE_DOWNLOAD_URL "https://github.com/sparkle-project/Sparkle/releases/download/2.5.2/Sparkle-2.5.2.tar.xz" CACHE STRING "URL to Sparkle release archive")
-    set(MACOSX_SPARKLE_SHA256 "572dd67ae398a466f19f343a449e1890bac1ef74885b4739f68f979a8a89884b" CACHE STRING "SHA256 checksum for Sparkle release archive")
+    set(MACOSX_SPARKLE_DOWNLOAD_URL "https://github.com/sparkle-project/Sparkle/releases/download/2.6.4/Sparkle-2.6.4.tar.xz" CACHE STRING "URL to Sparkle release archive")
+    set(MACOSX_SPARKLE_SHA256 "50612a06038abc931f16011d7903b8326a362c1074dabccb718404ce8e585f0b" CACHE STRING "SHA256 checksum for Sparkle release archive")
     set(MACOSX_SPARKLE_DIR "${CMAKE_BINARY_DIR}/frameworks/Sparkle")
 
     # directories to look for dependencies
@@ -435,10 +438,10 @@ elseif(UNIX)
         set(PLUGIN_DEST_DIR "plugins")
         set(BUNDLE_DEST_DIR ".")
         set(RESOURCES_DEST_DIR ".")
-    
+
         # Apps to bundle
         set(APPS "\${CMAKE_INSTALL_PREFIX}/bin/${Launcher_APP_BINARY_NAME}")
-    
+
         # directories to look for dependencies
         set(DIRS ${QT_LIBS_DIR} ${QT_LIBEXECS_DIR} ${CMAKE_LIBRARY_OUTPUT_DIRECTORY} ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
     endif()
@@ -492,7 +495,7 @@ if(FORCE_BUNDLED_ZLIB)
     set(SKIP_INSTALL_ALL ON)
     add_subdirectory(libraries/zlib EXCLUDE_FROM_ALL)
 
-    # On OS where unistd.h exists, zlib's generated header defines `Z_HAVE_UNISTD_H`, while the included header does not. 
+    # On OS where unistd.h exists, zlib's generated header defines `Z_HAVE_UNISTD_H`, while the included header does not.
     # We cannot safely undo the rename on those systems, and they generally have packages for zlib anyway.
     check_include_file(unistd.h NEED_GENERATED_ZCONF)
     if (EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/libraries/zlib/zconf.h.included" AND NOT NEED_GENERATED_ZCONF)
@@ -529,10 +532,12 @@ else()
 endif()
 if(NOT cmark_FOUND)
     message(STATUS "Using bundled cmark")
+    set(ORIGINAL_BUILD_TESTING ${BUILD_TESTING})
     set(BUILD_TESTING 0)
-    set(BUILD_SHARED_LIBS 0) 
+    set(BUILD_SHARED_LIBS 0)
     add_subdirectory(libraries/cmark EXCLUDE_FROM_ALL) # Markdown parser
     add_library(cmark::cmark ALIAS cmark)
+    set(BUILD_TESTING ${ORIGINAL_BUILD_TESTING})
 else()
     message(STATUS "Using system cmark")
 endif()

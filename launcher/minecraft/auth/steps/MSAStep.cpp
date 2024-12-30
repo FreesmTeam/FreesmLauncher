@@ -85,20 +85,20 @@ class CustomOAuthOobReplyHandler : public QOAuthOobReplyHandler {
 MSAStep::MSAStep(AccountData* data, bool silent) : AuthStep(data), m_silent(silent)
 {
     m_clientId = APPLICATION->getMSAClientID();
-    if (QCoreApplication::applicationFilePath().startsWith("/tmp/.mount_") ||
-        QFile::exists(FS::PathCombine(APPLICATION->root(), "portable.txt")) || !isSchemeHandlerRegistered())
+    if (QCoreApplication::applicationFilePath().startsWith("/tmp/.mount_") || APPLICATION->isPortable() || !isSchemeHandlerRegistered())
 
     {
         auto replyHandler = new QOAuthHttpServerReplyHandler(this);
-        replyHandler->setCallbackText(R"XXX(
+        replyHandler->setCallbackText(QString(R"XXX(
     <noscript>
-      <meta http-equiv="Refresh" content="0; URL=https://prismlauncher.org/successful-login" />
+      <meta http-equiv="Refresh" content="0; URL=%1" />
     </noscript>
     Login Successful, redirecting...
     <script>
-      window.location.replace("https://prismlauncher.org/successful-login");
+      window.location.replace("%1");
     </script>
-    )XXX");
+    )XXX")
+                                          .arg(BuildConfig.LOGIN_CALLBACK_URL));
         oauth2.setReplyHandler(replyHandler);
     } else {
         oauth2.setReplyHandler(new CustomOAuthOobReplyHandler(this));

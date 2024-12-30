@@ -53,6 +53,7 @@
 #include <QLineEdit>
 #include <QList>
 #include <QPushButton>
+#include <QRegularExpression>
 #include <QStringList>
 
 #include "BuildConfig.h"
@@ -60,7 +61,7 @@
 #include "launch/steps/TextPrint.h"
 #include "tasks/Task.h"
 
-LaunchController::LaunchController(QObject* parent) : Task(parent) {}
+LaunchController::LaunchController() : Task() {}
 
 void LaunchController::executeTask()
 {
