@@ -1,14 +1,14 @@
 #pragma once
 
 #include "ModIndex.h"
-#include "net/NetJob.h"
 
 #include "modplatform/helpers/HashUtils.h"
 
 #include "tasks/ConcurrentTask.h"
 
+#include <QDir>
+
 class Mod;
-class QDir;
 
 class EnsureMetadataTask : public Task {
     Q_OBJECT
@@ -16,10 +16,11 @@ class EnsureMetadataTask : public Task {
    public:
     EnsureMetadataTask(Mod*, QDir, ModPlatform::ResourceProvider = ModPlatform::ResourceProvider::MODRINTH);
     EnsureMetadataTask(QList<Mod*>&, QDir, ModPlatform::ResourceProvider = ModPlatform::ResourceProvider::MODRINTH);
+    EnsureMetadataTask(QHash<QString, Mod*>&, QDir, ModPlatform::ResourceProvider = ModPlatform::ResourceProvider::MODRINTH);
 
     ~EnsureMetadataTask() = default;
 
-    Task::Ptr getHashingTask() { return m_hashing_task; }
+    Task::Ptr getHashingTask() { return m_hashingTask; }
 
    public slots:
     bool abort() override;
@@ -57,6 +58,6 @@ class EnsureMetadataTask : public Task {
     ModPlatform::ResourceProvider m_provider;
 
     QHash<QString, ModPlatform::IndexedVersion> m_temp_versions;
-    ConcurrentTask::Ptr m_hashing_task;
+    Task::Ptr m_hashingTask;
     Task::Ptr m_current_task;
 };

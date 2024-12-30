@@ -36,13 +36,14 @@
 
 #include "ModFolderLoadTask.h"
 
+#include "Application.h"
 #include "FileSystem.h"
 #include "minecraft/mod/MetadataHandler.h"
 
 #include <QThread>
 
 ModFolderLoadTask::ModFolderLoadTask(QDir mods_dir, QDir index_dir, bool is_indexed, bool clean_orphan)
-    : Task(nullptr, false)
+    : Task(false)
     , m_mods_dir(mods_dir)
     , m_index_dir(index_dir)
     , m_is_indexed(is_indexed)
@@ -65,6 +66,9 @@ void ModFolderLoadTask::executeTask()
     m_mods_dir.refresh();
     for (auto entry : m_mods_dir.entryInfoList()) {
         auto filePath = entry.absoluteFilePath();
+        if (auto app = APPLICATION_DYN; app && app->checkQSavePath(filePath)) {
+            continue;
+        }
         auto newFilePath = FS::getUniqueResourceName(filePath);
         if (newFilePath != filePath) {
             FS::move(filePath, newFilePath);
