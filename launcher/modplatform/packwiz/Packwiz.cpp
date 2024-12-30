@@ -72,7 +72,7 @@ auto stringEntry(toml::table table, QString entry_name) -> QString
 {
     auto node = table[StringUtils::toStdString(entry_name)];
     if (!node) {
-        qCritical() << "Failed to read str property '" + entry_name + "' in mod metadata.";
+        qWarning() << "Failed to read str property '" + entry_name + "' in mod metadata.";
         return {};
     }
 
@@ -83,7 +83,7 @@ auto intEntry(toml::table table, QString entry_name) -> int
 {
     auto node = table[StringUtils::toStdString(entry_name)];
     if (!node) {
-        qCritical() << "Failed to read int property '" + entry_name + "' in mod metadata.";
+        qWarning() << "Failed to read int property '" + entry_name + "' in mod metadata.";
         return {};
     }
 
@@ -186,11 +186,8 @@ void V1::updateModIndex(QDir& index_dir, Mod& mod)
     }
 
     toml::array loaders;
-    for (auto loader : { ModPlatform::NeoForge, ModPlatform::Forge, ModPlatform::Cauldron, ModPlatform::LiteLoader, ModPlatform::Fabric,
-                         ModPlatform::Quilt }) {
-        if (mod.loaders & loader) {
-            loaders.push_back(getModLoaderAsString(loader).toStdString());
-        }
+    for (auto loader : ModPlatform::modLoaderTypesToList(mod.loaders)) {
+        loaders.push_back(getModLoaderAsString(loader).toStdString());
     }
     toml::array mcVersions;
     for (auto version : mod.mcVersions) {
@@ -208,9 +205,9 @@ void V1::updateModIndex(QDir& index_dir, Mod& mod)
         auto tbl = toml::table{ { "name", mod.name.toStdString() },
                                 { "filename", mod.filename.toStdString() },
                                 { "side", sideToString(mod.side).toStdString() },
-                                { "loaders", loaders },
-                                { "mcVersions", mcVersions },
-                                { "releaseType", mod.releaseType.toString().toStdString() },
+                                { "x-prismlauncher-loaders", loaders },
+                                { "x-prismlauncher-mc-versions", mcVersions },
+                                { "x-prismlauncher-release-type", mod.releaseType.toString().toStdString() },
                                 { "download",
                                   toml::table{
                                       { "mode", mod.mode.toStdString() },
@@ -295,15 +292,15 @@ auto V1::getIndexForMod(QDir& index_dir, QString slug) -> Mod
         mod.name = stringEntry(table, "name");
         mod.filename = stringEntry(table, "filename");
         mod.side = stringToSide(stringEntry(table, "side"));
-        mod.releaseType = ModPlatform::IndexedVersionType(stringEntry(table, "releaseType"));
-        if (auto loaders = table["loaders"]; loaders && loaders.is_array()) {
+        mod.releaseType = ModPlatform::IndexedVersionType(stringEntry(table, "x-prismlauncher-release-type"));
+        if (auto loaders = table["x-prismlauncher-loaders"]; loaders && loaders.is_array()) {
             for (auto&& loader : *loaders.as_array()) {
                 if (loader.is_string()) {
                     mod.loaders |= ModPlatform::getModLoaderFromString(QString::fromStdString(loader.as_string()->value_or("")));
                 }
             }
         }
-        if (auto versions = table["mcVersions"]; versions && versions.is_array()) {
+        if (auto versions = table["x-prismlauncher-mc-versions"]; versions && versions.is_array()) {
             for (auto&& version : *versions.as_array()) {
                 if (version.is_string()) {
                     auto ver = QString::fromStdString(version.as_string()->value_or(""));

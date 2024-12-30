@@ -124,7 +124,7 @@ ModFolderPage::ModFolderPage(BaseInstance* inst, std::shared_ptr<ModFolderModel>
         ui->actionsToolbar->addAction(ui->actionVisitItemPage);
         connect(ui->actionVisitItemPage, &QAction::triggered, this, &ModFolderPage::visitModPages);
 
-        auto changeVersion = new QAction(tr("Change Version"));
+        auto changeVersion = new QAction(tr("Change Version"), this);
         changeVersion->setToolTip(tr("Change mod version"));
         changeVersion->setEnabled(false);
         ui->actionsToolbar->insertActionAfter(ui->actionUpdateItem, changeVersion);
@@ -209,7 +209,7 @@ void ModFolderPage::installMods()
 
     ResourceDownload::ModDownloadDialog mdownload(this, m_model, m_instance);
     if (mdownload.exec()) {
-        auto tasks = new ConcurrentTask(this, "Download Mods", APPLICATION->settings()->get("NumberOfConcurrentDownloads").toInt());
+        auto tasks = new ConcurrentTask("Download Mods", APPLICATION->settings()->get("NumberOfConcurrentDownloads").toInt());
         connect(tasks, &Task::failed, [this, tasks](QString reason) {
             CustomMessageBox::selectable(this, tr("Error"), reason, QMessageBox::Critical)->show();
             tasks->deleteLater();
@@ -292,7 +292,7 @@ void ModFolderPage::updateMods(bool includeDeps)
     }
 
     if (update_dialog.exec()) {
-        auto tasks = new ConcurrentTask(this, "Download Mods", APPLICATION->settings()->get("NumberOfConcurrentDownloads").toInt());
+        auto tasks = new ConcurrentTask("Download Mods", APPLICATION->settings()->get("NumberOfConcurrentDownloads").toInt());
         connect(tasks, &Task::failed, [this, tasks](QString reason) {
             CustomMessageBox::selectable(this, tr("Error"), reason, QMessageBox::Critical)->show();
             tasks->deleteLater();
@@ -423,7 +423,7 @@ void ModFolderPage::changeModVersion()
     ResourceDownload::ModDownloadDialog mdownload(this, m_model, m_instance);
     mdownload.setModMetadata((*mods_list.begin())->metadata());
     if (mdownload.exec()) {
-        auto tasks = new ConcurrentTask(this, "Download Mods", APPLICATION->settings()->get("NumberOfConcurrentDownloads").toInt());
+        auto tasks = new ConcurrentTask("Download Mods", APPLICATION->settings()->get("NumberOfConcurrentDownloads").toInt());
         connect(tasks, &Task::failed, [this, tasks](QString reason) {
             CustomMessageBox::selectable(this, tr("Error"), reason, QMessageBox::Critical)->show();
             tasks->deleteLater();
