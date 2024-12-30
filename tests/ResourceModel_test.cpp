@@ -60,7 +60,9 @@ class ResourceModelTest : public QObject {
     Q_OBJECT
    private slots:
     void test_abstract_item_model()
-    {}
+    {
+        int placeholder = 1;
+    }
 
     void test_search()
     {
