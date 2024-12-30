@@ -27,6 +27,7 @@
 <summary>Expand more</summary>
 
 <div align="center">
+  <img src="docs/screenshots/freesmlauncher_home_screenshot_opacity.png" alt=home page screenshot with active opacity">
   <img src="docs/screenshots/freesmlauncher_settings_accounts_screenshot.png" alt="settings accounts page screenshot">
   <img src="docs/screenshots/freesmlauncher_instance_add_screenshot.png" alt="instance creation page screenshot">
   <img src="docs/screenshots/freesmlauncher_instance_settings_screenshot.png" alt="instance settings page screenshot">
