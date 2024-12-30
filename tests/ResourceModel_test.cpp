@@ -61,7 +61,6 @@ class ResourceModelTest : public QObject {
    private slots:
     void test_abstract_item_model()
     {
-        
     }
 
     void test_search()
