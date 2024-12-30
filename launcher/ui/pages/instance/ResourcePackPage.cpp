@@ -37,8 +37,6 @@
 
 #include "ResourcePackPage.h"
 
-#include "ResourceDownloadTask.h"
-
 #include "ui/dialogs/CustomMessageBox.h"
 #include "ui/dialogs/ProgressDialog.h"
 #include "ui/dialogs/ResourceDownloadDialog.h"
@@ -72,8 +70,7 @@ void ResourcePackPage::downloadRPs()
 
     ResourceDownload::ResourcePackDownloadDialog mdownload(this, std::static_pointer_cast<ResourcePackFolderModel>(m_model), m_instance);
     if (mdownload.exec()) {
-        auto tasks =
-            new ConcurrentTask(this, "Download Resource Pack", APPLICATION->settings()->get("NumberOfConcurrentDownloads").toInt());
+        auto tasks = new ConcurrentTask("Download Resource Pack", APPLICATION->settings()->get("NumberOfConcurrentDownloads").toInt());
         connect(tasks, &Task::failed, [this, tasks](QString reason) {
             CustomMessageBox::selectable(this, tr("Error"), reason, QMessageBox::Critical)->show();
             tasks->deleteLater();

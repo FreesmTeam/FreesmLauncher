@@ -41,6 +41,7 @@
 #include "Application.h"
 #include "FileSystem.h"
 #include "MessageLevel.h"
+#include "QObjectPtr.h"
 #include "SysInfo.h"
 #include "java/JavaInstall.h"
 #include "java/JavaInstallList.h"
@@ -48,15 +49,15 @@
 #include "java/JavaVersion.h"
 #include "java/download/ArchiveDownloadTask.h"
 #include "java/download/ManifestDownloadTask.h"
+#include "java/download/SymlinkTask.h"
 #include "meta/Index.h"
 #include "minecraft/MinecraftInstance.h"
 #include "minecraft/PackProfile.h"
 #include "net/Mode.h"
+#include "tasks/SequentialTask.h"
 
 AutoInstallJava::AutoInstallJava(LaunchTask* parent)
-    : LaunchStep(parent)
-    , m_instance(std::dynamic_pointer_cast<MinecraftInstance>(m_parent->instance()))
-    , m_supported_arch(SysInfo::getSupportedJavaArchitecture()) {};
+    : LaunchStep(parent), m_instance(m_parent->instance()), m_supported_arch(SysInfo::getSupportedJavaArchitecture()) {};
 
 void AutoInstallJava::executeTask()
 {
@@ -75,7 +76,7 @@ void AutoInstallJava::executeTask()
                 auto java = std::dynamic_pointer_cast<JavaInstall>(javas->at(i));
                 if (java && packProfile->getProfile()->getCompatibleJavaMajors().contains(java->id.major())) {
                     if (!java->is_64bit) {
-                        emit logLine(tr("The automatic Java mechanism detected a 32-bit installation of Java."), MessageLevel::Info);
+                        emit logLine(tr("The automatic Java mechanism detected a 32-bit installation of Java."), MessageLevel::Launcher);
                     }
                     setJavaPath(java->path);
                     return;
@@ -133,7 +134,7 @@ void AutoInstallJava::setJavaPath(QString path)
     settings->set("OverrideJavaLocation", true);
     settings->set("JavaPath", path);
     settings->set("AutomaticJava", true);
-    emit logLine(tr("Compatible Java found at: %1.").arg(path), MessageLevel::Info);
+    emit logLine(tr("Compatible Java found at: %1.").arg(path), MessageLevel::Launcher);
     emitSucceeded();
 }
 
@@ -175,15 +176,18 @@ void AutoInstallJava::downloadJava(Meta::Version::Ptr version, QString javaName)
                     emitFailed(tr("Could not determine Java download type!"));
                     return;
             }
+#if defined(Q_OS_MACOS)
+            auto seq = makeShared<SequentialTask>(tr("Install Java"));
+            seq->addTask(m_current_task);
+            seq->addTask(makeShared<Java::SymlinkTask>(final_path));
+            m_current_task = seq;
+#endif
             auto deletePath = [final_path] { FS::deletePath(final_path); };
             connect(m_current_task.get(), &Task::failed, this, [this, deletePath](QString reason) {
                 deletePath();
                 emitFailed(reason);
             });
-            connect(this, &Task::aborted, this, [this, deletePath] {
-                m_current_task->abort();
-                deletePath();
-            });
+            connect(m_current_task.get(), &Task::aborted, this, [deletePath] { deletePath(); });
             connect(m_current_task.get(), &Task::succeeded, this, &AutoInstallJava::setJavaPathFromPartial);
             connect(m_current_task.get(), &Task::failed, this, &AutoInstallJava::tryNextMajorJava);
             connect(m_current_task.get(), &Task::progress, this, &AutoInstallJava::setProgress);
@@ -236,7 +240,10 @@ void AutoInstallJava::tryNextMajorJava()
 }
 bool AutoInstallJava::abort()
 {
-    if (m_current_task && m_current_task->canAbort())
-        return m_current_task->abort();
-    return true;
+    if (m_current_task && m_current_task->canAbort()) {
+        auto status = m_current_task->abort();
+        emitFailed("Aborted.");
+        return status;
+    }
+    return Task::abort();
 }

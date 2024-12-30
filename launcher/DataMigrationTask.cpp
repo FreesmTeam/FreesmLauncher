@@ -12,11 +12,8 @@
 
 #include <QtConcurrent>
 
-DataMigrationTask::DataMigrationTask(QObject* parent,
-                                     const QString& sourcePath,
-                                     const QString& targetPath,
-                                     const IPathMatcher::Ptr pathMatcher)
-    : Task(parent), m_sourcePath(sourcePath), m_targetPath(targetPath), m_pathMatcher(pathMatcher), m_copy(sourcePath, targetPath)
+DataMigrationTask::DataMigrationTask(const QString& sourcePath, const QString& targetPath, const IPathMatcher::Ptr pathMatcher)
+    : Task(), m_sourcePath(sourcePath), m_targetPath(targetPath), m_pathMatcher(pathMatcher), m_copy(sourcePath, targetPath)
 {
     m_copy.matcher(m_pathMatcher.get()).whitelist(true);
 }

@@ -16,7 +16,7 @@ class BasicTask : public Task {
     friend class TaskTest;
 
    public:
-    BasicTask(bool show_debug_log = true) : Task(nullptr, show_debug_log) {}
+    BasicTask(bool show_debug_log = true) : Task(show_debug_log) {}
 
    private:
     void executeTask() override { emitSucceeded(); }

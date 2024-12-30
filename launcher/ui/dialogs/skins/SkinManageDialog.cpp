@@ -93,6 +93,9 @@ SkinManageDialog::SkinManageDialog(QWidget* parent, MinecraftAccountPtr acct)
     setupCapes();
 
     ui->listView->setCurrentIndex(m_list.index(m_list.getSelectedAccountSkin()));
+
+    ui->buttonBox->button(QDialogButtonBox::Cancel)->setText(tr("Cancel"));
+    ui->buttonBox->button(QDialogButtonBox::Ok)->setText(tr("OK"));
 }
 
 SkinManageDialog::~SkinManageDialog()
@@ -116,7 +119,7 @@ void SkinManageDialog::selectionChanged(QItemSelection selected, QItemSelection 
         return;
     m_selected_skin = key;
     auto skin = m_list.skin(key);
-    if (!skin)
+    if (!skin || !skin->isValid())
         return;
     ui->selectedModel->setPixmap(skin->getTexture().scaled(size() * (1. / 3), Qt::KeepAspectRatio, Qt::FastTransformation));
     ui->capeCombo->setCurrentIndex(m_capes_idx.value(skin->getCapeId()));
@@ -139,6 +142,9 @@ void SkinManageDialog::on_fileBtn_clicked()
 {
     auto filter = QMimeDatabase().mimeTypeForName("image/png").filterString();
     QString raw_path = QFileDialog::getOpenFileName(this, tr("Select Skin Texture"), QString(), filter);
+    if (raw_path.isNull()) {
+        return;
+    }
     auto message = m_list.installSkin(raw_path, {});
     if (!message.isEmpty()) {
         CustomMessageBox::selectable(this, tr("Selected file is not a valid skin"), message, QMessageBox::Critical)->show();
@@ -212,7 +218,10 @@ void SkinManageDialog::setupCapes()
 void SkinManageDialog::on_capeCombo_currentIndexChanged(int index)
 {
     auto id = ui->capeCombo->currentData();
-    ui->capeImage->setPixmap(m_capes.value(id.toString(), {}).scaled(size() * (1. / 3), Qt::KeepAspectRatio, Qt::FastTransformation));
+    auto cape = m_capes.value(id.toString(), {});
+    if (!cape.isNull()) {
+        ui->capeImage->setPixmap(cape.scaled(size() * (1. / 3), Qt::KeepAspectRatio, Qt::FastTransformation));
+    }
     if (auto skin = m_list.skin(m_selected_skin); skin) {
         skin->setCapeId(id.toString());
     }
@@ -505,8 +514,13 @@ void SkinManageDialog::resizeEvent(QResizeEvent* event)
     QSize s = size() * (1. / 3);
 
     if (auto skin = m_list.skin(m_selected_skin); skin) {
-        ui->selectedModel->setPixmap(skin->getTexture().scaled(s, Qt::KeepAspectRatio, Qt::FastTransformation));
+        if (skin->isValid()) {
+            ui->selectedModel->setPixmap(skin->getTexture().scaled(s, Qt::KeepAspectRatio, Qt::FastTransformation));
+        }
     }
     auto id = ui->capeCombo->currentData();
-    ui->capeImage->setPixmap(m_capes.value(id.toString(), {}).scaled(s, Qt::KeepAspectRatio, Qt::FastTransformation));
+    auto cape = m_capes.value(id.toString(), {});
+    if (!cape.isNull()) {
+        ui->capeImage->setPixmap(cape.scaled(s, Qt::KeepAspectRatio, Qt::FastTransformation));
+    }
 }
