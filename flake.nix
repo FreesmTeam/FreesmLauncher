@@ -1,37 +1,28 @@
 {
-  description = "A custom launcher for Minecraft that allows you to easily manage multiple installations of Minecraft at once (Fork of MultiMC)";
+  description = "Prism Launcher fork aimed to provide a free way to play Minecraft.";
 
   nixConfig = {
-    extra-substituters = [ "https://prismlauncher.cachix.org" ];
-    extra-trusted-public-keys = [
-      "prismlauncher.cachix.org-1:9/n/FGyABA2jLUVfY+DEp4hKds/rwO+SCOtbOkDzd+c="
+    substituters = [
+      "https://cache.garnix.io"
+    ];
+    trusted-public-keys = [
+      "cache.garnix.io:CTFPyKSLcx5RMJKfLo5EEPUObbA78b0YQ2DTCJXqr9g="
     ];
   };
 
   inputs = {
-    nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
+    nixpkgs = {
+      url = "github:NixOS/nixpkgs/nixos-unstable";
+    };
+
+    nix-filter = {
+      url = "github:numtide/nix-filter";
+    };
 
     libnbtplusplus = {
       url = "github:FreesmTeam/libnbtplusplus";
       flake = false;
     };
-
-    nix-filter.url = "github:numtide/nix-filter";
-
-    /*
-      Inputs below this are optional and can be removed
-
-      ```
-      {
-        inputs.prismlauncher = {
-          url = "github:PrismLauncher/PrismLauncher";
-          inputs = {
-      	    flake-compat.follows = "";
-          };
-        };
-      }
-      ```
-    */
 
     flake-compat = {
       url = "github:edolstra/flake-compat";
@@ -49,16 +40,14 @@
     }:
     let
       inherit (nixpkgs) lib;
-
-      # While we only officially support aarch and x86_64 on Linux and MacOS,
-      # we expose a reasonable amount of other systems for users who want to
-      # build for most exotic platforms
       systems = lib.systems.flakeExposed;
-
       forAllSystems = lib.genAttrs systems;
       nixpkgsFor = forAllSystems (system: nixpkgs.legacyPackages.${system});
     in
     {
+
+      formatter = forAllSystems (system: nixpkgsFor.${system}.nixfmt-rfc-style);
+
       checks = forAllSystems (
         system:
         let
@@ -74,27 +63,29 @@
         in
         {
           default = pkgs.mkShell {
-            inputsFrom = [ self.packages.${system}.prismlauncher-unwrapped ];
-            buildInputs = with pkgs; [
-              ccache
-              ninja
+            inputsFrom = [
+              self.packages.${system}.freesmlauncher-unwrapped
+            ];
+            buildInputs = [
+              pkgs.ccache
+              pkgs.ninja
             ];
           };
         }
       );
 
-      formatter = forAllSystems (system: nixpkgsFor.${system}.nixfmt-rfc-style);
+      overlays = {
+        default = final: prev: {
+          freesmlauncher-unwrapped = prev.callPackage ./nix/unwrapped.nix {
+            inherit
+              libnbtplusplus
+              nix-filter
+              self
+              ;
+          };
 
-      overlays.default = final: prev: {
-        prismlauncher-unwrapped = prev.callPackage ./nix/unwrapped.nix {
-          inherit
-            libnbtplusplus
-            nix-filter
-            self
-            ;
+          freesmlauncher = final.callPackage ./nix/wrapper.nix { };
         };
-
-        prismlauncher = final.callPackage ./nix/wrapper.nix { };
       };
 
       packages = forAllSystems (
@@ -102,32 +93,29 @@
         let
           pkgs = nixpkgsFor.${system};
 
-          # Build a scope from our overlay
-          prismPackages = lib.makeScope pkgs.newScope (final: self.overlays.default final pkgs);
+          freesmPackages = lib.makeScope pkgs.newScope (final: self.overlays.default final pkgs);
 
-          # Grab our packages from it and set the default
           packages = {
-            inherit (prismPackages) prismlauncher-unwrapped prismlauncher;
-            default = prismPackages.prismlauncher;
+            inherit (freesmPackages) freesmlauncher-unwrapped freesmlauncher;
+            default = freesmPackages.freesmlauncher;
           };
         in
-        # Only output them if they're available on the current system
         lib.filterAttrs (_: lib.meta.availableOn pkgs.stdenv.hostPlatform) packages
+
       );
 
-      # We put these under legacyPackages as they are meant for CI, not end user consumption
       legacyPackages = forAllSystems (
         system:
         let
-          prismPackages = self.packages.${system};
+          freesmPackages = self.packages.${system};
           legacyPackages = self.legacyPackages.${system};
         in
         {
-          prismlauncher-debug = prismPackages.prismlauncher.override {
-            prismlauncher-unwrapped = legacyPackages.prismlauncher-unwrapped-debug;
+          freesmlauncher-debug = freesmPackages.freesmlauncher.override {
+            freesmlauncher-unwrapped = legacyPackages.freesmlauncher-unwrapped-debug;
           };
 
-          prismlauncher-unwrapped-debug = prismPackages.prismlauncher-unwrapped.overrideAttrs {
+          freesmlauncher-unwrapped-debug = freesmPackages.freesmlauncher-unwrapped.overrideAttrs {
             cmakeBuildType = "Debug";
             dontStrip = true;
           };
