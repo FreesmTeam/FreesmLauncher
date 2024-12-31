@@ -36,7 +36,7 @@
         libnbtplusplus,
         nix-filter,
         ...
-    } @ inputs: let
+    }: let
         inherit (nixpkgs) lib;
         systems = lib.systems.flakeExposed;
         forAllSystems = lib.genAttrs systems;
