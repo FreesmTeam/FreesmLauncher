@@ -50,7 +50,7 @@
 
 ## Установка
 
-- Все ссылки на скачивание и инструкции для Freesm Launcher'а могут быть найдены на нашем веб-сайте (WIP)
+- Все ссылки на скачивание и инструкции для Freesm Launcher'а могут быть найдены на нашем [веб-сайте](https://freesmlauncher.windstone.space)
 - Релизные версии находятся во вкладке [Github Releases](https://github.com/FreesmTeam/FreesmLauncher/releases).
 - Вы также можете установить сборки разработчика.
 
