@@ -50,7 +50,7 @@
 
 ## Installation
 
-- All downloads and instructions for Freesm Launcher can be found on our [Website] (WIP).
+- All downloads and instructions for Freesm Launcher can be found on our [Website](https://freesmlauncher.windstone.space).
 - Release builds are located in [Github Releases](https://github.com/FreesmTeam/FreesmLauncher/releases) tab.
 - You can also install development builds.
 
