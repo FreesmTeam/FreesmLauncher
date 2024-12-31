@@ -1,6 +1,6 @@
 > [!NOTE]
-> We are using Garnix CI for binary caching. 
-> Proceed to read (this)[https://garnix.io/docs/caching],
+> We are using Garnix CI for binary caching.
+> Proceed to read [this](https://garnix.io/docs/caching),
 > if you want to add binary cache manually.
 
 <h3 align="center"> Using on nixos / nixpkgs </h3>
