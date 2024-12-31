@@ -30,7 +30,7 @@
         };
     };
 
-    output = {
+    outputs = {
         self,
         nixpkgs,
         libnbtplusplus,
@@ -38,7 +38,7 @@
         ...
     } @ inputs: let
         inherit (nixpkgs) lib;
-        system = lib.systems.flakeExposed;
+        systems = lib.systems.flakeExposed;
         forAllSystems = lib.genAttrs systems;
         nixpkgsFor = forAllSystems (system: 
             nixpkgs.legacyPackages.${system}
@@ -69,7 +69,7 @@
                         pkgs.ninja
                     ];
                 };
-            };
+            }
         );
 
         overlays = {
@@ -98,9 +98,9 @@
                     inherit (freesmPackages) freesmlauncher-unwrapped freesmlauncher;
                     default = freesmPackages.freesmlauncher;
                 };
-            in {
+            in 
                 lib.filterAttrs (_: lib.meta.availableOn pkgs.stdenv.hostPlatform) packages
-            };
+            
         );
 
         legacyPackages = forAllSystems (system: 
@@ -116,7 +116,7 @@
                     cmakeBuildType = "Debug";
                     dontStrip = true;
                 };
-            };
+            }
         );
-    }
+    };
 }
