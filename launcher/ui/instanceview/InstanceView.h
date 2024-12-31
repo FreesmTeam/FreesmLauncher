@@ -130,6 +130,7 @@ class InstanceView : public QAbstractItemView {
     mutable QCache<int, QRect> geometryCache;
     bool m_catVisible = false;
     QPixmap m_catPixmap;
+    bool m_catIsScreenshot;
 
     // point where the currently active mouse action started in geometry coordinates
     QPoint m_pressedPosition;
