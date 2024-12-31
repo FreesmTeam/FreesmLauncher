@@ -1,122 +1,125 @@
 {
-    description = "Prism Launcher fork aimed to provide a free way to play Minecraft.";
+  description = "Prism Launcher fork aimed to provide a free way to play Minecraft.";
 
-    nixConfig = {
-        substituters = [
-            "https://cache.garnix.io"
-        ];
-        trusted-public-keys = [
-            "cache.garnix.io:CTFPyKSLcx5RMJKfLo5EEPUObbA78b0YQ2DTCJXqr9g="
-        ];
+  nixConfig = {
+    substituters = [
+      "https://cache.garnix.io"
+    ];
+    trusted-public-keys = [
+      "cache.garnix.io:CTFPyKSLcx5RMJKfLo5EEPUObbA78b0YQ2DTCJXqr9g="
+    ];
+  };
+
+  inputs = {
+    nixpkgs = {
+      url = "github:NixOS/nixpkgs/nixos-unstable";
     };
 
-    inputs = {
-        nixpkgs = {
-            url = "github:NixOS/nixpkgs/nixos-unstable";
-        };
-
-        nix-filter = {
-            url = "github:numtide/nix-filter";
-        };
-
-        libnbtplusplus = {
-            url = "github:FreesmTeam/libnbtplusplus";
-            flake = false;
-        };
-
-        flake-compat = {
-            url = "github:edolstra/flake-compat";
-            flake = false;
-        };
+    nix-filter = {
+      url = "github:numtide/nix-filter";
     };
 
-    outputs = {
-        self,
-        nixpkgs,
-        libnbtplusplus,
-        nix-filter,
-        ...
-    }: let
-        inherit (nixpkgs) lib;
-        systems = lib.systems.flakeExposed;
-        forAllSystems = lib.genAttrs systems;
-        nixpkgsFor = forAllSystems (system: 
-            nixpkgs.legacyPackages.${system}
-        );
-    in {
+    libnbtplusplus = {
+      url = "github:FreesmTeam/libnbtplusplus";
+      flake = false;
+    };
 
-        formatter = forAllSystems (system: 
-            nixpkgsFor.${system}.nixfmt-rfc-style
-        );
+    flake-compat = {
+      url = "github:edolstra/flake-compat";
+      flake = false;
+    };
+  };
 
-        checks = forAllSystems (system:
-            let
-                checks' = nixpkgsFor.${system}.callPackage ./nix/checks.nix { inherit self; };
-            in
-            lib.filterAttrs (_: lib.isDerivation) checks'
-        );
+  outputs =
+    {
+      self,
+      nixpkgs,
+      libnbtplusplus,
+      nix-filter,
+      ...
+    }:
+    let
+      inherit (nixpkgs) lib;
+      systems = lib.systems.flakeExposed;
+      forAllSystems = lib.genAttrs systems;
+      nixpkgsFor = forAllSystems (system: nixpkgs.legacyPackages.${system});
+    in
+    {
 
-        devShells = forAllSystems (system:
-            let
-                pkgs = nixpkgsFor.${system};
-            in {
-                default = pkgs.mkShell {
-                    inputsFrom = [ 
-                        self.packages.${system}.freesmlauncher-unwrapped 
-                    ];
-                    buildInputs = [
-                        pkgs.ccache
-                        pkgs.ninja
-                    ];
-                };
-            }
-        );
+      formatter = forAllSystems (system: nixpkgsFor.${system}.nixfmt-rfc-style);
 
-        overlays = {
-            default = final: prev: {
-                freesmlauncher-unwrapped = prev.callPackage ./nix/unwrapped.nix {
-                    inherit 
-                        libnbtplusplus
-                        nix-filter
-                        self
-                    ;
-                };
+      checks = forAllSystems (
+        system:
+        let
+          checks' = nixpkgsFor.${system}.callPackage ./nix/checks.nix { inherit self; };
+        in
+        lib.filterAttrs (_: lib.isDerivation) checks'
+      );
 
-                freesmlauncher = final.callPackage ./nix/wrapper.nix { };
-            };
+      devShells = forAllSystems (
+        system:
+        let
+          pkgs = nixpkgsFor.${system};
+        in
+        {
+          default = pkgs.mkShell {
+            inputsFrom = [
+              self.packages.${system}.freesmlauncher-unwrapped
+            ];
+            buildInputs = [
+              pkgs.ccache
+              pkgs.ninja
+            ];
+          };
+        }
+      );
+
+      overlays = {
+        default = final: prev: {
+          freesmlauncher-unwrapped = prev.callPackage ./nix/unwrapped.nix {
+            inherit
+              libnbtplusplus
+              nix-filter
+              self
+              ;
+          };
+
+          freesmlauncher = final.callPackage ./nix/wrapper.nix { };
         };
+      };
 
-        packages = forAllSystems (system: 
-            let 
-                pkgs = nixpkgsFor.${system};
+      packages = forAllSystems (
+        system:
+        let
+          pkgs = nixpkgsFor.${system};
 
-                freesmPackages = lib.makeScope pkgs.newScope (final:
-                    self.overlays.default final pkgs 
-                );
+          freesmPackages = lib.makeScope pkgs.newScope (final: self.overlays.default final pkgs);
 
-                packages = {
-                    inherit (freesmPackages) freesmlauncher-unwrapped freesmlauncher;
-                    default = freesmPackages.freesmlauncher;
-                };
-            in 
-                lib.filterAttrs (_: lib.meta.availableOn pkgs.stdenv.hostPlatform) packages
-            
-        );
+          packages = {
+            inherit (freesmPackages) freesmlauncher-unwrapped freesmlauncher;
+            default = freesmPackages.freesmlauncher;
+          };
+        in
+        lib.filterAttrs (_: lib.meta.availableOn pkgs.stdenv.hostPlatform) packages
 
-        legacyPackages = forAllSystems (system: 
-            let 
-                freesmPackages = self.packages.${system};
-                legacyPackages = self.legacyPackages.${system};
-            in {
-                freesmlauncher-debug = freesmPackages.freesmlauncher.override {
-                    freesmlauncher-unwrapped = legacyPackages.freesmlauncher-unwrapped-debug;
-                };
+      );
 
-                freesmlauncher-unwrapped-debug = freesmPackages.freesmlauncher-unwrapped.overrideAttrs {
-                    cmakeBuildType = "Debug";
-                    dontStrip = true;
-                };
-            }
-        );
+      legacyPackages = forAllSystems (
+        system:
+        let
+          freesmPackages = self.packages.${system};
+          legacyPackages = self.legacyPackages.${system};
+        in
+        {
+          freesmlauncher-debug = freesmPackages.freesmlauncher.override {
+            freesmlauncher-unwrapped = legacyPackages.freesmlauncher-unwrapped-debug;
+          };
+
+          freesmlauncher-unwrapped-debug = freesmPackages.freesmlauncher-unwrapped.overrideAttrs {
+            cmakeBuildType = "Debug";
+            dontStrip = true;
+          };
+        }
+      );
     };
 }
