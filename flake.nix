@@ -65,7 +65,7 @@
                         self.packages.${system}.freesmlauncher-unwrapped 
                     ];
                     buildInputs = [
-                        pkgs,ccache
+                        pkgs.ccache
                         pkgs.ninja
                     ];
                 };
