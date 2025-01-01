@@ -446,7 +446,7 @@ void InstanceView::setPaintCat(bool visible)
 {
     m_catVisible = visible;
     if (visible) {
-        auto catName = APPLICATION->themeManager()->getCatPack();
+        const auto catName = APPLICATION->themeManager()->getCatPack();
         m_catPixmap.load(catName);
         m_catIsScreenshot = catName.contains("screenshot");
     } else {
@@ -477,8 +477,7 @@ void InstanceView::paintEvent([[maybe_unused]] QPaintEvent* event)
             pixmap = m_catPixmap.scaled(widWidth, widHeight, Qt::KeepAspectRatioByExpanding, Qt::SmoothTransformation);
             rectOfPixmap = pixmap.rect();
             rectOfPixmap.moveCenter(this->viewport()->rect().center());
-        }
-        else {
+        } else {
             pixmap = m_catPixmap.scaled(widWidth, widHeight, Qt::KeepAspectRatio, Qt::SmoothTransformation);
             rectOfPixmap = pixmap.rect();
             rectOfPixmap.moveBottomRight(this->viewport()->rect().bottomRight());
