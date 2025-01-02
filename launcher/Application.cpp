@@ -562,7 +562,6 @@ Application::Application(int& argc, char** argv) : QApplication(argc, argv)
         m_settings->registerSetting("IconTheme", QString("fluent_dark"));
         m_settings->registerSetting("ApplicationTheme", QString("freesm"));
         m_settings->registerSetting("BackgroundCat", QString("typescript"));
-        m_settings->registerSetting("BackgroundCat", QString("miside-screenshot"));
 
         // Remembered state
         m_settings->registerSetting("LastUsedGroupForNewInstance", QString());
