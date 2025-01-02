@@ -474,9 +474,7 @@ void InstanceView::setPaintCat(bool visible)
         } else {
             m_catPixmap = QPixmap();
             m_catPixmap.load(catName);
-            // TODO: change "screenshot" to "fullscreen"
-            // ^^^^^ will be fixed with merge
-            m_catIsScreenshot = catName.contains("screenshot");
+            m_catIsScreenshot = catName.contains("screenshot", Qt::CaseInsensitive) || catName.contains("fullscreen", Qt::CaseInsensitive);
         }
 
         update();  // repaint
