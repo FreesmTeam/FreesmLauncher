@@ -448,32 +448,38 @@ void InstanceView::setPaintCat(bool visible)
     m_catVisible = visible;
 
     if (visible) {
-    const QString& catName = APPLICATION->themeManager()->getCatPack();
-    if (catName.endsWith(".gif")) {
-        disconnect(m_catMovie, &QMovie::frameChanged, this, nullptr);
-        delete m_catMovie;
+        const QString& catName = APPLICATION->themeManager()->getCatPack();
 
-        m_catMovie = new QMovie(catName);
-        m_catMovie->setProperty("loopCount", -1);
-
-        if (!m_catMovie->isValid()) {
+        if (m_catMovie) {
+            disconnect(m_catMovie, &QMovie::frameChanged, this, nullptr);
             delete m_catMovie;
             m_catMovie = nullptr;
         } else {
-            connect(m_catMovie, &QMovie::frameChanged, this, QOverload<>::of(&InstanceView::update));
-            m_catMovie->start();
+            m_catPixmap = QPixmap();
         }
 
-        m_catIsScreenshot = false;
-    } else {
-        m_catPixmap = QPixmap();
-        m_catPixmap.load(catName);
-        // TODO: change "screenshot" to "fullscreen"
-        // ^^^^^ will be fixed with merge
-        m_catIsScreenshot = catName.contains("screenshot");
-    }
+        if (catName.endsWith(".gif")) {
+            m_catMovie = new QMovie(catName);
+            m_catMovie->setProperty("loopCount", -1);
 
-    update();  // repaint
+            if (!m_catMovie->isValid()) {
+                delete m_catMovie;
+                m_catMovie = nullptr;
+            } else {
+                connect(m_catMovie, &QMovie::frameChanged, this, QOverload<>::of(&InstanceView::update));
+                m_catMovie->start();
+            }
+
+            m_catIsScreenshot = false;
+        } else {
+            m_catPixmap = QPixmap();
+            m_catPixmap.load(catName);
+            // TODO: change "screenshot" to "fullscreen"
+            // ^^^^^ will be fixed with merge
+            m_catIsScreenshot = catName.contains("screenshot");
+        }
+
+        update();  // repaint
     } else {
         delete m_catMovie;
         m_catMovie = nullptr;
