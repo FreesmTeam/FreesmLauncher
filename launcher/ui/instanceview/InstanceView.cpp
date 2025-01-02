@@ -475,7 +475,6 @@ void InstanceView::setPaintCat(bool visible)
 
     update();  // repaint
     } else {
-        m_catMovie->stop();
         delete m_catMovie;
         m_catMovie = nullptr;
         m_catPixmap = QPixmap();
