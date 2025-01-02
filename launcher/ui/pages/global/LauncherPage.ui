@@ -58,8 +58,8 @@
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>473</width>
-            <height>770</height>
+            <width>448</width>
+            <height>685</height>
            </rect>
           </property>
           <layout class="QVBoxLayout" name="verticalLayout_8">
@@ -474,6 +474,13 @@
              </size>
             </property>
            </spacer>
+          </item>
+          <item row="1" column="0">
+           <widget class="QLabel" name="catDescriptionLabel">
+            <property name="text">
+             <string>All added cats containing “fullscreen” or “screenshot” in the name will be scaled to fullscreen</string>
+            </property>
+           </widget>
           </item>
          </layout>
         </widget>
