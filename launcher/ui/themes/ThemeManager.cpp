@@ -299,7 +299,8 @@ void ThemeManager::initializeCatPacks()
 {
     QList<std::pair<QString, QString>> defaultCats{ { "kitteh", QObject::tr("Background Cat (from MultiMC)") },
                                                     { "typescript", QObject::tr("You should have used Typescript") },
-                                                    { "miside-screenshot", QObject::tr("MiSide screenshot") },
+                                                    { "miside-screenshot", QObject::tr("MiSide Screenshot") },
+                                                    { "maxwell-christmas", QObject::tr("Maxwell Christmas Cat") },
                                                     { "rory", QObject::tr("Rory ID 11 (drawn by Ashtaka)") },
                                                     { "rory-flat", QObject::tr("Rory ID 11 (flat edition, drawn by Ashtaka)") },
                                                     { "teawie", QObject::tr("Teawie (drawn by SympathyTea)") } };
