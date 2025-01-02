@@ -111,16 +111,11 @@ void LabeledToolButton::resizeEvent(QResizeEvent* event)
 
 void LabeledToolButton::resetIcon()
 {
-    auto iconSz = m_icon.actualSize(QSize(160, 80));
-    float w = iconSz.width();
-    float h = iconSz.height();
-    float ar = w / h;
-    // FIXME: hardcoded max size of 160x80
-    int newW = 80 * ar;
-    if (newW > 160)
-        newW = 160;
-    QSize newSz(newW, 80);
-    auto pixmap = m_icon.pixmap(newSz);
+    const auto iconSize = m_icon.actualSize(QSize(160, 80));
+    const float aspectRatio = static_cast<float>(iconSize.width()) / iconSize.height();
+    const int width = std::min(160, static_cast<int>(80 * aspectRatio));
+    const auto newSize = QSize(width, 80);
+    const auto pixmap = m_icon.pixmap(newSize);
     m_label->setPixmap(pixmap);
     m_label->setMinimumHeight(80);
     m_label->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Preferred);
