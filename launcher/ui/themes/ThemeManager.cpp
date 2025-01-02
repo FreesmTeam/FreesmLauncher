@@ -300,12 +300,16 @@ void ThemeManager::initializeCatPacks()
     QList<std::pair<QString, QString>> defaultCats{ { "kitteh", QObject::tr("Background Cat (from MultiMC)") },
                                                     { "typescript", QObject::tr("You should have used Typescript") },
                                                     { "miside-screenshot", QObject::tr("MiSide Screenshot") },
-                                                    { "maxwell-christmas", QObject::tr("Maxwell Christmas Cat") },
+                                                    { "maxwell-christmas-gif", QObject::tr("Maxwell Christmas Cat") },
                                                     { "rory", QObject::tr("Rory ID 11 (drawn by Ashtaka)") },
                                                     { "rory-flat", QObject::tr("Rory ID 11 (flat edition, drawn by Ashtaka)") },
                                                     { "teawie", QObject::tr("Teawie (drawn by SympathyTea)") } };
     for (auto [id, name] : defaultCats) {
-        addCatPack(std::unique_ptr<CatPack>(new BasicCatPack(id, name)));
+        if (id.endsWith("-gif")) {
+            addCatPack(std::unique_ptr<CatPack>(new GifCatPack(id, name)));
+        } else {
+            addCatPack(std::unique_ptr<CatPack>(new BasicCatPack(id)));
+        }
     }
     if (!m_catPacksFolder.mkpath("."))
         themeWarningLog() << "Couldn't create catpacks folder";
