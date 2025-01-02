@@ -447,19 +447,11 @@ void InstanceView::setPaintCat(bool visible)
 {
     m_catVisible = visible;
 
-    if (!visible) {
-        m_catMovie->stop();
-        delete m_catMovie;
-        m_catMovie = nullptr;
-        m_catPixmap = QPixmap();
-        return;
-    }
-
+    if (visible) {
     const QString& catName = APPLICATION->themeManager()->getCatPack();
     if (catName.endsWith(".gif")) {
-        if (m_catMovie) {
-            delete m_catMovie;
-        }
+        disconnect(m_catMovie, &QMovie::frameChanged, this, nullptr);
+        delete m_catMovie;
 
         m_catMovie = new QMovie(catName);
         m_catMovie->setProperty("loopCount", -1);
@@ -474,12 +466,20 @@ void InstanceView::setPaintCat(bool visible)
 
         m_catIsScreenshot = false;
     } else {
+        m_catPixmap = QPixmap();
         m_catPixmap.load(catName);
         // TODO: change "screenshot" to "fullscreen"
+        // ^^^^^ will be fixed with merge
         m_catIsScreenshot = catName.contains("screenshot");
     }
 
     update();  // repaint
+    } else {
+        m_catMovie->stop();
+        delete m_catMovie;
+        m_catMovie = nullptr;
+        m_catPixmap = QPixmap();
+    }
 }
 
 void InstanceView::paintEvent([[maybe_unused]] QPaintEvent* event)
