@@ -82,6 +82,26 @@ GifCatPack::GifCatPack(const QFileInfo& fileInfo) : BasicCatPack(fileInfo.dir().
     m_movie = new QMovie(m_path);
 }
 
+void GifCatPack::displayCat(QPainter& painter)
+{
+    if (!m_movie) {
+        return;
+    }
+
+    if (m_movie->state() != QMovie::Running) {
+        m_movie->start();
+    }
+
+    QImage currentFrame = m_movie->currentImage();
+
+    if (!currentFrame.isNull()) {
+        QRect targetRect(0, 0, currentFrame.width(), currentFrame.height());
+        painter.drawImage(targetRect, currentFrame);  // Отображаем кадр на экране
+    } else {
+        qWarning() << "Failed to get current frame from the GIF";
+    }
+}
+
 JsonCatPack::JsonCatPack(QFileInfo& manifestInfo) : BasicCatPack(manifestInfo.dir().dirName())
 {
     QString path = manifestInfo.path();
