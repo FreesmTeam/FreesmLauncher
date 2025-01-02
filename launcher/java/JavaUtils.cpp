@@ -45,6 +45,7 @@
 #include "FileSystem.h"
 #include "java/JavaInstallList.h"
 #include "java/JavaUtils.h"
+#include "BuildConfig.h"
 
 #define IBUS "@im=ibus"
 
@@ -155,7 +156,7 @@ JavaInstallPtr JavaUtils::GetDefaultJava()
 
 QStringList addJavasFromEnv(QList<QString> javas)
 {
-    auto env = qEnvironmentVariable("PRISMLAUNCHER_JAVA_PATHS");  // FIXME: use launcher name from buildconfig
+    auto env = QProcessEnvironment::systemEnvironment().value(QString("%1_JAVA_PATHS").arg(BuildConfig.LAUNCHER_NAME));
 #if defined(Q_OS_WIN32)
     QList<QString> javaPaths = env.replace("\\", "/").split(QLatin1String(";"));
 
