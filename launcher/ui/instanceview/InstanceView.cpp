@@ -498,7 +498,13 @@ void InstanceView::paintEvent([[maybe_unused]] QPaintEvent* event)
         int widWidth = this->viewport()->width();
         int widHeight = this->viewport()->height();
 
-        if (!m_catPixmap.isNull()) {
+        if (m_catMovie) {
+            QImage currentFrame = m_catMovie->currentImage();
+            if (!currentFrame.isNull()) {
+                QRect targetRect(0, 0, currentFrame.width(), currentFrame.height());
+                painter.drawImage(targetRect, currentFrame);
+            }
+        } else if (!m_catPixmap.isNull()) {
             if (m_catIsScreenshot) {
                 QPixmap pixmap = m_catPixmap.scaled(widWidth, widHeight, Qt::KeepAspectRatioByExpanding, Qt::SmoothTransformation);
                 QRect rectOfPixmap = pixmap.rect();
