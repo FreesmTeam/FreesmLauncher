@@ -71,16 +71,17 @@ static bool isBinaryJson(const QByteArray& data)
 QJsonDocument requireDocument(const QByteArray& data, const QString& what)
 {
     if (isBinaryJson(data)) {
-        // FIXME: Is this needed?
-        throw JsonException(what + ": Invalid JSON. Binary JSON unsupported");
-    } else {
-        QJsonParseError error;
-        QJsonDocument doc = QJsonDocument::fromJson(data, &error);
-        if (error.error != QJsonParseError::NoError) {
-            throw JsonException(what + ": Error parsing JSON: " + error.errorString());
-        }
-        return doc;
+        throw JsonException(what + ": Binary JSON unsupported");
     }
+
+    QJsonParseError parseError;
+    QJsonDocument document = QJsonDocument::fromJson(data, &parseError);
+
+    if (parseError.error != QJsonParseError::NoError) {
+        throw JsonException(what + ": Error parsing JSON: " + parseError.errorString());
+    }
+
+    return document;
 }
 QJsonDocument requireDocument(const QString& filename, const QString& what)
 {
@@ -236,7 +237,10 @@ template <>
 QDir requireIsType<QDir>(const QJsonValue& value, const QString& what)
 {
     const QString string = requireIsType<QString>(value, what);
-    // FIXME: does not handle invalid characters!
+
+    if (string.contains(QDir::listSeparator())) {
+        throw JsonException(what + " contains a path separator (" + QDir::listSeparator() + "), which is not allowed");
+    }
     return QDir::current().absoluteFilePath(string);
 }
 
