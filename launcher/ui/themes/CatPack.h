@@ -76,6 +76,7 @@ class FileCatPack : public BasicCatPack {
 class GifCatPack : public BasicCatPack {
    public:
     GifCatPack(const QFileInfo& fileInfo);
+    GifCatPack(QString id, QString name);
 
     virtual QString id() override { return m_id; }
     virtual QString name() override { return m_name; }
