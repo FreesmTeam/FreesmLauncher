@@ -88,7 +88,6 @@
 #include <news/NewsChecker.h>
 #include <tools/BaseProfiler.h>
 #include <updater/ExternalUpdater.h>
-#include "InstanceWindow.h"
 
 #include "ui/dialogs/AboutDialog.h"
 #include "ui/dialogs/CopyInstanceDialog.h"
@@ -108,12 +107,7 @@
 #include "ui/widgets/LabeledToolButton.h"
 
 #include "minecraft/PackProfile.h"
-#include "minecraft/VersionFile.h"
-#include "minecraft/WorldList.h"
 #include "minecraft/mod/ModFolderModel.h"
-#include "minecraft/mod/ResourcePackFolderModel.h"
-#include "minecraft/mod/ShaderPackFolderModel.h"
-#include "minecraft/mod/TexturePackFolderModel.h"
 #include "minecraft/mod/tasks/LocalResourceParse.h"
 
 #include "modplatform/ModIndex.h"
