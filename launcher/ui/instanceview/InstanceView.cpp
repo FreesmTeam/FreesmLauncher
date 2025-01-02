@@ -446,42 +446,42 @@ void InstanceView::mouseDoubleClickEvent(QMouseEvent* event)
 
 void InstanceView::setPaintCat(bool visible)
 {
+    if (m_catVisible == visible) {
+        return;
+    }
+
     m_catVisible = visible;
 
-    if (visible) {
-        QString catName = APPLICATION->themeManager()->getCatPack();
-        if (catName.endsWith(".gif")) {
-            if (m_catMovie) {
-                delete m_catMovie;
-            }
-            m_catMovie = new QMovie(catName);
-            m_catMovie->setCacheMode(QMovie::CacheAll);
-            m_catMovie->setProperty("loopCount", -1);
+    if (!visible) {
+        delete m_catMovie;
+        m_catMovie = nullptr;
+        m_catPixmap = QPixmap();
+        return;
+    }
 
-            // TODO: change this
-            m_catMovie->setSpeed(10);
+    const QString& catName = APPLICATION->themeManager()->getCatPack();
 
-            if (!m_catMovie->isValid()) {
-                qWarning() << "Invalid GIF file: " << catName;
-                delete m_catMovie;
-                m_catMovie = nullptr;
-            } else {
-                m_catMovie->start();
-            }
-
-            m_catIsScreenshot = false;
-        } else {
-            if (!m_catPixmap.load(catName)) {
-                qWarning() << "Failed to load image file: " << catName;
-            }
-            m_catIsScreenshot = catName.contains("screenshot");
-        }
-    } else {
+    if (catName.endsWith(".gif")) {
         if (m_catMovie) {
             delete m_catMovie;
-            m_catMovie = nullptr;
         }
-        m_catPixmap = QPixmap();
+
+        m_catMovie = new QMovie(catName);
+        m_catMovie->setCacheMode(QMovie::CacheAll);
+        m_catMovie->setProperty("loopCount", -1);
+
+        if (!m_catMovie->isValid()) {
+            delete m_catMovie;
+            m_catMovie = nullptr;
+        } else {
+            connect(m_catMovie, &QMovie::frameChanged, this, QOverload<>::of(&InstanceView::update));
+            m_catMovie->start();
+        }
+
+        m_catIsScreenshot = false;
+    } else {
+        m_catPixmap.load(catName);
+        m_catIsScreenshot = catName.contains("screenshot");
     }
 
     update(); // repaint
@@ -502,6 +502,7 @@ void InstanceView::paintEvent([[maybe_unused]] QPaintEvent* event)
             QImage currentFrame = m_catMovie->currentImage();
             if (!currentFrame.isNull()) {
                 QRect targetRect(0, 0, currentFrame.width(), currentFrame.height());
+                targetRect.moveBottomRight(this->viewport()->rect().bottomRight());
                 painter.drawImage(targetRect, currentFrame);
             }
         } else if (!m_catPixmap.isNull()) {
