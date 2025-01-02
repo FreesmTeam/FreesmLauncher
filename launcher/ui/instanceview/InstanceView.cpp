@@ -458,6 +458,9 @@ void InstanceView::setPaintCat(bool visible)
             m_catMovie->setCacheMode(QMovie::CacheAll);
             m_catMovie->setProperty("loopCount", -1);
 
+            // TODO: change this
+            m_catMovie->setSpeed(10);
+
             if (!m_catMovie->isValid()) {
                 qWarning() << "Invalid GIF file: " << catName;
                 delete m_catMovie;
@@ -495,13 +498,7 @@ void InstanceView::paintEvent([[maybe_unused]] QPaintEvent* event)
         int widWidth = this->viewport()->width();
         int widHeight = this->viewport()->height();
 
-        if (m_catMovie) {
-            QImage currentFrame = m_catMovie->currentImage();
-            if (!currentFrame.isNull()) {
-                QRect targetRect(0, 0, widWidth, widHeight);
-                painter.drawImage(targetRect, currentFrame);
-            }
-        } else if (!m_catPixmap.isNull()) {
+        if (!m_catPixmap.isNull()) {
             if (m_catIsScreenshot) {
                 QPixmap pixmap = m_catPixmap.scaled(widWidth, widHeight, Qt::KeepAspectRatioByExpanding, Qt::SmoothTransformation);
                 QRect rectOfPixmap = pixmap.rect();
