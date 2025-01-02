@@ -43,6 +43,7 @@
 #include <QListView>
 #include <QMimeData>
 #include <QMouseEvent>
+#include <QMovie>
 #include <QPainter>
 #include <QPersistentModelIndex>
 #include <QScrollBar>
@@ -445,12 +446,41 @@ void InstanceView::mouseDoubleClickEvent(QMouseEvent* event)
 void InstanceView::setPaintCat(bool visible)
 {
     m_catVisible = visible;
+
     if (visible) {
-        const auto catName = APPLICATION->themeManager()->getCatPack();
-        m_catPixmap.load(catName);
-        m_catIsScreenshot = catName.contains("screenshot", Qt::CaseInsensitive) ||
-                            catName.contains("fullscreen", Qt::CaseInsensitive);
+        const QString& catName = APPLICATION->themeManager()->getCatPack();
+
+        if (m_catMovie) {
+            disconnect(m_catMovie, &QMovie::frameChanged, this, nullptr);
+            delete m_catMovie;
+            m_catMovie = nullptr;
+        } else {
+            m_catPixmap = QPixmap();
+        }
+
+        if (catName.endsWith(".gif")) {
+            m_catMovie = new QMovie(catName);
+            m_catMovie->setProperty("loopCount", -1);
+
+            if (!m_catMovie->isValid()) {
+                delete m_catMovie;
+                m_catMovie = nullptr;
+            } else {
+                connect(m_catMovie, &QMovie::frameChanged, this, [this](int) { this->update(); });
+                m_catMovie->start();
+            }
+
+            m_catIsScreenshot = false;
+        } else {
+            m_catPixmap = QPixmap();
+            m_catPixmap.load(catName);
+            m_catIsScreenshot = catName.contains("screenshot", Qt::CaseInsensitive) || catName.contains("fullscreen", Qt::CaseInsensitive);
+        }
+
+        update();  // repaint
     } else {
+        delete m_catMovie;
+        m_catMovie = nullptr;
         m_catPixmap = QPixmap();
     }
 }
@@ -465,26 +495,28 @@ void InstanceView::paintEvent([[maybe_unused]] QPaintEvent* event)
         painter.setOpacity(APPLICATION->settings()->get("CatOpacity").toFloat() / 100);
         int widWidth = this->viewport()->width();
         int widHeight = this->viewport()->height();
-        if (!m_catIsScreenshot) {
-            if (m_catPixmap.width() < widWidth)
-                widWidth = m_catPixmap.width();
-            if (m_catPixmap.height() < widHeight)
-                widHeight = m_catPixmap.height();
+
+        if (m_catMovie) {
+            QImage currentFrame = m_catMovie->currentImage();
+            if (!currentFrame.isNull()) {
+                QRect targetRect(0, 0, currentFrame.width(), currentFrame.height());
+                targetRect.moveBottomRight(this->viewport()->rect().bottomRight());
+                painter.drawImage(targetRect, currentFrame);
+            }
+        } else if (!m_catPixmap.isNull()) {
+            if (m_catIsScreenshot) {
+                QPixmap pixmap = m_catPixmap.scaled(widWidth, widHeight, Qt::KeepAspectRatioByExpanding, Qt::SmoothTransformation);
+                QRect rectOfPixmap = pixmap.rect();
+                rectOfPixmap.moveCenter(this->viewport()->rect().center());
+                painter.drawPixmap(rectOfPixmap.topLeft(), pixmap);
+            } else {
+                QPixmap pixmap = m_catPixmap.scaled(widWidth, widHeight, Qt::KeepAspectRatio, Qt::SmoothTransformation);
+                QRect rectOfPixmap = pixmap.rect();
+                rectOfPixmap.moveBottomRight(this->viewport()->rect().bottomRight());
+                painter.drawPixmap(rectOfPixmap.topLeft(), pixmap);
+            }
         }
 
-        QPixmap pixmap;
-        QRect rectOfPixmap;
-        if (m_catIsScreenshot) {
-            pixmap = m_catPixmap.scaled(widWidth, widHeight, Qt::KeepAspectRatioByExpanding, Qt::SmoothTransformation);
-            rectOfPixmap = pixmap.rect();
-            rectOfPixmap.moveCenter(this->viewport()->rect().center());
-        } else {
-            pixmap = m_catPixmap.scaled(widWidth, widHeight, Qt::KeepAspectRatio, Qt::SmoothTransformation);
-            rectOfPixmap = pixmap.rect();
-            rectOfPixmap.moveBottomRight(this->viewport()->rect().bottomRight());
-        }
-
-        painter.drawPixmap(rectOfPixmap.topLeft(), pixmap);
         painter.setOpacity(1.0);
     }
 
