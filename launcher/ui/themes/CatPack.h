@@ -35,6 +35,8 @@
 
 #pragma once
 
+#include <QPainter>
+#include <QMovie>
 #include <QDate>
 #include <QFileInfo>
 #include <QList>
@@ -69,6 +71,23 @@ class FileCatPack : public BasicCatPack {
 
    private:
     QString m_path;
+};
+
+class GifCatPack : public BasicCatPack {
+   public:
+    GifCatPack(const QFileInfo& fileInfo);
+
+    virtual QString id() override { return m_id; }
+    virtual QString name() override { return m_name; }
+    virtual QString path() override { return m_path; }
+
+    void displayCat(QPainter& painter);
+
+   private:
+    QString m_id;
+    QString m_name;
+    QString m_path;
+    QMovie* m_movie;
 };
 
 class JsonCatPack : public BasicCatPack {

@@ -314,6 +314,10 @@ void ThemeManager::initializeCatPacks()
     for (auto format : QImageReader::supportedImageFormats()) {
         supportedImageFormats.append("*." + format);
     }
+
+    // add gif support
+    supportedImageFormats.append("*.gif");
+
     auto loadFiles = [this, supportedImageFormats](QDir dir) {
         // Load image files directly
         QDirIterator ImageFileIterator(dir.absoluteFilePath(""), supportedImageFormats, QDir::Files);
@@ -321,7 +325,13 @@ void ThemeManager::initializeCatPacks()
             QFile customCatFile(ImageFileIterator.next());
             QFileInfo customCatFileInfo(customCatFile);
             themeDebugLog() << "Loading CatPack from:" << customCatFileInfo.absoluteFilePath();
-            addCatPack(std::unique_ptr<CatPack>(new FileCatPack(customCatFileInfo)));
+
+            if (customCatFileInfo.suffix() == "gif") {
+                addCatPack(std::unique_ptr<CatPack>(new GifCatPack(customCatFileInfo)));
+            } else {
+                addCatPack(std::unique_ptr<CatPack>(new FileCatPack(customCatFileInfo)));
+            }
+
         }
     };
 
