@@ -35,7 +35,6 @@
 
 #pragma once
 
-#include <qmovie.h>
 #include <QMovie>
 #include <QCache>
 #include <QLineEdit>
@@ -79,7 +78,7 @@ class InstanceView : public QAbstractItemView {
     virtual QRegion visualRegionForSelection(const QItemSelection& selection) const override;
 
     int spacing() const { return m_spacing; };
-    void updateCatPack()
+    void updateCatPack();
     void setPaintCat(bool visible);
 
    public slots:
