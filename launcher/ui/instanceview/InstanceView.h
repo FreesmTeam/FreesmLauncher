@@ -35,6 +35,7 @@
 
 #pragma once
 
+#include <QMovie>
 #include <QCache>
 #include <QLineEdit>
 #include <QListView>
@@ -129,6 +130,7 @@ class InstanceView : public QAbstractItemView {
     int m_currentCursorColumn = -1;
     mutable QCache<int, QRect> geometryCache;
     bool m_catVisible = false;
+    QMovie* m_catMovie = nullptr;
     QPixmap m_catPixmap;
     bool m_catIsScreenshot;
 
