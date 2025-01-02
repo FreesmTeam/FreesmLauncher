@@ -43,6 +43,7 @@
 #include <QListView>
 #include <QMimeData>
 #include <QMouseEvent>
+#include <QMovie>
 #include <QPainter>
 #include <QPersistentModelIndex>
 #include <QScrollBar>
@@ -53,6 +54,7 @@
 
 #include <Application.h>
 #include <InstanceList.h>
+
 
 template <typename T>
 bool listsIntersect(const QList<T>& l1, const QList<T> t2)
@@ -447,23 +449,38 @@ void InstanceView::setPaintCat(bool visible)
     m_catVisible = visible;
 
     if (visible) {
-        auto catName = APPLICATION->themeManager()->getCatPack();
+        QString catName = APPLICATION->themeManager()->getCatPack();
         if (catName.endsWith(".gif")) {
+            if (m_catMovie) {
+                delete m_catMovie;
+            }
             m_catMovie = new QMovie(catName);
             m_catMovie->setCacheMode(QMovie::CacheAll);
-            m_catMovie->setProperty("loopCount", "-1");
+            m_catMovie->setProperty("loopCount", -1);
+
             if (!m_catMovie->isValid()) {
                 qWarning() << "Invalid GIF file: " << catName;
+                delete m_catMovie;
                 m_catMovie = nullptr;
             } else {
                 m_catMovie->start();
             }
+
             m_catIsScreenshot = false;
         } else {
-            m_catPixmap.load(catName);
+            if (!m_catPixmap.load(catName)) {
+                qWarning() << "Failed to load image file: " << catName;
+            }
             m_catIsScreenshot = catName.contains("screenshot");
         }
+    } else {
+        if (m_catMovie) {
+            delete m_catMovie;
+            m_catMovie = nullptr;
+        }
+        m_catPixmap = QPixmap();
     }
+
     update(); // repaint
 }
 
@@ -477,25 +494,27 @@ void InstanceView::paintEvent([[maybe_unused]] QPaintEvent* event)
         painter.setOpacity(APPLICATION->settings()->get("CatOpacity").toFloat() / 100);
         int widWidth = this->viewport()->width();
         int widHeight = this->viewport()->height();
-        if (m_catPixmap.width() < widWidth)
-            widWidth = m_catPixmap.width();
-        if (m_catPixmap.height() < widHeight)
-            widHeight = m_catPixmap.height();
 
-        QPixmap pixmap;
-        QRect rectOfPixmap;
-        if (m_catIsScreenshot) {
-            pixmap = m_catPixmap.scaled(widWidth, widHeight, Qt::KeepAspectRatioByExpanding, Qt::SmoothTransformation);
-            rectOfPixmap = pixmap.rect();
-            rectOfPixmap.moveCenter(this->viewport()->rect().center());
-        }
-        else {
-            pixmap = m_catPixmap.scaled(widWidth, widHeight, Qt::KeepAspectRatio, Qt::SmoothTransformation);
-            rectOfPixmap = pixmap.rect();
-            rectOfPixmap.moveBottomRight(this->viewport()->rect().bottomRight());
+        if (m_catMovie) {
+            QImage currentFrame = m_catMovie->currentImage();
+            if (!currentFrame.isNull()) {
+                QRect targetRect(0, 0, widWidth, widHeight);
+                painter.drawImage(targetRect, currentFrame);
+            }
+        } else if (!m_catPixmap.isNull()) {
+            if (m_catIsScreenshot) {
+                QPixmap pixmap = m_catPixmap.scaled(widWidth, widHeight, Qt::KeepAspectRatioByExpanding, Qt::SmoothTransformation);
+                QRect rectOfPixmap = pixmap.rect();
+                rectOfPixmap.moveCenter(this->viewport()->rect().center());
+                painter.drawPixmap(rectOfPixmap.topLeft(), pixmap);
+            } else {
+                QPixmap pixmap = m_catPixmap.scaled(widWidth, widHeight, Qt::KeepAspectRatio, Qt::SmoothTransformation);
+                QRect rectOfPixmap = pixmap.rect();
+                rectOfPixmap.moveBottomRight(this->viewport()->rect().bottomRight());
+                painter.drawPixmap(rectOfPixmap.topLeft(), pixmap);
+            }
         }
 
-        painter.drawPixmap(rectOfPixmap.topLeft(), pixmap);
         painter.setOpacity(1.0);
     }
 

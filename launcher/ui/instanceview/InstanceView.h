@@ -35,6 +35,7 @@
 
 #pragma once
 
+#include <qmovie.h>
 #include <QMovie>
 #include <QCache>
 #include <QLineEdit>
@@ -131,7 +132,7 @@ class InstanceView : public QAbstractItemView {
     mutable QCache<int, QRect> geometryCache;
     bool m_catVisible = false;
     QMovie* m_catMovie = nullptr;
-    QPixmap m_catPixmap;
+    QPixmap m_catPixmap = QPixmap();
     bool m_catIsScreenshot;
 
     // point where the currently active mouse action started in geometry coordinates
