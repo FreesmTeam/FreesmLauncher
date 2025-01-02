@@ -55,7 +55,6 @@
 #include <Application.h>
 #include <InstanceList.h>
 
-
 template <typename T>
 bool listsIntersect(const QList<T>& l1, const QList<T> t2)
 {
@@ -446,31 +445,23 @@ void InstanceView::mouseDoubleClickEvent(QMouseEvent* event)
 
 void InstanceView::setPaintCat(bool visible)
 {
-    if (m_catVisible == visible) {
-        return;
-    }
-
     m_catVisible = visible;
 
     if (!visible) {
-        if (m_catMovie) {
-            delete m_catMovie;
-            m_catMovie = nullptr;
-        }
+        m_catMovie->stop();
+        delete m_catMovie;
+        m_catMovie = nullptr;
         m_catPixmap = QPixmap();
-        update();
         return;
     }
 
     const QString& catName = APPLICATION->themeManager()->getCatPack();
-    emit catPackChanged();
     if (catName.endsWith(".gif")) {
         if (m_catMovie) {
             delete m_catMovie;
         }
 
         m_catMovie = new QMovie(catName);
-        m_catMovie->setCacheMode(QMovie::CacheAll);
         m_catMovie->setProperty("loopCount", -1);
 
         if (!m_catMovie->isValid()) {
@@ -488,17 +479,7 @@ void InstanceView::setPaintCat(bool visible)
         m_catIsScreenshot = catName.contains("screenshot");
     }
 
-    update(); // repaint
-}
-
-void InstanceView::updateCatPack()
-{
-    const QString& catName = APPLICATION->themeManager()->getCatPack();
-
-    if (!catName.isEmpty()) {
-        setPaintCat(m_catVisible);  // Перезагружаем отображение
-    }
-    update();  // Обновляем интерфейс
+    update();  // repaint
 }
 
 void InstanceView::paintEvent([[maybe_unused]] QPaintEvent* event)
