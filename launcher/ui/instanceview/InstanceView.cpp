@@ -463,7 +463,7 @@ void InstanceView::setPaintCat(bool visible)
     }
 
     const QString& catName = APPLICATION->themeManager()->getCatPack();
-
+    emit catPackChanged();
     if (catName.endsWith(".gif")) {
         if (m_catMovie) {
             delete m_catMovie;
@@ -484,10 +484,21 @@ void InstanceView::setPaintCat(bool visible)
         m_catIsScreenshot = false;
     } else {
         m_catPixmap.load(catName);
+        // TODO: change "screenshot" to "fullscreen"
         m_catIsScreenshot = catName.contains("screenshot");
     }
 
     update(); // repaint
+}
+
+void InstanceView::updateCatPack()
+{
+    const QString& catName = APPLICATION->themeManager()->getCatPack();
+
+    if (!catName.isEmpty()) {
+        setPaintCat(m_catVisible);  // Перезагружаем отображение
+    }
+    update();  // Обновляем интерфейс
 }
 
 void InstanceView::paintEvent([[maybe_unused]] QPaintEvent* event)

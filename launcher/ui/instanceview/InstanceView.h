@@ -79,6 +79,7 @@ class InstanceView : public QAbstractItemView {
     virtual QRegion visualRegionForSelection(const QItemSelection& selection) const override;
 
     int spacing() const { return m_spacing; };
+    void updateCatPack()
     void setPaintCat(bool visible);
 
    public slots:
@@ -95,6 +96,7 @@ class InstanceView : public QAbstractItemView {
    signals:
     void droppedURLs(QList<QUrl> urls);
     void groupStateChanged(QString group, bool collapsed);
+    void catPackChanged();
 
    protected:
     bool isIndexHidden(const QModelIndex& index) const override;
