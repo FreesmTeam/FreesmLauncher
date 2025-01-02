@@ -458,7 +458,7 @@ void InstanceView::setPaintCat(bool visible)
             m_catPixmap = QPixmap();
         }
 
-        if (catName.endsWith(".gif")) {
+        if (catName.endsWith(".gif") || catName.endsWith("-gif")) {
             m_catMovie = new QMovie(catName);
             m_catMovie->setProperty("loopCount", -1);
 

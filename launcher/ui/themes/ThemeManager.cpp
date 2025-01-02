@@ -305,7 +305,11 @@ void ThemeManager::initializeCatPacks()
                                                     { "rory-flat", QObject::tr("Rory ID 11 (flat edition, drawn by Ashtaka)") },
                                                     { "teawie", QObject::tr("Teawie (drawn by SympathyTea)") } };
     for (auto [id, name] : defaultCats) {
-        addCatPack(std::unique_ptr<CatPack>(new BasicCatPack(id, name)));
+        if (id.endsWith("-gif")) {
+            addCatPack(std::unique_ptr<CatPack>(new GifCatPack(id, name)));
+        } else {
+            addCatPack(std::unique_ptr<CatPack>(new BasicCatPack(id)));
+        }
     }
     if (!m_catPacksFolder.mkpath("."))
         themeWarningLog() << "Couldn't create catpacks folder";
