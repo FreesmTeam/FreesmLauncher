@@ -466,7 +466,7 @@ void InstanceView::setPaintCat(bool visible)
                 delete m_catMovie;
                 m_catMovie = nullptr;
             } else {
-                connect(m_catMovie, &QMovie::frameChanged, this, QOverload<>::of(&InstanceView::update));
+                connect(m_catMovie, &QMovie::frameChanged, this, [this](int) { this->update(); });
                 m_catMovie->start();
             }
 
