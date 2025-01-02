@@ -1,0 +1,23 @@
+"[0]:Inner":
+- changed-files:
+  - any-glob-to-any-file: './**,!./libraries/**'
+
+"[0]:3rd Party":
+- changed-files:
+  - any-glob-to-any-file: './libraries/**'
+
+
+"[1]:Flatpak-related":
+- head-branch: [ 'flatpak' ]
+- changed-files:
+  - any-glob-to-any-file: './flatpak/**'
+
+"[1]:Nix-related":
+- head-branch: [ 'nix' ]
+- changed-files:
+  - any-glob-to-any-file: './nix/**'
+
+
+"[2]:PR":
+- changed-files:
+  - any-glob-to-any-file: './**'
