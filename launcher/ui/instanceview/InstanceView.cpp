@@ -445,13 +445,26 @@ void InstanceView::mouseDoubleClickEvent(QMouseEvent* event)
 void InstanceView::setPaintCat(bool visible)
 {
     m_catVisible = visible;
+
     if (visible) {
         auto catName = APPLICATION->themeManager()->getCatPack();
-        m_catPixmap.load(catName);
-        m_catIsScreenshot = catName.contains("screenshot");
-    } else {
-        m_catPixmap = QPixmap();
+        if (catName.endsWith(".gif")) {
+            m_catMovie = new QMovie(catName);
+            m_catMovie->setCacheMode(QMovie::CacheAll);
+            m_catMovie->setProperty("loopCount", "-1");
+            if (!m_catMovie->isValid()) {
+                qWarning() << "Invalid GIF file: " << catName;
+                m_catMovie = nullptr;
+            } else {
+                m_catMovie->start();
+            }
+            m_catIsScreenshot = false;
+        } else {
+            m_catPixmap.load(catName);
+            m_catIsScreenshot = catName.contains("screenshot");
+        }
     }
+    update(); // repaint
 }
 
 void InstanceView::paintEvent([[maybe_unused]] QPaintEvent* event)
