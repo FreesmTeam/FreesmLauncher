@@ -448,7 +448,8 @@ void InstanceView::setPaintCat(bool visible)
     if (visible) {
         const auto catName = APPLICATION->themeManager()->getCatPack();
         m_catPixmap.load(catName);
-        m_catIsScreenshot = catName.contains("screenshot");
+        m_catIsScreenshot = catName.contains("screenshot", Qt::CaseInsensitive) ||
+                            catName.contains("fullscreen", Qt::CaseInsensitive);
     } else {
         m_catPixmap = QPixmap();
     }
