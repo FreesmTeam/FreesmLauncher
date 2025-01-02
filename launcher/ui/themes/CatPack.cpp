@@ -82,6 +82,13 @@ GifCatPack::GifCatPack(const QFileInfo& fileInfo) : BasicCatPack(fileInfo.dir().
     m_movie = new QMovie(m_path);
 }
 
+GifCatPack::GifCatPack(QString id, QString name) : BasicCatPack(id)
+{
+    m_name = name;
+    m_path = QString(":/backgrounds/%1").arg(id);
+    m_movie = new QMovie(m_path);
+}
+
 void GifCatPack::displayCat(QPainter& painter)
 {
     if (!m_movie) {
