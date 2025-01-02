@@ -2,7 +2,7 @@
 <RCC version="1.0">
     <qresource prefix="/backgrounds">
         <file alias="miside-screenshot">miside-screenshot.png</file>
-        <file alias="maxwell-christmas">maxwell-christmas.gif</file>
+        <file alias="maxwell-christmas-gif">maxwell-christmas.gif</file>
         <file alias="typescript">typescript.png</file>
         <file alias="kitteh">kitteh.png</file>
         <file alias="kitteh-xmas">kitteh-xmas.png</file>
