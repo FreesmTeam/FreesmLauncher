@@ -446,9 +446,10 @@ void InstanceView::setPaintCat(bool visible)
 {
     m_catVisible = visible;
     if (visible) {
-        auto catName = APPLICATION->themeManager()->getCatPack();
+        const auto catName = APPLICATION->themeManager()->getCatPack();
         m_catPixmap.load(catName);
-        m_catIsScreenshot = catName.contains("screenshot");
+        m_catIsScreenshot = catName.contains("screenshot", Qt::CaseInsensitive) ||
+                            catName.contains("fullscreen", Qt::CaseInsensitive);
     } else {
         m_catPixmap = QPixmap();
     }
@@ -464,10 +465,12 @@ void InstanceView::paintEvent([[maybe_unused]] QPaintEvent* event)
         painter.setOpacity(APPLICATION->settings()->get("CatOpacity").toFloat() / 100);
         int widWidth = this->viewport()->width();
         int widHeight = this->viewport()->height();
-        if (m_catPixmap.width() < widWidth)
-            widWidth = m_catPixmap.width();
-        if (m_catPixmap.height() < widHeight)
-            widHeight = m_catPixmap.height();
+        if (!m_catIsScreenshot) {
+            if (m_catPixmap.width() < widWidth)
+                widWidth = m_catPixmap.width();
+            if (m_catPixmap.height() < widHeight)
+                widHeight = m_catPixmap.height();
+        }
 
         QPixmap pixmap;
         QRect rectOfPixmap;
@@ -475,8 +478,7 @@ void InstanceView::paintEvent([[maybe_unused]] QPaintEvent* event)
             pixmap = m_catPixmap.scaled(widWidth, widHeight, Qt::KeepAspectRatioByExpanding, Qt::SmoothTransformation);
             rectOfPixmap = pixmap.rect();
             rectOfPixmap.moveCenter(this->viewport()->rect().center());
-        }
-        else {
+        } else {
             pixmap = m_catPixmap.scaled(widWidth, widHeight, Qt::KeepAspectRatio, Qt::SmoothTransformation);
             rectOfPixmap = pixmap.rect();
             rectOfPixmap.moveBottomRight(this->viewport()->rect().bottomRight());
