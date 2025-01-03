@@ -69,6 +69,7 @@
             buildInputs = [
               pkgs.ccache
               pkgs.ninja
+              pkgs.llvmPackages_19.clang-tools
             ];
           };
         }
