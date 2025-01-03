@@ -21,7 +21,10 @@ if(UNIX)
 endif()
 set(CMAKE_JAVA_TARGET_OUTPUT_DIR ${PROJECT_BINARY_DIR}/jars)
 
+set(CMAKE_CXX_COMPILER_LAUNCHER ccache)
+
 ######## Set compiler flags ########
+
 set(CMAKE_CXX_STANDARD_REQUIRED true)
 set(CMAKE_C_STANDARD_REQUIRED true)
 set(CMAKE_CXX_STANDARD 17)
@@ -81,6 +84,10 @@ else()
     endif()
 endif()
 
+# Enable clang-tidy
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+set(CMAKE_CXX_CLANG_TIDY "clang-tidy;-checks=modernize-*")
+
 # Fix build with Qt 5.13
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DQT_NO_DEPRECATED_WARNINGS=Y")
 
@@ -89,8 +96,14 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DQT_DISABLE_DEPRECATED_BEFORE=0x050C00"
 # Fix aarch64 build for toml++
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DTOML_ENABLE_FLOAT16=0")
 
+# Set optimisations
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O2 -march=native -mtune=native")
+
+# Enable parrallel build (equals to number of cores)
+set(CMAKE_BUILD_PARRALEL_LEVEL cmake_host_system_information(RESULT core_count QUERY NUMBER_OF_LOGICAL_CORES))
+
 # set CXXFLAGS for build targets
-set(CMAKE_CXX_FLAGS_RELEASE "-O2 -D_FORTIFY_SOURCE=2 ${CMAKE_CXX_FLAGS_RELEASE}")
+set(CMAKE_CXX_FLAGS_RELEASE "-D_FORTIFY_SOURCE=2 ${CMAKE_CXX_FLAGS_RELEASE}")
 
 option(DEBUG_ADDRESS_SANITIZER "Enable Address Sanitizer in Debug builds" OFF)
 
@@ -125,7 +138,7 @@ if ((CMAKE_BUILD_TYPE STREQUAL "Debug" OR CMAKE_BUILD_TYPE STREQUAL "RelWithDebI
 endif()
 
 
-option(ENABLE_LTO "Enable Link Time Optimization" off)
+option(ENABLE_LTO "Enable Link Time Optimization" on)
 
 if(ENABLE_LTO)
     include(CheckIPOSupported)
@@ -203,7 +216,7 @@ set(Launcher_META_URL "https://meta.prismlauncher.org/v1/" CACHE STRING "URL to 
 set(Launcher_IMGUR_CLIENT_ID "5b97b0713fba4a3" CACHE STRING "Client ID you can get from Imgur when you register an application")
 
 # Bug tracker URL
-set(Launcher_BUG_TRACKER_URL "https://github.com/PrismLauncher/PrismLauncher/issues" CACHE STRING "URL for the bug tracker.")
+set(Launcher_BUG_TRACKER_URL "https://github.com/FreesmTeam/FreesmLauncher/issues" CACHE STRING "URL for the bug tracker.")
 
 # Translations Platform URL
 set(Launcher_TRANSLATIONS_URL "https://hosted.weblate.org/projects/prismlauncher/launcher/" CACHE STRING "URL for the translations platform.")
