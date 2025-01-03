@@ -85,8 +85,8 @@ else()
 endif()
 
 # Enable clang-tidy
-set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
-set(CMAKE_CXX_CLANG_TIDY "clang-tidy;-checks=modernize-*")
+# set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+# set(CMAKE_CXX_CLANG_TIDY "clang-tidy;-checks=modernize-*")
 
 # Fix build with Qt 5.13
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DQT_NO_DEPRECATED_WARNINGS=Y")
