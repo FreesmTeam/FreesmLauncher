@@ -76,19 +76,6 @@ JsonCatPack::PartialDate partialDate(QJsonObject date)
     return { month, day };
 };
 
-GifCatPack::GifCatPack(const QFileInfo& fileInfo) : BasicCatPack(fileInfo.fileName(), fileInfo.fileName().replace(".gif", "")) {
-    m_name = fileInfo.baseName();
-    m_path = fileInfo.absoluteFilePath();
-    m_movie = new QMovie(m_path);
-}
-
-GifCatPack::GifCatPack(QString id, QString name) : BasicCatPack(id, name)
-{
-    m_name = name;
-    m_path = QString(":/backgrounds/%1").arg(id);
-    m_movie = new QMovie(m_path);
-}
-
 void GifCatPack::displayCat(QPainter& painter)
 {
     if (!m_movie) {
