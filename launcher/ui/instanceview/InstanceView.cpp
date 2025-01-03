@@ -476,8 +476,9 @@ void InstanceView::setPaintCat(bool visible)
         } else {
             m_catPixmap = QPixmap();
             m_catPixmap.load(catName);
-            m_catIsScreenshot = catName.contains("screenshot", Qt::CaseInsensitive) || catName.contains("fullscreen", Qt::CaseInsensitive);
         }
+
+        m_catIsScreenshot = catName.contains("screenshot", Qt::CaseInsensitive) || catName.contains("fullscreen", Qt::CaseInsensitive);
 
         update();  // repaint
     } else {
