@@ -458,7 +458,7 @@ void InstanceView::setPaintCat(bool visible)
             m_catPixmap = QPixmap();
         }
 
-        if (catName.endsWith(".gif") || catName.endsWith("-gif")) {
+        if (catName.endsWith("gif")) {
             m_catMovie = new QMovie(catName);
             m_catMovie->setProperty("loopCount", -1);
 
@@ -510,7 +510,7 @@ void InstanceView::paintEvent([[maybe_unused]] QPaintEvent* event)
                 rectOfPixmap.moveCenter(this->viewport()->rect().center());
                 painter.drawPixmap(rectOfPixmap.topLeft(), pixmap);
             } else {
-                QPixmap pixmap = m_catPixmap.scaled(widWidth, widHeight, Qt::KeepAspectRatio, Qt::SmoothTransformation);
+                QPixmap pixmap = m_catPixmap.scaled(m_catPixmap.width(), m_catPixmap.height(), Qt::KeepAspectRatio, Qt::SmoothTransformation);
                 QRect rectOfPixmap = pixmap.rect();
                 rectOfPixmap.moveBottomRight(this->viewport()->rect().bottomRight());
                 painter.drawPixmap(rectOfPixmap.topLeft(), pixmap);
