@@ -487,6 +487,12 @@ void InstanceView::setPaintCat(bool visible)
     }
 }
 
+/**
+ * Handles the paint event for the InstanceView.
+ * Paints the cat image if visible, and draws the visual representation of the model.
+ *
+ * @param event The paint event.
+ */
 void InstanceView::paintEvent([[maybe_unused]] QPaintEvent* event)
 {
     executeDelayedItemsLayout();
@@ -494,37 +500,37 @@ void InstanceView::paintEvent([[maybe_unused]] QPaintEvent* event)
     QPainter painter(this->viewport());
 
     if (m_catVisible) {
+        // Set the opacity for the cat image
         painter.setOpacity(APPLICATION->settings()->get("CatOpacity").toFloat() / 100);
         int widWidth = this->viewport()->width();
         int widHeight = this->viewport()->height();
 
-        if (m_catMovie) {
-            QImage currentFrame = m_catMovie->currentImage();
-            if (m_catIsScreenshot) {
-                QImage image = currentFrame.scaled(widWidth, widHeight, Qt::KeepAspectRatioByExpanding, Qt::SmoothTransformation);
-                QRect rectOfImage = image.rect();
-                rectOfImage.moveCenter(this->viewport()->rect().center());
-                painter.drawImage(rectOfImage.topLeft(), image);
-            } else {
-                QImage image = currentFrame.scaled(widWidth, widHeight, Qt::KeepAspectRatio, Qt::SmoothTransformation);
-                QRect rectOfImage = image.rect();
-                rectOfImage.moveBottomRight(this->viewport()->rect().bottomRight());
-                painter.drawImage(rectOfImage.topLeft(), image);
-            }
-        } else if (!m_catPixmap.isNull()) {
-            if (m_catIsScreenshot) {
-                QPixmap pixmap = m_catPixmap.scaled(widWidth, widHeight, Qt::KeepAspectRatioByExpanding, Qt::SmoothTransformation);
-                QRect rectOfPixmap = pixmap.rect();
-                rectOfPixmap.moveCenter(this->viewport()->rect().center());
-                painter.drawPixmap(rectOfPixmap.topLeft(), pixmap);
-            } else {
-                QPixmap pixmap = m_catPixmap.scaled(widWidth, widHeight, Qt::KeepAspectRatio, Qt::SmoothTransformation);
-                QRect rectOfPixmap = pixmap.rect();
-                rectOfPixmap.moveBottomRight(this->viewport()->rect().bottomRight());
-                painter.drawPixmap(rectOfPixmap.topLeft(), pixmap);
+        // Adjust width and height if the cat is not a screenshot
+        if (!m_catIsScreenshot) {
+            const QPixmap pixmap = m_catMovie ? m_catMovie->currentPixmap() : m_catPixmap;
+            if (!pixmap.isNull()) {
+                widWidth = std::min(widWidth, pixmap.width());
+                widHeight = std::min(widHeight, pixmap.height());
             }
         }
 
+        // Draw the cat image based on its type (animated or static)
+        if (m_catMovie && m_catMovie->state() == QMovie::Running) {
+            QPixmap currentFrame = m_catMovie->currentPixmap();
+            QPixmap pixmap = currentFrame.scaled(
+                widWidth, widHeight, m_catIsScreenshot ? Qt::KeepAspectRatioByExpanding : Qt::KeepAspectRatio, Qt::SmoothTransformation);
+            QRect rectOfPixmap = pixmap.rect();
+            rectOfPixmap.moveCenter(this->viewport()->rect().center());
+            painter.drawPixmap(rectOfPixmap, pixmap);
+        } else if (!m_catPixmap.isNull()) {
+            QPixmap pixmap = m_catPixmap.scaled(
+                widWidth, widHeight, m_catIsScreenshot ? Qt::KeepAspectRatioByExpanding : Qt::KeepAspectRatio, Qt::SmoothTransformation);
+            QRect rectOfPixmap = pixmap.rect();
+            rectOfPixmap.moveCenter(this->viewport()->rect().center());
+            painter.drawPixmap(rectOfPixmap, pixmap);
+        }
+
+        // Reset opacity after drawing the cat
         painter.setOpacity(1.0);
     }
 
@@ -536,12 +542,15 @@ void InstanceView::paintEvent([[maybe_unused]] QPaintEvent* event)
 #endif
     option.widget = this;
 
+    // Return early if the model is empty
     if (model()->rowCount() == 0) {
         return;
     }
 
     int wpWidth = viewport()->width();
     option.rect.setWidth(wpWidth);
+
+    // Draw headers for all visual groups
     for (int i = 0; i < m_groups.size(); ++i) {
         VisualGroup* category = m_groups.at(i);
         int y = category->verticalPosition();
@@ -557,6 +566,7 @@ void InstanceView::paintEvent([[maybe_unused]] QPaintEvent* event)
         option.rect = backup;
     }
 
+    // Iterate over each row in the model and paint it
     for (int i = 0; i < model()->rowCount(); ++i) {
         const QModelIndex index = model()->index(i, 0);
         if (isIndexHidden(index)) {
@@ -581,22 +591,18 @@ void InstanceView::paintEvent([[maybe_unused]] QPaintEvent* event)
      * Drop indicators for manual reordering...
      */
 #if 0
-    if (!m_lastDragPosition.isNull())
-    {
+    // Uncomment to enable drawing drop indicators
+    if (!m_lastDragPosition.isNull()) {
         std::pair<VisualGroup *, VisualGroup::HitResults> pair = rowDropPos(m_lastDragPosition);
         VisualGroup *category = pair.first;
         VisualGroup::HitResults row = pair.second;
-        if (category)
-        {
+        if (category) {
             int internalRow = row - category->firstItemIndex;
             QLine line;
-            if (internalRow >= category->numItems())
-            {
+            if (internalRow >= category->numItems()) {
                 QRect toTheRightOfRect = visualRect(category->lastItem());
                 line = QLine(toTheRightOfRect.topRight(), toTheRightOfRect.bottomRight());
-            }
-            else
-            {
+            } else {
                 QRect toTheLeftOfRect = visualRect(model()->index(row, 0));
                 line = QLine(toTheLeftOfRect.topLeft(), toTheLeftOfRect.bottomLeft());
             }
