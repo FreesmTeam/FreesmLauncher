@@ -520,13 +520,21 @@ void InstanceView::paintEvent([[maybe_unused]] QPaintEvent* event)
             QPixmap pixmap = currentFrame.scaled(
                 widWidth, widHeight, m_catIsScreenshot ? Qt::KeepAspectRatioByExpanding : Qt::KeepAspectRatio, Qt::SmoothTransformation);
             QRect rectOfPixmap = pixmap.rect();
-            rectOfPixmap.moveCenter(this->viewport()->rect().center());
+            if (m_catIsScreenshot) {
+                rectOfPixmap.moveCenter(this->viewport()->rect().center());
+            } else {
+                rectOfPixmap.moveBottomRight(this->viewport()->rect().bottomRight());
+            }
             painter.drawPixmap(rectOfPixmap, pixmap);
         } else if (!m_catPixmap.isNull()) {
             QPixmap pixmap = m_catPixmap.scaled(
                 widWidth, widHeight, m_catIsScreenshot ? Qt::KeepAspectRatioByExpanding : Qt::KeepAspectRatio, Qt::SmoothTransformation);
             QRect rectOfPixmap = pixmap.rect();
-            rectOfPixmap.moveCenter(this->viewport()->rect().center());
+            if (m_catIsScreenshot) {
+                rectOfPixmap.moveCenter(this->viewport()->rect().center());
+            } else {
+                rectOfPixmap.moveBottomRight(this->viewport()->rect().bottomRight());
+            }
             painter.drawPixmap(rectOfPixmap, pixmap);
         }
 
