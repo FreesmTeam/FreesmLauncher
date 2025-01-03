@@ -35,10 +35,10 @@
 
 #pragma once
 
-#include <QMovie>
 #include <QCache>
 #include <QLineEdit>
 #include <QListView>
+#include <QMovie>
 #include <QScrollBar>
 #include <functional>
 #include "VisualGroup.h"

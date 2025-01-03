@@ -465,12 +465,9 @@ QStringList MinecraftInstance::extraArguments()
                 glfwPath = customPath;
 
             QFileInfo glfwInfo(glfwPath);
-            if (!glfwPath.isEmpty() && glfwInfo.exists() )
-            list.append("-Dorg.lwjgl.glfw.libname=" + glfwInfo.absoluteFilePath());
+            if (!glfwPath.isEmpty() && glfwInfo.exists())
+                list.append("-Dorg.lwjgl.glfw.libname=" + glfwInfo.absoluteFilePath());
         }
-
-
-
     }
 
     return list;

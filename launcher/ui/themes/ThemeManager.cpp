@@ -27,11 +27,11 @@
 #include <QStyleFactory>
 #include "Exception.h"
 #include "ui/themes/BrightTheme.h"
-#include "ui/themes/FreesmTheme.h"
-#include "ui/themes/GruvboxTheme.h"
 #include "ui/themes/CatPack.h"
 #include "ui/themes/CustomTheme.h"
 #include "ui/themes/DarkTheme.h"
+#include "ui/themes/FreesmTheme.h"
+#include "ui/themes/GruvboxTheme.h"
 #include "ui/themes/SystemTheme.h"
 
 #include "Application.h"
@@ -336,7 +336,6 @@ void ThemeManager::initializeCatPacks()
             } else {
                 addCatPack(std::unique_ptr<CatPack>(new FileCatPack(customCatFileInfo)));
             }
-
         }
     };
 
