@@ -475,8 +475,7 @@ void InstanceView::paintEvent([[maybe_unused]] QPaintEvent* event)
             pixmap = m_catPixmap.scaled(widWidth, widHeight, Qt::KeepAspectRatioByExpanding, Qt::SmoothTransformation);
             rectOfPixmap = pixmap.rect();
             rectOfPixmap.moveCenter(this->viewport()->rect().center());
-        }
-        else {
+        } else {
             pixmap = m_catPixmap.scaled(widWidth, widHeight, Qt::KeepAspectRatio, Qt::SmoothTransformation);
             rectOfPixmap = pixmap.rect();
             rectOfPixmap.moveBottomRight(this->viewport()->rect().bottomRight());
