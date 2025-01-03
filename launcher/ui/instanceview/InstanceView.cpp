@@ -54,6 +54,8 @@
 
 #include <Application.h>
 #include <InstanceList.h>
+#include <qimage.h>
+#include <qpixmap.h>
 
 template <typename T>
 bool listsIntersect(const QList<T>& l1, const QList<T> t2)
@@ -498,10 +500,16 @@ void InstanceView::paintEvent([[maybe_unused]] QPaintEvent* event)
 
         if (m_catMovie) {
             QImage currentFrame = m_catMovie->currentImage();
-            if (!currentFrame.isNull()) {
-                QRect targetRect(0, 0, currentFrame.width(), currentFrame.height());
-                targetRect.moveBottomRight(this->viewport()->rect().bottomRight());
-                painter.drawImage(targetRect, currentFrame);
+            if (m_catIsScreenshot) {
+                QImage image = currentFrame.scaled(widWidth, widHeight, Qt::KeepAspectRatioByExpanding, Qt::SmoothTransformation);
+                QRect rectOfImage = image.rect();
+                rectOfImage.moveCenter(this->viewport()->rect().center());
+                painter.drawImage(rectOfImage.topLeft(), image);
+            } else {
+                QImage image = currentFrame.scaled(widWidth, widHeight, Qt::KeepAspectRatio, Qt::SmoothTransformation);
+                QRect rectOfImage = image.rect();
+                rectOfImage.moveBottomRight(this->viewport()->rect().bottomRight());
+                painter.drawImage(rectOfImage.topLeft(), image);
             }
         } else if (!m_catPixmap.isNull()) {
             if (m_catIsScreenshot) {
@@ -510,7 +518,7 @@ void InstanceView::paintEvent([[maybe_unused]] QPaintEvent* event)
                 rectOfPixmap.moveCenter(this->viewport()->rect().center());
                 painter.drawPixmap(rectOfPixmap.topLeft(), pixmap);
             } else {
-                QPixmap pixmap = m_catPixmap.scaled(m_catPixmap.width(), m_catPixmap.height(), Qt::KeepAspectRatio, Qt::SmoothTransformation);
+                QPixmap pixmap = m_catPixmap.scaled(widWidth, widHeight, Qt::KeepAspectRatio, Qt::SmoothTransformation);
                 QRect rectOfPixmap = pixmap.rect();
                 rectOfPixmap.moveBottomRight(this->viewport()->rect().bottomRight());
                 painter.drawPixmap(rectOfPixmap.topLeft(), pixmap);
