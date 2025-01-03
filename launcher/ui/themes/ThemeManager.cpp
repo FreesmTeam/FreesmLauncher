@@ -308,7 +308,7 @@ void ThemeManager::initializeCatPacks()
         if (id.endsWith("gif")) {
             addCatPack(std::unique_ptr<CatPack>(new GifCatPack(id, name)));
         } else {
-            addCatPack(std::unique_ptr<CatPack>(new BasicCatPack(id)));
+            addCatPack(std::unique_ptr<CatPack>(new BasicCatPack(id, name)));
         }
     }
     if (!m_catPacksFolder.mkpath("."))
