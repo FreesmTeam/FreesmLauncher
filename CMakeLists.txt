@@ -21,7 +21,7 @@ if(UNIX)
 endif()
 set(CMAKE_JAVA_TARGET_OUTPUT_DIR ${PROJECT_BINARY_DIR}/jars)
 
-set(CMAKE_CXX_COMPILER_LAUNCHER ccache)
+# set(CMAKE_CXX_COMPILER_LAUNCHER ccache)
 
 ######## Set compiler flags ########
 
