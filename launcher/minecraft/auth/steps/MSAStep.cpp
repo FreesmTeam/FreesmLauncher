@@ -85,7 +85,7 @@ class CustomOAuthOobReplyHandler : public QOAuthOobReplyHandler {
 MSAStep::MSAStep(AccountData* data, bool silent) : AuthStep(data), m_silent(silent)
 {
     m_clientId = APPLICATION->getMSAClientID();
-    if (QCoreApplication::applicationFilePath().startsWith("/tmp/.mount_") || APPLICATION->isPortable() || !isSchemeHandlerRegistered())
+    if (QCoreApplication::applicationFilePath().startsWith("/tmp/.mount_") || APPLICATION->isPortable() || !APPLICATION->isPortable() || !isSchemeHandlerRegistered())
 
     {
         auto replyHandler = new QOAuthHttpServerReplyHandler(this);
