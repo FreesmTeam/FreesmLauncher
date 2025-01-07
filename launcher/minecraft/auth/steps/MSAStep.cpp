@@ -67,29 +67,11 @@ bool isSchemeHandlerRegistered()
     return true;
 }
 
-class CustomOAuthOobReplyHandler : public QOAuthOobReplyHandler {
-    Q_OBJECT
-
-   public:
-    explicit CustomOAuthOobReplyHandler(QObject* parent = nullptr) : QOAuthOobReplyHandler(parent)
-    {
-        connect(APPLICATION, &Application::oauthReplyRecieved, this, &QOAuthOobReplyHandler::callbackReceived);
-    }
-    ~CustomOAuthOobReplyHandler() override
-    {
-        disconnect(APPLICATION, &Application::oauthReplyRecieved, this, &QOAuthOobReplyHandler::callbackReceived);
-    }
-    QString callback() const override { return BuildConfig.LAUNCHER_APP_BINARY_NAME + "://oauth/microsoft"; }
-};
-
 MSAStep::MSAStep(AccountData* data, bool silent) : AuthStep(data), m_silent(silent)
 {
     m_clientId = APPLICATION->getMSAClientID();
-    if (QCoreApplication::applicationFilePath().startsWith("/tmp/.mount_") || APPLICATION->isPortable() || !APPLICATION->isPortable() || !isSchemeHandlerRegistered())
-
-    {
-        auto replyHandler = new QOAuthHttpServerReplyHandler(this);
-        replyHandler->setCallbackText(QString(R"XXX(
+    auto replyHandler = new QOAuthHttpServerReplyHandler(this);
+    replyHandler->setCallbackText(QString(R"XXX(
     <noscript>
       <meta http-equiv="Refresh" content="0; URL=%1" />
     </noscript>
@@ -97,12 +79,8 @@ MSAStep::MSAStep(AccountData* data, bool silent) : AuthStep(data), m_silent(sile
     <script>
       window.location.replace("%1");
     </script>
-    )XXX")
-                                          .arg(BuildConfig.LOGIN_CALLBACK_URL));
-        oauth2.setReplyHandler(replyHandler);
-    } else {
-        oauth2.setReplyHandler(new CustomOAuthOobReplyHandler(this));
-    }
+    )XXX").arg(BuildConfig.LOGIN_CALLBACK_URL));
+    oauth2.setReplyHandler(replyHandler);
     oauth2.setAuthorizationUrl(QUrl("https://login.microsoftonline.com/consumers/oauth2/v2.0/authorize"));
     oauth2.setAccessTokenUrl(QUrl("https://login.microsoftonline.com/consumers/oauth2/v2.0/token"));
     oauth2.setScope("XboxLive.SignIn XboxLive.offline_access");
