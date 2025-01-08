@@ -468,7 +468,7 @@ void InstanceView::setPaintCat(bool visible)
                 delete m_catMovie;
                 m_catMovie = nullptr;
             } else {
-                connect(m_catMovie, &QMovie::frameChanged, this, [this](int) { this->update(); });
+                connect(m_catMovie, &QMovie::frameChanged, this, [this](int) { this->viewport()->update(); });
                 m_catMovie->start();
             }
 
@@ -480,7 +480,7 @@ void InstanceView::setPaintCat(bool visible)
 
         m_catIsScreenshot = catName.contains("screenshot", Qt::CaseInsensitive) || catName.contains("fullscreen", Qt::CaseInsensitive);
 
-        update();  // repaint
+        viewport()->update();  // repaint
     } else {
         delete m_catMovie;
         m_catMovie = nullptr;
