@@ -18,17 +18,37 @@
 
 #include "SkinModel.h"
 #include <QFileInfo>
-#include <QImage>
 #include <QPainter>
-#include <QTransform>
 
 #include "FileSystem.h"
 #include "Json.h"
 
-SkinModel::SkinModel(QString path) : m_path(path), m_texture(path), m_model(Model::CLASSIC) {}
+QImage improveSkin(const QImage& skin)
+{
+    if (skin.size() == QSize(64, 32)) {  // old format
+        QImage newSkin = QImage(QSize(64, 64), skin.format());
+        newSkin.fill(Qt::transparent);
+        QPainter p(&newSkin);
+        p.drawImage(QPoint(0, 0), skin.copy(QRect(0, 0, 64, 32)));  // copy head
+
+        auto leg = skin.copy(QRect(0, 16, 16, 16));
+        p.drawImage(QPoint(16, 48), leg);  // copy leg
+
+        auto arm = skin.copy(QRect(40, 16, 16, 16));
+        p.drawImage(QPoint(32, 48), arm);  // copy arm
+        return newSkin;
+    }
+    return skin;
+}
+QImage getSkin(const QString path)
+{
+    return improveSkin(QImage(path));
+}
+
+SkinModel::SkinModel(QString path) : m_path(path), m_texture(getSkin(path)), m_model(Model::CLASSIC) {}
 
 SkinModel::SkinModel(QDir skinDir, QJsonObject obj)
-    : m_cape_id(Json::ensureString(obj, "capeId")), m_model(Model::CLASSIC), m_url(Json::ensureString(obj, "url"))
+    : m_capeId(Json::ensureString(obj, "capeId")), m_model(Model::CLASSIC), m_url(Json::ensureString(obj, "url"))
 {
     auto name = Json::ensureString(obj, "name");
 
@@ -36,7 +56,7 @@ SkinModel::SkinModel(QDir skinDir, QJsonObject obj)
         m_model = Model::SLIM;
     }
     m_path = skinDir.absoluteFilePath(name) + ".png";
-    m_texture = QPixmap(m_path);
+    m_texture = QImage(getSkin(m_path));
 }
 
 QString SkinModel::name() const
@@ -55,7 +75,7 @@ QJsonObject SkinModel::toJSON() const
 {
     QJsonObject obj;
     obj["name"] = name();
-    obj["capeId"] = m_cape_id;
+    obj["capeId"] = m_capeId;
     obj["url"] = m_url;
     obj["model"] = getModelString();
     return obj;
@@ -75,4 +95,8 @@ QString SkinModel::getModelString() const
 bool SkinModel::isValid() const
 {
     return !m_texture.isNull() && (m_texture.size().height() == 32 || m_texture.size().height() == 64) && m_texture.size().width() == 64;
+}
+void SkinModel::refresh()
+{
+    m_texture = getSkin(m_path);
 }

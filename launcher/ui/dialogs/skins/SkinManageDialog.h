@@ -24,6 +24,7 @@
 
 #include "minecraft/auth/MinecraftAccount.h"
 #include "minecraft/skins/SkinList.h"
+#include "minecraft/skins/SkinModel.h"
 
 namespace Ui {
 class SkinManageDialog;
@@ -35,6 +36,9 @@ class SkinManageDialog : public QDialog {
     explicit SkinManageDialog(QWidget* parent, MinecraftAccountPtr acct);
     virtual ~SkinManageDialog();
     void resizeEvent(QResizeEvent* event) override;
+
+    SkinModel* getSelectedSkin();
+    QHash<QString, QImage> capes();
 
    public slots:
     void selectionChanged(QItemSelection, QItemSelection);
@@ -57,9 +61,9 @@ class SkinManageDialog : public QDialog {
     void setupCapes();
 
     MinecraftAccountPtr m_acct;
-    Ui::SkinManageDialog* ui;
+    Ui::SkinManageDialog* m_ui;
     SkinList m_list;
-    QString m_selected_skin;
-    QHash<QString, QPixmap> m_capes;
-    QHash<QString, int> m_capes_idx;
+    QString m_selectedSkinKey;
+    QHash<QString, QImage> m_capes;
+    QHash<QString, int> m_capesIdx;
 };

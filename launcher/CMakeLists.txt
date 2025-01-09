@@ -1076,6 +1076,13 @@ SET(LAUNCHER_SOURCES
     ui/dialogs/skins/SkinManageDialog.cpp
     ui/dialogs/skins/SkinManageDialog.h
 
+    ui/dialogs/skins/draw/SkinOpenGLWidget.h
+    ui/dialogs/skins/draw/SkinOpenGLWidget.cpp
+    ui/dialogs/skins/draw/Scene.h
+    ui/dialogs/skins/draw/Scene.cpp
+    ui/dialogs/skins/draw/BoxGeometry.h
+    ui/dialogs/skins/draw/BoxGeometry.cpp
+
     # GUI - widgets
     ui/widgets/CheckComboBox.cpp
     ui/widgets/CheckComboBox.h
@@ -1295,6 +1302,8 @@ target_link_libraries(Launcher_logic
     Qt${QT_VERSION_MAJOR}::Gui
     Qt${QT_VERSION_MAJOR}::Widgets
     Qt${QT_VERSION_MAJOR}::NetworkAuth
+    Qt${QT_VERSION_MAJOR}::OpenGL
+    Qt${QT_VERSION_MAJOR}::OpenGLWidgets
     ${Launcher_QT_DBUS}
     ${Launcher_QT_LIBS}
 )
