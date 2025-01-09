@@ -13,3 +13,7 @@
 [fractal](https://github.com/fractal)
 
 <!-- say little about youself here -->
+
+[so5iso4ka](https://github.com/so5iso4ka)
+
+<!-- say little about youself here -->
