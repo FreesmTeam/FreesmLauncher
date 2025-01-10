@@ -7,6 +7,7 @@
 #include <QOpenGLWidget>
 #include <QVector2D>
 #include "minecraft/skins/SkinModel.h"
+#include "ui/dialogs/skins/draw/BoxGeometry.h"
 #include "ui/dialogs/skins/draw/Scene.h"
 
 class SkinOpenGLWidget : public QOpenGLWidget, protected QOpenGLFunctions {
@@ -30,7 +31,7 @@ class SkinOpenGLWidget : public QOpenGLWidget, protected QOpenGLFunctions {
 
     void initShaders();
 
-    GLuint generateChessboardTexture(int width, int height, int tileSize);
+    void generateBackgroundTexture(int width, int height, int tileSize);
     void renderBackground();
 
    private:
@@ -44,6 +45,6 @@ class SkinOpenGLWidget : public QOpenGLWidget, protected QOpenGLFunctions {
     bool m_isMousePressed = false;
     int m_rotationX = 0, m_rotationY = 0;
 
-    // background
-    GLuint m_chessboardTexture;
+    opengl::BoxGeometry* m_background = nullptr;
+    QOpenGLTexture* m_backgroundTexture = nullptr;
 };

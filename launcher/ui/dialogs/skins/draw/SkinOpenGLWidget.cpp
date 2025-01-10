@@ -6,6 +6,7 @@
 #include <QVector3D>
 #include "minecraft/skins/SkinModel.h"
 #include "ui/dialogs/skins/SkinManageDialog.h"
+#include "ui/dialogs/skins/draw/BoxGeometry.h"
 #include "ui/dialogs/skins/draw/Scene.h"
 
 SkinOpenGLWidget::~SkinOpenGLWidget()
@@ -14,7 +15,9 @@ SkinOpenGLWidget::~SkinOpenGLWidget()
     // and the buffers.
     makeCurrent();
     delete m_scene;
-    glDeleteTextures(1, &m_chessboardTexture);
+    delete m_background;
+    m_backgroundTexture->destroy();
+    delete m_backgroundTexture;
     doneCurrent();
 }
 
@@ -38,7 +41,7 @@ void SkinOpenGLWidget::mouseMoveEvent(QMouseEvent* event)
         update();  // Trigger a repaint
     }
 }
-void SkinOpenGLWidget::mouseReleaseEvent(QMouseEvent* e)
+void SkinOpenGLWidget::mouseReleaseEvent([[maybe_unused]] QMouseEvent* e)
 {
     m_isMousePressed = false;
 }
@@ -51,7 +54,7 @@ void SkinOpenGLWidget::initializeGL()
 
     initShaders();
 
-    m_chessboardTexture = generateChessboardTexture(512, 512, 16);
+    generateBackgroundTexture(32, 32, 1);
 
     QImage skin, cape;
     bool slim = false;
@@ -64,6 +67,7 @@ void SkinOpenGLWidget::initializeGL()
     }
 
     m_scene = new opengl::Scene(skin, slim, cape);
+    m_background = opengl::BoxGeometry::Plane();
     glEnable(GL_TEXTURE_2D);
 }
 
@@ -115,10 +119,9 @@ void SkinOpenGLWidget::paintGL()
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-    renderBackground();
-
     m_program.bind();
 
+    renderBackground();
     // Calculate model view transformation
     QMatrix4x4 matrix;
     matrix.translate(0.0, 6.0, -50.);
@@ -149,47 +152,36 @@ void SkinOpenGLWidget::updateCape(const QImage& cape)
     }
 }
 
-GLuint SkinOpenGLWidget::generateChessboardTexture(int width, int height, int tileSize)
+QImage generateChessboardImage(int width, int height, int tileSize)
 {
-    std::vector<unsigned char> textureData(width * height * 3);
+    QImage image(width, height, QImage::Format_RGB888);
 
     for (int y = 0; y < height; ++y) {
         for (int x = 0; x < width; ++x) {
             bool isWhite = ((x / tileSize) % 2) == ((y / tileSize) % 2);
             unsigned char color = isWhite ? 100 : 50;
 
-            int index = (y * width + x) * 3;
-            textureData[index] = color;      // Red
-            textureData[index + 1] = color;  // Green
-            textureData[index + 2] = color;  // Blue
+            image.setPixelColor(x, y, QColor(color, color, color));
         }
     }
+    return image;
+}
 
-    GLuint texture;
-    glGenTextures(1, &texture);
-    glBindTexture(GL_TEXTURE_2D, texture);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, textureData.data());
-
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-    return texture;
+void SkinOpenGLWidget::generateBackgroundTexture(int width, int height, int tileSize)
+{
+    m_backgroundTexture = new QOpenGLTexture(generateChessboardImage(width, height, tileSize));
+    m_backgroundTexture->setMinificationFilter(QOpenGLTexture::Nearest);
+    m_backgroundTexture->setMagnificationFilter(QOpenGLTexture::Nearest);
 }
 
 void SkinOpenGLWidget::renderBackground()
 {
     glDepthMask(GL_FALSE);  // Disable depth buffer writing
-    glBindTexture(GL_TEXTURE_2D, m_chessboardTexture);
-
-    glBegin(GL_QUADS);
-    glTexCoord2f(0.0f, 0.0f);
-    glVertex3f(-1.0f, -1.0f, -0.5f);  // Bottom-left
-    glTexCoord2f(1.0f, 0.0f);
-    glVertex3f(1.0f, -1.0f, -0.5f);  // Bottom-right
-    glTexCoord2f(1.0f, 1.0f);
-    glVertex3f(1.0f, 1.0f, -0.5f);  // Top-right
-    glTexCoord2f(0.0f, 1.0f);
-    glVertex3f(-1.0f, 1.0f, -0.5f);  // Top-left
-    glEnd();
+    m_backgroundTexture->bind();
+    QMatrix4x4 matrix;
+    m_program.setUniformValue("mvp_matrix", matrix);
+    m_program.setUniformValue("texture", 0);
+    m_background->draw(&m_program);
+    m_backgroundTexture->release();
     glDepthMask(GL_TRUE);  // Re-enable depth buffer writing
 }

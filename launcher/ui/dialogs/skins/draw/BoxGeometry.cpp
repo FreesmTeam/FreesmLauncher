@@ -68,6 +68,16 @@ static const QVector<GLushort> indices = {
     20, 20, 21, 22, 23       // Face 5 - triangle strip (v20, v21, v22, v23)
 };
 
+static const QVector<VertexData> planeVertices = {
+    { QVector4D(-1.0f, -1.0f, -0.5f, 1.0f), QVector2D(0.0f, 0.0f) },  // Bottom-left
+    { QVector4D(1.0f, -1.0f, -0.5f, 1.0f), QVector2D(1.0f, 0.0f) },   // Bottom-right
+    { QVector4D(-1.0f, 1.0f, -0.5f, 1.0f), QVector2D(0.0f, 1.0f) },   // Top-left
+    { QVector4D(1.0f, 1.0f, -0.5f, 1.0f), QVector2D(1.0f, 1.0f) },    // Top-right
+};
+static const QVector<GLushort> planeIndices = {
+    0, 1, 2, 3, 3  // Face 0 - triangle strip ( v0,  v1,  v2,  v3)
+};
+
 QVector<QVector4D> transformVectors(const QMatrix4x4& matrix, const QVector<QVector4D>& vectors)
 {
     QVector<QVector4D> transformedVectors;
@@ -117,7 +127,6 @@ QVector<QVector2D> getCubeUVs(float u, float v, float width, float height, float
         left[2],
     };
     auto uvTop = {
-
         top[0],
         top[1],
         top[3],
@@ -198,7 +207,7 @@ void BoxGeometry::draw(QOpenGLShaderProgram* program)
     program->setAttributeBuffer(texcoordLocation, GL_FLOAT, offset, 2, sizeof(VertexData));
 
     // Draw cube geometry using indices from VBO 1
-    glDrawElements(GL_TRIANGLE_STRIP, indices.size(), GL_UNSIGNED_SHORT, nullptr);
+    glDrawElements(GL_TRIANGLE_STRIP, m_indecesCount, GL_UNSIGNED_SHORT, nullptr);
 }
 
 void BoxGeometry::initGeometry(float u, float v, float width, float height, float depth, float textureWidth, float textureHeight)
@@ -226,10 +235,27 @@ void BoxGeometry::initGeometry(float u, float v, float width, float height, floa
     // Transfer index data to VBO 1
     m_indexBuf.bind();
     m_indexBuf.allocate(indices.constData(), indices.size() * sizeof(GLushort));
+    m_indecesCount = indices.size();
 }
 
 void BoxGeometry::rotate(float angle, const QVector3D& vector)
 {
     m_matrix.rotate(angle, vector);
+}
+
+BoxGeometry* BoxGeometry::Plane()
+{
+    auto b = new BoxGeometry(QVector3D(), QVector3D());
+
+    // Transfer vertex data to VBO 0
+    b->m_vertexBuf.bind();
+    b->m_vertexBuf.allocate(planeVertices.constData(), planeVertices.size() * sizeof(VertexData));
+
+    // Transfer index data to VBO 1
+    b->m_indexBuf.bind();
+    b->m_indexBuf.allocate(planeIndices.constData(), planeIndices.size() * sizeof(GLushort));
+    b->m_indecesCount = planeIndices.size();
+
+    return b;
 }
 }  // namespace opengl

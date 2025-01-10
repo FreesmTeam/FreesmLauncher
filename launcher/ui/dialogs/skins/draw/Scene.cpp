@@ -56,6 +56,7 @@ Scene::~Scene()
         }
     }
     delete m_cape;
+
     m_skinTexture->destroy();
     delete m_skinTexture;
 

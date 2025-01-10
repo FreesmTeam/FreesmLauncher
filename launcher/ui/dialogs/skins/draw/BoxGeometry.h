@@ -11,6 +11,7 @@ class BoxGeometry : protected QOpenGLFunctions {
    public:
     BoxGeometry(QVector3D size, QVector3D position);
     BoxGeometry(QVector3D size, QVector3D position, QPoint uv, QVector3D textureDim, QSize textureSize = { 64, 64 });
+    static BoxGeometry* Plane();
     virtual ~BoxGeometry();
 
     void draw(QOpenGLShaderProgram* program);
@@ -24,5 +25,6 @@ class BoxGeometry : protected QOpenGLFunctions {
     QVector3D m_size;
     QVector3D m_position;
     QMatrix4x4 m_matrix;
+    GLsizei m_indecesCount;
 };
 }  // namespace opengl

@@ -14,7 +14,6 @@ varying vec2 v_texcoord;
 void main()
 {
     // Set fragment color from texture
-    //  gl_FragColor = texture2D(texture, v_texcoord);
     vec4 texColor = texture2D(texture, v_texcoord);
     if (texColor.a < 0.1) discard; // Optional: Discard fully transparent pixels
     gl_FragColor = texColor;
