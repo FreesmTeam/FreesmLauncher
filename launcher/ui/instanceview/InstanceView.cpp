@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-only
 /*
  *  Prism Launcher - Minecraft Launcher
+ *  Copyright (C) 2025 Kaeeraa <ilhainshakov@yandex.ru>
  *  Copyright (C) 2022 Sefa Eyeoglu <contact@scrumplex.net>
  *
  *  This program is free software: you can redistribute it and/or modify
@@ -18,6 +19,7 @@
  * This file incorporates work covered by the following copyright and
  * permission notice:
  *
+ *      Copyright 2024-2025 FreesmLauncher maintainers
  *      Copyright 2013-2021 MultiMC Contributors
  *
  *      Licensed under the Apache License, Version 2.0 (the "License");
@@ -34,28 +36,30 @@
  */
 
 #include "InstanceView.h"
+#include "ui/themes/ThemeManager.h"
+#include "ui/widgets/ThemeCustomizationWidget.h"
 
 #include <QAccessible>
 #include <QApplication>
 #include <QCache>
 #include <QDrag>
 #include <QFont>
+#include <QImage>
 #include <QListView>
 #include <QMimeData>
 #include <QMouseEvent>
 #include <QMovie>
 #include <QPainter>
 #include <QPersistentModelIndex>
+#include <QPixmap>
+#include <QRandomGenerator>
 #include <QScrollBar>
 #include <QtMath>
 
 #include "VisualGroup.h"
-#include "ui/themes/ThemeManager.h"
 
 #include <Application.h>
 #include <InstanceList.h>
-#include <qimage.h>
-#include <qpixmap.h>
 
 template <typename T>
 bool listsIntersect(const QList<T>& l1, const QList<T> t2)
@@ -74,6 +78,9 @@ InstanceView::InstanceView(QWidget* parent) : QAbstractItemView(parent)
     setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
     setAcceptDrops(true);
     setAutoScroll(true);
+    // FIXME: doesnt working
+    // connect(APPLICATION, &Application::currentSnowChanged, this, &InstanceView::onCurrentSnowChanged);
+    setPaintSnow(APPLICATION->settings()->get("Snow").toBool());
     setPaintCat(APPLICATION->settings()->get("TheCat").toBool());
 }
 
@@ -445,18 +452,148 @@ void InstanceView::mouseDoubleClickEvent(QMouseEvent* event)
     }
 }
 
+/**
+ * @brief Create snowflakes to be displayed in the view.
+ *
+ * This function creates a specified number of snowflakes with random parameters,
+ * such as radius, transparency, position, movement speed, and oscillation phase.
+ * The snowflakes are stored in the m_snowflakes vector.
+ */
+void InstanceView::createSnowflakes()
+{
+    int count = 100;
+
+    for (int i = 0; i < count; i++) {
+        Snowflake snowflake;
+
+        // Random radius between 5 and 8
+        int radius = QRandomGenerator::global()->bounded(2, 4);
+        // Random transparency between 40% and 70%
+        double transparency = QRandomGenerator::global()->bounded(50, 70) / 100.0;
+
+        // Random position on the viewport
+        QPointF position(QRandomGenerator::global()->bounded(this->viewport()->width()),
+                         QRandomGenerator::global()->bounded(this->viewport()->height()));
+
+        // Random movement speed in the x-axis
+        double movementX = QRandomGenerator::global()->bounded(-5, 5) / 10.0;
+        // Random movement speed in the y-axis
+        double movementY = QRandomGenerator::global()->bounded(5, 10) / 10.0;
+
+        snowflake.radius = radius;
+        snowflake.transparency = transparency;
+        snowflake.position = position;
+        snowflake.movementX = movementX;
+        snowflake.movementY = movementY;
+
+        // Random oscillation phase between 0 and 360
+        snowflake.oscillationPhase = QRandomGenerator::global()->bounded(0, 360);
+        // Random oscillation amplitude between 1 and 5
+        snowflake.oscillationAmplitude = QRandomGenerator::global()->bounded(1, 5) / 10.0;
+
+        m_snowflakes.push_back(snowflake);
+    }
+}
+
+/**
+ * @brief Update the positions of snowflakes in the view.
+ *
+ * This function updates the position, transparency, and oscillation phase of each snowflake,
+ * simulating wind effects and ensuring snowflakes wrap around the viewport when they reach the bottom.
+ */
+void InstanceView::updateSnowflakesPosition()
+{
+    static double wind = 0.0;          // Wind effect on snowflakes' horizontal movement
+    static int windChangeCounter = 0;  // Counter to change wind direction periodically
+
+    for (Snowflake& snowflake : m_snowflakes) {
+        // Calculate oscillation offset for horizontal movement
+        double oscillationOffset = snowflake.oscillationAmplitude * std::sin(snowflake.oscillationPhase * M_PI / 180.0);
+        // Update snowflake position with movement, oscillation, and wind
+        snowflake.position.rx() += snowflake.movementX + oscillationOffset + wind;
+
+        snowflake.position.ry() += snowflake.movementY;
+
+        // Update oscillation phase
+        snowflake.oscillationPhase += 2;
+        if (snowflake.oscillationPhase > 360) {
+            snowflake.oscillationPhase -= 360;
+        }
+        // Reset snowflake position if it reaches the bottom of the viewport
+        if (snowflake.position.y() > this->viewport()->height()) {
+            snowflake.position.setY(0);
+            snowflake.position.setX(QRandomGenerator::global()->bounded(this->viewport()->width()));
+
+            snowflake.movementX = QRandomGenerator::global()->bounded(-5, 5) / 10.0;
+            snowflake.movementY = QRandomGenerator::global()->bounded(5, 10) / 10.0;
+        }
+
+        // Wrap snowflake horizontally if it goes out of bounds
+        if (snowflake.position.x() < 0 || snowflake.position.x() > this->viewport()->width()) {
+            snowflake.position.rx() = QRandomGenerator::global()->bounded(1, this->viewport()->width());
+        }
+    }
+
+    // Change wind direction every 100 iterations
+    windChangeCounter++;
+    if (windChangeCounter % 100 == 0) {
+        wind = QRandomGenerator::global()->bounded(-10, 10) / 100.0;
+    }
+
+    // Request a repaint of the viewport
+    this->viewport()->update();
+}
+
+/**
+ * @brief Sets whether snow should be painted in the view.
+ *
+ * @param visible Whether snow should be painted in the view.
+ */
+void InstanceView::setPaintSnow(bool visible)
+{
+    m_snowVisible = visible;
+
+    if (visible) {
+        // Create a timer to update the snow positions every 16 milliseconds
+        m_snowTimer = new QTimer(this);
+        createSnowflakes();
+        m_snowTimer->start(33);
+        connect(m_snowTimer, &QTimer::timeout, this, &InstanceView::updateSnowflakesPosition);
+    } else {
+        if (m_snowTimer) {
+            delete m_snowTimer;
+            m_snowTimer = nullptr;
+        }
+        // Clear the snowflakes vector
+        m_snowflakes.clear();
+    }
+}
+
+void InstanceView::onCurrentSnowChanged(bool visible)
+{
+    setPaintSnow(visible);
+}
+
+/**
+ * @brief Sets whether a cat should be painted in the view.
+ *
+ * @param visible Whether a cat should be painted in the view.
+ */
 void InstanceView::setPaintCat(bool visible)
 {
     m_catVisible = visible;
 
     if (visible) {
+        // Get the cat name from the theme manager
         const QString& catName = APPLICATION->themeManager()->getCatPack();
 
+        // Disconnect the movie's frame changed signal if it exists
         if (m_catMovie) {
             disconnect(m_catMovie, &QMovie::frameChanged, this, nullptr);
             delete m_catMovie;
             m_catMovie = nullptr;
         } else {
+            // Clear the cat pixmap
             m_catPixmap = QPixmap();
         }
 
@@ -499,6 +636,18 @@ void InstanceView::paintEvent([[maybe_unused]] QPaintEvent* event)
     executeDelayedItemsLayout();
 
     QPainter painter(this->viewport());
+
+    if (m_snowVisible) {
+        updateSnowflakesPosition();
+
+        painter.setRenderHint(QPainter::Antialiasing);
+        painter.setBrush(Qt::white);
+
+        for (const Snowflake& snowflake : m_snowflakes) {
+            painter.setOpacity(snowflake.transparency);
+            painter.drawEllipse(snowflake.position, snowflake.radius, snowflake.radius);
+        }
+    }
 
     if (m_catVisible) {
         // Set the opacity for the cat image

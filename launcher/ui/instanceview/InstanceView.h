@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-only
 /*
  *  Prism Launcher - Minecraft Launcher
+ *  Copyright (C) 2025 Kaeeraa <ilhainshakov@yandex.ru>
  *  Copyright (C) 2022 Sefa Eyeoglu <contact@scrumplex.net>
  *
  *  This program is free software: you can redistribute it and/or modify
@@ -18,6 +19,7 @@
  * This file incorporates work covered by the following copyright and
  * permission notice:
  *
+ *      Copyright 2024-2025 FreesmLauncher maintainers
  *      Copyright 2013-2021 MultiMC Contributors
  *
  *      Licensed under the Apache License, Version 2.0 (the "License");
@@ -40,7 +42,9 @@
 #include <QListView>
 #include <QMovie>
 #include <QScrollBar>
+#include <QTimer>
 #include <functional>
+#include <vector>
 #include "VisualGroup.h"
 
 struct InstanceViewRoles {
@@ -80,8 +84,13 @@ class InstanceView : public QAbstractItemView {
     int spacing() const { return m_spacing; };
     void setPaintCat(bool visible);
 
+    void createSnowflakes();
+    void updateSnowflakesPosition();
+
    public slots:
     virtual void updateGeometries() override;
+    void setPaintSnow(bool visible);
+    void onCurrentSnowChanged(bool visible);
 
    protected slots:
     virtual void dataChanged(const QModelIndex& topLeft, const QModelIndex& bottomRight, const QVector<int>& roles) override;
@@ -114,6 +123,21 @@ class InstanceView : public QAbstractItemView {
     void updateScrollbar();
 
    private:
+    struct Snowflake {
+        Snowflake() : movementX(0), movementY(0), oscillationAmplitude(0), oscillationPhase(0), radius(0), transparency(0), position(0, 0)
+        {}
+
+        double movementX;
+        double movementY;
+
+        double oscillationAmplitude;
+        double oscillationPhase;
+
+        int radius;
+        double transparency;
+        QPointF position;
+    };
+
     friend struct VisualGroup;
     QList<VisualGroup*> m_groups;
 
@@ -133,6 +157,9 @@ class InstanceView : public QAbstractItemView {
     QMovie* m_catMovie = nullptr;
     QPixmap m_catPixmap = QPixmap();
     bool m_catIsScreenshot;
+    bool m_snowVisible = false;
+    std::vector<Snowflake> m_snowflakes;
+    QTimer* m_snowTimer = nullptr;
 
     // point where the currently active mouse action started in geometry coordinates
     QPoint m_pressedPosition;
