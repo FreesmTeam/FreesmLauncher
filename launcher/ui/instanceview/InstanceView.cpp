@@ -478,7 +478,7 @@ void InstanceView::createSnowflakes()
         // Random movement speed in the x-axis
         double movementX = QRandomGenerator::global()->bounded(-5, 5) / 10.0;
         // Random movement speed in the y-axis
-        double movementY = QRandomGenerator::global()->bounded(5, 10) / 10.0;
+        double movementY = QRandomGenerator::global()->bounded(40, 60) / 10.0;
 
         snowflake.radius = radius;
         snowflake.transparency = transparency;
@@ -525,7 +525,7 @@ void InstanceView::updateSnowflakesPosition()
             snowflake.position.setX(QRandomGenerator::global()->bounded(this->viewport()->width()));
 
             snowflake.movementX = QRandomGenerator::global()->bounded(-5, 5) / 10.0;
-            snowflake.movementY = QRandomGenerator::global()->bounded(5, 10) / 10.0;
+            snowflake.movementY = QRandomGenerator::global()->bounded(40, 60) / 10.0;
         }
 
         // Wrap snowflake horizontally if it goes out of bounds
@@ -638,8 +638,6 @@ void InstanceView::paintEvent([[maybe_unused]] QPaintEvent* event)
     QPainter painter(this->viewport());
 
     if (m_snowVisible) {
-        updateSnowflakesPosition();
-
         painter.setRenderHint(QPainter::Antialiasing);
         painter.setBrush(Qt::white);
 
