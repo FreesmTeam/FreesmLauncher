@@ -1,3 +1,20 @@
+// SPDX-License-Identifier: GPL-3.0-only
+/*
+ *  Prism Launcher - Minecraft Launcher
+ *  Copyright (c) 2024 Trial97 <alexandru.tripon97@gmail.com>
+ *
+ *  This program is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, version 3.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
 
 #include "BoxGeometry.h"
 
@@ -212,7 +229,6 @@ void BoxGeometry::draw(QOpenGLShaderProgram* program)
 
 void BoxGeometry::initGeometry(float u, float v, float width, float height, float depth, float textureWidth, float textureHeight)
 {
-    // auto positions = getVericles(m_size, m_position);
     auto textureCord = getCubeUVs(u, v, width, height, depth, textureWidth, textureHeight);
 
     // this should not be needed to be done on each render for most of the objects
@@ -221,16 +237,16 @@ void BoxGeometry::initGeometry(float u, float v, float width, float height, floa
     transformation.scale(m_size);
     auto positions = transformVectors(transformation, vertices);
 
-    QVector<VertexData> vertices;
-    vertices.reserve(positions.size());  // Reserve space for efficiency
+    QVector<VertexData> verticesData;
+    verticesData.reserve(positions.size());  // Reserve space for efficiency
 
     for (int i = 0; i < positions.size(); ++i) {
-        vertices.append(VertexData(positions[i], textureCord[i]));
+        verticesData.append(VertexData(positions[i], textureCord[i]));
     }
 
     // Transfer vertex data to VBO 0
     m_vertexBuf.bind();
-    m_vertexBuf.allocate(vertices.constData(), vertices.size() * sizeof(VertexData));
+    m_vertexBuf.allocate(verticesData.constData(), verticesData.size() * sizeof(VertexData));
 
     // Transfer index data to VBO 1
     m_indexBuf.bind();
