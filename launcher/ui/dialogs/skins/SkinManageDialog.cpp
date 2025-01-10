@@ -202,7 +202,6 @@ void SkinManageDialog::setupCapes()
         if (!m_capes.contains(cape.id)) {
             auto path = FS::PathCombine(capesDir, cape.id + ".png");
             if (QFileInfo(path).exists() && capeImage.load(path)) {
-                capeImage = capeImage;
                 m_capes[cape.id] = capeImage;
             }
         }

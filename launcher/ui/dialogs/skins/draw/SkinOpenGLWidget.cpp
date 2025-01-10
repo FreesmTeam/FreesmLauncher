@@ -24,7 +24,7 @@ SkinOpenGLWidget::~SkinOpenGLWidget()
 void SkinOpenGLWidget::mousePressEvent(QMouseEvent* e)
 {
     // Save mouse press position
-    m_mousePosition = QVector2D(e->position());
+    m_mousePosition = QVector2D(e->pos());
     m_isMousePressed = true;
 }
 void SkinOpenGLWidget::mouseMoveEvent(QMouseEvent* event)
@@ -37,7 +37,7 @@ void SkinOpenGLWidget::mouseMoveEvent(QMouseEvent* event)
         m_rotationX += dy;
         m_rotationY += dx;
 
-        m_mousePosition = QVector2D(event->position());
+        m_mousePosition = QVector2D(event->pos());
         update();  // Trigger a repaint
     }
 }
