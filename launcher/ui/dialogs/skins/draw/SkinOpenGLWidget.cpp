@@ -22,6 +22,7 @@
 #include <QOpenGLBuffer>
 #include <QVector2D>
 #include <QVector3D>
+
 #include "minecraft/skins/SkinModel.h"
 #include "ui/dialogs/skins/SkinManageDialog.h"
 #include "ui/dialogs/skins/draw/BoxGeometry.h"

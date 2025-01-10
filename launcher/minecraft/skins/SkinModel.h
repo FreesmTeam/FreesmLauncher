@@ -36,6 +36,7 @@ class SkinModel {
     bool isValid() const;
     QString getPath() const { return m_path; }
     QImage getTexture() const { return m_texture; }
+    QImage getPreview() const { return m_preview; }
     QString getCapeId() const { return m_capeId; }
     Model getModel() const { return m_model; }
     QString getURL() const { return m_url; }
@@ -44,6 +45,7 @@ class SkinModel {
     void setCapeId(QString capeID) { m_capeId = capeID; }
     void setModel(Model model) { m_model = model; }
     void setURL(QString url) { m_url = url; }
+    void setPreview(const QImage& preview) { m_preview = preview; }
     void refresh();
 
     QJsonObject toJSON() const;
@@ -51,6 +53,7 @@ class SkinModel {
    private:
     QString m_path;
     QImage m_texture;
+    QImage m_preview;
     QString m_capeId;
     Model m_model;
     QString m_url;
