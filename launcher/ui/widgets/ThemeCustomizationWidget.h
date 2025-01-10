@@ -2,6 +2,7 @@
 /*
  *  Prism Launcher - Minecraft Launcher
  *  Copyright (C) 2022 Tayou <git@tayou.org>
+ *  Copyright (C) 2025 Kaeeraa <ilhainshakov@yandex.ru>
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -20,7 +21,7 @@
 #include <QWidget>
 #include "translations/TranslationsModel.h"
 
-enum ThemeFields { NONE = 0b0000, ICONS = 0b0001, WIDGETS = 0b0010, CAT = 0b0100 };
+enum ThemeFields { NONE = 0b0000, ICONS = 0b0001, WIDGETS = 0b0010, CAT = 0b0100, SNOW = 0b1000 };
 
 namespace Ui {
 class ThemeCustomizationWidget;
@@ -44,12 +45,15 @@ class ThemeCustomizationWidget : public QWidget {
     void applyIconTheme(int index);
     void applyWidgetTheme(int index);
     void applyCatTheme(int index);
+    void applySnow(bool visible);
+    void applySnowFromUi(bool visible);
     void refresh();
 
    signals:
     int currentIconThemeChanged(int index);
     int currentWidgetThemeChanged(int index);
     int currentCatChanged(int index);
+    int currentSnowChanged(bool visible);
 
    private:
     Ui::ThemeCustomizationWidget* ui;
