@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-only
 /*
  *  Prism Launcher - Minecraft Launcher
+ *  Copyright (C) 2025 Kaeeraa <ilhainshakov@yandex.ru>
  *  Copyright (C) 2022 Sefa Eyeoglu <contact@scrumplex.net>
  *  Copyright (C) 2022 Tayou <git@tayou.org>
  *  Copyright (C) 2023 TheKodeToad <TheKodeToad@proton.me>
@@ -20,6 +21,7 @@
  * This file incorporates work covered by the following copyright and
  * permission notice:
  *
+ *      Copyright 2024-2025 FreesmLauncher maintainers
  *      Copyright 2013-2021 MultiMC Contributors
  *
  *      Licensed under the Apache License, Version 2.0 (the "License");
@@ -198,7 +200,8 @@ class Application : public QApplication {
     void updateAllowedChanged(bool status);
     void globalSettingsAboutToOpen();
     void globalSettingsClosed();
-    int currentCatChanged(int index);
+    void currentCatChanged(int index);
+    void currentSnowChanged(bool visible);
 
     void oauthReplyRecieved(QVariantMap);
 
