@@ -70,56 +70,11 @@ void SkinOpenGLWidget::initializeGL()
 void SkinOpenGLWidget::initShaders()
 {
     // Compile vertex shader
-    if (!m_program.addCacheableShaderFromSourceCode(QOpenGLShader::Vertex, R"(// Copyright (C) 2024 The Qt Company Ltd.
- // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR BSD-3-Clause
- #ifdef GL_ES
- // Set default precision to medium
- precision mediump int;
- precision mediump float;
- #endif
-
- uniform mat4 mvp_matrix;
- uniform mat4 model_matrix;
-
- attribute vec4 a_position;
- attribute vec2 a_texcoord;
-
- varying vec2 v_texcoord;
-
- void main()
- {
-    // Calculate vertex position in screen space
-    gl_Position = mvp_matrix * model_matrix * a_position;
-
-    // Pass texture coordinate to fragment shader
-    // Value will be automatically interpolated to fragments inside polygon faces
-    v_texcoord = a_texcoord;
- }
- )"))
+    if (!m_program.addCacheableShaderFromSourceFile(QOpenGLShader::Vertex, ":/shaders/vshader.glsl"))
         close();
 
     // Compile fragment shader
-    if (!m_program.addCacheableShaderFromSourceCode(QOpenGLShader::Fragment, R"(// Copyright (C) 2024 The Qt Company Ltd.
- // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR BSD-3-Clause
- #ifdef GL_ES
- // Set default precision to medium
- precision mediump int;
- precision mediump float;
- #endif
-
- uniform sampler2D texture;
-
- varying vec2 v_texcoord;
-
- void main()
- {
-    // Set fragment color from texture
-    //  gl_FragColor = texture2D(texture, v_texcoord);
-    vec4 texColor = texture2D(texture, v_texcoord);
-    if (texColor.a < 0.1) discard; // Optional: Discard fully transparent pixels
-    gl_FragColor = texColor;
- }
- )"))
+    if (!m_program.addCacheableShaderFromSourceFile(QOpenGLShader::Fragment, ":/shaders/fshader.glsl"))
         close();
 
     // Link shader pipeline
