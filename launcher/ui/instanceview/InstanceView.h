@@ -84,7 +84,6 @@ class InstanceView : public QAbstractItemView {
     int spacing() const { return m_spacing; };
     void setPaintCat(bool visible);
 
-    void createSnowflakes();
     void updateSnowflakesPosition();
 
    public slots:
