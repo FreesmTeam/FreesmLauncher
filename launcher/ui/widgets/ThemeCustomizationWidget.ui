@@ -166,6 +166,13 @@
        </item>
       </layout>
      </item>
+     <item row="3" column="0" colspan="2">
+      <widget class="QCheckBox" name="snowCheckBox">
+       <property name="text">
+        <string>Enable Snow Effect</string>
+       </property>
+      </widget>
+     </item>
     </layout>
    </item>
    <item>
