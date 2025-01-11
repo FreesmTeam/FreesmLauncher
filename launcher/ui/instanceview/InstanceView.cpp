@@ -453,17 +453,19 @@ void InstanceView::mouseDoubleClickEvent(QMouseEvent* event)
 }
 
 /**
- * @brief Create snowflakes to be displayed in the view.
+ * @brief Update the positions of snowflakes in the view.
  *
- * This function creates a specified number of snowflakes with random parameters,
- * such as radius, transparency, position, movement speed, and oscillation phase.
- * The snowflakes are stored in the m_snowflakes vector.
+ * This function updates the position, transparency, and oscillation phase of each snowflake,
+ * simulating wind effects and ensuring snowflakes wrap around the viewport when they reach the bottom.
  */
-void InstanceView::createSnowflakes()
+void InstanceView::updateSnowflakesPosition()
 {
-    int count = 100;
+    static double wind = 0.0;          // Wind effect on snowflakes' horizontal movement
+    static int windChangeCounter = 0;  // Counter to change wind direction periodically
 
-    for (int i = 0; i < count; i++) {
+    const int snowflakesTargetCount = this->viewport()->width() * this->viewport()->height() / 10000;
+
+    if (m_snowflakes.size() < snowflakesTargetCount) {
         Snowflake snowflake;
 
         // Random radius between 5 and 8
@@ -472,13 +474,12 @@ void InstanceView::createSnowflakes()
         double transparency = QRandomGenerator::global()->bounded(50, 70) / 100.0;
 
         // Random position on the viewport
-        QPointF position(QRandomGenerator::global()->bounded(this->viewport()->width()),
-                         QRandomGenerator::global()->bounded(this->viewport()->height()));
+        QPointF position(QRandomGenerator::global()->bounded(this->viewport()->width()), 0);
 
         // Random movement speed in the x-axis
         double movementX = QRandomGenerator::global()->bounded(-5, 5) / 10.0;
         // Random movement speed in the y-axis
-        double movementY = QRandomGenerator::global()->bounded(5, 10) / 10.0;
+        double movementY = QRandomGenerator::global()->bounded(40, 60) / 10.0;
 
         snowflake.radius = radius;
         snowflake.transparency = transparency;
@@ -492,19 +493,9 @@ void InstanceView::createSnowflakes()
         snowflake.oscillationAmplitude = QRandomGenerator::global()->bounded(1, 5) / 10.0;
 
         m_snowflakes.push_back(snowflake);
+    } else if (m_snowflakes.size() > snowflakesTargetCount) {
+        m_snowflakes.pop_back();
     }
-}
-
-/**
- * @brief Update the positions of snowflakes in the view.
- *
- * This function updates the position, transparency, and oscillation phase of each snowflake,
- * simulating wind effects and ensuring snowflakes wrap around the viewport when they reach the bottom.
- */
-void InstanceView::updateSnowflakesPosition()
-{
-    static double wind = 0.0;          // Wind effect on snowflakes' horizontal movement
-    static int windChangeCounter = 0;  // Counter to change wind direction periodically
 
     for (Snowflake& snowflake : m_snowflakes) {
         // Calculate oscillation offset for horizontal movement
@@ -525,7 +516,7 @@ void InstanceView::updateSnowflakesPosition()
             snowflake.position.setX(QRandomGenerator::global()->bounded(this->viewport()->width()));
 
             snowflake.movementX = QRandomGenerator::global()->bounded(-5, 5) / 10.0;
-            snowflake.movementY = QRandomGenerator::global()->bounded(5, 10) / 10.0;
+            snowflake.movementY = QRandomGenerator::global()->bounded(40, 60) / 10.0;
         }
 
         // Wrap snowflake horizontally if it goes out of bounds
@@ -556,7 +547,6 @@ void InstanceView::setPaintSnow(bool visible)
     if (visible) {
         // Create a timer to update the snow positions every 16 milliseconds
         m_snowTimer = new QTimer(this);
-        createSnowflakes();
         m_snowTimer->start(33);
         connect(m_snowTimer, &QTimer::timeout, this, &InstanceView::updateSnowflakesPosition);
     } else {
@@ -638,8 +628,6 @@ void InstanceView::paintEvent([[maybe_unused]] QPaintEvent* event)
     QPainter painter(this->viewport());
 
     if (m_snowVisible) {
-        updateSnowflakesPosition();
-
         painter.setRenderHint(QPainter::Antialiasing);
         painter.setBrush(Qt::white);
 
