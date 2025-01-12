@@ -610,6 +610,9 @@ void InstanceView::paintEvent([[maybe_unused]] QPaintEvent* event)
             painter.setOpacity(snowflake.transparency);
             painter.drawEllipse(snowflake.position, snowflake.radius, snowflake.radius);
         }
+
+        // Reset opacity after drawing the snow
+        painter.setOpacity(1.0);
     }
 
     if (m_catVisible) {
