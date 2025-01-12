@@ -84,8 +84,6 @@ class InstanceView : public QAbstractItemView {
     int spacing() const { return m_spacing; };
     void setPaintCat(bool visible);
 
-    void updateSnowflakesPosition();
-
    public slots:
     virtual void updateGeometries() override;
     void setPaintSnow(bool visible);
@@ -181,6 +179,9 @@ class InstanceView : public QAbstractItemView {
     int verticalScrollToValue(const QModelIndex& index, const QRect& rect, QListView::ScrollHint hint) const;
     QPixmap renderToPixmap(const QModelIndexList& indices, QRect* r) const;
     QList<std::pair<QRect, QModelIndex>> draggablePaintPairs(const QModelIndexList& indices, QRect* r) const;
+
+    void updateSnowflakesPosition();
+    Snowflake createSnowflake() const;
 
     bool isDragEventAccepted(QDropEvent* event);
 

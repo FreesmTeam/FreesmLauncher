@@ -466,33 +466,7 @@ void InstanceView::updateSnowflakesPosition()
     const int snowflakesTargetCount = this->viewport()->width() * this->viewport()->height() / 10000;
 
     if (m_snowflakes.size() < snowflakesTargetCount) {
-        Snowflake snowflake;
-
-        // Random radius between 5 and 8
-        int radius = QRandomGenerator::global()->bounded(2, 4);
-        // Random transparency between 40% and 70%
-        double transparency = QRandomGenerator::global()->bounded(50, 70) / 100.0;
-
-        // Random position on the viewport
-        QPointF position(QRandomGenerator::global()->bounded(this->viewport()->width()), 0);
-
-        // Random movement speed in the x-axis
-        double movementX = QRandomGenerator::global()->bounded(-5, 5) / 10.0;
-        // Random movement speed in the y-axis
-        double movementY = QRandomGenerator::global()->bounded(40, 60) / 10.0;
-
-        snowflake.radius = radius;
-        snowflake.transparency = transparency;
-        snowflake.position = position;
-        snowflake.movementX = movementX;
-        snowflake.movementY = movementY;
-
-        // Random oscillation phase between 0 and 360
-        snowflake.oscillationPhase = QRandomGenerator::global()->bounded(0, 360);
-        // Random oscillation amplitude between 1 and 5
-        snowflake.oscillationAmplitude = QRandomGenerator::global()->bounded(1, 5) / 10.0;
-
-        m_snowflakes.push_back(snowflake);
+        m_snowflakes.push_back(createSnowflake());
     } else if (m_snowflakes.size() > snowflakesTargetCount) {
         m_snowflakes.pop_back();
     }
@@ -981,6 +955,36 @@ QList<std::pair<QRect, QModelIndex>> InstanceView::draggablePaintPairs(const QMo
         rect |= current;
     }
     return ret;
+}
+InstanceView::Snowflake InstanceView::createSnowflake() const
+{
+    Snowflake snowflake;
+
+    // Random radius between 5 and 8
+    int radius = QRandomGenerator::global()->bounded(2, 4);
+    // Random transparency between 40% and 70%
+    double transparency = QRandomGenerator::global()->bounded(50, 70) / 100.0;
+
+    // Random position on the viewport
+    QPointF position(QRandomGenerator::global()->bounded(this->viewport()->width()), 0);
+
+    // Random movement speed in the x-axis
+    double movementX = QRandomGenerator::global()->bounded(-5, 5) / 10.0;
+    // Random movement speed in the y-axis
+    double movementY = QRandomGenerator::global()->bounded(40, 60) / 10.0;
+
+    snowflake.radius = radius;
+    snowflake.transparency = transparency;
+    snowflake.position = position;
+    snowflake.movementX = movementX;
+    snowflake.movementY = movementY;
+
+    // Random oscillation phase between 0 and 360
+    snowflake.oscillationPhase = QRandomGenerator::global()->bounded(0, 360);
+    // Random oscillation amplitude between 1 and 5
+    snowflake.oscillationAmplitude = QRandomGenerator::global()->bounded(1, 5) / 10.0;
+
+    return snowflake;
 }
 
 bool InstanceView::isDragEventAccepted([[maybe_unused]] QDropEvent* event)
