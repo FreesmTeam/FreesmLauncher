@@ -13,6 +13,38 @@ In general, in order of importance:
 - Indent with 4 space unless it's in a submodule.
 - Keep lists (of arguments, parameters, initializers...) as lists, not paragraphs. It should either read from top to bottom, or left to right. Not both.
 
+## Commit Messages
+
+### Format
+
+`{type}({scope})!: {subject}`
+
+### Elements
+
+- **Type**: Choose from the following list. If none of the types match, use `chore`.
+  - `feat`: A new feature
+  - `fix`: A bug fix
+  - `docs`: Documentation only changes
+  - `style`: Changes that do not affect the meaning of the code
+  - `refactor`: Improving code structure
+  - `perf`: A code change that improves performance
+  - `test`: Adding missing tests or correcting existing tests
+  - `build`: Changes that affect the build system or external dependencies
+  - `chore`: Other changes that don't modify src or test files
+  - `revert`: Reverts a previous commit
+  - `release`: Releasing a new version
+  - `ci`: Changes to our CI configuration
+- **Scope**: Indicate the location of the changed files, e.g., `ui/widgets`. Do not include the root, like `launcher/ui/widgets`. Use the shared parent folder name for multiple files. Omit if changes are in the root.
+- **Breaking Change**: If you're introducing a breaking change, append `!` to the type or scope, e.g., `feat(ui)!: Breaking change`.
+
+- **Subject**: Brief description of the change.
+
+### Guidelines
+
+- Use imperative mood, e.g., "Add feature" instead of "Adding feature" or "Added feature".
+- Limit to 50 characters, but can extend to 72 if necessary.
+- Avoid ending with a period.
+
 ## Signing your work
 
 In an effort to ensure that the code you contribute is actually compatible with the licenses in this codebase, we require you to sign-off all your contributions.
