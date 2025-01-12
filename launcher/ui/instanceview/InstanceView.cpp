@@ -465,7 +465,8 @@ void InstanceView::updateSnowflakesPosition()
 
     const int snowflakesTargetCount = this->viewport()->width() * this->viewport()->height() / 10000;
 
-    if (m_snowflakes.size() < snowflakesTargetCount) {
+    if (m_snowflakes.size() < snowflakesTargetCount && QRandomGenerator::global()->generate() % 2) {
+        // Add snowflakes every second frame to avoid an avalanche of snow
         m_snowflakes.push_back(createSnowflake());
     } else if (m_snowflakes.size() > snowflakesTargetCount) {
         m_snowflakes.pop_back();
