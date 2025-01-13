@@ -46,7 +46,6 @@ class ThemeCustomizationWidget : public QWidget {
     void applyWidgetTheme(int index);
     void applyCatTheme(int index);
     void applySnow(bool visible);
-    void applySnowFromUi(bool visible);
     void refresh();
 
    signals:

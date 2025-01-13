@@ -134,31 +134,6 @@ void ThemeCustomizationWidget::applySnow(bool visible)
     emit currentSnowChanged(visible);
 }
 
-void ThemeCustomizationWidget::applySnowFromUi(bool visible)
-{
-    APPLICATION->settings()->set("Snow", visible);
-
-    ReloadRequiredDialog dialog;
-    int result = dialog.exec();
-
-    switch (result) {
-        case ReloadRequiredDialog::Reload: {
-            // HACK: is there a better way for reloading?
-            QString program = QCoreApplication::applicationFilePath();
-
-            // Start the new process
-            QProcess::startDetached(program);
-
-            QCoreApplication::quit();
-            break;
-        }
-        case ReloadRequiredDialog::DontReload: {
-            // No action needed
-            break;
-        }
-    }
-}
-
 void ThemeCustomizationWidget::applySettings()
 {
     applyIconTheme(ui->iconsComboBox->currentIndex());
