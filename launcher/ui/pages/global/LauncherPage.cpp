@@ -84,6 +84,8 @@ LauncherPage::LauncherPage(QWidget* parent) : QWidget(parent), ui(new Ui::Launch
     connect(ui->themeCustomizationWidget, &ThemeCustomizationWidget::currentWidgetThemeChanged, this, &LauncherPage::refreshFontPreview);
 
     connect(ui->themeCustomizationWidget, &ThemeCustomizationWidget::currentCatChanged, APPLICATION, &Application::currentCatChanged);
+
+    connect(ui->themeCustomizationWidget, &ThemeCustomizationWidget::currentSnowChanged, APPLICATION, &Application::currentSnowChanged);
 }
 
 LauncherPage::~LauncherPage()

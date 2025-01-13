@@ -78,8 +78,7 @@ InstanceView::InstanceView(QWidget* parent) : QAbstractItemView(parent)
     setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
     setAcceptDrops(true);
     setAutoScroll(true);
-    // FIXME: doesnt working
-    // connect(APPLICATION, &Application::currentSnowChanged, this, &InstanceView::onCurrentSnowChanged);
+    connect(APPLICATION, &Application::currentSnowChanged, this, &InstanceView::onCurrentSnowChanged);
     setPaintSnow(APPLICATION->settings()->get("Snow").toBool());
     setPaintCat(APPLICATION->settings()->get("TheCat").toBool());
 }
@@ -519,18 +518,19 @@ void InstanceView::setPaintSnow(bool visible)
 {
     m_snowVisible = visible;
 
+    disconnect(m_snowTimer, &QTimer::timeout, this, nullptr);
+    delete m_snowTimer;
+    m_snowTimer = nullptr;
+
     if (visible) {
         // Create a timer to update the snow positions every 16 milliseconds
         m_snowTimer = new QTimer(this);
         m_snowTimer->start(33);
         connect(m_snowTimer, &QTimer::timeout, this, &InstanceView::updateSnowflakesPosition);
     } else {
-        if (m_snowTimer) {
-            delete m_snowTimer;
-            m_snowTimer = nullptr;
-        }
         // Clear the snowflakes vector
         m_snowflakes.clear();
+        this->viewport()->update();
     }
 }
 

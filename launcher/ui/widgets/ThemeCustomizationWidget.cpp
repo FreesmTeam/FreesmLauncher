@@ -45,6 +45,8 @@ ThemeCustomizationWidget::ThemeCustomizationWidget(QWidget* parent) : QWidget(pa
             [] { DesktopServices::openPath(APPLICATION->themeManager()->getCatPacksFolder().path()); });
 
     connect(ui->refreshButton, &QPushButton::clicked, this, &ThemeCustomizationWidget::refresh);
+
+    connect(ui->snowCheckBox, &QCheckBox::toggled, this, &ThemeCustomizationWidget::applySnow);
 }
 
 ThemeCustomizationWidget::~ThemeCustomizationWidget()
@@ -128,6 +130,8 @@ void ThemeCustomizationWidget::applyCatTheme(int index)
 void ThemeCustomizationWidget::applySnow(bool visible)
 {
     APPLICATION->settings()->set("Snow", visible);
+
+    emit currentSnowChanged(visible);
 }
 
 void ThemeCustomizationWidget::applySnowFromUi(bool visible)
@@ -223,7 +227,7 @@ void ThemeCustomizationWidget::refresh()
                &ThemeCustomizationWidget::applyWidgetTheme);
     disconnect(ui->backgroundCatComboBox, QOverload<int>::of(&QComboBox::currentIndexChanged), this,
                &ThemeCustomizationWidget::applyCatTheme);
-    disconnect(ui->snowCheckBox, &QCheckBox::stateChanged, this, &ThemeCustomizationWidget::applySnowFromUi);
+    disconnect(ui->snowCheckBox, &QCheckBox::stateChanged, this, &ThemeCustomizationWidget::currentSnowChanged);
     APPLICATION->themeManager()->refresh();
     ui->iconsComboBox->clear();
     ui->widgetStyleComboBox->clear();
@@ -233,5 +237,5 @@ void ThemeCustomizationWidget::refresh()
     connect(ui->widgetStyleComboBox, QOverload<int>::of(&QComboBox::currentIndexChanged), this,
             &ThemeCustomizationWidget::applyWidgetTheme);
     connect(ui->backgroundCatComboBox, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &ThemeCustomizationWidget::applyCatTheme);
-    connect(ui->snowCheckBox, &QCheckBox::stateChanged, this, &ThemeCustomizationWidget::applySnowFromUi);
+    connect(ui->snowCheckBox, &QCheckBox::stateChanged, this, &ThemeCustomizationWidget::currentSnowChanged);
 };
