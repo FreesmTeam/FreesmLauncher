@@ -19,8 +19,6 @@
 #include "ThemeCustomizationWidget.h"
 #include "ui_ThemeCustomizationWidget.h"
 
-#include "ui/dialogs/ReloadRequiredDialog.h"
-
 #include "Application.h"
 #include "DesktopServices.h"
 #include "ui/themes/ITheme.h"
