@@ -21,7 +21,7 @@
  * This file incorporates work covered by the following copyright and
  * permission notice:
  *
- *      Copyright 2024-2025 FreesmLauncher maintainers
+ *      Copyright 2024-2025 FreesmLauncher Contributors
  *      Copyright 2013-2021 MultiMC Contributors
  *
  *      Licensed under the Apache License, Version 2.0 (the "License");
