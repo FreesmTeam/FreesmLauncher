@@ -60,6 +60,7 @@
 
 #include <Application.h>
 #include <InstanceList.h>
+#include <qtconcurrentrun.h>
 
 template <typename T>
 bool listsIntersect(const QList<T>& l1, const QList<T> t2)
@@ -452,7 +453,7 @@ void InstanceView::mouseDoubleClickEvent(QMouseEvent* event)
 }
 
 /**
- * @brief Update the positions of snowflakes in the view.
+ * @brief Updates the positions of snowflakes in the view.
  *
  * This function updates the position, transparency, and oscillation phase of each snowflake,
  * simulating wind effects and ensuring snowflakes wrap around the viewport when they reach the bottom.
@@ -462,18 +463,19 @@ void InstanceView::updateSnowflakesPosition()
     static double wind = 0.0;          // Wind effect on snowflakes' horizontal movement
     static int windChangeCounter = 0;  // Counter to change wind direction periodically
 
-    const int snowflakesTargetCount = this->viewport()->width() * this->viewport()->height() / 10000;
+    const int targetSnowflakeCount = this->viewport()->width() * this->viewport()->height() / 10000;
 
-    if (m_snowflakes.size() < snowflakesTargetCount && QRandomGenerator::global()->generate() % 2) {
-        // Add snowflakes every second frame to avoid an avalanche of snow
+    // Add or remove snowflakes to maintain the target count
+    if (m_snowflakes.size() < targetSnowflakeCount && QRandomGenerator::global()->generate() % 2) {
         m_snowflakes.push_back(createSnowflake());
-    } else if (m_snowflakes.size() > snowflakesTargetCount) {
+    } else if (m_snowflakes.size() > targetSnowflakeCount) {
         m_snowflakes.pop_back();
     }
 
+    // Update each snowflake's position and oscillation phase
     for (Snowflake& snowflake : m_snowflakes) {
         // Calculate oscillation offset for horizontal movement
-        double oscillationOffset = snowflake.oscillationAmplitude * std::sin(snowflake.oscillationPhase * M_PI / 180.0);
+        double oscillationOffset = snowflake.oscillationAmplitude * qSin(snowflake.oscillationPhase * M_PI / 180.0);
         // Update snowflake position with movement, oscillation, and wind
         snowflake.position.rx() += snowflake.movementX + oscillationOffset + wind;
 
@@ -488,11 +490,9 @@ void InstanceView::updateSnowflakesPosition()
         if (snowflake.position.y() > this->viewport()->height()) {
             snowflake.position.setY(0);
             snowflake.position.setX(QRandomGenerator::global()->bounded(this->viewport()->width()));
-
             snowflake.movementX = QRandomGenerator::global()->bounded(-5, 5) / 10.0;
             snowflake.movementY = QRandomGenerator::global()->bounded(40, 60) / 10.0;
         }
-
         // Wrap snowflake horizontally if it goes out of bounds
         if (snowflake.position.x() < 0 || snowflake.position.x() > this->viewport()->width()) {
             snowflake.position.rx() = QRandomGenerator::global()->bounded(1, this->viewport()->width());
@@ -526,7 +526,9 @@ void InstanceView::setPaintSnow(bool visible)
         // Create a timer to update the snow positions every 16 milliseconds
         m_snowTimer = new QTimer(this);
         m_snowTimer->start(33);
-        connect(m_snowTimer, &QTimer::timeout, this, &InstanceView::updateSnowflakesPosition);
+        connect(m_snowTimer, &QTimer::timeout, this,
+                [this] { QThreadPool::globalInstance()->start([this] { this->updateSnowflakesPosition(); }); });
+
     } else {
         // Clear the snowflakes vector
         m_snowflakes.clear();
@@ -564,6 +566,7 @@ void InstanceView::setPaintCat(bool visible)
 
         if (catName.endsWith("gif")) {
             m_catMovie = new QMovie(catName);
+            m_catMovie->setCacheMode(QMovie::CacheAll);
             m_catMovie->setProperty("loopCount", -1);
 
             if (!m_catMovie->isValid()) {
@@ -631,32 +634,18 @@ void InstanceView::paintEvent([[maybe_unused]] QPaintEvent* event)
         }
 
         // Draw the cat image based on its type (animated or static)
-        if (m_catMovie && m_catMovie->state() == QMovie::Running) {
-            QPixmap currentFrame = m_catMovie->currentPixmap();
-            QPixmap pixmap = currentFrame.scaled(
-                widWidth, widHeight, m_catIsScreenshot ? Qt::KeepAspectRatioByExpanding : Qt::KeepAspectRatio, Qt::SmoothTransformation);
-            QRect rectOfPixmap = pixmap.rect();
-            if (m_catIsScreenshot) {
-                rectOfPixmap.moveCenter(this->viewport()->rect().center());
-            } else {
-                rectOfPixmap.moveBottomRight(this->viewport()->rect().bottomRight());
-            }
-            painter.drawPixmap(rectOfPixmap, pixmap);
-        } else if (!m_catPixmap.isNull()) {
-            QPixmap pixmap = m_catPixmap.scaled(
-                widWidth, widHeight, m_catIsScreenshot ? Qt::KeepAspectRatioByExpanding : Qt::KeepAspectRatio, Qt::SmoothTransformation);
-            QRect rectOfPixmap = pixmap.rect();
-            if (m_catIsScreenshot) {
-                rectOfPixmap.moveCenter(this->viewport()->rect().center());
-            } else {
-                rectOfPixmap.moveBottomRight(this->viewport()->rect().bottomRight());
-            }
-            painter.drawPixmap(rectOfPixmap, pixmap);
+        const QPixmap& pixmap = m_catMovie ? m_catMovie->currentPixmap() : m_catPixmap;
+        if (!pixmap.isNull()) {
+            const QRect pixmapRect = pixmap.rect();
+            const QRect targetRect = m_catIsScreenshot
+                                         ? QRect(this->viewport()->rect().center() - pixmapRect.center(), pixmapRect.size())
+                                         : QRect(this->viewport()->rect().bottomRight() - pixmapRect.bottomRight(), pixmapRect.size());
+            painter.drawPixmap(targetRect, pixmap, pixmapRect);
         }
-
-        // Reset opacity after drawing the cat
-        painter.setOpacity(1.0);
     }
+
+    // Reset opacity
+    painter.setOpacity(1.0);
 
 #if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
     QStyleOptionViewItem option;
