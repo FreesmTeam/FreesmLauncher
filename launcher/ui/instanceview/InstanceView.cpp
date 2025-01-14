@@ -55,12 +55,12 @@
 #include <QRandomGenerator>
 #include <QScrollBar>
 #include <QtMath>
+#include <QFuture>
 
 #include "VisualGroup.h"
 
 #include <Application.h>
 #include <InstanceList.h>
-#include <qtconcurrentrun.h>
 
 template <typename T>
 bool listsIntersect(const QList<T>& l1, const QList<T> t2)
