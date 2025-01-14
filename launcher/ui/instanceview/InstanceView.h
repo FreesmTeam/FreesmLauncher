@@ -183,6 +183,9 @@ class InstanceView : public QAbstractItemView {
     void updateSnowflakesPosition();
     Snowflake createSnowflake() const;
 
+    void drawCat(QPainter& painter);
+    void drawSnow(QPainter& painter);
+
     bool isDragEventAccepted(QDropEvent* event);
 
     std::pair<VisualGroup*, VisualGroup::HitResults> rowDropPos(const QPoint& pos);

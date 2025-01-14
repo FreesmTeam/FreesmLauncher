@@ -605,51 +605,13 @@ void InstanceView::paintEvent([[maybe_unused]] QPaintEvent* event)
 
     QPainter painter(this->viewport());
 
-    if (m_snowVisible) {
-        painter.setRenderHint(QPainter::Antialiasing);
-        painter.setBrush(Qt::white);
-
-        for (const Snowflake& snowflake : m_snowflakes) {
-            painter.setOpacity(snowflake.transparency);
-            painter.drawEllipse(snowflake.position, snowflake.radius, snowflake.radius);
-        }
-
-        // Reset opacity after drawing the snow
-        painter.setOpacity(1.0);
-    }
-
     if (m_catVisible) {
-        // Set the opacity for the cat image
-        painter.setOpacity(APPLICATION->settings()->get("CatOpacity").toFloat() / 100);
-        int widWidth = this->viewport()->width();
-        int widHeight = this->viewport()->height();
-
-        // Adjust width and height if the cat is not a screenshot
-        if (!m_catIsScreenshot) {
-            const QPixmap pixmap = m_catMovie ? m_catMovie->currentPixmap() : m_catPixmap;
-            if (!pixmap.isNull()) {
-                widWidth = std::min(widWidth, pixmap.width());
-                widHeight = std::min(widHeight, pixmap.height());
-            }
-        }
-
-        // Draw the cat image based on its type (animated or static)
-        const QPixmap& rawPixmap = m_catMovie ? m_catMovie->currentPixmap() : m_catPixmap;
-        const QPixmap& pixmap =
-            rawPixmap.scaled(widWidth, widHeight, m_catIsScreenshot ? Qt::KeepAspectRatioByExpanding : Qt::KeepAspectRatio);
-
-        if (!pixmap.isNull()) {
-            const QRect pixmapRect = pixmap.rect();
-            const QRect targetRect = m_catIsScreenshot
-                                         ? QRect(this->viewport()->rect().center() - pixmapRect.center(), pixmapRect.size())
-                                         : QRect(this->viewport()->rect().bottomRight() - pixmapRect.bottomRight(), pixmapRect.size());
-
-            painter.drawPixmap(targetRect, pixmap, pixmapRect);
-        }
+        drawCat(painter);
     }
 
-    // Reset opacity
-    painter.setOpacity(1.0);
+    if (m_snowVisible) {
+        drawSnow(painter);
+    }
 
 #if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
     QStyleOptionViewItem option;
@@ -953,6 +915,7 @@ QList<std::pair<QRect, QModelIndex>> InstanceView::draggablePaintPairs(const QMo
     }
     return ret;
 }
+
 InstanceView::Snowflake InstanceView::createSnowflake() const
 {
     Snowflake snowflake;
@@ -982,6 +945,53 @@ InstanceView::Snowflake InstanceView::createSnowflake() const
     snowflake.oscillationAmplitude = QRandomGenerator::global()->bounded(1, 5) / 10.0;
 
     return snowflake;
+}
+
+void InstanceView::drawCat(QPainter& painter)
+{
+    // Set the opacity for the cat image
+    painter.setOpacity(APPLICATION->settings()->get("CatOpacity").toFloat() / 100);
+    int widWidth = this->viewport()->width();
+    int widHeight = this->viewport()->height();
+
+    // Adjust width and height if the cat is not a screenshot
+    if (!m_catIsScreenshot) {
+        const QPixmap pixmap = m_catMovie ? m_catMovie->currentPixmap() : m_catPixmap;
+        if (!pixmap.isNull()) {
+            widWidth = std::min(widWidth, pixmap.width());
+            widHeight = std::min(widHeight, pixmap.height());
+        }
+    }
+
+    // Draw the cat image based on its type (animated or static)
+    const QPixmap& rawPixmap = m_catMovie ? m_catMovie->currentPixmap() : m_catPixmap;
+    const QPixmap& pixmap = rawPixmap.scaled(widWidth, widHeight, m_catIsScreenshot ? Qt::KeepAspectRatioByExpanding : Qt::KeepAspectRatio);
+
+    if (!pixmap.isNull()) {
+        const QRect pixmapRect = pixmap.rect();
+        const QRect targetRect = m_catIsScreenshot
+                                     ? QRect(this->viewport()->rect().center() - pixmapRect.center(), pixmapRect.size())
+                                     : QRect(this->viewport()->rect().bottomRight() - pixmapRect.bottomRight(), pixmapRect.size());
+
+        painter.drawPixmap(targetRect, pixmap, pixmapRect);
+    }
+
+    // Reset opacity
+    painter.setOpacity(1.0);
+}
+
+void InstanceView::drawSnow(QPainter& painter)
+{
+    painter.setRenderHint(QPainter::Antialiasing);
+    painter.setBrush(Qt::white);
+
+    for (const Snowflake& snowflake : m_snowflakes) {
+        painter.setOpacity(snowflake.transparency);
+        painter.drawEllipse(snowflake.position, snowflake.radius, snowflake.radius);
+    }
+
+    // Reset opacity
+    painter.setOpacity(1.0);
 }
 
 bool InstanceView::isDragEventAccepted([[maybe_unused]] QDropEvent* event)
