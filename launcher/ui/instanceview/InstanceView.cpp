@@ -54,8 +54,8 @@
 #include <QPixmap>
 #include <QRandomGenerator>
 #include <QScrollBar>
+#include <QThreadPool>
 #include <QtMath>
-#include <QFuture>
 
 #include "VisualGroup.h"
 
