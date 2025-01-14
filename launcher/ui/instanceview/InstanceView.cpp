@@ -634,12 +634,16 @@ void InstanceView::paintEvent([[maybe_unused]] QPaintEvent* event)
         }
 
         // Draw the cat image based on its type (animated or static)
-        const QPixmap& pixmap = m_catMovie ? m_catMovie->currentPixmap() : m_catPixmap;
+        const QPixmap& rawPixmap = m_catMovie ? m_catMovie->currentPixmap() : m_catPixmap;
+        const QPixmap& pixmap =
+            rawPixmap.scaled(widWidth, widHeight, m_catIsScreenshot ? Qt::KeepAspectRatioByExpanding : Qt::KeepAspectRatio);
+
         if (!pixmap.isNull()) {
             const QRect pixmapRect = pixmap.rect();
             const QRect targetRect = m_catIsScreenshot
                                          ? QRect(this->viewport()->rect().center() - pixmapRect.center(), pixmapRect.size())
                                          : QRect(this->viewport()->rect().bottomRight() - pixmapRect.bottomRight(), pixmapRect.size());
+
             painter.drawPixmap(targetRect, pixmap, pixmapRect);
         }
     }
