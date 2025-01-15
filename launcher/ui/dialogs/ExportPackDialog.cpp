@@ -73,7 +73,10 @@ ExportPackDialog::ExportPackDialog(InstancePtr instance, QWidget* parent, ModPla
     // use the game root - everything outside cannot be exported
     const QDir instanceRoot(instance->instanceRoot());
     m_proxy = new FileIgnoreProxy(instance->instanceRoot(), this);
-    m_proxy->ignoreFilesWithPath().insert({ "logs", "crash-reports", ".cache", ".fabric", ".quilt" });
+    auto prefix = QDir(instance->instanceRoot()).relativeFilePath(instance->gameRoot());
+    for (auto path : { "logs", "crash-reports", ".cache", ".fabric", ".quilt" }) {
+        m_proxy->ignoreFilesWithPath().insert(FS::PathCombine(prefix, path));
+    }
     m_proxy->ignoreFilesWithName().append({ ".DS_Store", "thumbs.db", "Thumbs.db" });
     m_proxy->setSourceModel(model);
     loadPackIgnore();
@@ -84,7 +87,7 @@ ExportPackDialog::ExportPackDialog(InstancePtr instance, QWidget* parent, ModPla
         for (const QString& file : gameRoot.entryList(filter)) {
             if (!(file == "mods" || file == "coremods" || file == "datapacks" || file == "config" || file == "options.txt" ||
                   file == "servers.dat"))
-                m_proxy->blockedPaths().insert(instanceRoot.relativeFilePath(gameRoot.absoluteFilePath(file)));
+                m_proxy->blockedPaths().insert(FS::PathCombine(prefix, file));
         }
     }
 
