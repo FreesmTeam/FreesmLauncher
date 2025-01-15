@@ -554,10 +554,8 @@ void PrismUpdaterApp::run()
 
     if (!loadPrismVersionFromExe(m_prismExecutable)) {
         m_prismVersion = BuildConfig.printableVersionString();
-        m_prismVersionCodename = BuildConfig.VERSION_CODENAME;
         m_prismVersionMajor = BuildConfig.VERSION_MAJOR;
         m_prismVersionMinor = BuildConfig.VERSION_MINOR;
-        m_prismVersionPatch = BuildConfig.VERSION_PATCH;
         m_prsimVersionChannel = BuildConfig.VERSION_CHANNEL;
         m_prismGitCommit = BuildConfig.GIT_COMMIT;
     }
