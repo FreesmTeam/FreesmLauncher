@@ -22,6 +22,7 @@
 #include <QOpenGLBuffer>
 #include <QVector2D>
 #include <QVector3D>
+#include <QtMath>
 
 #include "minecraft/skins/SkinModel.h"
 #include "ui/dialogs/skins/SkinManageDialog.h"
@@ -156,10 +157,10 @@ void SkinOpenGLWidget::paintGL()
     QMatrix4x4 matrix;
     float yawRad = qDegreesToRadians(m_yaw);
     float pitchRad = qDegreesToRadians(m_pitch);
-    matrix.lookAt(QVector3D(                                     //
-                      m_distance * cos(pitchRad) * cos(yawRad),  //
-                      m_distance * sin(pitchRad) - 8,            //
-                      m_distance * cos(pitchRad) * sin(yawRad)),
+    matrix.lookAt(QVector3D(                                       //
+                      m_distance * qCos(pitchRad) * qCos(yawRad),  //
+                      m_distance * qSin(pitchRad) - 8,             //
+                      m_distance * qCos(pitchRad) * qSin(yawRad)),
                   QVector3D(0, -8, 0), QVector3D(0, 1, 0));
 
     // Set modelview-projection matrix
@@ -225,6 +226,6 @@ void SkinOpenGLWidget::wheelEvent(QWheelEvent* event)
     // Adjust distance based on scroll
     int delta = event->angleDelta().y();  // Positive for scroll up, negative for scroll down
     m_distance -= delta * 0.01f;          // Adjust sensitivity factor
-    m_distance = qMax(16., m_distance);   // Clamp distance
+    m_distance = qMax(16.f, m_distance);  // Clamp distance
     update();                             // Trigger a repaint
 }
