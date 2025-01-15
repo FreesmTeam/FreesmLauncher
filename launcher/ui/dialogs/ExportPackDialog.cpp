@@ -71,26 +71,28 @@ ExportPackDialog::ExportPackDialog(InstancePtr instance, QWidget* parent, ModPla
     model->setIconProvider(&m_icons);
 
     // use the game root - everything outside cannot be exported
-    const QDir root(instance->gameRoot());
-    m_proxy = new FileIgnoreProxy(instance->gameRoot(), this);
+    const QDir instanceRoot(instance->instanceRoot());
+    m_proxy = new FileIgnoreProxy(instance->instanceRoot(), this);
     m_proxy->ignoreFilesWithPath().insert({ "logs", "crash-reports", ".cache", ".fabric", ".quilt" });
     m_proxy->ignoreFilesWithName().append({ ".DS_Store", "thumbs.db", "Thumbs.db" });
     m_proxy->setSourceModel(model);
     loadPackIgnore();
 
     const QDir::Filters filter(QDir::AllEntries | QDir::NoDotAndDotDot | QDir::AllDirs | QDir::Hidden);
-
-    for (const QString& file : root.entryList(filter)) {
-        if (!(file == "mods" || file == "coremods" || file == "datapacks" || file == "config" || file == "options.txt" ||
-              file == "servers.dat"))
-            m_proxy->blockedPaths().insert(file);
+    if (m_proxy->blockedPaths().leaf()) {  // only add this if the list is empty
+        const QDir gameRoot(instance->gameRoot());
+        for (const QString& file : gameRoot.entryList(filter)) {
+            if (!(file == "mods" || file == "coremods" || file == "datapacks" || file == "config" || file == "options.txt" ||
+                  file == "servers.dat"))
+                m_proxy->blockedPaths().insert(instanceRoot.relativeFilePath(gameRoot.absoluteFilePath(file)));
+        }
     }
 
     MinecraftInstance* mcInstance = dynamic_cast<MinecraftInstance*>(instance.get());
     if (mcInstance) {
         for (auto& resourceModel : mcInstance->resourceLists())
             if (resourceModel->indexDir().exists())
-                m_proxy->ignoreFilesWithPath().insert(root.relativeFilePath(resourceModel->indexDir().absolutePath()));
+                m_proxy->ignoreFilesWithPath().insert(instanceRoot.relativeFilePath(resourceModel->indexDir().absolutePath()));
     }
 
     m_ui->files->setModel(m_proxy);
