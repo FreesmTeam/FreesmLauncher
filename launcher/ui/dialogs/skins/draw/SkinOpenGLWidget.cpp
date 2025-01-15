@@ -57,9 +57,14 @@ void SkinOpenGLWidget::mouseMoveEvent(QMouseEvent* event)
         int dx = event->x() - m_mousePosition.x();
         int dy = event->y() - m_mousePosition.y();
 
-        // Update rotation angles based on mouse movement
-        m_rotationX += dy;
-        m_rotationY += dx;
+        m_yaw += dx * 0.5f;
+        m_pitch += dy * 0.5f;
+
+        // Normalize yaw to keep it manageable
+        if (m_yaw > 360.0f)
+            m_yaw -= 360.0f;
+        else if (m_yaw < 0.0f)
+            m_yaw += 360.0f;
 
         m_mousePosition = QVector2D(event->pos());
         update();  // Trigger a repaint
@@ -149,9 +154,13 @@ void SkinOpenGLWidget::paintGL()
     renderBackground();
     // Calculate model view transformation
     QMatrix4x4 matrix;
-    matrix.translate(0.0, 6.0, -50.);
-    matrix.rotate(m_rotationX, 1.0f, 0.0f, 0.0f);
-    matrix.rotate(m_rotationY, 0.0f, 1.0f, 0.0f);
+    float yawRad = qDegreesToRadians(m_yaw);
+    float pitchRad = qDegreesToRadians(m_pitch);
+    matrix.lookAt(QVector3D(                                     //
+                      m_distance * cos(pitchRad) * cos(yawRad),  //
+                      m_distance * sin(pitchRad) - 8,            //
+                      m_distance * cos(pitchRad) * sin(yawRad)),
+                  QVector3D(0, -8, 0), QVector3D(0, 1, 0));
 
     // Set modelview-projection matrix
     m_program->setUniformValue("mvp_matrix", m_projection * matrix);
@@ -209,4 +218,13 @@ void SkinOpenGLWidget::renderBackground()
     m_background->draw(m_program);
     m_backgroundTexture->release();
     glDepthMask(GL_TRUE);  // Re-enable depth buffer writing
+}
+
+void SkinOpenGLWidget::wheelEvent(QWheelEvent* event)
+{
+    // Adjust distance based on scroll
+    int delta = event->angleDelta().y();  // Positive for scroll up, negative for scroll down
+    m_distance -= delta * 0.01f;          // Adjust sensitivity factor
+    m_distance = qMax(16., m_distance);   // Clamp distance
+    update();                             // Trigger a repaint
 }

@@ -42,6 +42,7 @@ class SkinOpenGLWidget : public QOpenGLWidget, protected QOpenGLFunctions {
     void mousePressEvent(QMouseEvent* e) override;
     void mouseReleaseEvent(QMouseEvent* e) override;
     void mouseMoveEvent(QMouseEvent* event) override;
+    void wheelEvent(QWheelEvent* event) override;
 
     void initializeGL() override;
     void resizeGL(int w, int h) override;
@@ -61,7 +62,9 @@ class SkinOpenGLWidget : public QOpenGLWidget, protected QOpenGLFunctions {
     QVector2D m_mousePosition;
 
     bool m_isMousePressed = false;
-    int m_rotationX = 0, m_rotationY = 0;
+    float m_distance = 48;
+    float m_yaw = 90;   // Horizontal rotation angle
+    float m_pitch = 0;  // Vertical rotation angle
 
     opengl::BoxGeometry* m_background = nullptr;
     QOpenGLTexture* m_backgroundTexture = nullptr;
