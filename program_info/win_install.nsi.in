@@ -106,7 +106,7 @@ OutFile "../@Launcher_CommonName@-Setup.exe"
 ;--------------------------------
 
 ; Version info
-VIProductVersion "@Launcher_VERSION_NAME4@"
+VIProductVersion "@Launcher_VERSION_NAME4_WINDOWS@"
 VIFileVersion "@Launcher_VERSION_NAME4_WINDOWS@"
 VIAddVersionKey /LANG=${LANG_ENGLISH} "ProductName" "@Launcher_DisplayName@"
 VIAddVersionKey /LANG=${LANG_ENGLISH} "FileDescription" "@Launcher_DisplayName@ Installer"
