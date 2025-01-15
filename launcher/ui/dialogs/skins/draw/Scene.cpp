@@ -46,11 +46,11 @@ Scene::Scene(const QImage& skin, bool slim, const QImage& cape) : m_slim(slim), 
 
     m_slimArms = {
         // Right Arm
-        new opengl::BoxGeometry(QVector3D(4, 12, 3), QVector3D(-6, -6, 0), QPoint(40, 16), QVector3D(3, 12, 4)),
-        new opengl::BoxGeometry(QVector3D(4.5, 12.5, 3.5), QVector3D(-6, -6, 0), QPoint(40, 32), QVector3D(3, 12, 4)),
+        new opengl::BoxGeometry(QVector3D(3, 12, 4), QVector3D(-5.5, -6, 0), QPoint(40, 16), QVector3D(3, 12, 4)),
+        new opengl::BoxGeometry(QVector3D(3.5, 12.5, 4.5), QVector3D(-5.5, -6, 0), QPoint(40, 32), QVector3D(3, 12, 4)),
         // Left Arm
-        new opengl::BoxGeometry(QVector3D(4, 12, 3), QVector3D(6, -6, 0), QPoint(32, 48), QVector3D(3, 12, 4)),
-        new opengl::BoxGeometry(QVector3D(4.5, 12.5, 3.5), QVector3D(6, -6, 0), QPoint(48, 48), QVector3D(3, 12, 4)),
+        new opengl::BoxGeometry(QVector3D(3, 12, 4), QVector3D(5.5, -6, 0), QPoint(32, 48), QVector3D(3, 12, 4)),
+        new opengl::BoxGeometry(QVector3D(3.5, 12.5, 4.5), QVector3D(5.5, -6, 0), QPoint(48, 48), QVector3D(3, 12, 4)),
     };
 
     m_cape = new opengl::BoxGeometry(QVector3D(10, 16, 1), QVector3D(0, -8, 2.5), QPoint(0, 0), QVector3D(10, 16, 1), QSize(64, 32));

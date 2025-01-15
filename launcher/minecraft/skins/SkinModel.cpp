@@ -18,13 +18,10 @@
 
 #include "SkinModel.h"
 #include <QFileInfo>
-#include <QOffscreenSurface>
-#include <QOpenGLFramebufferObjectFormat>
 #include <QPainter>
 
 #include "FileSystem.h"
 #include "Json.h"
-#include "ui/dialogs/skins/draw/Scene.h"
 
 QImage improveSkin(const QImage& skin)
 {
@@ -50,100 +47,55 @@ QImage getSkin(const QString path)
 
 QImage generatePreviews(QImage texture, bool slim)
 {
-    QImage preview;
+    QImage preview(36, 36, QImage::Format_ARGB32);
+    preview.fill(Qt::transparent);
+    QPainter paint(&preview);
 
-    // Set up OpenGL context and offscreen surface
-    QOpenGLContext context;
-    context.setFormat(QSurfaceFormat::defaultFormat());
-    if (!context.create()) {
-        qWarning() << "Failed to create OpenGL context";
-        return preview;
-    }
+    // head
+    paint.drawImage(4, 2, texture.copy(8, 8, 8, 8));
+    paint.drawImage(4, 2, texture.copy(40, 8, 8, 8));
+    // torso
+    paint.drawImage(4, 10, texture.copy(20, 20, 8, 12));
+    paint.drawImage(4, 10, texture.copy(20, 36, 8, 12));
+    // right leg
+    paint.drawImage(4, 22, texture.copy(4, 20, 4, 12));
+    paint.drawImage(4, 22, texture.copy(4, 36, 4, 12));
+    // left leg
+    paint.drawImage(8, 22, texture.copy(4, 52, 4, 12));
+    paint.drawImage(8, 22, texture.copy(20, 52, 4, 12));
 
-    QOffscreenSurface surface;
-    surface.setFormat(context.format());
-    surface.create();
+    auto armWidth = slim ? 3 : 4;
+    auto armPosX = slim ? 1 : 0;
+    // right arm
+    paint.drawImage(armPosX, 10, texture.copy(44, 20, armWidth, 12));
+    paint.drawImage(armPosX, 10, texture.copy(44, 36, armWidth, 12));
+    // left arm
+    paint.drawImage(12, 10, texture.copy(36, 52, armWidth, 12));
+    paint.drawImage(12, 10, texture.copy(52, 52, armWidth, 12));
 
-    // Make the OpenGL context current
-    context.makeCurrent(&surface);
+    // back
+    // head
+    paint.drawImage(24, 2, texture.copy(24, 8, 8, 8));
+    paint.drawImage(24, 2, texture.copy(56, 8, 8, 8));
+    // torso
+    paint.drawImage(24, 10, texture.copy(32, 20, 8, 12));
+    paint.drawImage(24, 10, texture.copy(32, 36, 8, 12));
+    // right leg
+    paint.drawImage(24, 22, texture.copy(12, 20, 4, 12));
+    paint.drawImage(24, 22, texture.copy(12, 36, 4, 12));
+    // left leg
+    paint.drawImage(28, 22, texture.copy(12, 52, 4, 12));
+    paint.drawImage(28, 22, texture.copy(28, 52, 4, 12));
 
-    QOpenGLFunctions* gl = context.functions();
-    QOpenGLFramebufferObjectFormat fboFormat;
-    fboFormat.setAttachment(QOpenGLFramebufferObject::CombinedDepthStencil);
+    // right arm
+    paint.drawImage(armPosX + 20, 10, texture.copy(48 + armWidth, 20, armWidth, 12));
+    paint.drawImage(armPosX + 20, 10, texture.copy(48 + armWidth, 36, armWidth, 12));
+    // left arm
+    paint.drawImage(32, 10, texture.copy(40 + armWidth, 52, armWidth, 12));
+    paint.drawImage(32, 10, texture.copy(56 + armWidth, 52, armWidth, 12));
 
-    QOpenGLShaderProgram program;
-    // Compile vertex shader
-    if (!program.addCacheableShaderFromSourceFile(QOpenGLShader::Vertex, ":/shaders/vshader.glsl")) {
-        qWarning() << "Failed to create vertex";
-        return preview;
-    }
-    // Compile fragment shader
-    if (!program.addCacheableShaderFromSourceFile(QOpenGLShader::Fragment, ":/shaders/fshader.glsl")) {
-        qWarning() << "Failed to create fragment";
-        return preview;
-    }
-    // Link shader pipeline
-    if (!program.link()) {
-        qWarning() << "Failed to create link";
-        return preview;
-    }
-    // Bind shader pipeline for use
-    if (!program.bind()) {
-        qWarning() << "Failed to create bind";
-        return preview;
-    }
-    auto scene = new opengl::Scene(texture, slim, {});
-
-    const qreal zNear = .1, zFar = 1000., fov = 45, aspect = 1;
-
-    // Reset projection
-    QMatrix4x4 m_projection;
-    m_projection.setToIdentity();
-
-    // Set perspective projection
-    m_projection.perspective(fov, aspect, zNear, zFar);
-
-    // Calculate model view transformation
-    QMatrix4x4 matrix;
-    matrix.translate(0.0, 6.0, -50.);
-
-    // Create a framebuffer object for rendering
-    QOpenGLFramebufferObject fbo(64, 64, fboFormat);
-    fbo.bind();
-
-    // Clear the framebuffer
-    gl->glViewport(0, 0, 64, 64);
-    gl->glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-    // Clear color and depth buffer
-    gl->glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-    // Enable depth buffer
-    gl->glEnable(GL_DEPTH_TEST);
-    gl->glDepthFunc(GL_LESS);
-
-    // Enable back face culling
-    gl->glEnable(GL_CULL_FACE);
-
-    gl->glEnable(GL_BLEND);
-    gl->glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-    // Set modelview-projection matrix
-    program.setUniformValue("mvp_matrix", m_projection * matrix);
-
-    // scene->setMode(skin->getModel() == SkinModel::SLIM);
-    // scene->setSkin(skin->getTexture());
-
-    scene->draw(&program);
-
-    // Read the framebuffer into a QImage
-    preview = fbo.toImage();
-
-    fbo.release();
-    delete scene;
-    context.doneCurrent();
     return preview;
 }
-
 SkinModel::SkinModel(QString path) : m_path(path), m_texture(getSkin(path)), m_model(Model::CLASSIC)
 {
     m_preview = generatePreviews(m_texture, false);
@@ -202,5 +154,10 @@ bool SkinModel::isValid() const
 void SkinModel::refresh()
 {
     m_texture = getSkin(m_path);
+    m_preview = generatePreviews(m_texture, m_model == Model::SLIM);
+}
+void SkinModel::setModel(Model model)
+{
+    m_model = model;
     m_preview = generatePreviews(m_texture, m_model == Model::SLIM);
 }

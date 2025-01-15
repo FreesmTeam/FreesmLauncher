@@ -37,6 +37,11 @@ SkinOpenGLWidget::~SkinOpenGLWidget()
     delete m_background;
     m_backgroundTexture->destroy();
     delete m_backgroundTexture;
+    if (m_program->isLinked()) {
+        m_program->release();
+    }
+    m_program->removeAllShaders();
+    delete m_program;
     doneCurrent();
 }
 
@@ -92,20 +97,21 @@ void SkinOpenGLWidget::initializeGL()
 
 void SkinOpenGLWidget::initShaders()
 {
+    m_program = new QOpenGLShaderProgram(this);
     // Compile vertex shader
-    if (!m_program.addCacheableShaderFromSourceFile(QOpenGLShader::Vertex, ":/shaders/vshader.glsl"))
+    if (!m_program->addCacheableShaderFromSourceFile(QOpenGLShader::Vertex, ":/shaders/vshader.glsl"))
         close();
 
     // Compile fragment shader
-    if (!m_program.addCacheableShaderFromSourceFile(QOpenGLShader::Fragment, ":/shaders/fshader.glsl"))
+    if (!m_program->addCacheableShaderFromSourceFile(QOpenGLShader::Fragment, ":/shaders/fshader.glsl"))
         close();
 
     // Link shader pipeline
-    if (!m_program.link())
+    if (!m_program->link())
         close();
 
     // Bind shader pipeline for use
-    if (!m_program.bind())
+    if (!m_program->bind())
         close();
 }
 
@@ -138,7 +144,7 @@ void SkinOpenGLWidget::paintGL()
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-    m_program.bind();
+    m_program->bind();
 
     renderBackground();
     // Calculate model view transformation
@@ -148,10 +154,10 @@ void SkinOpenGLWidget::paintGL()
     matrix.rotate(m_rotationY, 0.0f, 1.0f, 0.0f);
 
     // Set modelview-projection matrix
-    m_program.setUniformValue("mvp_matrix", m_projection * matrix);
+    m_program->setUniformValue("mvp_matrix", m_projection * matrix);
 
-    m_scene->draw(&m_program);
-    m_program.release();
+    m_scene->draw(m_program);
+    m_program->release();
 }
 
 void SkinOpenGLWidget::updateScene(SkinModel* skin)
@@ -198,9 +204,9 @@ void SkinOpenGLWidget::renderBackground()
     glDepthMask(GL_FALSE);  // Disable depth buffer writing
     m_backgroundTexture->bind();
     QMatrix4x4 matrix;
-    m_program.setUniformValue("mvp_matrix", matrix);
-    m_program.setUniformValue("texture", 0);
-    m_background->draw(&m_program);
+    m_program->setUniformValue("mvp_matrix", matrix);
+    m_program->setUniformValue("texture", 0);
+    m_background->draw(m_program);
     m_backgroundTexture->release();
     glDepthMask(GL_TRUE);  // Re-enable depth buffer writing
 }

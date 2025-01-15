@@ -43,9 +43,8 @@ class SkinModel {
 
     bool rename(QString newName);
     void setCapeId(QString capeID) { m_capeId = capeID; }
-    void setModel(Model model) { m_model = model; }
+    void setModel(Model model);
     void setURL(QString url) { m_url = url; }
-    void setPreview(const QImage& preview) { m_preview = preview; }
     void refresh();
 
     QJsonObject toJSON() const;
