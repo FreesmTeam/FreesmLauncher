@@ -82,14 +82,6 @@ ExportPackDialog::ExportPackDialog(InstancePtr instance, QWidget* parent, ModPla
     loadPackIgnore();
 
     const QDir::Filters filter(QDir::AllEntries | QDir::NoDotAndDotDot | QDir::AllDirs | QDir::Hidden);
-    if (m_proxy->blockedPaths().leaf()) {  // only add this if the list is empty
-        const QDir gameRoot(instance->gameRoot());
-        for (const QString& file : gameRoot.entryList(filter)) {
-            if (!(file == "mods" || file == "coremods" || file == "datapacks" || file == "config" || file == "options.txt" ||
-                  file == "servers.dat"))
-                m_proxy->blockedPaths().insert(FS::PathCombine(prefix, file));
-        }
-    }
 
     MinecraftInstance* mcInstance = dynamic_cast<MinecraftInstance*>(instance.get());
     if (mcInstance) {
