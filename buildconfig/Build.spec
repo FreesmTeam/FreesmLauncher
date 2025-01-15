@@ -32,7 +32,7 @@
 
 %global _name   FreesmLauncher
 Name:           freesmlauncher
-Version:        Sequoia 1.0.0
+Version:        Sequoia-1.0.0
 Release:        0
 Summary:        An open source launcher for Minecraft
 License:        GPL-3.0-only
