@@ -55,7 +55,6 @@ struct File {
 
     // our
     QString targetFolder = QStringLiteral("mods");
-    enum class Type { Unknown, Folder, Ctoc, SingleFile, Cmod2, Modpack, Mod } type = Type::Mod;
     PackedResourceType resourceType;
 };
 
