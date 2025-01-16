@@ -71,6 +71,10 @@ class FileIgnoreProxy : public QSortFilterProxyModel {
 
     bool filterFile(const QString& fileName) const;
 
+    void loadBlockedPathsFromFile(const QString& fileName);
+
+    void saveBlockedPathsToFile(const QString& fileName);
+
    protected:
     bool filterAcceptsColumn(int source_column, const QModelIndex& source_parent) const;
     bool filterAcceptsRow(int source_row, const QModelIndex& source_parent) const;

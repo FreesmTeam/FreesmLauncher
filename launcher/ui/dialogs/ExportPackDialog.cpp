@@ -79,7 +79,7 @@ ExportPackDialog::ExportPackDialog(InstancePtr instance, QWidget* parent, ModPla
     }
     m_proxy->ignoreFilesWithName().append({ ".DS_Store", "thumbs.db", "Thumbs.db" });
     m_proxy->setSourceModel(model);
-    loadPackIgnore();
+    m_proxy->loadBlockedPathsFromFile(ignoreFileName());
 
     const QDir::Filters filter(QDir::AllEntries | QDir::NoDotAndDotDot | QDir::AllDirs | QDir::Hidden);
 
@@ -112,7 +112,7 @@ ExportPackDialog::~ExportPackDialog()
 
 void ExportPackDialog::done(int result)
 {
-    savePackIgnore();
+    m_proxy->saveBlockedPathsToFile(ignoreFileName());
     auto settings = m_instance->settings();
     settings->set("ExportName", m_ui->name->text());
     settings->set("ExportVersion", m_ui->version->text());
@@ -179,31 +179,4 @@ void ExportPackDialog::validate()
 QString ExportPackDialog::ignoreFileName()
 {
     return FS::PathCombine(m_instance->instanceRoot(), ".packignore");
-}
-
-void ExportPackDialog::loadPackIgnore()
-{
-    auto filename = ignoreFileName();
-    QFile ignoreFile(filename);
-    if (!ignoreFile.open(QIODevice::ReadOnly)) {
-        return;
-    }
-    auto ignoreData = ignoreFile.readAll();
-    auto string = QString::fromUtf8(ignoreData);
-#if QT_VERSION >= QT_VERSION_CHECK(5, 14, 0)
-    m_proxy->setBlockedPaths(string.split('\n', Qt::SkipEmptyParts));
-#else
-    m_proxy->setBlockedPaths(string.split('\n', QString::SkipEmptyParts));
-#endif
-}
-
-void ExportPackDialog::savePackIgnore()
-{
-    auto ignoreData = m_proxy->blockedPaths().toStringList().join('\n').toUtf8();
-    auto filename = ignoreFileName();
-    try {
-        FS::write(filename, ignoreData);
-    } catch (const Exception& e) {
-        qWarning() << e.cause();
-    }
 }

@@ -273,3 +273,28 @@ bool FileIgnoreProxy::filterFile(const QString& fileName) const
 {
     return m_blocked.covers(fileName) || ignoreFile(QFileInfo(QDir(m_root), fileName));
 }
+
+void FileIgnoreProxy::loadBlockedPathsFromFile(const QString& fileName)
+{
+    QFile ignoreFile(fileName);
+    if (!ignoreFile.open(QIODevice::ReadOnly)) {
+        return;
+    }
+    auto ignoreData = ignoreFile.readAll();
+    auto string = QString::fromUtf8(ignoreData);
+#if QT_VERSION >= QT_VERSION_CHECK(5, 14, 0)
+    setBlockedPaths(string.split('\n', Qt::SkipEmptyParts));
+#else
+    setBlockedPaths(string.split('\n', QString::SkipEmptyParts));
+#endif
+}
+
+void FileIgnoreProxy::saveBlockedPathsToFile(const QString& fileName)
+{
+    auto ignoreData = blockedPaths().toStringList().join('\n').toUtf8();
+    try {
+        FS::write(fileName, ignoreData);
+    } catch (const Exception& e) {
+        qWarning() << e.cause();
+    }
+}

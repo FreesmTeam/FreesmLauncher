@@ -73,7 +73,7 @@ ExportInstanceDialog::ExportInstanceDialog(InstancePtr instance, QWidget* parent
         m_proxyModel->ignoreFilesWithPath().insert(FS::PathCombine(prefix, path));
     }
     m_proxyModel->ignoreFilesWithName().append({ ".DS_Store", "thumbs.db", "Thumbs.db" });
-    loadPackIgnore();
+    m_proxyModel->loadBlockedPathsFromFile(ignoreFileName());
 
     m_ui->treeView->setModel(m_proxyModel);
     m_ui->treeView->setRootIndex(m_proxyModel->mapFromSource(model->index(root)));
@@ -164,7 +164,7 @@ void ExportInstanceDialog::doExport()
 
 void ExportInstanceDialog::done(int result)
 {
-    savePackIgnore();
+    m_proxyModel->saveBlockedPathsToFile(ignoreFileName());
     if (result == QDialog::Accepted) {
         doExport();
         return;
@@ -190,31 +190,4 @@ void ExportInstanceDialog::rowsInserted(QModelIndex parent, int top, int bottom)
 QString ExportInstanceDialog::ignoreFileName()
 {
     return FS::PathCombine(m_instance->instanceRoot(), ".packignore");
-}
-
-void ExportInstanceDialog::loadPackIgnore()
-{
-    auto filename = ignoreFileName();
-    QFile ignoreFile(filename);
-    if (!ignoreFile.open(QIODevice::ReadOnly)) {
-        return;
-    }
-    auto ignoreData = ignoreFile.readAll();
-    auto string = QString::fromUtf8(ignoreData);
-#if QT_VERSION >= QT_VERSION_CHECK(5, 14, 0)
-    m_proxyModel->setBlockedPaths(string.split('\n', Qt::SkipEmptyParts));
-#else
-    m_proxyModel->setBlockedPaths(string.split('\n', QString::SkipEmptyParts));
-#endif
-}
-
-void ExportInstanceDialog::savePackIgnore()
-{
-    auto ignoreData = m_proxyModel->blockedPaths().toStringList().join('\n').toUtf8();
-    auto filename = ignoreFileName();
-    try {
-        FS::write(filename, ignoreData);
-    } catch (const Exception& e) {
-        qWarning() << e.cause();
-    }
 }

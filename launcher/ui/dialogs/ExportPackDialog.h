@@ -41,8 +41,6 @@ class ExportPackDialog : public QDialog {
     void validate();
 
    private:
-    void loadPackIgnore();
-    void savePackIgnore();
     QString ignoreFileName();
 
    private:

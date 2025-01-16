@@ -60,8 +60,6 @@ class ExportInstanceDialog : public QDialog {
 
    private:
     void doExport();
-    void loadPackIgnore();
-    void savePackIgnore();
     QString ignoreFileName();
 
    private:
