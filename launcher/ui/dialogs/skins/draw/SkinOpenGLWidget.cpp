@@ -23,6 +23,7 @@
 #include <QVector2D>
 #include <QVector3D>
 #include <QtMath>
+#include <cmath>
 
 #include "minecraft/skins/SkinModel.h"
 #include "ui/dialogs/skins/SkinManageDialog.h"
@@ -187,16 +188,49 @@ void SkinOpenGLWidget::updateCape(const QImage& cape)
     }
 }
 
-QImage generateChessboardImage(int width, int height, int tileSize)
+QVector3D RGBToYCbCr(QColor rgb)
+{
+    auto fr = rgb.redF() / 255.f;
+    auto fg = rgb.greenF() / 255.f;
+    auto fb = rgb.blueF() / 255.F;
+
+    auto Y = 0.2989f * fr + 0.5866f * fg + 0.1145f * fb;
+    auto Cb = -0.1687f * fr - 0.3313f * fg + 0.5000f * fb;
+    auto Cr = 0.5000f * fr - 0.4184f * fg - 0.0816f * fb;
+
+    return QVector3D(Y, Cb, Cr);
+}
+
+QColor YCbCrToRGB(QVector3D ycbcr)
+{
+    auto r = qBound(0.0f, ycbcr.x() + 0.0000f * ycbcr.y() + 1.4022f * ycbcr.z(), 1.0f);
+    auto g = qBound(0.0f, ycbcr.x() - 0.3456f * ycbcr.y() - 0.7145f * ycbcr.z(), 1.0f);
+    auto b = qBound(0.0f, ycbcr.x() + 1.7710f * ycbcr.y() + 0.0000f * ycbcr.z(), 1.0f);
+
+    return QColor::fromRgb(r * 255, g * 255, b * 255);
+}
+
+QColor calculateContrastingColor(const QColor& color)
+{
+    constexpr float contrast = 0.07;
+    auto lab = RGBToYCbCr(color);
+    if (lab.x() < contrast) {
+        lab.setX(lab.x() + contrast);
+    } else {
+        lab.setX(lab.x() - contrast);
+    }
+    return YCbCrToRGB(lab);
+}
+
+QImage generateChessboardImage(int width, int height, int tileSize, QColor baseColor)
 {
     QImage image(width, height, QImage::Format_RGB888);
-
+    auto white = baseColor;
+    auto black = calculateContrastingColor(baseColor);
     for (int y = 0; y < height; ++y) {
         for (int x = 0; x < width; ++x) {
             bool isWhite = ((x / tileSize) % 2) == ((y / tileSize) % 2);
-            unsigned char color = isWhite ? 100 : 50;
-
-            image.setPixelColor(x, y, QColor(color, color, color));
+            image.setPixelColor(x, y, isWhite ? white : black);
         }
     }
     return image;
@@ -204,7 +238,8 @@ QImage generateChessboardImage(int width, int height, int tileSize)
 
 void SkinOpenGLWidget::generateBackgroundTexture(int width, int height, int tileSize)
 {
-    m_backgroundTexture = new QOpenGLTexture(generateChessboardImage(width, height, tileSize));
+    m_backgroundTexture =
+        new QOpenGLTexture(generateChessboardImage(width, height, tileSize, palette().color(QPalette::Normal, QPalette::Base)));
     m_backgroundTexture->setMinificationFilter(QOpenGLTexture::Nearest);
     m_backgroundTexture->setMagnificationFilter(QOpenGLTexture::Nearest);
 }
