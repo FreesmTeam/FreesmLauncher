@@ -15,11 +15,11 @@ BEGIN
         BEGIN
                 BLOCK "000004b0"
                 BEGIN
-                        VALUE "CompanyName", "Freesm Launcher Contributors"
+                        VALUE "CompanyName", "Freesm Launcher"
                         VALUE "FileDescription", "Freesm Launcher"
-                        VALUE "FileVersion", "@Launcher_VERSION_NAME4@"
+                        VALUE "FileVersion", "@Launcher_VERSION_NAME4_WINDOWS@"
                         VALUE "ProductName", "Freesm Launcher"
-                        VALUE "ProductVersion", "@Launcher_VERSION_NAME4@"
+                        VALUE "ProductVersion", "@Launcher_VERSION_NAME4_WINDOWS@"
                 END
         END
         BLOCK "VarFileInfo"
