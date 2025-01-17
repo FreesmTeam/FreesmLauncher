@@ -112,7 +112,7 @@ static QStringList BrowseForFileInternal(QString context,
 
     QFileDialog w(parentWidget, caption);
     QSet<QString> locations;
-    auto f = [&](QStandardPaths::StandardLocation l) {
+    auto f = [&locations](QStandardPaths::StandardLocation l) {
         QString location = QStandardPaths::writableLocation(l);
         QFileInfo finfo(location);
         if (!finfo.exists()) {
