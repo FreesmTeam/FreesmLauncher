@@ -74,7 +74,7 @@ runs:
         mkdir -p ${{ env.INSTALL_APPIMAGE_DIR }}/usr/lib
         mkdir -p ${{ env.INSTALL_APPIMAGE_DIR }}/usr/plugins/iconengines
 
-        cp -r ${{ runner.workspace }}/Qt/${{ inputs.qt-version }}/gcc_64/plugins/iconengines/* ${{ env.INSTALL_APPIMAGE_DIR }}/usr/plugins/iconengines
+        cp -r ${{ runner.workspace }}/Qt/${{ inputs.qt-version }}/gcc_*64/plugins/iconengines/* ${{ env.INSTALL_APPIMAGE_DIR }}/usr/plugins/iconengines
 
         cp /usr/lib/"$DEB_HOST_MULTIARCH"/libcrypto.so.* ${{ env.INSTALL_APPIMAGE_DIR }}/usr/lib/
         cp /usr/lib/"$DEB_HOST_MULTIARCH"/libssl.so.* ${{ env.INSTALL_APPIMAGE_DIR }}/usr/lib/
