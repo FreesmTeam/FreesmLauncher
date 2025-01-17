@@ -265,17 +265,17 @@ void ProfileSetupDialog::setupProfileFinished()
         auto parsedError = MojangError::fromJSON(*m_profile_response);
         ui->errorLabel->setVisible(true);
 
-        QString errorMessage = tr("Network error(%1): %2 ;HTTP Status: %3")
+        QString errorMessage = tr("Network error(%1): %2: HTTP Status: %3")
                                    .arg(QString::number(m_profile_task->error()), m_profile_task->errorString(),
                                         QString::number(m_profile_task->replyStatusCode()));
 
         if (parsedError.fullyParsed) {
             errorMessage += "Path: " + parsedError.path + "\n";
             errorMessage += "Error: " + parsedError.error + "\n";
-            errorMessage += "Error message: " + parsedError.errorMessage + "\n";
+            errorMessage += "Message: " + parsedError.errorMessage + "\n";
         } else {
-            errorMessage += "Failed to parse Mojang error: " + parsedError.parseError.errorString() + "\n";
-            errorMessage += "Raw contents:\n" + parsedError.rawError + "\n";
+            errorMessage += "Failed to parse error from Mojang API: " + parsedError.parseError.errorString() + "\n";
+            errorMessage += "Log:\n" + parsedError.rawError + "\n";
         }
 
         ui->errorLabel->setText(tr("The server returned the following error:") + "\n\n" + errorMessage);
