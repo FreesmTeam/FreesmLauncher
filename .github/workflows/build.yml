@@ -665,6 +665,9 @@ jobs:
           - os: ubuntu-22.04
             system: x86_64-linux
 
+          - os: ubuntu-22.04-arm
+            system: aarch64-linux
+
           - os: macos-13
             system: x86_64-darwin
 
