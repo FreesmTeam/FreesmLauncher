@@ -84,9 +84,7 @@ Prebuilt Development builds are provided for **Linux**, **Windows** and **macOS*
 
 ## Переводы
 
-Freesm Launcher базируется на переводах Prism Launcher'а.
-
-Переводы для Prism хостятся на [Weblate](https://hosted.weblate.org/projects/prismlauncher/launcher/), и вся информация по ним доступна на <https://github.com/PrismLauncher/Translations>.
+Переводы для Freesm Launcher хостятся на [Weblate](https://hosted.weblate.org/projects/freesmlauncher/freesmlauncher-launcher/), и вся информация по ним доступна на <https://github.com/FreesmTeam/Translations>.
 
 ## Сборка
 
