@@ -859,6 +859,8 @@ SET(LAUNCHER_SOURCES
     ui/themes/FreesmTheme.h
     ui/themes/GruvboxTheme.cpp
     ui/themes/GruvboxTheme.h
+    ui/themes/FreesmLightTheme.cpp
+    ui/themes/FreesmLightTheme.h
     ui/themes/BrightTheme.cpp
     ui/themes/BrightTheme.h
     ui/themes/CustomTheme.cpp
