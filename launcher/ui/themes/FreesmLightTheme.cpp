@@ -32,21 +32,21 @@
  *      See the License for the specific language governing permissions and
  *      limitations under the License.
  */
-#include "FreesmTheme.h"
+#include "FreesmLightTheme.h"
 
 #include <QObject>
 
-QString FreesmTheme::id()
+QString FreesmLightTheme::id()
 {
-    return "freesm";
+    return "freesm-light";
 }
 
-QString FreesmTheme::name()
+QString FreesmLightTheme::name()
 {
-    return QObject::tr("Freesm Dark");
+    return QObject::tr("Freesm Light");
 }
 
-QPalette FreesmTheme::colorScheme()
+QPalette FreesmLightTheme::colorScheme()
 {
     QPalette darkPalette;
     darkPalette.setColor(QPalette::Window, QColor(30, 30, 46));
@@ -66,22 +66,22 @@ QPalette FreesmTheme::colorScheme()
     return fadeInactive(darkPalette, fadeAmount(), fadeColor());
 }
 
-double FreesmTheme::fadeAmount()
+double FreesmLightTheme::fadeAmount()
 {
     return 0.5;
 }
 
-QColor FreesmTheme::fadeColor()
+QColor FreesmLightTheme::fadeColor()
 {
     return QColor(108, 112, 134);
 }
 
-bool FreesmTheme::hasStyleSheet()
+bool FreesmLightTheme::hasStyleSheet()
 {
     return true;
 }
 
-QString FreesmTheme::appStyleSheet()
+QString FreesmLightTheme::appStyleSheet()
 {
     return "QMainWindow, QDockWidget {background-color: #11111b;}QWidget {border-color: rgba(255, 255, 255, 8);font-family: \"Segoe UI "
            "Variable Text Semibold\", serif;border-radius: 4px;}QObject, QObject::separator, QObject::handle, QObject::tab-bar, "
@@ -202,7 +202,7 @@ QString FreesmTheme::appStyleSheet()
            "40px;height: 40px;margin-left: 15px;}QGroupBox QComboBox::down-arrow {width: 38px;height: 40px;}QComboBox::drop-down "
            "{background-color: transparent;min-width: 50px;}QComboBox:disabled {color: rgba(150, 150, 150);background-color: rgba(255, "
            "255, 255, 13);}QComboBox::down-arrow:disabled {image: url(theme:ComboBoxDisabled.png);}QComboBox QAbstractItemView "
-           "{background-color: #181825;border-radius: 0px;border: 1px solid rgba(255, 255, 255, 8);selection-color: "
+           "{background-color: #000000;border-radius: 0px;border: 1px solid rgba(255, 255, 255, 8);selection-color: "
            "#ffffff;selection-background-color: rgba(255, 255, 255, 16);padding: 4px;}QTextEdit, QPlainTextEdit {background-color: "
            "rgba(255, 255, 255, 16);border: 1px solid rgba(255, 255, 255, 5);border-bottom: 1px solid #707070;}QTextEdit:hover, QPlainTextEdit:hover "
            "{background-color: #0c0c13;}QTextEdit:focus, QPlainTextEdit:focus {border-bottom: 1px solid #cba6f7;background-color: #0c0c13; "
@@ -267,10 +267,10 @@ QString FreesmTheme::appStyleSheet()
            "5px;background-color: rgba(0,0,0,30%);}#mainToolBar {background: rgba(0,0,0,0%);}#instanceToolBar {background: "
            "rgba(0,0,0,40%);}#mainToolBar QToolButton {padding: 5px;}#mainToolBar QToolButton[popupMode=\"2\"] {padding-right: "
            "20px;}#statusBar, #newsToolBar {background: rgba(0,0,0,50%);}#statusBar QLabel {padding: 20px;padding-top: 0px;padding-bottom: "
-           "15px;}QSizeGrip {height: 0px;width: 0px;}QToolTip {border: 1px solid #181825;color: white;padding: 2px;border-radius: "
-           "3px;background: #181825;}QListView {padding: 5px;}";
+           "15px;}QSizeGrip {height: 0px;width: 0px;}QToolTip {border: 1px solid #000000;color: white;padding: 2px;border-radius: "
+           "3px;background: #000000;}QListView {padding: 5px;}";
 }
-QString FreesmTheme::tooltip()
+QString FreesmLightTheme::tooltip()
 {
     return "";
 }
