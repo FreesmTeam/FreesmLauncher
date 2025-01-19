@@ -49,6 +49,7 @@
 #include <QMimeData>
 #include <QMouseEvent>
 #include <QMovie>
+#include <QOpenGLWidget>
 #include <QPainter>
 #include <QPersistentModelIndex>
 #include <QPixmap>
@@ -75,6 +76,9 @@ bool listsIntersect(const QList<T>& l1, const QList<T> t2)
 
 InstanceView::InstanceView(QWidget* parent) : QAbstractItemView(parent)
 {
+    // FIXME: this broke window frame and some ui colors (at least on macos)
+    setViewport(new QOpenGLWidget(this));
+
     setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
     setAcceptDrops(true);
@@ -604,6 +608,9 @@ void InstanceView::paintEvent([[maybe_unused]] QPaintEvent* event)
     executeDelayedItemsLayout();
 
     QPainter painter(this->viewport());
+
+    // FIXME: remove hardcoded color
+    painter.fillRect(event->rect(), { 29, 29, 29 });
 
     if (m_catVisible) {
         drawCat(painter);

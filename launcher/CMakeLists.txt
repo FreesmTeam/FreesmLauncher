@@ -1304,6 +1304,7 @@ target_link_libraries(Launcher_logic
     Qt${QT_VERSION_MAJOR}::Gui
     Qt${QT_VERSION_MAJOR}::Widgets
     Qt${QT_VERSION_MAJOR}::NetworkAuth
+    Qt${QT_VERSION_MAJOR}::OpenGLWidgets
     ${Launcher_QT_LIBS}
 )
 target_link_libraries(Launcher_logic
