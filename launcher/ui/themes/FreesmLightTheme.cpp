@@ -83,12 +83,12 @@ bool FreesmLightTheme::hasStyleSheet()
 
 QString FreesmLightTheme::appStyleSheet()
 {
-    return "QMainWindow, QDockWidget {background-color: #faf4ed;}QWidget {border-color: rgba(255, 255, 255, 8);font-family: \"Segoe UI "
+    return "QMainWindow, QDockWidget {background-color: #ffffff;}QWidget {border-color: rgba(255, 255, 255, 8);font-family: \"Segoe UI "
            "Variable Text Semibold\", serif;border-radius: 4px;}QObject, QObject::separator, QObject::handle, QObject::tab-bar, "
            "QObject::tab, QObject::section {outline: 0;selection-color: #ffffff;border-radius: 2px;selection-background-color: rgba(203, "
-           "166, 247, 200);alternate-background-color: transparent;}QObject::handle {margin: 2px;background: rgb(220, 203, "
-           "255);}QObject::handle:active {margin: 2px;background: rgba(203, 166, 247, 200);}QDialog, QWizard *, QCalendarWidget *, "
-           "#qswPages > QObject {background-color: #faf4ed;color: #ffffff;}QToolBar {background-color: transparent;spacing: 0;padding: "
+           "166, 247, 200);alternate-background-color: transparent;}QObject::handle {margin: 2px;background: rgb(215, 130, "
+           "126);}QObject::handle:active {margin: 2px;background: rgba(203, 166, 247, 200);}QDialog, QWizard *, QCalendarWidget *, "
+           "#qswPages > QObject {background-color: #ffffff;color: #ffffff;}QToolBar {background-color: transparent;spacing: 0;padding: "
            "8px;}QToolBar::separator {background: rgba(255, 255, 255, 20);height: 0;margin: 0;}QToolButton {background-color: rgba(255, "
            "255, 255, 0);border: 1px solid transparent;border-radius: 6px;padding: 2px;margin-left: 8px;}QToolButton[popupMode=\"2\"] "
            "{padding-right: 20px;}QToolButton:on {background-color: rgba(205, 214, 244, 18);}QToolButton:hover {background-color: "
@@ -98,7 +98,7 @@ QString FreesmLightTheme::appStyleSheet()
            "255, 8);}QToolButton::menu-button {background: rgba(0,0,0,0%);border: none;}QMenuBar {background-color: transparent;color: "
            "#ffffff;padding: 5px;}QMenuBar::item {background-color: transparent;padding: 6px 10px;border-radius: "
            "4px;}QMenuBar::item:selected {background-color: rgba(255, 255, 255, 20);}QMenuBar::item:pressed {background-color: rgba(255, "
-           "255, 255, 13);color: #333333;}QMenu {background-color: #faf4ed;padding-left: 1px;padding-top: 1px;border: 1px solid rgba(255, "
+           "255, 255, 13);color: #333333;}QMenu {background-color: #ffffff;padding-left: 1px;padding-top: 1px;border: 1px solid rgba(255, "
            "255, 255, 8);border-radius: 0px;}QMenu::indicator, QMenu::icon {left: 4px;}QMenu::item {background-color: transparent;padding: "
            "5px 15px;border-radius: 5px;min-width: 60px;margin: 3px;border: 1px solid transparent;}QMenu::item:selected {background-color: "
            "rgba(203, 166, 247, 16);}QMenu::item:pressed {background-color: rgba(203, 166, 247, 8);border: 1px solid rgba(205, 214, 244, "
@@ -202,7 +202,7 @@ QString FreesmLightTheme::appStyleSheet()
            "40px;height: 40px;margin-left: 15px;}QGroupBox QComboBox::down-arrow {width: 38px;height: 40px;}QComboBox::drop-down "
            "{background-color: transparent;min-width: 50px;}QComboBox:disabled {color: rgba(150, 150, 150);background-color: rgba(255, "
            "255, 255, 13);}QComboBox::down-arrow:disabled {image: url(theme:ComboBoxDisabled.png);}QComboBox QAbstractItemView "
-           "{background-color: #faf4ed;border-radius: 0px;border: 1px solid rgba(255, 255, 255, 8);selection-color: "
+           "{background-color: #ffffff;border-radius: 0px;border: 1px solid rgba(255, 255, 255, 8);selection-color: "
            "#ffffff;selection-background-color: rgba(255, 255, 255, 16);padding: 4px;}QTextEdit, QPlainTextEdit {background-color: "
            "rgba(255, 255, 255, 16);border: 1px solid rgba(255, 255, 255, 5);border-bottom: 1px solid #e0e0e0;}QTextEdit:hover, QPlainTextEdit:hover "
            "{background-color: #fffdfa;}QTextEdit:focus, QPlainTextEdit:focus {border-bottom: 1px solid #d7827e;background-color: #fffdfa; "
@@ -267,8 +267,8 @@ QString FreesmLightTheme::appStyleSheet()
            "5px;background-color: rgba(0,0,0,30%);}#mainToolBar {background: rgba(0,0,0,0%);}#instanceToolBar {background: "
            "rgba(0,0,0,40%);}#mainToolBar QToolButton {padding: 5px;}#mainToolBar QToolButton[popupMode=\"2\"] {padding-right: "
            "20px;}#statusBar, #newsToolBar {background: rgba(0,0,0,50%);}#statusBar QLabel {padding: 20px;padding-top: 0px;padding-bottom: "
-           "15px;}QSizeGrip {height: 0px;width: 0px;}QToolTip {border: 1px solid #faf4ed;color: white;padding: 2px;border-radius: "
-           "3px;background: #faf4ed;}QListView {padding: 5px;}";
+           "15px;}QSizeGrip {height: 0px;width: 0px;}QToolTip {border: 1px solid #ffffff;color: white;padding: 2px;border-radius: "
+           "3px;background: #ffffff;}QListView {padding: 5px;}";
 }
 QString FreesmLightTheme::tooltip()
 {
