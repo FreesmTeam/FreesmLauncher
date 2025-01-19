@@ -49,20 +49,20 @@ QString FreesmLightTheme::name()
 QPalette FreesmLightTheme::colorScheme()
 {
     QPalette darkPalette;
-    darkPalette.setColor(QPalette::Window, QColor(30, 30, 46));
-    darkPalette.setColor(QPalette::WindowText, QColor(186, 194, 222));
-    darkPalette.setColor(QPalette::Base, QColor(24, 24, 37));
-    darkPalette.setColor(QPalette::AlternateBase, QColor(30, 30, 46));
-    darkPalette.setColor(QPalette::ToolTipBase, QColor(222, 229, 252));
-    darkPalette.setColor(QPalette::ToolTipText, QColor(222, 229, 252));
-    darkPalette.setColor(QPalette::Text, QColor(205, 214, 244));
-    darkPalette.setColor(QPalette::Button, QColor(49, 50, 68));
-    darkPalette.setColor(QPalette::ButtonText, QColor(205, 214, 244));
-    darkPalette.setColor(QPalette::BrightText, QColor(186, 194, 222));
-    darkPalette.setColor(QPalette::Link, QColor(180, 190, 254));
-    darkPalette.setColor(QPalette::Highlight, QColor(180, 190, 254));
-    darkPalette.setColor(QPalette::HighlightedText, QColor(30, 30, 46));
-    darkPalette.setColor(QPalette::PlaceholderText, Qt::darkGray);
+    darkPalette.setColor(QPalette::Window, QColor(250, 244, 237));
+    darkPalette.setColor(QPalette::WindowText, QColor(65, 62, 87));
+    darkPalette.setColor(QPalette::Base, QColor(250, 244, 237));
+    darkPalette.setColor(QPalette::AlternateBase, QColor(250, 244, 237));
+    darkPalette.setColor(QPalette::ToolTipBase, QColor(144, 122, 169));
+    darkPalette.setColor(QPalette::ToolTipText, QColor(144, 122, 169));
+    darkPalette.setColor(QPalette::Text, QColor(87, 82, 121));
+    darkPalette.setColor(QPalette::Button, QColor(215, 130, 126));
+    darkPalette.setColor(QPalette::ButtonText, QColor(87, 82, 121));
+    darkPalette.setColor(QPalette::BrightText, QColor(65, 62, 87));
+    darkPalette.setColor(QPalette::Link, QColor(215, 130, 126));
+    darkPalette.setColor(QPalette::Highlight, QColor(215, 130, 126));
+    darkPalette.setColor(QPalette::HighlightedText, QColor(206, 202, 205));
+    darkPalette.setColor(QPalette::PlaceholderText, QColor(206, 202, 205));
     return fadeInactive(darkPalette, fadeAmount(), fadeColor());
 }
 
@@ -73,7 +73,7 @@ double FreesmLightTheme::fadeAmount()
 
 QColor FreesmLightTheme::fadeColor()
 {
-    return QColor(108, 112, 134);
+    return QColor(255, 255, 255);
 }
 
 bool FreesmLightTheme::hasStyleSheet()
