@@ -82,9 +82,7 @@ Feel free to create a GitHub issue if you find a bug or want to suggest a new fe
 
 ## Translations
 
-Freesm Launcher is based on Prism Launcher, including translations.
-
-The translation effort for Prism Launcher is hosted on [Weblate](https://hosted.weblate.org/projects/prismlauncher/launcher/) and information about translating Prism Launcher is available at <https://github.com/PrismLauncher/Translations>.
+The translation effort for Freesm Launcher is hosted on [Weblate](https://hosted.weblate.org/projects/freesmlauncher/freesmlauncher-launcher/) and information about translating Freesm Launcher is available at <https://github.com/FreesmTeam/Translations>.
 
 ## Building
 
