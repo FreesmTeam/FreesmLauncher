@@ -289,6 +289,7 @@ void ModFilterWidget::onSideFilterChanged()
         side = "none";
     }
 
+
     m_filter_changed = side != m_filter->side;
     m_filter->side = side;
     if (m_filter_changed)
