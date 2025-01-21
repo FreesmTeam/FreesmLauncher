@@ -286,7 +286,7 @@ void ModFilterWidget::onSideFilterChanged()
     } else if (ui->clientSide->isChecked() && ui->serverSide->isChecked()) {
         side = "both";
     } else {
-        side = "none";
+        side = "";
     }
 
 
