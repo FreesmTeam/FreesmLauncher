@@ -22,18 +22,23 @@
 #include <QOpenGLFunctions>
 #include <QOpenGLShaderProgram>
 #include <QOpenGLTexture>
-#include <QOpenGLWidget>
+#include <QOpenGLWindow>
 #include <QVector2D>
 #include "minecraft/skins/SkinModel.h"
 #include "ui/dialogs/skins/draw/BoxGeometry.h"
 #include "ui/dialogs/skins/draw/Scene.h"
 
-class SkinOpenGLWidget : public QOpenGLWidget, protected QOpenGLFunctions {
+class SkinProvider {
+   public:
+    virtual SkinModel* getSelectedSkin() = 0;
+    virtual QHash<QString, QImage> capes() = 0;
+};
+class SkinOpenGLWindow : public QOpenGLWindow, protected QOpenGLFunctions {
     Q_OBJECT
 
    public:
-    SkinOpenGLWidget(QWidget* parent = nullptr) : QOpenGLWidget(parent), QOpenGLFunctions() {}
-    virtual ~SkinOpenGLWidget();
+    SkinOpenGLWindow(SkinProvider* parent, QColor color);
+    virtual ~SkinOpenGLWindow();
 
     void updateScene(SkinModel* skin);
     void updateCape(const QImage& cape);
@@ -68,4 +73,6 @@ class SkinOpenGLWidget : public QOpenGLWidget, protected QOpenGLFunctions {
 
     opengl::BoxGeometry* m_background = nullptr;
     QOpenGLTexture* m_backgroundTexture = nullptr;
+    QColor m_baseColor;
+    SkinProvider* m_parent = nullptr;
 };

@@ -26,34 +26,54 @@
 #include <cmath>
 
 #include "minecraft/skins/SkinModel.h"
-#include "ui/dialogs/skins/SkinManageDialog.h"
 #include "ui/dialogs/skins/draw/BoxGeometry.h"
 #include "ui/dialogs/skins/draw/Scene.h"
 
-SkinOpenGLWidget::~SkinOpenGLWidget()
+SkinOpenGLWindow::SkinOpenGLWindow(SkinProvider* parent, QColor color)
+    : QOpenGLWindow(), QOpenGLFunctions(), m_baseColor(color), m_parent(parent)
+{
+    QSurfaceFormat format = QSurfaceFormat::defaultFormat();
+    format.setDepthBufferSize(24);
+    setFormat(format);
+}
+
+SkinOpenGLWindow::~SkinOpenGLWindow()
 {
     // Make sure the context is current when deleting the texture
     // and the buffers.
     makeCurrent();
-    delete m_scene;
-    delete m_background;
-    m_backgroundTexture->destroy();
-    delete m_backgroundTexture;
-    if (m_program->isLinked()) {
-        m_program->release();
+    // double check if resources were initialized because they are not
+    // initialized together with the object
+    if (m_scene) {
+        delete m_scene;
     }
-    m_program->removeAllShaders();
-    delete m_program;
+    if (m_background) {
+        delete m_background;
+    }
+    if (m_backgroundTexture) {
+        if (m_backgroundTexture->isCreated()) {
+            m_backgroundTexture->destroy();
+        }
+        delete m_backgroundTexture;
+    }
+    if (m_program) {
+        if (m_program->isLinked()) {
+            m_program->release();
+        }
+        m_program->removeAllShaders();
+        delete m_program;
+    }
     doneCurrent();
 }
 
-void SkinOpenGLWidget::mousePressEvent(QMouseEvent* e)
+void SkinOpenGLWindow::mousePressEvent(QMouseEvent* e)
 {
     // Save mouse press position
     m_mousePosition = QVector2D(e->pos());
     m_isMousePressed = true;
 }
-void SkinOpenGLWidget::mouseMoveEvent(QMouseEvent* event)
+
+void SkinOpenGLWindow::mouseMoveEvent(QMouseEvent* event)
 {
     if (m_isMousePressed) {
         int dx = event->x() - m_mousePosition.x();
@@ -72,12 +92,13 @@ void SkinOpenGLWidget::mouseMoveEvent(QMouseEvent* event)
         update();  // Trigger a repaint
     }
 }
-void SkinOpenGLWidget::mouseReleaseEvent([[maybe_unused]] QMouseEvent* e)
+
+void SkinOpenGLWindow::mouseReleaseEvent([[maybe_unused]] QMouseEvent* e)
 {
     m_isMousePressed = false;
 }
 
-void SkinOpenGLWidget::initializeGL()
+void SkinOpenGLWindow::initializeGL()
 {
     initializeOpenGLFunctions();
 
@@ -89,11 +110,11 @@ void SkinOpenGLWidget::initializeGL()
 
     QImage skin, cape;
     bool slim = false;
-    if (auto p = dynamic_cast<SkinManageDialog*>(parent()); p) {
-        if (auto s = p->getSelectedSkin()) {
+    if (m_parent) {
+        if (auto s = m_parent->getSelectedSkin()) {
             skin = s->getTexture();
             slim = s->getModel() == SkinModel::SLIM;
-            cape = p->capes().value(s->getCapeId(), {});
+            cape = m_parent->capes().value(s->getCapeId(), {});
         }
     }
 
@@ -102,7 +123,7 @@ void SkinOpenGLWidget::initializeGL()
     glEnable(GL_TEXTURE_2D);
 }
 
-void SkinOpenGLWidget::initShaders()
+void SkinOpenGLWindow::initShaders()
 {
     m_program = new QOpenGLShaderProgram(this);
     // Compile vertex shader
@@ -122,7 +143,7 @@ void SkinOpenGLWidget::initShaders()
         close();
 }
 
-void SkinOpenGLWidget::resizeGL(int w, int h)
+void SkinOpenGLWindow::resizeGL(int w, int h)
 {
     // Calculate aspect ratio
     qreal aspect = qreal(w) / qreal(h ? h : 1);
@@ -136,7 +157,7 @@ void SkinOpenGLWidget::resizeGL(int w, int h)
     m_projection.perspective(fov, aspect, zNear, zFar);
 }
 
-void SkinOpenGLWidget::paintGL()
+void SkinOpenGLWindow::paintGL()
 {
     // Clear color and depth buffer
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -171,7 +192,7 @@ void SkinOpenGLWidget::paintGL()
     m_program->release();
 }
 
-void SkinOpenGLWidget::updateScene(SkinModel* skin)
+void SkinOpenGLWindow::updateScene(SkinModel* skin)
 {
     if (skin && m_scene) {
         m_scene->setMode(skin->getModel() == SkinModel::SLIM);
@@ -179,7 +200,7 @@ void SkinOpenGLWidget::updateScene(SkinModel* skin)
         update();
     }
 }
-void SkinOpenGLWidget::updateCape(const QImage& cape)
+void SkinOpenGLWindow::updateCape(const QImage& cape)
 {
     if (m_scene) {
         m_scene->setCapeVisible(!cape.isNull());
@@ -236,16 +257,16 @@ QImage generateChessboardImage(int width, int height, int tileSize, QColor baseC
     return image;
 }
 
-void SkinOpenGLWidget::generateBackgroundTexture(int width, int height, int tileSize)
+void SkinOpenGLWindow::generateBackgroundTexture(int width, int height, int tileSize)
 {
-    m_backgroundTexture =
-        new QOpenGLTexture(generateChessboardImage(width, height, tileSize, palette().color(QPalette::Normal, QPalette::Base)));
+    m_backgroundTexture = new QOpenGLTexture(generateChessboardImage(width, height, tileSize, m_baseColor));
     m_backgroundTexture->setMinificationFilter(QOpenGLTexture::Nearest);
     m_backgroundTexture->setMagnificationFilter(QOpenGLTexture::Nearest);
 }
 
-void SkinOpenGLWidget::renderBackground()
+void SkinOpenGLWindow::renderBackground()
 {
+    glDisable(GL_DEPTH_TEST);
     glDepthMask(GL_FALSE);  // Disable depth buffer writing
     m_backgroundTexture->bind();
     QMatrix4x4 matrix;
@@ -254,9 +275,10 @@ void SkinOpenGLWidget::renderBackground()
     m_background->draw(m_program);
     m_backgroundTexture->release();
     glDepthMask(GL_TRUE);  // Re-enable depth buffer writing
+    glEnable(GL_DEPTH_TEST);
 }
 
-void SkinOpenGLWidget::wheelEvent(QWheelEvent* event)
+void SkinOpenGLWindow::wheelEvent(QWheelEvent* event)
 {
     // Adjust distance based on scroll
     int delta = event->angleDelta().y();  // Positive for scroll up, negative for scroll down

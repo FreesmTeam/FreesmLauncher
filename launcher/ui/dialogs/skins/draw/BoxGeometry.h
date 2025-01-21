@@ -25,7 +25,7 @@
 #include <QVector3D>
 
 namespace opengl {
-class BoxGeometry : protected QOpenGLFunctions {
+class BoxGeometry {
    public:
     BoxGeometry(QVector3D size, QVector3D position);
     BoxGeometry(QVector3D size, QVector3D position, QPoint uv, QVector3D textureDim, QSize textureSize = { 64, 64 });
