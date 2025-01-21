@@ -265,9 +265,9 @@ void ProfileSetupDialog::setupProfileFinished()
         auto parsedError = MojangError::fromJSON(*m_profile_response);
         ui->errorLabel->setVisible(true);
 
-        QString errorMessage = tr("Network error(%1): %2: HTTP Status: %3")
-                                   .arg(QString::number(m_profile_task->error()), m_profile_task->errorString(),
-                                        QString::number(m_profile_task->replyStatusCode()));
+        QString errorMessage =
+            tr("Network Error: %1\nHTTP Status: %2").arg(m_profile_task->errorString(), QString::number(m_profile_task->replyStatusCode()));
+
 
         if (parsedError.fullyParsed) {
             errorMessage += "Path: " + parsedError.path + "\n";
@@ -278,7 +278,7 @@ void ProfileSetupDialog::setupProfileFinished()
             errorMessage += "Log:\n" + parsedError.rawError + "\n";
         }
 
-        ui->errorLabel->setText(tr("The server returned the following error:") + "\n\n" + errorMessage);
+        ui->errorLabel->setText(tr("The server responded with the following error:") + "\n\n" + errorMessage);
         qDebug() << parsedError.rawError;
         auto button = ui->buttonBox->button(QDialogButtonBox::Cancel);
         button->setEnabled(true);
