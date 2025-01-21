@@ -1305,7 +1305,6 @@ target_link_libraries(Launcher_logic
     Qt${QT_VERSION_MAJOR}::Widgets
     Qt${QT_VERSION_MAJOR}::NetworkAuth
     Qt${QT_VERSION_MAJOR}::OpenGL
-    ${Launcher_QT_OpenGL}
     ${Launcher_QT_DBUS}
     ${Launcher_QT_LIBS}
 )

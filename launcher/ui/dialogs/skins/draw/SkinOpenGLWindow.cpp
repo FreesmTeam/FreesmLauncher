@@ -16,7 +16,7 @@
  *  along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#include "ui/dialogs/skins/draw/SkinOpenGLWidget.h"
+#include "ui/dialogs/skins/draw/SkinOpenGLWindow.h"
 
 #include <QMouseEvent>
 #include <QOpenGLBuffer>
