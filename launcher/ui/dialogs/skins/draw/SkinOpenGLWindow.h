@@ -30,6 +30,7 @@
 
 class SkinProvider {
    public:
+    virtual ~SkinProvider() = default;
     virtual SkinModel* getSelectedSkin() = 0;
     virtual QHash<QString, QImage> capes() = 0;
 };
