@@ -1,16 +1,16 @@
 <div align="center">
   <br />
-  
+
   <div>
     <img align="center" alt="DRM Free" src="https://img.shields.io/badge/drm-free-d33?style=for-the-badge">
   </div>
-  
+
   <br />
 
   <p>
     <strong>English</strong> | <a href="https://github.com/FreesmTeam/FreesmLauncher/blob/develop/README_russian.md">Русский</a><br />
   </p>
-  
+
   <p>
     Freesm Launcher is a custom launcher for Minecraft that allows you to easily manage multiple installations of Minecraft at once and login with offline account without any restrictions.<br />
     <br />This is a <b>fork</b> of the Prism Launcher and is <b>not</b> endorsed by it. <!-- isn't it good? :) -->
