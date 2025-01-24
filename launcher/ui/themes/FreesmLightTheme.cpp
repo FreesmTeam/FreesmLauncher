@@ -149,7 +149,7 @@ QString FreesmLightTheme::appStyleSheet()
            "right;subcontrol-origin: margin;}QScrollBar::add-line:horizontal:hover {image: "
            "url(theme:ScrollRightHover.png);}QScrollBar::add-line:horizontal:pressed {image: "
            "url(theme:ScrollRightPressed.png);}QScrollBar::add-page:horizontal, QScrollBar::sub-page:horizontal {background: "
-           "none;}QAbstractScrollArea {background-color: transparent;}QProgressBar {text-align: right;background-color: "
+           "none;}QAbstractScrollArea {background-color: #ffffff;}QProgressBar {text-align: right;background-color: "
            "qlineargradient(spread:reflect, x1:0.5, y1:0.5, x2:0.5, y2:1, stop:0.119403 rgba(255, 255, 255, 20), stop:0.273632 rgba(255, 255, "
            "255, 0));border-radius: 1px;margin-top: 14px;margin-bottom: 14px;}QProgressBar::chunk {background-color: "
            "qlineargradient(spread:reflect, x1:0.5, y1:0.5, x2:0.5, y2:1, stop:0.119403 rgba(255, 255, 255, 250), stop:0.273632 rgba(255, 255, "
