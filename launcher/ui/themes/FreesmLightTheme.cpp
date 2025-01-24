@@ -264,11 +264,11 @@ QString FreesmLightTheme::appStyleSheet()
            "QCheckBox::indicator:disabled, QTreeView::indicator:disabled {border: 1px solid #d1d1d1;background-color: rgba(255, 255, 255, "
            "0);}QStatusBar::item {background: transparent;}QTableView, QColumnView {gridline-color: rgba(255, 255, 255, 0);}QGroupBox "
            "QToolButton {padding: 6px;}QDialog QListView::icon, QDialog QListView::text {left: 0px;}InstanceView {padding: "
-           "5px;background-color: rgba(255,255,255,30%);}#mainToolBar {background: rgba(255,255,255,0%);}#instanceToolBar {background: "
-           "rgba(255,255,255,40%);}#mainToolBar QToolButton {padding: 5px;}#mainToolBar QToolButton[popupMode=\"2\"] {padding-right: "
-           "20px;}#statusBar, #newsToolBar {background: rgba(255,255,255,50%);}#statusBar QLabel {padding: 20px;padding-top: 0px;padding-bottom: "
-           "15px;}QSizeGrip {height: 0px;width: 0px;}QToolTip {border: 1px solid #ffffff;color: white;padding: 2px;border-radius: "
-           "3px;background: #ffffff;}QListView {padding: 5px;}";
+           "5px;background-color: rgba(255,255,255,100%);}#mainToolBar {background: rgba(255,255,255,100%);}#instanceToolBar {background: "
+           "rgba(255,255,255,100%);}#mainToolBar QToolButton {padding: 5px;}#mainToolBar QToolButton[popupMode=\"2\"] {padding-right: "
+           "20px;}#statusBar, #newsToolBar {background: rgba(255,255,255,100%);}#statusBar QLabel {padding: 20px;padding-top: 0px;padding-bottom: "
+           "15px;}QSizeGrip {height: 0px;width: 0px;}QToolTip {border: 1px solid #ffffff;color: #000000;padding: "
+           "2px;background: #ffffff;}QListView {padding: 5px;}";
 }
 QString FreesmLightTheme::tooltip()
 {
