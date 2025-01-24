@@ -55,9 +55,9 @@ QPalette FreesmLightTheme::colorScheme()
     darkPalette.setColor(QPalette::AlternateBase, QColor(250, 244, 237));
     darkPalette.setColor(QPalette::ToolTipBase, QColor(144, 122, 169));
     darkPalette.setColor(QPalette::ToolTipText, QColor(144, 122, 169));
-    darkPalette.setColor(QPalette::Text, QColor(87, 82, 121));
+    darkPalette.setColor(QPalette::Text, QColor(121, 83, 82));
     darkPalette.setColor(QPalette::Button, QColor(215, 130, 126));
-    darkPalette.setColor(QPalette::ButtonText, QColor(87, 82, 121));
+    darkPalette.setColor(QPalette::ButtonText, QColor(121, 83, 82));
     darkPalette.setColor(QPalette::BrightText, QColor(65, 62, 87));
     darkPalette.setColor(QPalette::Link, QColor(215, 130, 126));
     darkPalette.setColor(QPalette::Highlight, QColor(215, 130, 126));
