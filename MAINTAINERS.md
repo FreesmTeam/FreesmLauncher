@@ -1,23 +1,25 @@
 <div align="center">
-  <h1>Maintainers - those who are related to Freesm Launcher.</h1>
+  <h1>Maintainers - The Core Team Behind Freesm Launcher</h1>
 </div>
 
-[windstone](https://github.com/notwindstone)
-
-<!-- say little about youself here -->
-
-[hand7s](https://github.com/s0me1newithhand7s)
-
-<!-- say little about youself here -->
-
-[fractal](https://github.com/fractal)
-
-<!-- say little about youself here -->
-
-[so5iso4ka](https://github.com/so5iso4ka)
-
-<!-- say little about youself here -->
-
-[m3oweezed](https://github.com/m3oweezed)
-
-<!-- say little about youself here -->
+<div align="center">
+  <a href="https://github.com/notwindstone">
+    <br><strong>windstone</strong>
+  </a>
+  <br> <!-- add desc -->
+  <a href="https://github.com/s0me1newithhand7s">
+    <br><strong>hand7s</strong>
+  </a>
+  <br> <!-- add desc -->
+  <a href="https://github.com/fractal">
+    <br><strong>fractal</strong>
+  </a>
+  <br> <!-- add desc -->
+  <a href="https://github.com/so5iso4ka">
+    <br><strong>so5iso4ka</strong>
+  </a>
+  <br> <!-- add desc -->
+  <a href="https://github.com/m3oweezed">
+    <br><strong>m3oweezed</strong>
+  </a>
+</div>

@@ -2,104 +2,150 @@
   <br />
 
   <div>
-    <img align="center" alt="DRM Free" src="https://img.shields.io/badge/drm-free-d33?style=for-the-badge">
+    <img align="center" alt="DRM Free" src="https://img.shields.io/badge/drm-free-brightgreen?style=for-the-badge">
   </div>
 
   <br />
 
   <p>
-    <strong>English</strong> | <a href="https://github.com/FreesmTeam/FreesmLauncher/blob/develop/README_russian.md">Русский</a><br />
+    <strong>Not so "prism" as you think</strong><br />
+    <div style="display: inline-flex; gap: 1rem;">
+      <a href="#" style="text-decoration: none;">
+        <img src="https://upload.wikimedia.org/wikipedia/en/a/a4/Flag_of_the_United_States.svg" alt="English" style="height: 20px;"> English
+      </a>
+      |
+      <a href="https://github.com/FreesmTeam/FreesmLauncher/blob/develop/README_russian.md" style="text-decoration: none;">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/f/f3/Flag_of_Russia.svg" alt="Русский" style="height: 20px;"> Русский
+      </a>
+    </div>
   </p>
 
   <p>
     Freesm Launcher is a custom launcher for Minecraft that allows you to easily manage multiple installations of Minecraft at once and login with offline account without any restrictions.<br />
-    <br />This is a <b>fork</b> of the Prism Launcher and is <b>not</b> endorsed by it. <!-- isn't it good? :) -->
+    <br />This is a <b>fork</b> of the Prism Launcher and is <b>not</b> endorsed by it.
   </p>
 </div>
 
-## Screenshots
+<h2>Screenshots</h2>
+
+<p style="text-align: center; font-style: italic;">Explore Freesm Launcher's key features through these visuals, showcasing its interface, themes, and more.</p>
 
 <div align="center">
-  <img src="docs/screenshots/freesmlauncher_home_screenshot.png" alt="home page screenshot">
+  <img src="docs/screenshots/freesmlauncher_home_screenshot.png" alt="Home page screenshot">
 </div>
 
 <details>
-<summary>Expand more</summary>
+  <summary>📷 Expand more</summary>
 
-<div align="center">
-  <img src="docs/screenshots/freesmlauncher_home_screenshot_opacity.png" alt="home page screenshot with active opacity">
-  <img src="docs/screenshots/freesmlauncher_home_mita.gif" alt="home page gif with mita catpack">
-  <img src="docs/screenshots/freesmlauncher_home_maxwell.gif" alt="home page gif with maxwell catpack">
-  <img src="docs/screenshots/freesmlauncher_settings_accounts_screenshot.png" alt="settings accounts page screenshot">
-  <img src="docs/screenshots/freesmlauncher_instance_add_screenshot.png" alt="instance creation page screenshot">
-  <img src="docs/screenshots/freesmlauncher_instance_settings_screenshot.png" alt="instance settings page screenshot">
-  <img src="docs/screenshots/freesmlauncher_settings_theme_screenshot.png" alt="settings theme page screenshot">
-</div>
+  <div align="center">
+    <img src="docs/screenshots/freesmlauncher_home_screenshot_opacity.png" alt="Home page screenshot with active opacity">
+    <img src="docs/screenshots/freesmlauncher_home_mita.gif" alt="Home page GIF with Mita Catpack">
+    <img src="docs/screenshots/freesmlauncher_home_maxwell.gif" alt="Home page GIF with Maxwell Catpack">
+    <img src="docs/screenshots/freesmlauncher_settings_accounts_screenshot.png" alt="Settings accounts page screenshot">
+    <img src="docs/screenshots/freesmlauncher_instance_add_screenshot.png" alt="Instance creation page screenshot">
+    <img src="docs/screenshots/freesmlauncher_instance_settings_screenshot.png" alt="Instance settings page screenshot">
+    <img src="docs/screenshots/freesmlauncher_settings_theme_screenshot.png" alt="Settings theme page screenshot">
+  </div>
 
 </details>
 
-## Differences between Prism Launcher and Freesm Launcher
+<h2>Differences between Prism Launcher and Freesm Launcher</h2>
 
-- Offline mode doesn't require an account.
+<table style="width: 100%; border-collapse: collapse; text-align: left;">
+  <thead>
+    <tr style="background-color: #f2f2f2;">
+      <th style="padding: 10px; border: 1px solid #ddd;">Feature</th>
+      <th style="padding: 10px; border: 1px solid #ddd;">Freesm Launcher</th>
+      <th style="padding: 10px; border: 1px solid #ddd;">Prism Launcher</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="padding: 10px; border: 1px solid #ddd;">Offline Mode</td>
+      <td style="padding: 10px; border: 1px solid #ddd;">Doesn't require an account</td>
+      <td style="padding: 10px; border: 1px solid #ddd;">Requires an account</td>
+    </tr>
+    <tr>
+      <td style="padding: 10px; border: 1px solid #ddd;">Custom Themes & Icons</td>
+      <td style="padding: 10px; border: 1px solid #ddd;">Yes</td>
+      <td style="padding: 10px; border: 1px solid #ddd;">No</td>
+    </tr>
+    <tr>
+      <td style="padding: 10px; border: 1px solid #ddd;">GIF Support for Cat Packs</td>
+      <td style="padding: 10px; border: 1px solid #ddd;">Yes</td>
+      <td style="padding: 10px; border: 1px solid #ddd;">No</td>
+    </tr>
+    <tr>
+      <td style="padding: 10px; border: 1px solid #ddd;">Image Cropping for Cat Packs</td>
+      <td style="padding: 10px; border: 1px solid #ddd;">Yes</td>
+      <td style="padding: 10px; border: 1px solid #ddd;">No</td>
+    </tr>
+    <tr>
+      <td style="padding: 10px; border: 1px solid #ddd;">Welcome Message on Home Screen</td>
+      <td style="padding: 10px; border: 1px solid #ddd;">No</td>
+      <td style="padding: 10px; border: 1px solid #ddd;">Yes</td>
+    </tr>
+    <tr>
+      <td style="padding: 10px; border: 1px solid #ddd;">Java Compatibility Checks</td>
+      <td style="padding: 10px; border: 1px solid #ddd;">Disabled by Default</td>
+      <td style="padding: 10px; border: 1px solid #ddd;">Enabled by Default</td>
+    </tr>
+  </tbody>
+</table>
 
-- Custom theme and icons.
+<h2>Installation</h2>
 
-- Gif support for cat packs.
+<ul>
+  <li>All downloads and instructions for Freesm Launcher can be found on our <a href="https://freesmlauncher.windstone.space">Website</a>.</li>
+  <li>Release builds are located in the <a href="https://github.com/FreesmTeam/FreesmLauncher/releases">GitHub Releases</a> tab.</li>
+  <li>You can also install development builds.</li>
+</ul>
 
-- Image cropping support for cat packs with names containing "screenshot" or "fullscreen"
+<h3>Development Builds</h3>
 
-- More cat packs.
+<p>Please understand that these builds are not intended for most users. There may be bugs and other instabilities. You have been warned.</p>
 
-- No welcome message on the home screen.
+<p>There are development builds available through:</p>
 
-- Disabled Java compatibility checks by default.
+<ul>
+  <li><a href="https://github.com/FreesmTeam/FreesmLauncher/actions">GitHub Actions</a> (includes builds from pull requests opened by contributors).</li>
+  <li><a href="https://nightly.link/FreesmTeam/FreesmLauncher/workflows/trigger_builds/develop">nightly.link</a> (this will always point only to the latest version of develop).</li>
+</ul>
 
-## Installation
+<p>These builds contain debug information in the binaries, so their file sizes are relatively larger. Prebuilt Development builds are provided for <strong>Linux</strong>, <strong>Windows</strong>, and <strong>macOS</strong>.</p>
 
-- All downloads and instructions for Freesm Launcher can be found on our [Website](https://freesmlauncher.windstone.space).
-- Release builds are located in [Github Releases](https://github.com/FreesmTeam/FreesmLauncher/releases) tab.
-- You can also install development builds.
+<h2>Community & Support</h2>
 
-### Development Builds
+<p>Feel free to create a GitHub issue if you find a bug or want to suggest a new feature.</p>
 
-Please understand that these builds are not intended for most users. There may be bugs, and other instabilities. You have been warned.
 
-There are development builds available through:
+> [!CAUTION]
+> Do not mention Freesm Launcher on Prism Launcher Discord, Forum, GitHub, etc. Freesm is a standalone project, taking code base from Prism, and may (in the future) have its own site, Discord, etc.</p>
 
-- [GitHub Actions](https://github.com/FreesmTeam/FreesmLauncher/actions) (includes builds from pull requests opened by contribuitors)
-- [nightly.link](https://nightly.link/FreesmTeam/FreesmLauncher/workflows/trigger_builds/develop) (this will always point only to the latest version of develop)
 
-These have debug information in the binaries, so their file sizes are relatively larger.
+<h2>Translations</h2>
 
-Prebuilt Development builds are provided for **Linux**, **Windows** and **macOS**.
+<p>The translation effort for Freesm Launcher is hosted on <a href="https://hosted.weblate.org/projects/freesmlauncher/freesmlauncher-launcher/">Weblate</a>. Information about translating Freesm Launcher is available at <a href="https://github.com/FreesmTeam/Translations">GitHub Translations</a>.</p>
 
-## Community & Support
+<h2>Building</h2>
 
-Feel free to create a GitHub issue if you find a bug or want to suggest a new feature.
+<p>If you want to build Freesm Launcher yourself, check the <a href="https://prismlauncher.org/wiki/development/build-instructions/">Build Instructions for Prism Launcher</a>.</p>
 
-> [!WARNING]
-> Do not mention Freesm Launcher on Prism Launcher Discord, Forum, GitHub and etc. Freesm - standalone project, that only takes code base from Prism and (mayber in future) will have it's own site, Discord and etc.
+<h2>Basic Info</h2>
 
-## Translations
+<ul>
+  <li>We <strong>ARE NOT</strong> related to the <a href="https://prismlauncher.org">Prism Launcher</a> team.</li>
+  <li>We <strong>ARE NOT</strong> collecting your information. Don't trust us? Check it yourself.</li>
+  <li>We <strong>ARE</strong> providing <em>the</em> way to play Minecraft for free.</li>
+  <li>We <strong>ARE</strong> open to contributing our builds.</li>
+</ul>
 
-The translation effort for Freesm Launcher is hosted on [Weblate](https://hosted.weblate.org/projects/freesmlauncher/freesmlauncher-launcher/) and information about translating Freesm Launcher is available at <https://github.com/FreesmTeam/Translations>.
+<h2>License</h2>
 
-## Building
+<p>All launcher code is available under the GPL-3.0-only license.</p>
 
-If you want to build Freesm Launcher yourself, check the [Build Instructions for Prism Launcher](https://prismlauncher.org/wiki/development/build-instructions/).
-
-## Basic info
-
-- We **ARE NOT** related to the [Prism Launcher](https://prismlauncher.org) team.
-
-- We **ARE NOT** collecting your information. Don't trust? - Check it yourself.
-
-- We **ARE** providing _the_ way to play Minecraft for free.
-
-- We **ARE** open to contributing our builds.
-
-## License
-
-All launcher code is available under the GPL-3.0-only license.
-
-[![https://github.com/PrismLauncher/PrismLauncher/blob/develop/LICENSE](https://img.shields.io/github/license/PrismLauncher/PrismLauncher?label=License&logo=gnu&color=C4282D&style=for-the-badge)](LICENSE)
+<p>
+  <a href="https://github.com/PrismLauncher/PrismLauncher/blob/develop/LICENSE">
+    <img src="https://img.shields.io/github/license/PrismLauncher/PrismLauncher?label=License&logo=gnu&color=C4282D&style=for-the-badge" alt="License">
+  </a>
+</p>
