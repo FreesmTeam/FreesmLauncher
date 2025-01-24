@@ -43,7 +43,7 @@ QString FreesmTheme::id()
 
 QString FreesmTheme::name()
 {
-    return QObject::tr("Freesm");
+    return QObject::tr("Freesm Dark");
 }
 
 QPalette FreesmTheme::colorScheme()
