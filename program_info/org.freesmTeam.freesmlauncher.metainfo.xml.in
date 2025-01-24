@@ -13,7 +13,7 @@
   <url type="contact">https://github.com/FreesmTeam/FreesmLauncher/</url>
   <url type="vcs-browser">https://github.com/FreesmTeam/FreesmLauncher</url>
   <url type="contribute">https://github.com/FreesmTeam/FreesmLauncher/blob/develop/CONTRIBUTING.md</url>
-  <url type="translate">https://hosted.weblate.org/projects/prismlauncher/launcher</url>
+  <url type="translate">https://hosted.weblate.org/projects/freesmlauncher/freesmlauncher-launcher/</url>
   <description>
     <p>Freesm Launcher is a custom launcher for Minecraft that focuses on predictability, long term stability and simplicity.</p>
     <p>Features:</p>

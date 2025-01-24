@@ -2,6 +2,9 @@
 > We are using Garnix CI for binary caching.
 > Proceed to read [this](https://garnix.io/docs/caching),
 > if you want to add binary cache manually.
+>
+> Also we using [Cachix](https://app.cachix.org/cache/freesmlauncher#pull) as fallback for binary caching.
+> Read more about it [here](https://docs.cachix.org/getting-started#using-binaries-with-nix).
 
 <h3 align="center"> Using on nixos / nixpkgs </h3>
 Freesm isn't in `nixpkgs` (yet?), so you need to add Freesm in `flake.nix`:
@@ -18,13 +21,13 @@ Freesm isn't in `nixpkgs` (yet?), so you need to add Freesm in `flake.nix`:
             };
         };
     };
-    outputs = { 
-        self, 
+    outputs = {
+        self,
         nixpkgs,
         home-manager,
         freesmlauncher,
         ...
-    } @ inputs : 
+    } @ inputs :
     ... # rest of flake.
 }
 ```
