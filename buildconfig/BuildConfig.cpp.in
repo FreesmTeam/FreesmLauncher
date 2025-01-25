@@ -58,6 +58,8 @@ Config::Config()
     // Version information
     VERSION_MAJOR = @Launcher_VERSION_MAJOR@;
     VERSION_MINOR = @Launcher_VERSION_MINOR@;
+    VERSION_PATCH = @Launcher_VERSION_PATCH@;
+    VERSION_CODENAME = "@Launcher_VERSION_CODENAME@";
 
     BUILD_PLATFORM = "@Launcher_BUILD_PLATFORM@";
     BUILD_ARTIFACT = "@Launcher_BUILD_ARTIFACT@";
@@ -102,7 +104,7 @@ Config::Config()
     if (GIT_REFSPEC.startsWith("refs/heads/"))
     {
         VERSION_CHANNEL = GIT_REFSPEC;
-        VERSION_CHANNEL.remove("refs/heads/"); 
+        VERSION_CHANNEL.remove("refs/heads/");
     }
     else if (!GIT_COMMIT.isEmpty())
     {
@@ -136,7 +138,7 @@ Config::Config()
 
 QString Config::versionString() const
 {
-    return QString("%1.%2").arg(VERSION_MAJOR).arg(VERSION_MINOR);
+    return QString("%1 %2.%3.%4").arg(VERSION_CODENAME).arg(VERSION_MAJOR).arg(VERSION_MINOR).arg(VERSION_PATCH);
 }
 
 QString Config::printableVersionString() const

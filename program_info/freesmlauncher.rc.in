@@ -7,7 +7,7 @@ IDI_ICON1               ICON    DISCARDABLE     "freesmlauncher.ico"
 1 RT_MANIFEST "freesmlauncher.manifest"
 
 VS_VERSION_INFO VERSIONINFO
-FILEVERSION     @Launcher_VERSION_NAME4_COMMA@
+FILEVERSION     @Launcher_VERSION_NAME4_COMMA_WINDOWS@
 FILEOS          VOS_NT_WINDOWS32
 FILETYPE        VFT_APP
 BEGIN
@@ -15,11 +15,11 @@ BEGIN
         BEGIN
                 BLOCK "000004b0"
                 BEGIN
-                        VALUE "CompanyName", "Freesm Launcher Contributors"
+                        VALUE "CompanyName", "Freesm Launcher"
                         VALUE "FileDescription", "Freesm Launcher"
-                        VALUE "FileVersion", "@Launcher_VERSION_NAME4@"
+                        VALUE "FileVersion", "@Launcher_VERSION_NAME4_WINDOWS@"
                         VALUE "ProductName", "Freesm Launcher"
-                        VALUE "ProductVersion", "@Launcher_VERSION_NAME4@"
+                        VALUE "ProductVersion", "@Launcher_VERSION_NAME4_WINDOWS@"
                 END
         END
         BLOCK "VarFileInfo"
