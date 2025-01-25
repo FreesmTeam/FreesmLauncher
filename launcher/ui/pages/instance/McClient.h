@@ -15,6 +15,10 @@ class McClient : public QObject {
     short m_port;
     QTcpSocket m_socket;
 
+    // 0: did not start reading the response yet
+    // 1: read the response length, still reading the response
+    // 2: finished reading the response
+    unsigned m_responseReadState = 0;
     unsigned m_wantedRespLength = 0;
     QByteArray m_resp;
 

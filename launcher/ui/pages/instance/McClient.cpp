@@ -46,18 +46,24 @@ void McClient::sendRequest() {
     writePacketToSocket(data); // send status packet
 }
 
-// Accumulate data until we have a full response, then call parseResponse()
+// Accumulate data until we have a full response, then call parseResponse() once
 void McClient::readRawResponse() {
+    if (m_responseReadState == 2) {
+        return;
+    }
+
     m_resp.append(m_socket.readAll());
-    if (m_wantedRespLength == 0 && m_resp.size() >= 5) {
+    if (m_responseReadState == 0 && m_resp.size() >= 5) {
         m_wantedRespLength = readVarInt(m_resp);
+        m_responseReadState = 1;
     }
     
-    if (m_wantedRespLength != 0 && m_resp.size() >= m_wantedRespLength) {
+    if (m_responseReadState == 1 && m_resp.size() >= m_wantedRespLength) {
         if (m_resp.size() > m_wantedRespLength) {
             qDebug() << "Warning: Packet length doesn't match actual packet size (" << m_wantedRespLength << " expected vs " << m_resp.size() << " received)";
         }
         parseResponse();
+        m_responseReadState = 2;
     }
 }
 
