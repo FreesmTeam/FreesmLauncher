@@ -6,9 +6,6 @@
 
 #include <Exception.h>
 
-#define SEGMENT_BITS 0x7F
-#define CONTINUE_BIT 0x80
-
 // Client for the Minecraft protocol
 class McClient : public QObject {
     Q_OBJECT
