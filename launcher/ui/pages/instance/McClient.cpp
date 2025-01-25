@@ -46,7 +46,6 @@ void McClient::sendRequest() {
     writePacketToSocket(data); // send status packet
 }
 
-// Accumulate data until we have a full response, then call parseResponse() once
 void McClient::readRawResponse() {
     if (m_responseReadState == 2) {
         return;

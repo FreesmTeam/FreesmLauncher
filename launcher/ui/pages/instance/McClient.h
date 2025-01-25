@@ -24,9 +24,11 @@ class McClient : public QObject {
 
 public:
     explicit McClient(QObject *parent, QString domain, QString ip, short port);
+    //! Read status data of the server, and calls the succeeded() signal with the parsed JSON data
     void getStatusData();
 private:
     void sendRequest();
+    //! Accumulate data until we have a full response, then call parseResponse() once
     void readRawResponse();
     void parseResponse();
 
