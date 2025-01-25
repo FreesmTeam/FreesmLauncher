@@ -4,9 +4,11 @@
   nixConfig = {
     substituters = [
       "https://cache.garnix.io"
+      "https://freesmlauncher.cachix.org"
     ];
     trusted-public-keys = [
       "cache.garnix.io:CTFPyKSLcx5RMJKfLo5EEPUObbA78b0YQ2DTCJXqr9g="
+      "freesmlauncher.cachix.org-1:Jcp5Q9wiLL+EDv8Mh7c6L9xGk+lXr7/otpKxMOuBuDs="
     ];
   };
 
