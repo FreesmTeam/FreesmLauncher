@@ -149,7 +149,7 @@ void McClient::writePacketToSocket(QByteArray &data) {
 
 void McClient::emitFail(QString error) {
     qDebug() << "Minecraft server ping for status error:" << error;
-    emit failed();
+    emit failed(error);
     emit finished();
 }
 

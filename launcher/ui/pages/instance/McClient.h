@@ -40,6 +40,6 @@ private:
 
 signals:
     void succeeded(QJsonObject data);
-    void failed();
+    void failed(QString error);
     void finished();
 };

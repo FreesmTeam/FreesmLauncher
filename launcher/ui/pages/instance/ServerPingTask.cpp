@@ -25,8 +25,8 @@ void ServerPingTask::executeTask() {
             qDebug() << "Online players: " << m_outputOnlinePlayers;
             emitSucceeded();
         });
-        QObject::connect(client, &McClient::failed, this, [this]() {
-            emitFailed();
+        QObject::connect(client, &McClient::failed, this, [this](QString error) {
+            emitFailed(error);
         });
 
         // Delete McClient object when done
