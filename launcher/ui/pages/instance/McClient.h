@@ -15,14 +15,16 @@ class McClient : public QObject {
     short m_port;
     QTcpSocket m_socket;
 
+    unsigned m_wantedRespLength = 0;
+    QByteArray m_resp;
+
 public:
     explicit McClient(QObject *parent, QString domain, QString ip, short port);
-    QFuture<int> getOnlinePlayers();
+    void getStatusData();
 private:
-    QJsonObject getStatusDataBlocking();
     void sendRequest();
-    QJsonObject readResponse();
-    void readBytesExactFromSocket(QByteArray &resp, int bytesToRead);
+    void readRawResponse();
+    void parseResponse();
 
     void writeVarInt(QByteArray &data, int value);
     int readVarInt(QByteArray &data);
@@ -32,4 +34,12 @@ private:
     void writeString(QByteArray &data, const std::string &value);
 
     void writePacketToSocket(QByteArray &data);
+
+    void emitFail(QString error);
+    void emitSucceed(QJsonObject data);
+
+signals:
+    void succeeded(QJsonObject data);
+    void failed();
+    void finished();
 };

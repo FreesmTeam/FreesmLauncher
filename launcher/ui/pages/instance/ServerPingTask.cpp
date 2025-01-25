@@ -3,6 +3,11 @@
 #include "ServerPingTask.h"
 #include "McResolver.h"
 #include "McClient.h"
+#include <Json.h>
+
+unsigned getOnlinePlayers(QJsonObject data) {
+    return Json::requireInteger(Json::requireObject(data, "players"), "online");
+}
 
 void ServerPingTask::executeTask() {
     qDebug() << "Querying status of " << QString("%1:%2").arg(m_domain).arg(m_port);
@@ -14,26 +19,21 @@ void ServerPingTask::executeTask() {
 
         // Now that we have the IP and port, query the server
         McClient *client = new McClient(nullptr, m_domain, ip, port);
-        auto onlineFuture = client->getOnlinePlayers();
 
-        // Wait for query to finish
-        QFutureWatcher<int> *watcher = new QFutureWatcher<int>();
-        QObject::connect(watcher, &QFutureWatcher<int>::finished, this, [this, client, onlineFuture, watcher]() {
-            client->deleteLater();
-            watcher->deleteLater();
-
-            int online = onlineFuture.result();
-            if (online == -1) {
-                qDebug() << "Failed to get online players";
-                emitFailed();
-                return;
-            } else {
-                qDebug() << "Online players: " << online;
-                m_outputOnlinePlayers = online;
-                emitSucceeded();
-            }
+        QObject::connect(client, &McClient::succeeded, this, [this](QJsonObject data) {
+            m_outputOnlinePlayers = getOnlinePlayers(data);
+            qDebug() << "Online players: " << m_outputOnlinePlayers;
+            emitSucceeded();
         });
-        watcher->setFuture(onlineFuture);
+        QObject::connect(client, &McClient::failed, this, [this]() {
+            emitFailed();
+        });
+
+        // Delete McClient object when done
+        QObject::connect(client, &McClient::finished, this, [this, client]() {
+            client->deleteLater();
+        });
+        client->getStatusData();
     });
 
     // Delete McResolver object when done

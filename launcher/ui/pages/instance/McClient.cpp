@@ -15,33 +15,21 @@
 
 McClient::McClient(QObject *parent, QString domain, QString ip, short port): QObject(parent), m_domain(domain), m_ip(ip), m_port(port) {}
 
-QJsonObject McClient::getStatusDataBlocking() {
+void McClient::getStatusData() {
     qDebug() << "Connecting to socket..";
-    m_socket.connectToHost(m_ip, m_port);
 
-    if (!m_socket.waitForConnected()) {
-        throw Exception("Failed to connect to socket");
-    }
-    qDebug() << "Connected to socket successfully";
-    sendRequest();
+    connect(&m_socket, &QTcpSocket::connected, this, [this]() {
+        qDebug() << "Connected to socket successfully";
+        sendRequest();
 
-    if (!m_socket.waitForReadyRead()) {
-        throw Exception("Socket didn't send anything to read");
-    }
-    return readResponse();
-}
-
-QFuture<int> McClient::getOnlinePlayers() {
-    return QtConcurrent::run([this]() {
-        try {
-            auto status = getStatusDataBlocking();
-            auto players = Json::requireObject(status, "players");
-            return Json::requireInteger(players, "online");
-        } catch (const Exception &e) {
-            qDebug() << "Error: " << e.what();
-            return -1;
-        }
+        connect(&m_socket, &QTcpSocket::readyRead, this, &McClient::readRawResponse);
     });
+
+    connect(&m_socket, &QTcpSocket::errorOccurred, this, [this]() {
+        emitFail("Socket disconnected");
+    });
+
+    m_socket.connectToHost(m_ip, m_port);
 }
 
 void McClient::sendRequest() {
@@ -58,32 +46,25 @@ void McClient::sendRequest() {
     writePacketToSocket(data); // send status packet
 }
 
-void McClient::readBytesExactFromSocket(QByteArray &resp, int bytesToRead) {
-    while (bytesToRead > 0) {
-        qDebug() << bytesToRead << " bytes left to read";
-        if (!m_socket.waitForReadyRead()) {
-            throw Exception("Read timeout or error");
+// Accumulate data until we have a full response, then call parseResponse()
+void McClient::readRawResponse() {
+    m_resp.append(m_socket.readAll());
+    if (m_wantedRespLength == 0 && m_resp.size() >= 5) {
+        m_wantedRespLength = readVarInt(m_resp);
+    }
+    
+    if (m_wantedRespLength != 0 && m_resp.size() >= m_wantedRespLength) {
+        if (m_resp.size() > m_wantedRespLength) {
+            qDebug() << "Warning: Packet length doesn't match actual packet size (" << m_wantedRespLength << " expected vs " << m_resp.size() << " received)";
         }
-
-        QByteArray chunk = m_socket.read(bytesToRead);
-        resp.append(chunk);
-        bytesToRead -= chunk.size();
+        parseResponse();
     }
 }
 
-QJsonObject McClient::readResponse() {
-    auto resp = m_socket.readAll();
-    int length = readVarInt(resp);
-
-    // finish ready response
-    readBytesExactFromSocket(resp, length-resp.size());
-
-    if (length != resp.size()) {
-        qDebug() << "Warning: Packet length doesn't match actual packet size (" << length << " expected vs " << resp.size() << " received)";
-    }
+void McClient::parseResponse() {
     qDebug() << "Received response successfully";
 
-    int packetID = readVarInt(resp);
+    int packetID = readVarInt(m_resp);
     if (packetID != 0x00) {
         throw Exception(
             QString("Packet ID doesn't match expected value (0x00 vs 0x%1)")
@@ -91,11 +72,11 @@ QJsonObject McClient::readResponse() {
         );
     }
 
-    Q_UNUSED(readVarInt(resp)); // json length
+    Q_UNUSED(readVarInt(m_resp)); // json length
 
     // 'resp' should now be the JSON string
-    QJsonDocument doc = QJsonDocument::fromJson(resp);
-    return doc.object();
+    QJsonDocument doc = QJsonDocument::fromJson(m_resp);
+    emitSucceed(doc.object());
 }
 
 // From https://wiki.vg/Protocol#VarInt_and_VarLong
@@ -163,4 +144,16 @@ void McClient::writePacketToSocket(QByteArray &data) {
     m_socket.flush();
 
     data.clear();
+}
+
+
+void McClient::emitFail(QString error) {
+    qDebug() << "Minecraft server ping for status error:" << error;
+    emit failed();
+    emit finished();
+}
+
+void McClient::emitSucceed(QJsonObject data) {
+    emit succeeded(data);
+    emit finished();
 }
