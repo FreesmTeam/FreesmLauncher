@@ -26,7 +26,7 @@ void McClient::getStatusData() {
     });
 
     connect(&m_socket, &QTcpSocket::errorOccurred, this, [this]() {
-        emitFail("Socket disconnected");
+        emitFail("Socket disconnected: " + m_socket.errorString());
     });
 
     m_socket.connectToHost(m_ip, m_port);
