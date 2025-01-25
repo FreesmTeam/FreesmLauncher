@@ -35,7 +35,7 @@ void McClient::getStatusData() {
 void McClient::sendRequest() {
     QByteArray data;
     writeVarInt(data, 0x00); // packet ID
-    writeVarInt(data, 0x760); // protocol version
+    writeVarInt(data, 763); // hardcoded protocol version (763 = 1.20.1)
     writeVarInt(data, m_domain.size()); // server address length
     writeString(data, m_domain.toStdString()); // server address
     writeFixedInt(data, m_port, 2); // server port
