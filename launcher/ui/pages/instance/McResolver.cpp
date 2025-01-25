@@ -62,8 +62,8 @@ void McResolver::pingWithDomainA(QString domain, int port) {
 }
 
 void McResolver::emitFail(QString error) {
-    qDebug() << "Ping error:" << error;
-    emit failed();
+    qDebug() << "DNS resolver error:" << error;
+    emit failed(error);
     emit finished();
 }
 

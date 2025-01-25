@@ -23,6 +23,6 @@ private:
 
 signals:
     void succeeded(QString ip, int port);
-    void failed();
+    void failed(QString error);
     void finished();
 };

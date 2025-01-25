@@ -35,6 +35,9 @@ void ServerPingTask::executeTask() {
         });
         client->getStatusData();
     });
+    QObject::connect(resolver, &McResolver::failed, this, [this](QString error) {
+        emitFailed(error);
+    });
 
     // Delete McResolver object when done
     QObject::connect(resolver, &McResolver::finished, [resolver]() {
