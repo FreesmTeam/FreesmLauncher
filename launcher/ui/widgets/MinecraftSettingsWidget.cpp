@@ -50,7 +50,7 @@ MinecraftSettingsWidget::MinecraftSettingsWidget(InstancePtr instance, QWidget* 
         for (int i = 0; i < m_ui->settingsTabs->count(); ++i) {
             const QString name = m_ui->settingsTabs->widget(i)->objectName();
 
-            if (name == "javaTab" || name == "launchTab") {
+            if (name == "javaPage" || name == "launchPage") {
                 m_ui->settingsTabs->removeTab(i);
                 --i;
             }
@@ -341,6 +341,8 @@ void MinecraftSettingsWidget::saveSettings()
 void MinecraftSettingsWidget::openGlobalSettings()
 {
     const QString id = m_ui->settingsTabs->currentWidget()->objectName();
+
+    qDebug() << id;
 
     if (id == "javaPage")
         APPLICATION->ShowGlobalSettings(this, "java-settings");

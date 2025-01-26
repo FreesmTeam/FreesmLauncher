@@ -282,7 +282,7 @@
        </item>
       </layout>
      </widget>
-     <widget class="QWidget" name="javaTab">
+     <widget class="QWidget" name="javaPage">
       <attribute name="title">
        <string>Java</string>
       </attribute>
