@@ -645,16 +645,41 @@
   </customwidget>
  </customwidgets>
  <tabstops>
+  <tabstop>openGlobalSettingsButton</tabstop>
+  <tabstop>settingsTabs</tabstop>
+  <tabstop>scrollArea</tabstop>
   <tabstop>maximizedCheckBox</tabstop>
   <tabstop>windowWidthSpinBox</tabstop>
   <tabstop>windowHeightSpinBox</tabstop>
+  <tabstop>showGameTime</tabstop>
+  <tabstop>recordGameTime</tabstop>
+  <tabstop>showGlobalGameTime</tabstop>
+  <tabstop>showGameTimeWithoutDays</tabstop>
   <tabstop>showConsoleCheck</tabstop>
   <tabstop>autoCloseConsoleCheck</tabstop>
   <tabstop>showConsoleErrorCheck</tabstop>
-  <tabstop>useNativeGLFWCheck</tabstop>
-  <tabstop>useNativeOpenALCheck</tabstop>
   <tabstop>closeAfterLaunchCheck</tabstop>
   <tabstop>quitAfterGameStopCheck</tabstop>
+  <tabstop>javaScrollArea</tabstop>
+  <tabstop>scrollArea_2</tabstop>
+  <tabstop>onlineFixes</tabstop>
+  <tabstop>useNativeGLFWCheck</tabstop>
+  <tabstop>lineEditGLFWPath</tabstop>
+  <tabstop>useNativeOpenALCheck</tabstop>
+  <tabstop>lineEditOpenALPath</tabstop>
+  <tabstop>perfomanceGroupBox</tabstop>
+  <tabstop>enableFeralGamemodeCheck</tabstop>
+  <tabstop>enableMangoHud</tabstop>
+  <tabstop>useDiscreteGpuCheck</tabstop>
+  <tabstop>useZink</tabstop>
+  <tabstop>scrollArea_3</tabstop>
+  <tabstop>instanceAccountGroupBox</tabstop>
+  <tabstop>instanceAccountSelector</tabstop>
+  <tabstop>serverJoinGroupBox</tabstop>
+  <tabstop>serverJoinAddressButton</tabstop>
+  <tabstop>serverJoinAddress</tabstop>
+  <tabstop>worldJoinButton</tabstop>
+  <tabstop>worldsCb</tabstop>
  </tabstops>
  <resources/>
  <connections/>

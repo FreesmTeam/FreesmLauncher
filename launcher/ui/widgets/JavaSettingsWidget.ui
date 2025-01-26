@@ -249,6 +249,21 @@
    </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>javaPathTextBox</tabstop>
+  <tabstop>javaBrowseBtn</tabstop>
+  <tabstop>javaDownloadBtn</tabstop>
+  <tabstop>javaDetectBtn</tabstop>
+  <tabstop>javaTestBtn</tabstop>
+  <tabstop>skipCompatibilityCheckBox</tabstop>
+  <tabstop>skipWizardCheckBox</tabstop>
+  <tabstop>autodetectJavaCheckBox</tabstop>
+  <tabstop>autodownloadJavaCheckBox</tabstop>
+  <tabstop>minMemSpinBox</tabstop>
+  <tabstop>maxMemSpinBox</tabstop>
+  <tabstop>permGenSpinBox</tabstop>
+  <tabstop>jvmArgsTextBox</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>
