@@ -502,7 +502,7 @@ void JavaWizardWidget::retranslate()
     if (BuildConfig.JAVA_DOWNLOADER_ENABLED) {
         m_autodownloadCheckBox->setText(tr("Auto-download Mojang Java"));
     }
-    m_autodetectJavaCheckBox->setText(tr("Autodetect Java version"));
+    m_autodetectJavaCheckBox->setText(tr("Auto-detect Java version"));
     m_autoJavaGroupBox->setTitle(tr("Autodetect Java"));
 }
 

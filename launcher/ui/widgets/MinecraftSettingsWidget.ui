@@ -63,7 +63,7 @@
             <x>0</x>
             <y>0</y>
             <width>610</width>
-            <height>607</height>
+            <height>550</height>
            </rect>
           </property>
           <layout class="QVBoxLayout" name="verticalLayout_5">
@@ -282,6 +282,30 @@
        </item>
       </layout>
      </widget>
+     <widget class="QWidget" name="javaTab">
+      <attribute name="title">
+       <string>Java</string>
+      </attribute>
+      <layout class="QVBoxLayout" name="verticalLayout_11">
+       <item>
+        <widget class="QScrollArea" name="javaScrollArea">
+         <property name="widgetResizable">
+          <bool>true</bool>
+         </property>
+         <widget class="QWidget" name="scrollAreaWidgetContents_3">
+          <property name="geometry">
+           <rect>
+            <x>0</x>
+            <y>0</y>
+            <width>624</width>
+            <height>297</height>
+           </rect>
+          </property>
+         </widget>
+        </widget>
+       </item>
+      </layout>
+     </widget>
      <widget class="QWidget" name="tweaksPage">
       <attribute name="title">
        <string>Tweaks</string>
@@ -301,7 +325,7 @@
             <x>0</x>
             <y>0</y>
             <width>610</width>
-            <height>439</height>
+            <height>398</height>
            </rect>
           </property>
           <layout class="QVBoxLayout" name="verticalLayout_7">
@@ -489,7 +513,7 @@
             <x>0</x>
             <y>0</y>
             <width>624</width>
-            <height>291</height>
+            <height>297</height>
            </rect>
           </property>
           <layout class="QVBoxLayout" name="verticalLayout_14">

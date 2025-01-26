@@ -47,12 +47,20 @@ MinecraftSettingsWidget::MinecraftSettingsWidget(InstancePtr instance, QWidget* 
     m_ui->setupUi(this);
 
     if (m_instance == nullptr) {
-        // Java
-        m_ui->settingsTabs->removeTab(1);
-        // Launch
-        m_ui->settingsTabs->removeTab(2);
+        for (int i = 0; i < m_ui->settingsTabs->count(); ++i) {
+            const QString name = m_ui->settingsTabs->widget(i)->objectName();
+
+            if (name == "javaTab" || name == "launchTab") {
+                m_ui->settingsTabs->removeTab(i);
+                --i;
+            }
+        }
+
         m_ui->openGlobalSettingsButton->setVisible(false);
     } else {
+        m_javaSettings = new JavaSettingsWidget(m_instance, this);
+        m_ui->javaScrollArea->setWidget(m_javaSettings);
+
         m_ui->showGameTime->setText(tr("Show time &playing this instance"));
         m_ui->recordGameTime->setText(tr("&Record time playing this instance"));
         m_ui->showGlobalGameTime->hide();
@@ -63,6 +71,14 @@ MinecraftSettingsWidget::MinecraftSettingsWidget(InstancePtr instance, QWidget* 
                "not fully supported on this Minecraft version.</span>"));
 
         connect(m_ui->openGlobalSettingsButton, &QCommandLinkButton::clicked, this, &MinecraftSettingsWidget::openGlobalSettings);
+
+        m_ui->miscellaneousSettingsBox->setCheckable(true);
+        m_ui->consoleSettingsBox->setCheckable(true);
+        m_ui->windowSizeGroupBox->setCheckable(true);
+        m_ui->nativeWorkaroundsGroupBox->setCheckable(true);
+        m_ui->perfomanceGroupBox->setCheckable(true);
+        m_ui->gameTimeGroupBox->setCheckable(true);
+        m_ui->legacySettingsGroupBox->setCheckable(true);
     }
 
     m_ui->maximizedWarning->hide();
@@ -84,28 +100,33 @@ MinecraftSettingsWidget::~MinecraftSettingsWidget()
 
 void MinecraftSettingsWidget::loadSettings()
 {
-    const SettingsObjectPtr settings = getSettings();
+    SettingsObjectPtr settings;
+
+    if (m_instance != nullptr)
+        settings = m_instance->settings();
+    else
+        settings = APPLICATION->settings();
 
     // Miscellaneous
-    m_ui->miscellaneousSettingsBox->setCheckable(m_instance != nullptr);
     m_ui->miscellaneousSettingsBox->setChecked(settings->get("OverrideMiscellaneous").toBool());
     m_ui->closeAfterLaunchCheck->setChecked(settings->get("CloseAfterLaunch").toBool());
     m_ui->quitAfterGameStopCheck->setChecked(settings->get("QuitAfterGameStop").toBool());
 
     // Console
-    m_ui->consoleSettingsBox->setCheckable(m_instance != nullptr);
     m_ui->consoleSettingsBox->setChecked(m_instance == nullptr || settings->get("OverrideConsole").toBool());
     m_ui->showConsoleCheck->setChecked(settings->get("ShowConsole").toBool());
     m_ui->autoCloseConsoleCheck->setChecked(settings->get("AutoCloseConsole").toBool());
     m_ui->showConsoleErrorCheck->setChecked(settings->get("ShowConsoleOnError").toBool());
 
     // Window Size
-    m_ui->windowSizeGroupBox->setCheckable(m_instance != nullptr);
     m_ui->windowSizeGroupBox->setChecked(m_instance == nullptr || settings->get("OverrideWindow").toBool());
     m_ui->windowSizeGroupBox->setChecked(settings->get("OverrideWindow").toBool());
     m_ui->maximizedCheckBox->setChecked(settings->get("LaunchMaximized").toBool());
     m_ui->windowWidthSpinBox->setValue(settings->get("MinecraftWinWidth").toInt());
     m_ui->windowHeightSpinBox->setValue(settings->get("MinecraftWinHeight").toInt());
+
+    if (m_javaSettings != nullptr)
+        m_javaSettings->loadSettings();
 
     // Custom commands
     m_ui->customCommands->initialize(m_instance != nullptr, m_instance == nullptr || settings->get("OverrideCommands").toBool(),
@@ -117,7 +138,6 @@ void MinecraftSettingsWidget::loadSettings()
                                            settings->get("Env").toMap());
 
     // Workarounds
-    m_ui->nativeWorkaroundsGroupBox->setCheckable(m_instance != nullptr);
     m_ui->nativeWorkaroundsGroupBox->setChecked(m_instance == nullptr || settings->get("OverrideNativeWorkarounds").toBool());
     m_ui->useNativeGLFWCheck->setChecked(settings->get("UseNativeGLFW").toBool());
     m_ui->lineEditGLFWPath->setText(settings->get("CustomGLFWPath").toString());
@@ -135,7 +155,6 @@ void MinecraftSettingsWidget::loadSettings()
 #endif
 
     // Performance
-    m_ui->perfomanceGroupBox->setCheckable(m_instance != nullptr);
     m_ui->perfomanceGroupBox->setChecked(m_instance == nullptr || settings->get("OverridePerformance").toBool());
     m_ui->enableFeralGamemodeCheck->setChecked(settings->get("EnableFeralGamemode").toBool());
     m_ui->enableMangoHud->setChecked(settings->get("EnableMangoHud").toBool());
@@ -153,164 +172,170 @@ void MinecraftSettingsWidget::loadSettings()
     }
 
     // Miscellanous
-    m_ui->gameTimeGroupBox->setCheckable(m_instance != nullptr);
     m_ui->gameTimeGroupBox->setChecked(m_instance == nullptr || settings->get("OverrideGameTime").toBool());
     m_ui->showGameTime->setChecked(settings->get("ShowGameTime").toBool());
     m_ui->recordGameTime->setChecked(settings->get("RecordGameTime").toBool());
-    m_ui->showGlobalGameTime->setChecked(m_instance != nullptr && settings->get("ShowGlobalGameTime").toBool());
-    m_ui->showGameTimeWithoutDays->setChecked(m_instance != nullptr && settings->get("ShowGameTimeWithoutDays").toBool());
+    m_ui->showGlobalGameTime->setChecked(m_instance == nullptr && settings->get("ShowGlobalGameTime").toBool());
+    m_ui->showGameTimeWithoutDays->setChecked(m_instance == nullptr && settings->get("ShowGameTimeWithoutDays").toBool());
 
-    m_ui->legacySettingsGroupBox->setCheckable(m_instance != nullptr);
     m_ui->legacySettingsGroupBox->setChecked(m_instance == nullptr || settings->get("OverrideLegacySettings").toBool());
     m_ui->onlineFixes->setChecked(settings->get("OnlineFixes").toBool());
 }
 
 void MinecraftSettingsWidget::saveSettings()
 {
-    SettingsObjectPtr settings = getSettings();
-    SettingsObject::Lock lock(settings);
-
-    // Miscellaneous
-    bool miscellaneous = m_instance == nullptr || m_ui->miscellaneousSettingsBox->isChecked();
+    SettingsObjectPtr settings;
 
     if (m_instance != nullptr)
-        settings->set("OverrideMiscellaneous", miscellaneous);
-
-    if (miscellaneous) {
-        settings->set("CloseAfterLaunch", m_ui->closeAfterLaunchCheck->isChecked());
-        settings->set("QuitAfterGameStop", m_ui->quitAfterGameStopCheck->isChecked());
-    } else {
-        settings->reset("CloseAfterLaunch");
-        settings->reset("QuitAfterGameStop");
-    }
-
-    // Console
-    bool console = m_instance == nullptr || m_ui->consoleSettingsBox->isChecked();
-
-    if (m_instance != nullptr)
-        settings->set("OverrideConsole", console);
-
-    if (console) {
-        settings->set("ShowConsole", m_ui->showConsoleCheck->isChecked());
-        settings->set("AutoCloseConsole", m_ui->autoCloseConsoleCheck->isChecked());
-        settings->set("ShowConsoleOnError", m_ui->showConsoleErrorCheck->isChecked());
-    } else {
-        settings->reset("ShowConsole");
-        settings->reset("AutoCloseConsole");
-        settings->reset("ShowConsoleOnError");
-    }
-
-    // Window Size
-    bool window = m_instance == nullptr || m_ui->windowSizeGroupBox->isChecked();
-
-    if (m_instance != nullptr)
-        settings->set("OverrideWindow", window);
-
-    if (window) {
-        settings->set("LaunchMaximized", m_ui->maximizedCheckBox->isChecked());
-        settings->set("MinecraftWinWidth", m_ui->windowWidthSpinBox->value());
-        settings->set("MinecraftWinHeight", m_ui->windowHeightSpinBox->value());
-    } else {
-        settings->reset("LaunchMaximized");
-        settings->reset("MinecraftWinWidth");
-        settings->reset("MinecraftWinHeight");
-    }
-
-    // Custom Commands
-    bool custcmd = m_instance == nullptr || m_ui->customCommands->checked();
-
-    if (m_instance != nullptr)
-        settings->set("OverrideCommands", custcmd);
-
-    if (custcmd) {
-        settings->set("PreLaunchCommand", m_ui->customCommands->prelaunchCommand());
-        settings->set("WrapperCommand", m_ui->customCommands->wrapperCommand());
-        settings->set("PostExitCommand", m_ui->customCommands->postexitCommand());
-    } else {
-        settings->reset("PreLaunchCommand");
-        settings->reset("WrapperCommand");
-        settings->reset("PostExitCommand");
-    }
-
-    // Environment Variables
-    auto env = m_instance == nullptr || m_ui->environmentVariables->override();
-
-    if (m_instance != nullptr)
-        settings->set("OverrideEnv", env);
-
-    if (env)
-        settings->set("Env", m_ui->environmentVariables->value());
+        settings = m_instance->settings();
     else
-        settings->reset("Env");
+        settings = APPLICATION->settings();
 
-    // Workarounds
-    bool workarounds = m_instance == nullptr || m_ui->nativeWorkaroundsGroupBox->isChecked();
+    {
+        SettingsObject::Lock lock(settings);
 
-    if (m_instance != nullptr)
-        settings->set("OverrideNativeWorkarounds", workarounds);
+        // Miscellaneous
+        bool miscellaneous = m_instance == nullptr || m_ui->miscellaneousSettingsBox->isChecked();
 
-    if (workarounds) {
-        settings->set("UseNativeGLFW", m_ui->useNativeGLFWCheck->isChecked());
-        settings->set("CustomGLFWPath", m_ui->lineEditGLFWPath->text());
-        settings->set("UseNativeOpenAL", m_ui->useNativeOpenALCheck->isChecked());
-        settings->set("CustomOpenALPath", m_ui->lineEditOpenALPath->text());
-    } else {
-        settings->reset("UseNativeGLFW");
-        settings->reset("CustomGLFWPath");
-        settings->reset("UseNativeOpenAL");
-        settings->reset("CustomOpenALPath");
+        if (m_instance != nullptr)
+            settings->set("OverrideMiscellaneous", miscellaneous);
+
+        if (miscellaneous) {
+            settings->set("CloseAfterLaunch", m_ui->closeAfterLaunchCheck->isChecked());
+            settings->set("QuitAfterGameStop", m_ui->quitAfterGameStopCheck->isChecked());
+        } else {
+            settings->reset("CloseAfterLaunch");
+            settings->reset("QuitAfterGameStop");
+        }
+
+        // Console
+        bool console = m_instance == nullptr || m_ui->consoleSettingsBox->isChecked();
+
+        if (m_instance != nullptr)
+            settings->set("OverrideConsole", console);
+
+        if (console) {
+            settings->set("ShowConsole", m_ui->showConsoleCheck->isChecked());
+            settings->set("AutoCloseConsole", m_ui->autoCloseConsoleCheck->isChecked());
+            settings->set("ShowConsoleOnError", m_ui->showConsoleErrorCheck->isChecked());
+        } else {
+            settings->reset("ShowConsole");
+            settings->reset("AutoCloseConsole");
+            settings->reset("ShowConsoleOnError");
+        }
+
+        // Window Size
+        bool window = m_instance == nullptr || m_ui->windowSizeGroupBox->isChecked();
+
+        if (m_instance != nullptr)
+            settings->set("OverrideWindow", window);
+
+        if (window) {
+            settings->set("LaunchMaximized", m_ui->maximizedCheckBox->isChecked());
+            settings->set("MinecraftWinWidth", m_ui->windowWidthSpinBox->value());
+            settings->set("MinecraftWinHeight", m_ui->windowHeightSpinBox->value());
+        } else {
+            settings->reset("LaunchMaximized");
+            settings->reset("MinecraftWinWidth");
+            settings->reset("MinecraftWinHeight");
+        }
+
+        // Custom Commands
+        bool custcmd = m_instance == nullptr || m_ui->customCommands->checked();
+
+        if (m_instance != nullptr)
+            settings->set("OverrideCommands", custcmd);
+
+        if (custcmd) {
+            settings->set("PreLaunchCommand", m_ui->customCommands->prelaunchCommand());
+            settings->set("WrapperCommand", m_ui->customCommands->wrapperCommand());
+            settings->set("PostExitCommand", m_ui->customCommands->postexitCommand());
+        } else {
+            settings->reset("PreLaunchCommand");
+            settings->reset("WrapperCommand");
+            settings->reset("PostExitCommand");
+        }
+
+        // Environment Variables
+        auto env = m_instance == nullptr || m_ui->environmentVariables->override();
+
+        if (m_instance != nullptr)
+            settings->set("OverrideEnv", env);
+
+        if (env)
+            settings->set("Env", m_ui->environmentVariables->value());
+        else
+            settings->reset("Env");
+
+        // Workarounds
+        bool workarounds = m_instance == nullptr || m_ui->nativeWorkaroundsGroupBox->isChecked();
+
+        if (m_instance != nullptr)
+            settings->set("OverrideNativeWorkarounds", workarounds);
+
+        if (workarounds) {
+            settings->set("UseNativeGLFW", m_ui->useNativeGLFWCheck->isChecked());
+            settings->set("CustomGLFWPath", m_ui->lineEditGLFWPath->text());
+            settings->set("UseNativeOpenAL", m_ui->useNativeOpenALCheck->isChecked());
+            settings->set("CustomOpenALPath", m_ui->lineEditOpenALPath->text());
+        } else {
+            settings->reset("UseNativeGLFW");
+            settings->reset("CustomGLFWPath");
+            settings->reset("UseNativeOpenAL");
+            settings->reset("CustomOpenALPath");
+        }
+
+        // Performance
+        bool performance = m_instance == nullptr || m_ui->perfomanceGroupBox->isChecked();
+
+        if (m_instance != nullptr)
+            settings->set("OverridePerformance", performance);
+
+        if (performance) {
+            settings->set("EnableFeralGamemode", m_ui->enableFeralGamemodeCheck->isChecked());
+            settings->set("EnableMangoHud", m_ui->enableMangoHud->isChecked());
+            settings->set("UseDiscreteGpu", m_ui->useDiscreteGpuCheck->isChecked());
+            settings->set("UseZink", m_ui->useZink->isChecked());
+        } else {
+            settings->reset("EnableFeralGamemode");
+            settings->reset("EnableMangoHud");
+            settings->reset("UseDiscreteGpu");
+            settings->reset("UseZink");
+        }
+
+        // Game time
+        bool gameTime = m_instance == nullptr || m_ui->gameTimeGroupBox->isChecked();
+
+        if (m_instance != nullptr)
+            settings->set("OverrideGameTime", gameTime);
+
+        if (gameTime) {
+            settings->set("ShowGameTime", m_ui->showGameTime->isChecked());
+            settings->set("RecordGameTime", m_ui->recordGameTime->isChecked());
+        } else {
+            settings->reset("ShowGameTime");
+            settings->reset("RecordGameTime");
+        }
+
+        if (m_instance == nullptr) {
+            settings->set("ShowGlobalGameTime", m_ui->showGlobalGameTime->isChecked());
+            settings->set("ShowGameTimeWithoutDays", m_ui->showGameTimeWithoutDays->isChecked());
+        }
+
+        bool overrideLegacySettings = m_instance == nullptr || m_ui->legacySettingsGroupBox->isChecked();
+
+        if (m_instance != nullptr)
+            settings->set("OverrideLegacySettings", overrideLegacySettings);
+
+        if (overrideLegacySettings) {
+            settings->set("OnlineFixes", m_ui->onlineFixes->isChecked());
+        } else {
+            settings->reset("OnlineFixes");
+        }
     }
 
-    // Performance
-    bool performance = m_instance == nullptr || m_ui->perfomanceGroupBox->isChecked();
-
-    if (m_instance != nullptr)
-        settings->set("OverridePerformance", performance);
-
-    if (performance) {
-        settings->set("EnableFeralGamemode", m_ui->enableFeralGamemodeCheck->isChecked());
-        settings->set("EnableMangoHud", m_ui->enableMangoHud->isChecked());
-        settings->set("UseDiscreteGpu", m_ui->useDiscreteGpuCheck->isChecked());
-        settings->set("UseZink", m_ui->useZink->isChecked());
-    } else {
-        settings->reset("EnableFeralGamemode");
-        settings->reset("EnableMangoHud");
-        settings->reset("UseDiscreteGpu");
-        settings->reset("UseZink");
-    }
-
-    // Game time
-    bool gameTime = m_instance == nullptr || m_ui->gameTimeGroupBox->isChecked();
-
-    if (m_instance != nullptr)
-        settings->set("OverrideGameTime", gameTime);
-
-    if (gameTime) {
-        settings->set("ShowGameTime", m_ui->showGameTime->isChecked());
-        settings->set("RecordGameTime", m_ui->recordGameTime->isChecked());
-    } else {
-        settings->reset("ShowGameTime");
-        settings->reset("RecordGameTime");
-    }
-
-    if (m_instance == nullptr) {
-        settings->set("ShowGlobalGameTime", m_ui->showGlobalGameTime->isChecked());
-        settings->set("ShowGameTimeWithoutDays", m_ui->showGameTimeWithoutDays->isChecked());
-    }
-
-    bool overrideLegacySettings = m_instance == nullptr || m_ui->legacySettingsGroupBox->isChecked();
-
-    if (m_instance != nullptr)
-        settings->set("OverrideLegacySettings", overrideLegacySettings);
-
-    if (overrideLegacySettings) {
-        settings->set("OnlineFixes", m_ui->onlineFixes->isChecked());
-    } else {
-        settings->reset("OnlineFixes");
-    }
-
-    if (m_instance != nullptr)
-        m_instance->updateRuntimeContext();
+    if (m_javaSettings != nullptr)
+        m_javaSettings->saveSettings();
 }
 
 void MinecraftSettingsWidget::openGlobalSettings()
@@ -321,12 +346,4 @@ void MinecraftSettingsWidget::openGlobalSettings()
         APPLICATION->ShowGlobalSettings(this, "java-settings");
     else  // TODO select tab
         APPLICATION->ShowGlobalSettings(this, "minecraft-settings");
-}
-
-SettingsObjectPtr MinecraftSettingsWidget::getSettings() const
-{
-    if (m_instance != nullptr)
-        return m_instance->settings();
-
-    return APPLICATION->settings();
 }

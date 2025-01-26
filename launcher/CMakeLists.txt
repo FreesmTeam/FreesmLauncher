@@ -1124,6 +1124,8 @@ SET(LAUNCHER_SOURCES
     ui/widgets/ThemeCustomizationWidget.cpp
     ui/widgets/MinecraftSettingsWidget.h
     ui/widgets/MinecraftSettingsWidget.cpp
+    ui/widgets/JavaSettingsWidget.h
+    ui/widgets/JavaSettingsWidget.cpp
 
     # GUI - instance group view
     ui/instanceview/InstanceProxyModel.cpp
@@ -1197,6 +1199,7 @@ qt_wrap_ui(LAUNCHER_UI
     ui/widgets/SubTaskProgressBar.ui
     ui/widgets/ThemeCustomizationWidget.ui
     ui/widgets/MinecraftSettingsWidget.ui
+    ui/widgets/JavaSettingsWidget.ui
     ui/dialogs/CopyInstanceDialog.ui
     ui/dialogs/ProfileSetupDialog.ui
     ui/dialogs/ProgressDialog.ui

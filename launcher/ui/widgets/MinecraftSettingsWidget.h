@@ -38,6 +38,7 @@
 
 #include <minecraft/MinecraftInstance.h>
 #include <QWidget>
+#include "JavaSettingsWidget.h"
 
 namespace Ui {
 class MinecraftSettingsWidget;
@@ -54,8 +55,7 @@ class MinecraftSettingsWidget : public QWidget {
     void openGlobalSettings();
 
    private:
-    SettingsObjectPtr getSettings() const;
-
     InstancePtr m_instance;
     Ui::MinecraftSettingsWidget* m_ui;
+    JavaSettingsWidget* m_javaSettings = nullptr;
 };

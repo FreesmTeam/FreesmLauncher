@@ -2,6 +2,7 @@
 /*
  *  Prism Launcher - Minecraft Launcher
  *  Copyright (c) 2022 Jamie Mansfield <jmansfield@cadixdev.org>
+ *  Copyright (C) 2024 TheKodeToad <TheKodeToad@proton.me>
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -35,41 +36,32 @@
 
 #pragma once
 
-#include <Application.h>
-#include <QObjectPtr.h>
-#include <ui/widgets/JavaSettingsWidget.h>
-#include <QDialog>
-#include <QStringListModel>
-#include "JavaCommon.h"
-#include "ui/pages/BasePage.h"
-
-class SettingsObject;
+#include <BaseInstance.h>
+#include <JavaCommon.h>
+#include <QWidget>
 
 namespace Ui {
-class JavaPage;
+class JavaSettingsWidget;
 }
 
-class JavaPage : public QWidget, public BasePage {
+class JavaSettingsWidget : public QWidget {
     Q_OBJECT
 
    public:
-    explicit JavaPage(QWidget* parent = 0);
-    ~JavaPage();
+    explicit JavaSettingsWidget(InstancePtr instance, QWidget* parent = nullptr);
+    ~JavaSettingsWidget() override;
 
-    QString displayName() const override { return tr("Java"); }
-    QIcon icon() const override { return APPLICATION->getThemedIcon("java"); }
-    QString id() const override { return "java-settings"; }
-    QString helpPage() const override { return "Java-settings"; }
-    void retranslate() override;
-
-    bool apply() override;
+    void loadSettings();
+    void saveSettings();
 
    private slots:
-    void on_downloadJavaButton_clicked();
-    void on_removeJavaButton_clicked();
-    void on_refreshJavaButton_clicked();
+    void onJavaBrowse();
+    void onJavaAutodetect();
+    void onJavaTest();
+    void updateThresholds();
 
    private:
-    Ui::JavaPage* ui;
-    JavaSettingsWidget* m_javaSettings;
+    InstancePtr m_instance;
+    Ui::JavaSettingsWidget* m_ui;
+    unique_qobject_ptr<JavaCommon::TestCheck> m_checker;
 };
