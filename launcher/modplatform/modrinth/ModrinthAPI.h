@@ -71,13 +71,15 @@ class ModrinthAPI : public NetworkResourceAPI {
 
     static auto getSideFilters(QString side) -> const QString
     {
-        if (side.isEmpty() || side == "both") {
+        if (side.isEmpty()) {
             return {};
         }
+        if (side == "both")
+            return QString("\"client_side:required\"],[\"server_side:required\"");
         if (side == "client")
-            return QString("\"client_side:required\",\"client_side:optional\"");
+            return QString("\"client_side:required\",\"client_side:optional\"],[\"server_side:optional\",\"server_side:unsupported\"");
         if (side == "server")
-            return QString("\"server_side:required\",\"server_side:optional\"");
+            return QString("\"server_side:required\",\"server_side:optional\"],[\"client_side:optional\",\"client_side:unsupported\"");
         return {};
     }
 

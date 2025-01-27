@@ -270,21 +270,44 @@ std::optional<ModPlatform::IndexedVersion> FlameAPI::getLatestVersion(QList<ModP
                                                                       QList<ModPlatform::ModLoaderType> instanceLoaders,
                                                                       ModPlatform::ModLoaderTypes modLoaders)
 {
-    // edge case: mod has installed for forge but the instance is fabric => fabric version will be prioritizated on update
-    auto bestVersion = [&versions](ModPlatform::ModLoaderTypes loader) {
-        std::optional<ModPlatform::IndexedVersion> ver;
-        for (auto file_tmp : versions) {
-            if (file_tmp.loaders & loader && (!ver.has_value() || file_tmp.date > ver->date)) {
-                ver = file_tmp;
+    static const auto noLoader = ModPlatform::ModLoaderType(0);
+    QHash<ModPlatform::ModLoaderType, ModPlatform::IndexedVersion> bestMatch;
+    auto checkVersion = [&bestMatch](const ModPlatform::IndexedVersion& version, const ModPlatform::ModLoaderType& loader) {
+        if (bestMatch.contains(loader)) {
+            auto best = bestMatch.value(loader);
+            if (version.date > best.date) {
+                bestMatch[loader] = version;
+            }
+        } else {
+            bestMatch[loader] = version;
+        }
+    };
+    for (auto file_tmp : versions) {
+        auto loaders = ModPlatform::modLoaderTypesToList(file_tmp.loaders);
+        if (loaders.isEmpty()) {
+            checkVersion(file_tmp, noLoader);
+        } else {
+            for (auto loader : loaders) {
+                checkVersion(file_tmp, loader);
             }
         }
-        return ver;
-    };
-    for (auto l : instanceLoaders) {
-        auto ver = bestVersion(l);
-        if (ver.has_value()) {
-            return ver;
+    }
+    // edge case: mod has installed for forge but the instance is fabric => fabric version will be prioritizated on update
+    auto currentLoaders = instanceLoaders + ModPlatform::modLoaderTypesToList(modLoaders);
+    currentLoaders.append(noLoader);  // add a fallback in case the versions do not define a loader
+
+    for (auto loader : currentLoaders) {
+        if (bestMatch.contains(loader)) {
+            auto bestForLoader = bestMatch.value(loader);
+            // awkward case where the mod has only two loaders and one of them is not specified
+            if (loader != noLoader && bestMatch.contains(noLoader) && bestMatch.size() == 2) {
+                auto bestForNoLoader = bestMatch.value(noLoader);
+                if (bestForNoLoader.date > bestForLoader.date) {
+                    return bestForNoLoader;
+                }
+            }
+            return bestForLoader;
         }
     }
-    return bestVersion(modLoaders);
+    return {};
 }

@@ -594,6 +594,13 @@ QMap<QString, QString> MinecraftInstance::getVariables()
     out.insert("INST_JAVA", settings()->get("JavaPath").toString());
     out.insert("INST_JAVA_ARGS", javaArguments().join(' '));
     out.insert("NO_COLOR", "1");
+#ifdef Q_OS_MACOS
+    // get library for Steam overlay support
+    QString steamDyldInsertLibraries = qEnvironmentVariable("STEAM_DYLD_INSERT_LIBRARIES");
+    if (!steamDyldInsertLibraries.isEmpty()) {
+        out.insert("DYLD_INSERT_LIBRARIES", steamDyldInsertLibraries);
+    }
+#endif
     return out;
 }
 
@@ -1151,13 +1158,6 @@ shared_qobject_ptr<LaunchTask> MinecraftInstance::createLaunchTask(AuthSessionPt
         process->appendStep(step);
     }
 
-    // run pre-launch command if that's needed
-    if (getPreLaunchCommand().size()) {
-        auto step = makeShared<PreLaunchCommand>(pptr);
-        step->setWorkingDirectory(gameRoot());
-        process->appendStep(step);
-    }
-
     // load meta
     {
         auto mode = session->status != AuthSession::PlayableOffline ? Net::Mode::Online : Net::Mode::Offline;
@@ -1168,6 +1168,13 @@ shared_qobject_ptr<LaunchTask> MinecraftInstance::createLaunchTask(AuthSessionPt
     {
         process->appendStep(makeShared<AutoInstallJava>(pptr));
         process->appendStep(makeShared<CheckJava>(pptr));
+    }
+
+    // run pre-launch command if that's needed
+    if (getPreLaunchCommand().size()) {
+        auto step = makeShared<PreLaunchCommand>(pptr);
+        step->setWorkingDirectory(gameRoot());
+        process->appendStep(step);
     }
 
     // if we aren't in offline mode,.

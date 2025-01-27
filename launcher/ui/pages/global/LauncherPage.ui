@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>511</width>
+    <width>562</width>
     <height>726</height>
    </rect>
   </property>
@@ -38,7 +38,7 @@
       <enum>QTabWidget::Rounded</enum>
      </property>
      <property name="currentIndex">
-      <number>0</number>
+      <number>2</number>
      </property>
      <widget class="QWidget" name="featuresTab">
       <attribute name="title">
@@ -48,7 +48,7 @@
        <item>
         <widget class="QScrollArea" name="scrollArea">
          <property name="horizontalScrollBarPolicy">
-          <enum>Qt::ScrollBarAlwaysOff</enum>
+          <enum>Qt::ScrollBarAsNeeded</enum>
          </property>
          <property name="widgetResizable">
           <bool>true</bool>
@@ -58,8 +58,8 @@
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>473</width>
-            <height>690</height>
+            <width>570</width>
+            <height>692</height>
            </rect>
           </property>
           <layout class="QVBoxLayout" name="verticalLayout_8">
@@ -156,14 +156,28 @@
                </widget>
               </item>
               <item row="9" column="1" colspan="2">
-               <widget class="QCheckBox" name="downloadsDirWatchRecursiveCheckBox">
-                <property name="toolTip">
-                 <string>When enabled, in addition to the downloads folder, its sub folders will also be searched when looking for resources (e.g. when looking for blocked mods on CurseForge).</string>
-                </property>
-                <property name="text">
-                 <string>Check downloads folder recursively</string>
-                </property>
-               </widget>
+               <layout class="QHBoxLayout" name="downloadModsCheckLayout">
+                <item>
+                 <widget class="QCheckBox" name="downloadsDirWatchRecursiveCheckBox">
+                  <property name="toolTip">
+                   <string>When enabled, in addition to the downloads folder, its sub folders will also be searched when looking for resources (e.g. when looking for blocked mods on CurseForge).</string>
+                  </property>
+                  <property name="text">
+                   <string>Check downloads folder recursively</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QCheckBox" name="downloadsDirMoveCheckBox">
+                  <property name="toolTip">
+                   <string>When enabled, it will move blocked resources instead of copying them.</string>
+                  </property>
+                  <property name="text">
+                   <string>Move blocked resources</string>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
               </item>
               <item row="8" column="1">
                <widget class="QLineEdit" name="downloadsDirTextBox"/>
@@ -585,7 +599,7 @@
              </sizepolicy>
             </property>
             <property name="horizontalScrollBarPolicy">
-             <enum>Qt::ScrollBarAlwaysOff</enum>
+             <enum>Qt::ScrollBarAsNeeded</enum>
             </property>
             <property name="undoRedoEnabled">
              <bool>false</bool>
@@ -637,15 +651,33 @@
  </customwidgets>
  <tabstops>
   <tabstop>tabWidget</tabstop>
+  <tabstop>scrollArea</tabstop>
   <tabstop>autoUpdateCheckBox</tabstop>
+  <tabstop>updateIntervalSpinBox</tabstop>
   <tabstop>instDirTextBox</tabstop>
   <tabstop>instDirBrowseBtn</tabstop>
   <tabstop>modsDirTextBox</tabstop>
   <tabstop>modsDirBrowseBtn</tabstop>
   <tabstop>iconsDirTextBox</tabstop>
   <tabstop>iconsDirBrowseBtn</tabstop>
+  <tabstop>javaDirTextBox</tabstop>
+  <tabstop>javaDirBrowseBtn</tabstop>
+  <tabstop>skinsDirTextBox</tabstop>
+  <tabstop>skinsDirBrowseBtn</tabstop>
+  <tabstop>downloadsDirTextBox</tabstop>
+  <tabstop>downloadsDirBrowseBtn</tabstop>
+  <tabstop>downloadsDirWatchRecursiveCheckBox</tabstop>
+  <tabstop>metadataDisableBtn</tabstop>
+  <tabstop>dependenciesDisableBtn</tabstop>
+  <tabstop>skipModpackUpdatePromptBtn</tabstop>
+  <tabstop>numberOfConcurrentTasksSpinBox</tabstop>
+  <tabstop>numberOfConcurrentDownloadsSpinBox</tabstop>
+  <tabstop>numberOfManualRetriesSpinBox</tabstop>
+  <tabstop>timeoutSecondsSpinBox</tabstop>
   <tabstop>sortLastLaunchedBtn</tabstop>
   <tabstop>sortByNameBtn</tabstop>
+  <tabstop>catOpacitySpinBox</tabstop>
+  <tabstop>preferMenuBarCheckBox</tabstop>
   <tabstop>lineLimitSpinBox</tabstop>
   <tabstop>checkStopLogging</tabstop>
   <tabstop>consoleFont</tabstop>
