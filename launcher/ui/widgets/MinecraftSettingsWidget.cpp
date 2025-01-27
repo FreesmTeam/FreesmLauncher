@@ -36,6 +36,7 @@
  */
 
 #include "MinecraftSettingsWidget.h"
+#include <BuildConfig.h>
 
 #include "Application.h"
 #include "minecraft/WorldList.h"
