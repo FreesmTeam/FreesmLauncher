@@ -19,9 +19,6 @@ class QLabel;
 class QToolButton;
 class QSpacerItem;
 
-/**
- * This is a widget for all the Java settings dialogs and pages.
- */
 class JavaWizardWidget : public QWidget {
     Q_OBJECT
 
