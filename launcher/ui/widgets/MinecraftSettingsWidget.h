@@ -52,10 +52,13 @@ class MinecraftSettingsWidget : public QWidget {
     void loadSettings();
     void saveSettings();
 
-    void openGlobalSettings();
-
    private:
+    void openGlobalSettings();
+    void updateAccountsMenu(const SettingsObject& settings);
+    bool isQuickPlaySupported();
+
     MinecraftInstancePtr m_instance;
     Ui::MinecraftSettingsWidget* m_ui;
     JavaSettingsWidget* m_javaSettings = nullptr;
+    bool m_quickPlaySingleplayer = false;
 };

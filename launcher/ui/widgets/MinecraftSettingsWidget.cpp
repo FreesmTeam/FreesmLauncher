@@ -36,8 +36,10 @@
  */
 
 #include "MinecraftSettingsWidget.h"
-#include <Application.h>
 
+#include "Application.h"
+#include "minecraft/WorldList.h"
+#include "minecraft/auth/AccountList.h"
 #include "settings/Setting.h"
 #include "ui_MinecraftSettingsWidget.h"
 
@@ -70,8 +72,6 @@ MinecraftSettingsWidget::MinecraftSettingsWidget(MinecraftInstancePtr instance, 
             tr("<span style=\" font-weight:600; color:#f5c211;\">Warning</span><span style=\" color:#f5c211;\">: The maximized option is "
                "not fully supported on this Minecraft version.</span>"));
 
-        connect(m_ui->openGlobalSettingsButton, &QCommandLinkButton::clicked, this, &MinecraftSettingsWidget::openGlobalSettings);
-
         m_ui->miscellaneousSettingsBox->setCheckable(true);
         m_ui->consoleSettingsBox->setCheckable(true);
         m_ui->windowSizeGroupBox->setCheckable(true);
@@ -79,6 +79,25 @@ MinecraftSettingsWidget::MinecraftSettingsWidget(MinecraftInstancePtr instance, 
         m_ui->perfomanceGroupBox->setCheckable(true);
         m_ui->gameTimeGroupBox->setCheckable(true);
         m_ui->legacySettingsGroupBox->setCheckable(true);
+
+        m_quickPlaySingleplayer = m_instance->traits().contains("feature:is_quick_play_singleplayer");
+        if (m_quickPlaySingleplayer) {
+            auto worlds = m_instance->worldList();
+            worlds->update();
+            for (const auto& world : worlds->allWorlds()) {
+                m_ui->worldsCb->addItem(world.folderName());
+            }
+        } else {
+            m_ui->worldsCb->hide();
+            m_ui->worldJoinButton->hide();
+            m_ui->serverJoinAddressButton->setChecked(true);
+            m_ui->serverJoinAddress->setEnabled(true);
+            m_ui->serverJoinAddressButton->setStyleSheet("QRadioButton::indicator { width: 0px; height: 0px; }");
+        }
+
+        connect(m_ui->openGlobalSettingsButton, &QCommandLinkButton::clicked, this, &MinecraftSettingsWidget::openGlobalSettings);
+        connect(m_ui->serverJoinAddressButton, &QAbstractButton::toggled, m_ui->serverJoinAddress, &QWidget::setEnabled);
+        connect(m_ui->worldJoinButton, &QAbstractButton::toggled, m_ui->worldsCb, &QWidget::setEnabled);
     }
 
     m_ui->maximizedWarning->hide();
@@ -89,6 +108,19 @@ MinecraftSettingsWidget::MinecraftSettingsWidget(MinecraftInstancePtr instance, 
 #if !defined(Q_OS_LINUX)
     m_ui->perfomanceGroupBox->hide();
 #endif
+
+    if (!(APPLICATION->capabilities() & Application::SupportsGameMode)) {
+        m_ui->enableFeralGamemodeCheck->setDisabled(true);
+        m_ui->enableFeralGamemodeCheck->setToolTip(tr("Feral Interactive's GameMode could not be found on your system."));
+    }
+
+    if (!(APPLICATION->capabilities() & Application::SupportsMangoHud)) {
+        m_ui->enableMangoHud->setEnabled(false);
+        m_ui->enableMangoHud->setToolTip(tr("MangoHud could not be found on your system."));
+    }
+
+    connect(m_ui->useNativeOpenALCheck, &QAbstractButton::toggled, m_ui->lineEditOpenALPath, &QWidget::setEnabled);
+    connect(m_ui->useNativeGLFWCheck, &QAbstractButton::toggled, m_ui->lineEditGLFWPath, &QWidget::setEnabled);
 
     loadSettings();
 }
@@ -107,10 +139,19 @@ void MinecraftSettingsWidget::loadSettings()
     else
         settings = APPLICATION->settings();
 
-    // Miscellaneous
-    m_ui->miscellaneousSettingsBox->setChecked(settings->get("OverrideMiscellaneous").toBool());
-    m_ui->closeAfterLaunchCheck->setChecked(settings->get("CloseAfterLaunch").toBool());
-    m_ui->quitAfterGameStopCheck->setChecked(settings->get("QuitAfterGameStop").toBool());
+    // Game Window
+    m_ui->windowSizeGroupBox->setChecked(m_instance == nullptr || settings->get("OverrideWindow").toBool());
+    m_ui->windowSizeGroupBox->setChecked(settings->get("OverrideWindow").toBool());
+    m_ui->maximizedCheckBox->setChecked(settings->get("LaunchMaximized").toBool());
+    m_ui->windowWidthSpinBox->setValue(settings->get("MinecraftWinWidth").toInt());
+    m_ui->windowHeightSpinBox->setValue(settings->get("MinecraftWinHeight").toInt());
+
+    // Game Time
+    m_ui->gameTimeGroupBox->setChecked(m_instance == nullptr || settings->get("OverrideGameTime").toBool());
+    m_ui->showGameTime->setChecked(settings->get("ShowGameTime").toBool());
+    m_ui->recordGameTime->setChecked(settings->get("RecordGameTime").toBool());
+    m_ui->showGlobalGameTime->setChecked(m_instance == nullptr && settings->get("ShowGlobalGameTime").toBool());
+    m_ui->showGameTimeWithoutDays->setChecked(m_instance == nullptr && settings->get("ShowGameTimeWithoutDays").toBool());
 
     // Console
     m_ui->consoleSettingsBox->setChecked(m_instance == nullptr || settings->get("OverrideConsole").toBool());
@@ -118,12 +159,10 @@ void MinecraftSettingsWidget::loadSettings()
     m_ui->autoCloseConsoleCheck->setChecked(settings->get("AutoCloseConsole").toBool());
     m_ui->showConsoleErrorCheck->setChecked(settings->get("ShowConsoleOnError").toBool());
 
-    // Window Size
-    m_ui->windowSizeGroupBox->setChecked(m_instance == nullptr || settings->get("OverrideWindow").toBool());
-    m_ui->windowSizeGroupBox->setChecked(settings->get("OverrideWindow").toBool());
-    m_ui->maximizedCheckBox->setChecked(settings->get("LaunchMaximized").toBool());
-    m_ui->windowWidthSpinBox->setValue(settings->get("MinecraftWinWidth").toInt());
-    m_ui->windowHeightSpinBox->setValue(settings->get("MinecraftWinHeight").toInt());
+    // Miscellaneous
+    m_ui->miscellaneousSettingsBox->setChecked(settings->get("OverrideMiscellaneous").toBool());
+    m_ui->closeAfterLaunchCheck->setChecked(settings->get("CloseAfterLaunch").toBool());
+    m_ui->quitAfterGameStopCheck->setChecked(settings->get("QuitAfterGameStop").toBool());
 
     if (m_javaSettings != nullptr)
         m_javaSettings->loadSettings();
@@ -137,7 +176,11 @@ void MinecraftSettingsWidget::loadSettings()
     m_ui->environmentVariables->initialize(m_instance != nullptr, m_instance == nullptr || settings->get("OverrideEnv").toBool(),
                                            settings->get("Env").toMap());
 
-    // Workarounds
+    // Legacy Tweaks
+    m_ui->legacySettingsGroupBox->setChecked(m_instance == nullptr || settings->get("OverrideLegacySettings").toBool());
+    m_ui->onlineFixes->setChecked(settings->get("OnlineFixes").toBool());
+
+    // Native Libraries
     m_ui->nativeWorkaroundsGroupBox->setChecked(m_instance == nullptr || settings->get("OverrideNativeWorkarounds").toBool());
     m_ui->useNativeGLFWCheck->setChecked(settings->get("UseNativeGLFW").toBool());
     m_ui->lineEditGLFWPath->setText(settings->get("CustomGLFWPath").toString());
@@ -161,24 +204,33 @@ void MinecraftSettingsWidget::loadSettings()
     m_ui->useDiscreteGpuCheck->setChecked(settings->get("UseDiscreteGpu").toBool());
     m_ui->useZink->setChecked(settings->get("UseZink").toBool());
 
-    if (!(APPLICATION->capabilities() & Application::SupportsGameMode)) {
-        m_ui->enableFeralGamemodeCheck->setDisabled(true);
-        m_ui->enableFeralGamemodeCheck->setToolTip(tr("Feral Interactive's GameMode could not be found on your system."));
+    m_ui->serverJoinGroupBox->setChecked(settings->get("JoinServerOnLaunch").toBool());
+
+    if (m_instance != nullptr) {
+        if (auto server = settings->get("JoinServerOnLaunchAddress").toString(); !server.isEmpty()) {
+            m_ui->serverJoinAddress->setText(server);
+            m_ui->serverJoinAddressButton->setChecked(true);
+            m_ui->worldJoinButton->setChecked(false);
+            m_ui->serverJoinAddress->setEnabled(true);
+            m_ui->worldsCb->setEnabled(false);
+        } else if (auto world = settings->get("JoinWorldOnLaunch").toString(); !world.isEmpty() && m_quickPlaySingleplayer) {
+            m_ui->worldsCb->setCurrentText(world);
+            m_ui->serverJoinAddressButton->setChecked(false);
+            m_ui->worldJoinButton->setChecked(true);
+            m_ui->serverJoinAddress->setEnabled(false);
+            m_ui->worldsCb->setEnabled(true);
+        } else {
+            m_ui->serverJoinAddressButton->setChecked(true);
+            m_ui->worldJoinButton->setChecked(false);
+            m_ui->serverJoinAddress->setEnabled(true);
+            m_ui->worldsCb->setEnabled(false);
+        }
+
+        m_ui->instanceAccountGroupBox->setChecked(settings->get("UseAccountForInstance").toBool());
+        updateAccountsMenu(*settings);
     }
 
-    if (!(APPLICATION->capabilities() & Application::SupportsMangoHud)) {
-        m_ui->enableMangoHud->setDisabled(true);
-        m_ui->enableMangoHud->setToolTip(tr("MangoHud could not be found on your system."));
-    }
-
-    // Miscellanous
-    m_ui->gameTimeGroupBox->setChecked(m_instance == nullptr || settings->get("OverrideGameTime").toBool());
-    m_ui->showGameTime->setChecked(settings->get("ShowGameTime").toBool());
-    m_ui->recordGameTime->setChecked(settings->get("RecordGameTime").toBool());
-    m_ui->showGlobalGameTime->setChecked(m_instance == nullptr && settings->get("ShowGlobalGameTime").toBool());
-    m_ui->showGameTimeWithoutDays->setChecked(m_instance == nullptr && settings->get("ShowGameTimeWithoutDays").toBool());
-
-    m_ui->legacySettingsGroupBox->setChecked(m_instance == nullptr || settings->get("OverrideLegacySettings").toBool());
+    m_ui->legacySettingsGroupBox->setChecked(settings->get("OverrideLegacySettings").toBool());
     m_ui->onlineFixes->setChecked(settings->get("OnlineFixes").toBool());
 }
 
@@ -322,6 +374,39 @@ void MinecraftSettingsWidget::saveSettings()
             settings->set("ShowGameTimeWithoutDays", m_ui->showGameTimeWithoutDays->isChecked());
         }
 
+        if (m_instance != nullptr) {
+            // Join server on launch
+            bool joinServerOnLaunch = m_ui->serverJoinGroupBox->isChecked();
+            settings->set("JoinServerOnLaunch", joinServerOnLaunch);
+            if (joinServerOnLaunch) {
+                if (m_ui->serverJoinAddressButton->isChecked() || !m_quickPlaySingleplayer) {
+                    settings->set("JoinServerOnLaunchAddress", m_ui->serverJoinAddress->text());
+                    settings->reset("JoinWorldOnLaunch");
+                } else {
+                    settings->set("JoinWorldOnLaunch", m_ui->worldsCb->currentText());
+                    settings->reset("JoinServerOnLaunchAddress");
+                }
+            } else {
+                settings->reset("JoinServerOnLaunchAddress");
+                settings->reset("JoinWorldOnLaunch");
+            }
+
+            // Use an account for this instance
+            bool useAccountForInstance = m_ui->instanceAccountGroupBox->isChecked();
+            settings->set("UseAccountForInstance", useAccountForInstance);
+            if (useAccountForInstance) {
+                int accountIndex = m_ui->instanceAccountSelector->currentIndex();
+
+                if (accountIndex != -1) {
+                    const MinecraftAccountPtr account = APPLICATION->accounts()->at(accountIndex);
+                    if (account != nullptr)
+                        settings->set("InstanceAccountId", account->profileId());
+                }
+            } else {
+                settings->reset("InstanceAccountId");
+            }
+        }
+
         bool overrideLegacySettings = m_instance == nullptr || m_ui->legacySettingsGroupBox->isChecked();
 
         if (m_instance != nullptr)
@@ -348,4 +433,29 @@ void MinecraftSettingsWidget::openGlobalSettings()
         APPLICATION->ShowGlobalSettings(this, "java-settings");
     else  // TODO select tab
         APPLICATION->ShowGlobalSettings(this, "minecraft-settings");
+}
+
+void MinecraftSettingsWidget::updateAccountsMenu(const SettingsObject& settings)
+{
+    m_ui->instanceAccountSelector->clear();
+    auto accounts = APPLICATION->accounts();
+    int accountIndex = accounts->findAccountByProfileId(settings.get("InstanceAccountId").toString());
+
+    for (int i = 0; i < accounts->count(); i++) {
+        MinecraftAccountPtr account = accounts->at(i);
+
+        QIcon face = account->getFace();
+
+        if (face.isNull())
+            face = APPLICATION->getThemedIcon("noaccount");
+
+        m_ui->instanceAccountSelector->addItem(face, account->profileName(), i);
+        if (i == accountIndex)
+            m_ui->instanceAccountSelector->setCurrentIndex(i);
+    }
+}
+
+bool MinecraftSettingsWidget::isQuickPlaySupported()
+{
+    return m_instance->traits().contains("feature:is_quick_play_singleplayer");
 }
