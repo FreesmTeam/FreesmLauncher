@@ -19,7 +19,7 @@ static ModrinthAPI modrinth_api;
 static FlameAPI flame_api;
 
 EnsureMetadataTask::EnsureMetadataTask(Resource* resource, QDir dir, ModPlatform::ResourceProvider prov)
-    : Task(nullptr), m_index_dir(dir), m_provider(prov), m_hashing_task(nullptr), m_current_task(nullptr)
+    : Task(), m_index_dir(dir), m_provider(prov), m_hashing_task(nullptr), m_current_task(nullptr)
 {
     auto hash_task = createNewHash(resource);
     if (!hash_task)
@@ -30,9 +30,9 @@ EnsureMetadataTask::EnsureMetadataTask(Resource* resource, QDir dir, ModPlatform
 }
 
 EnsureMetadataTask::EnsureMetadataTask(QList<Resource*>& resources, QDir dir, ModPlatform::ResourceProvider prov)
-    : Task(nullptr), m_index_dir(dir), m_provider(prov), m_current_task(nullptr)
+    : Task(), m_index_dir(dir), m_provider(prov), m_current_task(nullptr)
 {
-    m_hashing_task.reset(new ConcurrentTask(this, "MakeHashesTask", APPLICATION->settings()->get("NumberOfConcurrentTasks").toInt()));
+    m_hashing_task.reset(new ConcurrentTask("MakeHashesTask", APPLICATION->settings()->get("NumberOfConcurrentTasks").toInt()));
     for (auto* resource : resources) {
         auto hash_task = createNewHash(resource);
         if (!hash_task)
@@ -44,7 +44,7 @@ EnsureMetadataTask::EnsureMetadataTask(QList<Resource*>& resources, QDir dir, Mo
 }
 
 EnsureMetadataTask::EnsureMetadataTask(QHash<QString, Resource*>& resources, QDir dir, ModPlatform::ResourceProvider prov)
-    : Task(nullptr), m_resources(resources), m_index_dir(dir), m_provider(prov), m_current_task(nullptr)
+    : Task(), m_resources(resources), m_index_dir(dir), m_provider(prov), m_current_task(nullptr)
 {}
 
 Hashing::Hasher::Ptr EnsureMetadataTask::createNewHash(Resource* resource)
@@ -145,7 +145,7 @@ void EnsureMetadataTask::executeTask()
             return;
         }
 
-        connect(project_task.get(), &Task::finished, this, [=] {
+        connect(project_task.get(), &Task::finished, this, [this, invalidade_leftover, project_task] {
             invalidade_leftover();
             project_task->deleteLater();
             if (m_current_task)
@@ -157,7 +157,7 @@ void EnsureMetadataTask::executeTask()
         project_task->start();
     });
 
-    connect(version_task.get(), &Task::finished, [=] {
+    connect(version_task.get(), &Task::finished, [this, version_task] {
         version_task->deleteLater();
         if (m_current_task)
             m_current_task.reset();

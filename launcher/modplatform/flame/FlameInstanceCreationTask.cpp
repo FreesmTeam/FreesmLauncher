@@ -439,11 +439,12 @@ bool FlameCreationTask::createInstance()
 
     m_mod_id_resolver.reset(new Flame::FileResolvingTask(APPLICATION->network(), m_pack));
     connect(m_mod_id_resolver.get(), &Flame::FileResolvingTask::succeeded, this, [this, &loop] { idResolverSucceeded(loop); });
-    connect(m_mod_id_resolver.get(), &Flame::FileResolvingTask::failed, [&](QString reason) {
+    connect(m_mod_id_resolver.get(), &Flame::FileResolvingTask::failed, [this, &loop](QString reason) {
         m_mod_id_resolver.reset();
         setError(tr("Unable to resolve mod IDs:\n") + reason);
         loop.quit();
     });
+    connect(m_mod_id_resolver.get(), &Flame::FileResolvingTask::aborted, &loop, &QEventLoop::quit);
     connect(m_mod_id_resolver.get(), &Flame::FileResolvingTask::progress, this, &FlameCreationTask::setProgress);
     connect(m_mod_id_resolver.get(), &Flame::FileResolvingTask::status, this, &FlameCreationTask::setStatus);
     connect(m_mod_id_resolver.get(), &Flame::FileResolvingTask::stepProgress, this, &FlameCreationTask::propagateStepProgress);
@@ -561,7 +562,7 @@ void FlameCreationTask::setupDownloadJob(QEventLoop& loop)
         m_files_job.reset();
         validateZIPResources(loop);
     });
-    connect(m_files_job.get(), &NetJob::failed, [&](QString reason) {
+    connect(m_files_job.get(), &NetJob::failed, [this](QString reason) {
         m_files_job.reset();
         setError(reason);
     });
@@ -677,7 +678,7 @@ void FlameCreationTask::validateZIPResources(QEventLoop& loop)
         }
     }
     // TODO make this work with other sorts of resource
-    auto task = makeShared<ConcurrentTask>(this, "CreateModMetadata", APPLICATION->settings()->get("NumberOfConcurrentTasks").toInt());
+    auto task = makeShared<ConcurrentTask>("CreateModMetadata", APPLICATION->settings()->get("NumberOfConcurrentTasks").toInt());
     auto results = m_mod_id_resolver->getResults().files;
     auto folder = FS::PathCombine(m_stagingPath, "minecraft", "mods", ".index");
     for (auto file : results) {

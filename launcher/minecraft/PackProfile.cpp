@@ -746,7 +746,7 @@ bool PackProfile::removeComponent_internal(ComponentPtr patch)
     }
 
     // FIXME: we need a generic way of removing local resources, not just jar mods...
-    auto preRemoveJarMod = [&](LibraryPtr jarMod) -> bool {
+    auto preRemoveJarMod = [this](LibraryPtr jarMod) -> bool {
         if (!jarMod->isLocal()) {
             return true;
         }

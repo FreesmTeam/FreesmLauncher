@@ -37,8 +37,6 @@
 
 #include "ResourcePackPage.h"
 
-#include "ResourceDownloadTask.h"
-
 #include "ui/dialogs/CustomMessageBox.h"
 #include "ui/dialogs/ProgressDialog.h"
 #include "ui/dialogs/ResourceDownloadDialog.h"
@@ -88,8 +86,7 @@ void ResourcePackPage::downloadResourcePacks()
 
     ResourceDownload::ResourcePackDownloadDialog mdownload(this, m_model, m_instance);
     if (mdownload.exec()) {
-        auto tasks =
-            new ConcurrentTask(this, "Download Resource Pack", APPLICATION->settings()->get("NumberOfConcurrentDownloads").toInt());
+        auto tasks = new ConcurrentTask("Download Resource Pack", APPLICATION->settings()->get("NumberOfConcurrentDownloads").toInt());
         connect(tasks, &Task::failed, [this, tasks](QString reason) {
             CustomMessageBox::selectable(this, tr("Error"), reason, QMessageBox::Critical)->show();
             tasks->deleteLater();
@@ -168,8 +165,7 @@ void ResourcePackPage::updateResourcePacks()
     }
 
     if (update_dialog.exec()) {
-        auto tasks =
-            new ConcurrentTask(this, "Download Resource Packs", APPLICATION->settings()->get("NumberOfConcurrentDownloads").toInt());
+        auto tasks = new ConcurrentTask("Download Resource Packs", APPLICATION->settings()->get("NumberOfConcurrentDownloads").toInt());
         connect(tasks, &Task::failed, [this, tasks](QString reason) {
             CustomMessageBox::selectable(this, tr("Error"), reason, QMessageBox::Critical)->show();
             tasks->deleteLater();
@@ -234,7 +230,7 @@ void ResourcePackPage::changeResourcePackVersion()
     if (rows.count() != 1)
         return;
 
-    Resource &resource = m_model->at(m_filterModel->mapToSource(rows[0]).row());
+    Resource& resource = m_model->at(m_filterModel->mapToSource(rows[0]).row());
 
     if (resource.metadata() == nullptr)
         return;
@@ -242,8 +238,7 @@ void ResourcePackPage::changeResourcePackVersion()
     ResourceDownload::ResourcePackDownloadDialog mdownload(this, m_model, m_instance);
     mdownload.setResourceMetadata(resource.metadata());
     if (mdownload.exec()) {
-        auto tasks =
-            new ConcurrentTask(this, "Download Resource Packs", APPLICATION->settings()->get("NumberOfConcurrentDownloads").toInt());
+        auto tasks = new ConcurrentTask("Download Resource Packs", APPLICATION->settings()->get("NumberOfConcurrentDownloads").toInt());
         connect(tasks, &Task::failed, [this, tasks](QString reason) {
             CustomMessageBox::selectable(this, tr("Error"), reason, QMessageBox::Critical)->show();
             tasks->deleteLater();

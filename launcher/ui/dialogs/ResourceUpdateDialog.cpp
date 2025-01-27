@@ -45,8 +45,7 @@ ResourceUpdateDialog::ResourceUpdateDialog(QWidget* parent,
     , m_parent(parent)
     , m_resource_model(resource_model)
     , m_candidates(search_for)
-    , m_second_try_metadata(
-          new ConcurrentTask(nullptr, "Second Metadata Search", APPLICATION->settings()->get("NumberOfConcurrentTasks").toInt()))
+    , m_second_try_metadata(new ConcurrentTask("Second Metadata Search", APPLICATION->settings()->get("NumberOfConcurrentTasks").toInt()))
     , m_instance(instance)
     , m_include_deps(include_deps)
     , m_filter_loaders(filter_loaders)
@@ -90,7 +89,7 @@ void ResourceUpdateDialog::checkCandidates()
     auto versions = mcVersions(m_instance);
     auto loadersList = m_filter_loaders ? mcLoadersList(m_instance) : QList<ModPlatform::ModLoaderType>();
 
-    SequentialTask check_task(m_parent, tr("Checking for updates"));
+    SequentialTask check_task(tr("Checking for updates"));
 
     if (!m_modrinth_to_update.empty()) {
         m_modrinth_check_task.reset(new ModrinthCheckUpdate(m_modrinth_to_update, versions, loadersList, m_resource_model));
@@ -111,9 +110,9 @@ void ResourceUpdateDialog::checkCandidates()
     }
 
     connect(&check_task, &Task::failed, this,
-            [&](QString reason) { CustomMessageBox::selectable(this, tr("Error"), reason, QMessageBox::Critical)->exec(); });
+            [this](QString reason) { CustomMessageBox::selectable(this, tr("Error"), reason, QMessageBox::Critical)->exec(); });
 
-    connect(&check_task, &Task::succeeded, this, [&]() {
+    connect(&check_task, &Task::succeeded, this, [this, &check_task]() {
         QStringList warnings = check_task.warnings();
         if (warnings.count()) {
             CustomMessageBox::selectable(this, tr("Warnings"), warnings.join('\n'), QMessageBox::Warning)->exec();
@@ -195,13 +194,17 @@ void ResourceUpdateDialog::checkCandidates()
         auto* mod_model = dynamic_cast<ModFolderModel*>(m_resource_model.get());
 
         if (mod_model != nullptr) {
-            auto depTask = makeShared<GetModDependenciesTask>(this, m_instance, mod_model, selectedVers);
+            auto depTask = makeShared<GetModDependenciesTask>(m_instance, mod_model, selectedVers);
 
-            connect(depTask.get(), &Task::failed, this,
-                    [&](const QString& reason) { CustomMessageBox::selectable(this, tr("Error"), reason, QMessageBox::Critical)->exec(); });
-
-            connect(depTask.get(), &Task::succeeded, this, [&]() {
-                QStringList warnings = depTask->warnings();
+            connect(depTask.get(), &Task::failed, this, [this](const QString& reason) {
+                CustomMessageBox::selectable(this, tr("Error"), reason, QMessageBox::Critical)->exec();
+            });
+            auto weak = depTask.toWeakRef();
+            connect(depTask.get(), &Task::succeeded, this, [this, weak]() {
+                QStringList warnings;
+                if (auto depTask = weak.lock()) {
+                    warnings = depTask->warnings();
+                }
                 if (warnings.count()) {
                     CustomMessageBox::selectable(this, tr("Warnings"), warnings.join('\n'), QMessageBox::Warning)->exec();
                 }
@@ -265,7 +268,7 @@ auto ResourceUpdateDialog::ensureMetadata() -> bool
 {
     auto index_dir = indexDir();
 
-    SequentialTask seq(m_parent, tr("Looking for metadata"));
+    SequentialTask seq(tr("Looking for metadata"));
 
     // A better use of data structures here could remove the need for this QHash
     QHash<QString, bool> should_try_others;
@@ -277,7 +280,7 @@ auto ResourceUpdateDialog::ensureMetadata() -> bool
     bool skip_rest = false;
     ModPlatform::ResourceProvider provider_rest = ModPlatform::ResourceProvider::MODRINTH;
 
-    auto addToTmp = [&](Resource* resource, ModPlatform::ResourceProvider p) {
+    auto addToTmp = [&modrinth_tmp, &flame_tmp](Resource* resource, ModPlatform::ResourceProvider p) {
         switch (p) {
             case ModPlatform::ResourceProvider::MODRINTH:
                 modrinth_tmp.push_back(resource);
@@ -422,7 +425,7 @@ void ResourceUpdateDialog::appendResource(CheckUpdateTask::Update const& info, Q
     auto item_top = new QTreeWidgetItem(ui->modTreeWidget);
     item_top->setCheckState(0, info.enabled ? Qt::CheckState::Checked : Qt::CheckState::Unchecked);
     if (!info.enabled) {
-        item_top->setToolTip(0, tr("Mod was disabled as it may be already instaled."));
+        item_top->setToolTip(0, tr("Mod was disabled as it may be already installed."));
     }
     item_top->setText(0, info.name);
     item_top->setExpanded(true);

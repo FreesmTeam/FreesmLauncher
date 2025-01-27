@@ -65,7 +65,7 @@ void PostLaunchCommand::executeTask()
 
 void PostLaunchCommand::on_state(LoggedProcess::State state)
 {
-    auto getError = [&]() { return tr("Post-Launch command failed with code %1.\n\n").arg(m_process.exitCode()); };
+    auto getError = [this]() { return tr("Post-Launch command failed with code %1.\n\n").arg(m_process.exitCode()); };
     switch (state) {
         case LoggedProcess::Aborted:
         case LoggedProcess::Crashed:
