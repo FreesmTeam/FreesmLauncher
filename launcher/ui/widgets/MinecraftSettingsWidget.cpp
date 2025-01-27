@@ -41,7 +41,7 @@
 #include "settings/Setting.h"
 #include "ui_MinecraftSettingsWidget.h"
 
-MinecraftSettingsWidget::MinecraftSettingsWidget(InstancePtr instance, QWidget* parent)
+MinecraftSettingsWidget::MinecraftSettingsWidget(MinecraftInstancePtr instance, QWidget* parent)
     : QWidget(parent), m_instance(std::move(instance)), m_ui(new Ui::MinecraftSettingsWidget)
 {
     m_ui->setupUi(this);

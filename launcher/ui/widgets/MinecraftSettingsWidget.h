@@ -46,7 +46,7 @@ class MinecraftSettingsWidget;
 
 class MinecraftSettingsWidget : public QWidget {
    public:
-    MinecraftSettingsWidget(InstancePtr instance, QWidget* parent = nullptr);
+    MinecraftSettingsWidget(MinecraftInstancePtr instance, QWidget* parent = nullptr);
     ~MinecraftSettingsWidget() override;
 
     void loadSettings();
@@ -55,7 +55,7 @@ class MinecraftSettingsWidget : public QWidget {
     void openGlobalSettings();
 
    private:
-    InstancePtr m_instance;
+    MinecraftInstancePtr m_instance;
     Ui::MinecraftSettingsWidget* m_ui;
     JavaSettingsWidget* m_javaSettings = nullptr;
 };
