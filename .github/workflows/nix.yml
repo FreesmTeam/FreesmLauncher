@@ -24,6 +24,7 @@ permissions:
 
 env:
   DEBUG: ${{ github.ref_type != 'tag' }}
+  USE_DETERMINATE: ${{ github.event_name == 'pull_request' }}
 
 jobs:
   build:
@@ -47,19 +48,26 @@ jobs:
 
     runs-on: ${{ matrix.os }}
 
+    permissions:
+      id-token: write
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
       - name: Install Nix
-        uses: cachix/install-nix-action@v30
+        uses: DeterminateSystems/nix-installer-action@v16
+        with:
+          determinate: ${{ env.USE_DETERMINATE }}
 
         # For PRs
       - name: Setup Nix Magic Cache
-        uses: DeterminateSystems/magic-nix-cache-action@v9
+        if: ${{ env.USE_DETERMINATE }}
+        uses: DeterminateSystems/flakehub-cache-action@v1
 
         # For in-tree builds
       - name: Setup Cachix
+        if: ${{ github.event_name == 'push' || github.event_name == 'workflow_dispatch' }}
         uses: cachix/cachix-action@v15
         with:
           name: prismlauncher
