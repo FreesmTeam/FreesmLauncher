@@ -8,6 +8,28 @@ permissions:
   contents: read
 
 jobs:
+  flakehub:
+    name: FlakeHub
+
+    runs-on: ubuntu-latest
+
+    permissions:
+      id-token: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref }}
+          
+      - name: Install Nix
+        uses: cachix/install-nix-action@v30
+
+      - name: Publish on FlakeHub
+        uses: determinatesystems/flakehub-push@v5
+        with:
+          visibility: "public"
+
   winget:
     name: Winget
 
