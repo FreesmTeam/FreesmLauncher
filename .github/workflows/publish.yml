@@ -1,13 +1,21 @@
-name: Publish to WinGet
+name: Publish
+
 on:
   release:
-    types: [released]
+    types: [ released ]
+
+permissions:
+  contents: read
 
 jobs:
-  publish:
+  winget:
+    name: Winget
+
     runs-on: windows-latest
+
     steps:
-      - uses: vedantmgoyal2009/winget-releaser@v2
+      - name: Publish on Winget
+        uses: vedantmgoyal2009/winget-releaser@v2
         with:
           identifier: PrismLauncher.PrismLauncher
           version: ${{ github.event.release.tag_name }}
