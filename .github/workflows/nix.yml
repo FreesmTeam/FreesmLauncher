@@ -10,7 +10,7 @@ on:
       - "flatpak/**"
     tags:
       - "*"
-  pull_request:
+  pull_request_target:
     paths-ignore:
       - "**.md"
       - "**/LICENSE"
