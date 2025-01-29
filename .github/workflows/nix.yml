@@ -1,0 +1,80 @@
+name: Nix
+
+on:
+  push:
+    paths-ignore:
+      - "**.md"
+      - "**/LICENSE"
+      - ".github/ISSUE_TEMPLATE/**"
+      - ".markdownlint**"
+      - "flatpak/**"
+    tags:
+      - "*"
+  pull_request:
+    paths-ignore:
+      - "**.md"
+      - "**/LICENSE"
+      - ".github/ISSUE_TEMPLATE/**"
+      - ".markdownlint**"
+      - "flatpak/**"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  DEBUG: ${{ github.ref_type != 'tag' }}
+
+jobs:
+  build:
+    name: Build (${{ matrix.system }})
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-22.04
+            system: x86_64-linux
+
+          - os: ubuntu-22.04-arm
+            system: aarch64-linux
+
+          - os: macos-13
+            system: x86_64-darwin
+
+          - os: macos-14
+            system: aarch64-darwin
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Nix
+        uses: cachix/install-nix-action@v30
+
+        # For PRs
+      - name: Setup Nix Magic Cache
+        uses: DeterminateSystems/magic-nix-cache-action@v9
+
+        # For in-tree builds
+      - name: Setup Cachix
+        uses: cachix/cachix-action@v15
+        with:
+          name: prismlauncher
+          authToken: ${{ secrets.CACHIX_AUTH_TOKEN }}
+
+      - name: Run Flake checks
+        run: |
+          nix flake check --print-build-logs --show-trace
+
+      - name: Build debug package
+        if: ${{ env.DEBUG }}
+        run: |
+          nix build --print-build-logs .#prismlauncher-debug
+
+      - name: Build release package
+        if: ${{ !env.DEBUG }}
+        run: |
+          nix build --print-build-logs .#prismlauncher
