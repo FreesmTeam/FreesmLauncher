@@ -4,7 +4,7 @@
 # Contributor: foxy_chipher
 
 pkgname=freesmlaucnher
-pkgver=9.0.2
+pkgver=sequoia-1.0.0
 pkgrel=2
 pkgdesc="Minecraft launcher with ability to manage multiple instances."
 arch=('i686' 'x86_64' 'aarch64')
@@ -18,11 +18,11 @@ optdepends=('glfw: to use system GLFW libraries'
             'xorg-xrandr: for older minecraft versions'
             'java-runtime=8: for older minecraft versions'
             'flite: minecraft voice narration')
-source=("https://github.com/FreesmTeam/FreesmLauncher/releases/download/${pkgver}/FreesmLauncher-develop.tar.gz")
+source=("https://github.com/FreesmTeam/FreesmLauncher/releases/download/${pkgver}/FreesmLauncher-release.tar.gz")
 sha256sums=('SKIP')
 
 prepare() {
-  cd "FreesmLauncher-develop"
+  cd "FreesmLauncher-release"
 
 }
 
