@@ -3,7 +3,7 @@
 # Contributor: sophrtemin
 # Contributor: foxy_chipher
 
-pkgname=freesmlaucnher
+pkgname=freesmlauncher
 pkgver=1.0.0
 pkgcodename=sequoia
 pkgrel=2
@@ -47,5 +47,8 @@ check() {
 
 package() {
   cd "FreesmLauncher-develop/build"
+  
   DESTDIR="${pkgdir}" cmake --install .
+
+  mv ${pkgdir}/usr/share/mime/packages/modrinth-mrpack-mime.xml ${pkgdir}/usr/share/mime/packages/freesmlauncher-modrinth-mrpack-mime.xml
 }
