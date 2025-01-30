@@ -23,7 +23,7 @@ source=("https://github.com/FreesmTeam/FreesmLauncher/releases/download/${pkgcod
 sha256sums=('SKIP')
 
 prepare() {
-  cd "FreesmLauncher-release"
+  cd "FreesmLauncher-develop"
 
 }
 
