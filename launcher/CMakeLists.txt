@@ -556,6 +556,13 @@ set(MODRINTH_SOURCES
     modplatform/modrinth/ModrinthPackExportTask.h
 )
 
+set(MODPACKSCH_SOURCES
+    modplatform/modpacksch/FTBPackInstallTask.h
+    modplatform/modpacksch/FTBPackInstallTask.cpp
+    modplatform/modpacksch/FTBPackManifest.h
+    modplatform/modpacksch/FTBPackManifest.cpp
+)
+
 set(PACKWIZ_SOURCES
     modplatform/packwiz/Packwiz.h
     modplatform/packwiz/Packwiz.cpp
@@ -771,6 +778,7 @@ set(LOGIC_SOURCES
     ${FTB_SOURCES}
     ${FLAME_SOURCES}
     ${MODRINTH_SOURCES}
+    ${MODPACKSCH_SOURCES}
     ${PACKWIZ_SOURCES}
     ${TECHNIC_SOURCES}
     ${ATLAUNCHER_SOURCES}
@@ -1004,6 +1012,13 @@ SET(LAUNCHER_SOURCES
     ui/pages/modplatform/atlauncher/AtlUserInteractionSupportImpl.cpp
     ui/pages/modplatform/atlauncher/AtlUserInteractionSupportImpl.h
 
+    ui/pages/modplatform/ftb/FtbFilterModel.cpp
+    ui/pages/modplatform/ftb/FtbFilterModel.h
+    ui/pages/modplatform/ftb/FtbListModel.cpp
+    ui/pages/modplatform/ftb/FtbListModel.h
+    ui/pages/modplatform/ftb/FtbPage.cpp
+    ui/pages/modplatform/ftb/FtbPage.h
+
     ui/pages/modplatform/legacy_ftb/Page.cpp
     ui/pages/modplatform/legacy_ftb/Page.h
     ui/pages/modplatform/legacy_ftb/ListModel.h
@@ -1233,6 +1248,7 @@ qt_wrap_ui(LAUNCHER_UI
     ui/pages/modplatform/import_ftb/ImportFTBPage.ui
     ui/pages/modplatform/ImportPage.ui
     ui/pages/modplatform/OptionalModDialog.ui
+    ui/pages/modplatform/ftb/FtbPage.ui
     ui/pages/modplatform/modrinth/ModrinthPage.ui
     ui/pages/modplatform/technic/TechnicPage.ui
     ui/widgets/CustomCommands.ui
