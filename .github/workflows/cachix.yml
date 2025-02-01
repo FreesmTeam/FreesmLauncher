@@ -1,11 +1,28 @@
 name: "Cachix build"
 on:
-  check_run:
-    types:
-      - completed
+  push:
+    branches-ignore:
+      - "renovate/**"
+    paths-ignore:
+      - "docs/**"
+      - "**.md"
+      - "**/LICENSE"
+      - "flake.lock"
+      - "packages/**"
+      - ".github/ISSUE_TEMPLATE/**"
+      - ".markdownlint**"
+  pull_request:
+    paths-ignore:
+      - "docs/**"
+      - "**.md"
+      - "**/LICENSE"
+      - "flake.lock"
+      - "packages/**"
+      - ".github/ISSUE_TEMPLATE/**"
+      - ".markdownlint**"
+  workflow_dispatch:
 jobs:
   build-and-cache:
-    if: ${{ github.event.check_run.name == 'Evaluate flake.nix' && github.event.check_run.conclusion == 'failure' }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -17,4 +34,6 @@ jobs:
           name: freesmlauncher
           authToken: "${{ secrets.CACHIX_AUTH_TOKEN }}"
       - run: nix-build | cachix push freesmlauncher
-      - run: nix-shell --run "echo OK"
+      - run: |
+          nix develop
+          echo "OK"
