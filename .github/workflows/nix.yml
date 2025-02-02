@@ -80,9 +80,13 @@ jobs:
       - name: Build debug package
         if: ${{ env.DEBUG }}
         run: |
-          nix build --print-build-logs .#prismlauncher-debug
+          nix build \
+            --no-link --print-build-logs --print-out-paths \
+            .#prismlauncher-debug >> "$GITHUB_STEP_SUMMARY"
 
       - name: Build release package
         if: ${{ !env.DEBUG }}
         run: |
-          nix build --print-build-logs .#prismlauncher
+          nix build \
+            --no-link --print-build-logs --print-out-paths \
+            .#prismlauncher >> "$GITHUB_STEP_SUMMARY"
