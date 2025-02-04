@@ -19,7 +19,7 @@ jobs:
           days-before-issue-stale: 14
           days-before-pr-stale: 360 # a year
           days-before-close: -1
-          days-before-issue-close: 360 # update the issue once a year
+          days-before-issue-close: -1
           days-before-pr-close: -1
           stale-issue-message: "This issue has been inactive for a while. Please add a comment or provide an update if it's still relevant."
           stale-pr-message: "This PR has had no recent activity. Please update it if it's still relevant."
