@@ -20,8 +20,7 @@ jobs:
     steps:
       - uses: actions/stale@v9
         with:
-          days-before-issue-stale: 30
-          days-before-pr-stale: 30
+          days-before-stale: 30
           days-before-close: -1 # Don't close anything
           stale-issue-message: "This issue has been inactive for a while. Please add a comment or provide an update if it's still relevant."
           stale-pr-message: "This PR has had no recent activity. Please update it if it's still relevant."
