@@ -71,5 +71,4 @@ class JavaPage : public QWidget, public BasePage {
 
    private:
     Ui::JavaPage* ui;
-    JavaSettingsWidget* m_javaSettings;
 };

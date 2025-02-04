@@ -36,21 +36,20 @@
  */
 
 #include "JavaSettingsWidget.h"
-#include <Application.h>
-#include <BuildConfig.h>
-#include <JavaCommon.h>
-#include <settings/Setting.h>
-#include <ui/java/InstallJavaDialog.h>
 
-#include <FileSystem.h>
-#include <java/JavaInstallList.h>
-#include <java/JavaUtils.h>
-#include <sys.h>
-#include <ui/dialogs/CustomMessageBox.h>
-#include <ui/dialogs/VersionSelectDialog.h>
 #include <QFileDialog>
 #include <QFileInfo>
-#include <memory>
+#include "Application.h"
+#include "BuildConfig.h"
+#include "FileSystem.h"
+#include "JavaCommon.h"
+#include "java/JavaInstallList.h"
+#include "java/JavaUtils.h"
+#include "settings/Setting.h"
+#include "sys.h"
+#include "ui/dialogs/CustomMessageBox.h"
+#include "ui/dialogs/VersionSelectDialog.h"
+#include "ui/java/InstallJavaDialog.h"
 
 #include "ui_JavaSettingsWidget.h"
 

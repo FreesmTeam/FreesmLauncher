@@ -53,6 +53,11 @@
             <height>610</height>
            </rect>
           </property>
+          <layout class="QVBoxLayout" name="verticalLayout_4">
+           <item>
+            <widget class="JavaSettingsWidget" name="javaSettings" native="true"/>
+           </item>
+          </layout>
          </widget>
         </widget>
        </item>
@@ -144,6 +149,12 @@
    <class>VersionSelectWidget</class>
    <extends>QWidget</extends>
    <header>ui/widgets/VersionSelectWidget.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>JavaSettingsWidget</class>
+   <extends>QWidget</extends>
+   <header>ui/widgets/JavaSettingsWidget.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

@@ -36,9 +36,9 @@
 
 #pragma once
 
-#include <BaseInstance.h>
-#include <JavaCommon.h>
 #include <QWidget>
+#include "BaseInstance.h"
+#include "JavaCommon.h"
 
 namespace Ui {
 class JavaSettingsWidget;
@@ -48,6 +48,7 @@ class JavaSettingsWidget : public QWidget {
     Q_OBJECT
 
    public:
+    explicit JavaSettingsWidget(QWidget* parent = nullptr) : JavaSettingsWidget(nullptr, nullptr) {}
     explicit JavaSettingsWidget(InstancePtr instance, QWidget* parent = nullptr);
     ~JavaSettingsWidget() override;
 

@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>562</width>
+    <width>511</width>
     <height>726</height>
    </rect>
   </property>
@@ -38,7 +38,7 @@
       <enum>QTabWidget::Rounded</enum>
      </property>
      <property name="currentIndex">
-      <number>2</number>
+      <number>0</number>
      </property>
      <widget class="QWidget" name="featuresTab">
       <attribute name="title">
@@ -58,8 +58,8 @@
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>570</width>
-            <height>692</height>
+            <width>473</width>
+            <height>770</height>
            </rect>
           </property>
           <layout class="QVBoxLayout" name="verticalLayout_8">

@@ -63,9 +63,6 @@ JavaPage::JavaPage(QWidget* parent) : QWidget(parent), ui(new Ui::JavaPage)
 {
     ui->setupUi(this);
     
-    m_javaSettings = new JavaSettingsWidget(nullptr, this);
-    ui->generalScrollArea->setWidget(m_javaSettings);
-
     if (BuildConfig.JAVA_DOWNLOADER_ENABLED) {
         ui->managedJavaList->initialize(new JavaInstallList(this, true));
         ui->managedJavaList->setResizeOn(2);
@@ -88,7 +85,7 @@ void JavaPage::retranslate()
 
 bool JavaPage::apply()
 {
-    m_javaSettings->saveSettings();
+    ui->javaSettings->saveSettings();
     JavaCommon::checkJVMArgs(APPLICATION->settings()->get("JvmArgs").toString(), this);
     return true;
 }
