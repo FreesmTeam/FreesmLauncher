@@ -36,9 +36,9 @@
 
 #pragma once
 
-#include <minecraft/MinecraftInstance.h>
 #include <QWidget>
 #include "JavaSettingsWidget.h"
+#include "minecraft/MinecraftInstance.h"
 
 namespace Ui {
 class MinecraftSettingsWidget;

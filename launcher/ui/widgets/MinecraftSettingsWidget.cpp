@@ -36,9 +36,9 @@
  */
 
 #include "MinecraftSettingsWidget.h"
-#include <BuildConfig.h>
 
 #include "Application.h"
+#include "BuildConfig.h"
 #include "minecraft/WorldList.h"
 #include "minecraft/auth/AccountList.h"
 #include "settings/Setting.h"
