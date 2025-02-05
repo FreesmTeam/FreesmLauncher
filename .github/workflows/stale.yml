@@ -1,0 +1,29 @@
+name: Stale
+
+on:
+  schedule:
+    # run weekly on sunday
+    - cron: "0 0 * * 0"
+  workflow_dispatch:
+
+
+jobs:
+  label:
+    name: Label issues and PRs
+
+    runs-on: ubuntu-latest
+
+    permissions:
+      issues: write
+      pull-requests: write
+
+    steps:
+      - uses: actions/stale@v9
+        with:
+          days-before-stale: 30
+          days-before-close: -1 # Don't close anything
+          stale-issue-message: "This issue has been inactive for a while. Please add a comment or provide an update if it's still relevant."
+          stale-pr-message: "This PR has had no recent activity. Please update it if it's still relevant."
+          exempt-issue-labels: rfc,nostale
+          exempt-all-milestones: true
+          exempt-all-assignees: true
