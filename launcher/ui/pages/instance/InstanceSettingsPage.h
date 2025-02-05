@@ -35,10 +35,10 @@
 
 #pragma once
 
-#include <Application.h>
-#include <BaseInstance.h>
-#include <ui/pages/BasePage.h>
-#include <ui/widgets/MinecraftSettingsWidget.h>
+#include "Application.h"
+#include "BaseInstance.h"
+#include "ui/pages/BasePage.h"
+#include "ui/widgets/MinecraftSettingsWidget.h"
 #include <QWidget>
 
 class InstanceSettingsPage : public MinecraftSettingsWidget, public BasePage {
