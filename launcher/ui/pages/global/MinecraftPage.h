@@ -38,7 +38,7 @@
 #include <QDialog>
 #include <memory>
 
-#include <Application.h>
+#include "Application.h"
 #include "ui/widgets/MinecraftSettingsWidget.h"
 #include "java/JavaChecker.h"
 #include "ui/pages/BasePage.h"
