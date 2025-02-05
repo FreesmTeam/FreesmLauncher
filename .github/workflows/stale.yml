@@ -6,7 +6,6 @@ on:
     - cron: "0 0 * * 0"
   workflow_dispatch:
 
-
 jobs:
   label:
     name: Label issues and PRs
@@ -27,3 +26,4 @@ jobs:
           exempt-issue-labels: rfc,nostale
           exempt-all-milestones: true
           exempt-all-assignees: true
+          operations-per-run: 1000
