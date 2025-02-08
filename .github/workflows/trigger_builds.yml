@@ -4,23 +4,22 @@ on:
   push:
     branches-ignore:
       - "renovate/**"
-    paths-ignore:
       - "docs/**"
+    paths-ignore:
+      - "docs"
       - "**.md"
-      - "**/LICENSE"
       - "flake.lock"
-      - "packages/**"
-      - ".github/ISSUE_TEMPLATE/**"
-      - ".markdownlint**"
+      - "packages"
+      - ".github/ISSUE_TEMPLATE"
+      - ".markdownlint"
   pull_request:
     paths-ignore:
-      - "docs/**"
+      - "docs"
       - "**.md"
-      - "**/LICENSE"
       - "flake.lock"
-      - "packages/**"
-      - ".github/ISSUE_TEMPLATE/**"
-      - ".markdownlint**"
+      - "packages"
+      - ".github/ISSUE_TEMPLATE"
+      - ".markdownlint"
   workflow_dispatch:
 
 jobs:

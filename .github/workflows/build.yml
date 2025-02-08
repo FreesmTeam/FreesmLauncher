@@ -450,7 +450,7 @@ jobs:
           if (Get-Content ./codesign.pfx){
             cd ${{ env.INSTALL_DIR }}
             # We ship the exact same executable for portable and non-portable editions, so signing just once is fine
-            SignTool sign /fd sha256 /td sha256 /f ../codesign.pfx /p '${{ secrets.WINDOWS_CODESIGN_PASSWORD }}' /tr http://timestamp.digicert.com prismlauncher.exe prismlauncher_updater.exe prismlauncher_filelink.exe 
+            SignTool sign /fd sha256 /td sha256 /f ../codesign.pfx /p '${{ secrets.WINDOWS_CODESIGN_PASSWORD }}' /tr http://timestamp.digicert.com prismlauncher.exe prismlauncher_updater.exe prismlauncher_filelink.exe
           } else {
             ":warning: Skipped code signing for Windows, as certificate was not present." >> $env:GITHUB_STEP_SUMMARY
           }
@@ -526,7 +526,7 @@ jobs:
           chmod +x AppImageUpdate-x86_64.AppImage
           cp AppImageUpdate-x86_64.AppImage ${{ env.INSTALL_APPIMAGE_DIR }}/usr/bin
 
-          export UPDATE_INFORMATION="gh-releases-zsync|${{ github.repository_owner }}|${{ github.event.repository.name }}|latest|PrismLauncher-Linux-x86_64.AppImage.zsync" 
+          export UPDATE_INFORMATION="gh-releases-zsync|${{ github.repository_owner }}|${{ github.event.repository.name }}|latest|PrismLauncher-Linux-x86_64.AppImage.zsync"
 
           if [ '${{ secrets.GPG_PRIVATE_KEY_ID }}' != '' ]; then
             export SIGN=1
@@ -647,5 +647,5 @@ jobs:
         if: inputs.build_type == 'Debug'
         uses: flatpak/flatpak-github-actions/flatpak-builder@v6
         with:
-          bundle: FreesmLauncher-${{ runner.os }}-${{ env.VERSION }}-Flatpak.flatpak
+          bundle: FreesmLauncher-${{ runner.os }}-${{ env.VERSION }}-${{ inputs.build_type }}-Flatpak.flatpak
           manifest-path: flatpak/org.freesmTeam.freesmlauncher.yml

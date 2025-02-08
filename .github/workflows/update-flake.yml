@@ -24,7 +24,15 @@ jobs:
           commit-msg: "chore(nix): update lockfile"
           pr-title: "chore(nix): update lockfile"
           pr-labels: |
-            Linux
-            packaging
-            simple change
-            changelog:omit
+            [0] : Freesm
+            [1] : Nix-related
+            [2] : Chore (other)
+            [3] : Priority: Low
+            [4] : Complexity: Easy
+            [5] : Status: Done
+            [6] : Platform: Linux
+            [6] : Platform: macOS
+            [7] : Component: Code (other)
+            [8] : User: End-Users
+            [9] : Bug: None
+            [10] : Pull Request
