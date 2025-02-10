@@ -9,6 +9,7 @@
  *  Copyright (C) 2022 Tayou <git@tayou.org>
  *  Copyright (C) 2023 TheKodeToad <TheKodeToad@proton.me>
  *  Copyright (C) 2023 Rachel Powers <508861+Ryex@users.noreply.github.com>
+ *  Copyright (C) 2025 Kaeeraa <ilhainshakov@yandex.ru>
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -26,6 +27,7 @@
  * permission notice:
  *
  *      Copyright 2013-2021 MultiMC Contributors
+ *      Copyright 2024-2025 FreesmLauncher Maintainers
  *
  *      Licensed under the Apache License, Version 2.0 (the "License");
  *      you may not use this file except in compliance with the License.
@@ -89,6 +91,7 @@
 
 #include <QAccessible>
 #include <QCommandLineParser>
+#include <QDate>
 #include <QDebug>
 #include <QDir>
 #include <QFileInfo>
@@ -558,10 +561,16 @@ Application::Application(int& argc, char** argv) : QApplication(argc, argv)
         // Provide a fallback for migration from PolyMC
         m_settings.reset(new INISettingsObject({ BuildConfig.LAUNCHER_CONFIGFILE, "polymc.cfg", "multimc.cfg" }, this));
 
+        // Date
+        QDate now = QDate::currentDate();
+
+        bool isWinter = now.month() >= 12 || now.month() <= 2;
+
         // Theming
         m_settings->registerSetting("IconTheme", QString("fluent_dark"));
         m_settings->registerSetting("ApplicationTheme", QString("freesm"));
         m_settings->registerSetting("BackgroundCat", QString("typescript"));
+        m_settings->registerSetting("Snow", isWinter);
 
         // Remembered state
         m_settings->registerSetting("LastUsedGroupForNewInstance", QString());

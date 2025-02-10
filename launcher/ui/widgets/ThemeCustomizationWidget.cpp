@@ -2,6 +2,7 @@
 /*
  *  Prism Launcher - Minecraft Launcher
  *  Copyright (C) 2024 Tayou <git@tayou.org>
+ *  Copyright (C) 2025 Kaeeraa <ilhainshakov@yandex.ru>
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -42,6 +43,8 @@ ThemeCustomizationWidget::ThemeCustomizationWidget(QWidget* parent) : QWidget(pa
             [] { DesktopServices::openPath(APPLICATION->themeManager()->getCatPacksFolder().path()); });
 
     connect(ui->refreshButton, &QPushButton::clicked, this, &ThemeCustomizationWidget::refresh);
+
+    connect(ui->snowCheckBox, &QCheckBox::toggled, this, &ThemeCustomizationWidget::applySnow);
 }
 
 ThemeCustomizationWidget::~ThemeCustomizationWidget()
@@ -81,6 +84,7 @@ void ThemeCustomizationWidget::showFeatures(ThemeFields features)
     ui->widgetStyleLabel->setEnabled(features & ThemeFields::WIDGETS);
     ui->backgroundCatComboBox->setEnabled(features & ThemeFields::CAT);
     ui->backgroundCatLabel->setEnabled(features & ThemeFields::CAT);
+    ui->snowCheckBox->setEnabled(features & ThemeFields::SNOW);
 }
 
 void ThemeCustomizationWidget::applyIconTheme(int index)
@@ -121,12 +125,21 @@ void ThemeCustomizationWidget::applyCatTheme(int index)
     emit currentCatChanged(index);
 }
 
+void ThemeCustomizationWidget::applySnow(bool visible)
+{
+    APPLICATION->settings()->set("Snow", visible);
+
+    emit currentSnowChanged(visible);
+}
+
 void ThemeCustomizationWidget::applySettings()
 {
     applyIconTheme(ui->iconsComboBox->currentIndex());
     applyWidgetTheme(ui->widgetStyleComboBox->currentIndex());
     applyCatTheme(ui->backgroundCatComboBox->currentIndex());
+    applySnow(ui->snowCheckBox->isChecked());
 }
+
 void ThemeCustomizationWidget::loadSettings()
 {
     auto settings = APPLICATION->settings();
@@ -170,6 +183,8 @@ void ThemeCustomizationWidget::loadSettings()
             ui->backgroundCatComboBox->setCurrentIndex(ui->backgroundCatComboBox->count() - 1);
         }
     }
+
+    ui->snowCheckBox->setChecked(settings->get("Snow").toBool());
 }
 
 void ThemeCustomizationWidget::retranslate()
@@ -185,6 +200,7 @@ void ThemeCustomizationWidget::refresh()
                &ThemeCustomizationWidget::applyWidgetTheme);
     disconnect(ui->backgroundCatComboBox, QOverload<int>::of(&QComboBox::currentIndexChanged), this,
                &ThemeCustomizationWidget::applyCatTheme);
+    disconnect(ui->snowCheckBox, &QCheckBox::stateChanged, this, &ThemeCustomizationWidget::currentSnowChanged);
     APPLICATION->themeManager()->refresh();
     ui->iconsComboBox->clear();
     ui->widgetStyleComboBox->clear();
@@ -194,4 +210,5 @@ void ThemeCustomizationWidget::refresh()
     connect(ui->widgetStyleComboBox, QOverload<int>::of(&QComboBox::currentIndexChanged), this,
             &ThemeCustomizationWidget::applyWidgetTheme);
     connect(ui->backgroundCatComboBox, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &ThemeCustomizationWidget::applyCatTheme);
+    connect(ui->snowCheckBox, &QCheckBox::stateChanged, this, &ThemeCustomizationWidget::currentSnowChanged);
 };
