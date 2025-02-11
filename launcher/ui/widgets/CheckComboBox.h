@@ -58,7 +58,7 @@ class CheckComboBox : public QComboBox {
     void toggleCheckState(int index);
 
    private:
-    QString m_default_text;
-    QString m_separator;
-    bool containerMousePress;
+    QString m_default_text = {};
+    QString m_separator = {};
+    bool m_containerMousePress = false;
 };
