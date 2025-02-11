@@ -67,7 +67,7 @@ class CheckComboModel : public QIdentityProxyModel {
     void checkStateChanged();
 
    private:
-    QStringList m_checked = {};
+    QStringList m_checked;
 };
 
 CheckComboBox::CheckComboBox(QWidget* parent) : QComboBox(parent), m_separator(", ")
