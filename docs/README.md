@@ -31,20 +31,20 @@
 <p style="text-align: center; font-style: italic;">Explore Freesm Launcher's key features through these visuals, showcasing its interface, themes, and more.</p>
 
 <div align="center">
-  <img src="docs/screenshots/freesmlauncher_home_screenshot.png" alt="Home page screenshot">
+  <img src="screenshots/freesmlauncher_home_screenshot.png" alt="Home page screenshot">
 </div>
 
 <details>
   <summary>📷 Expand more</summary>
 
   <div align="center">
-    <img src="docs/screenshots/freesmlauncher_home_screenshot_opacity.png" alt="Home page screenshot with active opacity">
-    <img src="docs/screenshots/freesmlauncher_home_mita.gif" alt="Home page GIF with Mita Catpack">
-    <img src="docs/screenshots/freesmlauncher_home_maxwell.gif" alt="Home page GIF with Maxwell Catpack">
-    <img src="docs/screenshots/freesmlauncher_settings_accounts_screenshot.png" alt="Settings accounts page screenshot">
-    <img src="docs/screenshots/freesmlauncher_instance_add_screenshot.png" alt="Instance creation page screenshot">
-    <img src="docs/screenshots/freesmlauncher_instance_settings_screenshot.png" alt="Instance settings page screenshot">
-    <img src="docs/screenshots/freesmlauncher_settings_theme_screenshot.png" alt="Settings theme page screenshot">
+    <img src="screenshots/freesmlauncher_home_screenshot_opacity.png" alt="Home page screenshot with active opacity">
+    <img src="screenshots/freesmlauncher_home_mita.gif" alt="Home page GIF with Mita Catpack">
+    <img src="screenshots/freesmlauncher_home_maxwell.gif" alt="Home page GIF with Maxwell Catpack">
+    <img src="screenshots/freesmlauncher_settings_accounts_screenshot.png" alt="Settings accounts page screenshot">
+    <img src="screenshots/freesmlauncher_instance_add_screenshot.png" alt="Instance creation page screenshot">
+    <img src="screenshots/freesmlauncher_instance_settings_screenshot.png" alt="Instance settings page screenshot">
+    <img src="screenshots/freesmlauncher_settings_theme_screenshot.png" alt="Settings theme page screenshot">
   </div>
 
 </details>

@@ -38,7 +38,7 @@ stdenv.mkDerivation {
       "libraries"
       "program_info"
       "tests"
-      ../COPYING.md
+      ../docs/COPYING.md
       ../CMakeLists.txt
     ];
   };
@@ -102,8 +102,8 @@ stdenv.mkDerivation {
     mainProgram = "freesmlauncher";
     license = lib.licenses.gpl3Only;
     longDescription = ''
-      Freesm Launcher is a custom launcher for Minecraft that allows you 
-      to easily manage multiple installations of Minecraft at once and login 
+      Freesm Launcher is a custom launcher for Minecraft that allows you
+      to easily manage multiple installations of Minecraft at once and login
       with offline account without any restrictions.
     '';
     maintainers = with lib.maintainers; [
