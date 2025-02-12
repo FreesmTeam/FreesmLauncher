@@ -90,15 +90,6 @@ struct Server {
         }
     }
 
-    std::tuple<QString, int> splitAddress() const {
-        auto parts = m_address.split(":");
-        if (parts.size() == 1) {
-            return std::make_tuple(parts[0], 25565);
-        } else {
-            return std::make_tuple(parts[0], parts[1].toInt());
-        }
-    }
-
     void serialize(nbt::tag_compound& server)
     {
         server.insert("name", m_name.trimmed().toUtf8().toStdString());
@@ -465,8 +456,8 @@ class ServersModel : public QAbstractListModel {
             emit dataChanged(index(row, 0), index(row, COLUMN_COUNT - 1));
 
             // Start task to query server status
-            auto [domain, port] = server.splitAddress();
-            auto *task = new ServerPingTask(domain, port);
+            auto target = MinecraftTarget::parse(server.m_address, false);
+            auto *task = new ServerPingTask(target.address, target.port);
             m_currentQueryTask->addTask(Task::Ptr(task));
 
             // Update the model when the task is done
