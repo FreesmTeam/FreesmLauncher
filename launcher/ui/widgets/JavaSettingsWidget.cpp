@@ -90,6 +90,11 @@ JavaSettingsWidget::JavaSettingsWidget(InstancePtr instance, QWidget* parent)
             auto javaDialog = new Java::InstallDialog({}, m_instance.get(), this);
             javaDialog->exec();
         });
+        connect(m_ui->javaPathTextBox, &QLineEdit::textChanged, [this](QString newValue) {
+            if (m_instance->settings()->get("JavaPath").toString() != newValue) {
+                m_instance->settings()->set("AutomaticJava", false);
+            }
+        });
     }
 
     connect(m_ui->javaTestBtn, &QPushButton::clicked, this, &JavaSettingsWidget::onJavaTest);
