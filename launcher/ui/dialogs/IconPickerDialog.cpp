@@ -58,7 +58,7 @@ IconPickerDialog::IconPickerDialog(QWidget* parent) : QDialog(parent), ui(new Ui
     contentsWidget->setTextElideMode(Qt::ElideRight);
     contentsWidget->setVerticalScrollMode(QAbstractItemView::ScrollPerPixel);
     contentsWidget->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-    contentsWidget->setItemDelegate(new ListViewDelegate());
+    contentsWidget->setItemDelegate(new ListViewDelegate(contentsWidget));
 
     // contentsWidget->setAcceptDrops(true);
     contentsWidget->setDropIndicatorShown(true);
