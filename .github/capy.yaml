@@ -1,0 +1,10 @@
+steps:
+- type: bash
+  command: cd {{repo_dir}}
+- type: create-env
+- type: bash
+  command: npm install
+- type: instruction
+  text: Open the browser and navigate to http://localhost:3000
+- type: wait
+  seconds: 10
