@@ -34,7 +34,7 @@ In general, in order of importance:
   - `revert`: Reverts a previous commit
   - `release`: Releasing a new version
   - `ci`: Changes to our CI configuration
-- **Scope**: Indicate the location of the changed files, e.g., `ui/widgets`. Do not include the root, like `launcher/ui/widgets`. Use the shared parent folder name for multiple files. Omit if changes are in the root.
+- **Scope**: As described in Conventional Commits.
 - **Breaking Change**: If you're introducing a breaking change, append `!` to the type or scope, e.g., `feat(ui)!: Breaking change`.
 
 - **Subject**: Brief description of the change.
