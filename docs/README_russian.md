@@ -31,7 +31,7 @@
 <p style="text-align: center; font-style: italic;">Ознакомьтесь с основными функциями Freesm Launcher через эти визуальные материалы, демонстрирующие интерфейс, темы и многое другое.</p>
 
 <div align="center">
-  <img src="docs/screenshots/freesmlauncher_home_screenshot.png" alt="Скриншот главной страницы">
+  <img src="screenshots/freesmlauncher_home_screenshot.png" alt="Скриншот главной страницы">
 </div>
 
 <details>
