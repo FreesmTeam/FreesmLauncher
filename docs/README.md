@@ -81,11 +81,6 @@
       <td style="padding: 10px; border: 1px solid #ddd;">No</td>
     </tr>
     <tr>
-      <td style="padding: 10px; border: 1px solid #ddd;">Welcome Message on Home Screen</td>
-      <td style="padding: 10px; border: 1px solid #ddd;">No</td>
-      <td style="padding: 10px; border: 1px solid #ddd;">Yes</td>
-    </tr>
-    <tr>
       <td style="padding: 10px; border: 1px solid #ddd;">Java Compatibility Checks</td>
       <td style="padding: 10px; border: 1px solid #ddd;">Disabled by Default</td>
       <td style="padding: 10px; border: 1px solid #ddd;">Enabled by Default</td>
