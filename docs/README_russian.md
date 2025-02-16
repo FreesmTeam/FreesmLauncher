@@ -38,13 +38,13 @@
   <summary>📷 Показать больше</summary>
 
   <div align="center">
-    <img src="docs/screenshots/freesmlauncher_home_screenshot_opacity.png" alt="Скриншот главной страницы с активной прозрачностью">
-    <img src="docs/screenshots/freesmlauncher_home_mita.gif" alt="GIF главной страницы с catpack Mita">
-    <img src="docs/screenshots/freesmlauncher_home_maxwell.gif" alt="GIF главной страницы с catpack Maxwell">
-    <img src="docs/screenshots/freesmlauncher_settings_accounts_screenshot.png" alt="Скриншот страницы настроек аккаунтов">
-    <img src="docs/screenshots/freesmlauncher_instance_add_screenshot.png" alt="Скриншот страницы создания экземпляра">
-    <img src="docs/screenshots/freesmlauncher_instance_settings_screenshot.png" alt="Скриншот страницы настроек экземпляра">
-    <img src="docs/screenshots/freesmlauncher_settings_theme_screenshot.png" alt="Скриншот страницы настроек темы">
+    <img src="screenshots/freesmlauncher_home_screenshot_opacity.png" alt="Скриншот главной страницы с активной прозрачностью">
+    <img src="screenshots/freesmlauncher_home_mita.gif" alt="GIF главной страницы с catpack Mita">
+    <img src="screenshots/freesmlauncher_home_maxwell.gif" alt="GIF главной страницы с catpack Maxwell">
+    <img src="screenshots/freesmlauncher_settings_accounts_screenshot.png" alt="Скриншот страницы настроек аккаунтов">
+    <img src="screenshots/freesmlauncher_instance_add_screenshot.png" alt="Скриншот страницы создания экземпляра">
+    <img src="screenshots/freesmlauncher_instance_settings_screenshot.png" alt="Скриншот страницы настроек экземпляра">
+    <img src="screenshots/freesmlauncher_settings_theme_screenshot.png" alt="Скриншот страницы настроек темы">
   </div>
 
 </details>
@@ -79,11 +79,6 @@
       <td style="padding: 10px; border: 1px solid #ddd;">Обрезка изображений для cat паков</td>
       <td style="padding: 10px; border: 1px solid #ddd;">Да</td>
       <td style="padding: 10px; border: 1px solid #ddd;">Нет</td>
-    </tr>
-    <tr>
-      <td style="padding: 10px; border: 1px solid #ddd;">Приветственное сообщение на главной странице</td>
-      <td style="padding: 10px; border: 1px solid #ddd;">Нет</td>
-      <td style="padding: 10px; border: 1px solid #ddd;">Да</td>
     </tr>
     <tr>
       <td style="padding: 10px; border: 1px solid #ddd;">Проверки совместимости Java</td>
