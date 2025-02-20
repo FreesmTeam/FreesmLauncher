@@ -46,16 +46,16 @@ jobs:
       - name: Package artifacts properly
         run: |
           mv ${{ github.workspace }}/FreesmLauncher-source FreesmLauncher-${{ env.VERSION }}
-          mv PrismLauncher-Linux-Qt6-Portable*/PrismLauncher-portable.tar.gz FreesmLauncher-Linux-Qt6-Portable-${{ env.VERSION }}.tar.gz
-          mv PrismLauncher-Linux-Qt5-Portable*/PrismLauncher-portable.tar.gz FreesmLauncher-Linux-Qt5-Portable-${{ env.VERSION }}.tar.gz
-          mv PrismLauncher-*.AppImage/PrismLauncher-*.AppImage FreesmLauncher-Linux-x86_64.AppImage
-          mv PrismLauncher-*.AppImage.zsync/PrismLauncher-*.AppImage.zsync FreesmLauncher-Linux-x86_64.AppImage.zsync
-          mv PrismLauncher-macOS-Legacy*/PrismLauncher.zip FreesmLauncher-macOS-Legacy-${{ env.VERSION }}.zip
-          mv PrismLauncher-macOS*/PrismLauncher.zip FreesmLauncher-macOS-${{ env.VERSION }}.zip
+          mv FreesmLauncher-Linux-Qt6-Portable*/FreesmLauncher-portable.tar.gz FreesmLauncher-Linux-Qt6-Portable-${{ env.VERSION }}.tar.gz
+          mv FreesmLauncher-Linux-Qt5-Portable*/FreesmLauncher-portable.tar.gz FreesmLauncher-Linux-Qt5-Portable-${{ env.VERSION }}.tar.gz
+          mv FreesmLauncher-*.AppImage/FreesmLauncher-*.AppImage FreesmLauncher-Linux-x86_64.AppImage
+          mv FreesmLauncher-*.AppImage.zsync/FreesmLauncher-*.AppImage.zsync FreesmLauncher-Linux-x86_64.AppImage.zsync
+          mv FreesmLauncher-macOS-Legacy*/PrismLauncher.zip FreesmLauncher-macOS-Legacy-${{ env.VERSION }}.zip
+          mv FreesmLauncher-macOS*/PrismLauncher.zip FreesmLauncher-macOS-${{ env.VERSION }}.zip
 
           tar --exclude='.git' -czf FreesmLauncher-${{ env.VERSION }}.tar.gz FreesmLauncher-${{ env.VERSION }}
 
-          for d in PrismLauncher-Windows-MSVC*; do
+          for d in FreesmLauncher-Windows-MSVC*; do
             cd "${d}" || continue
             LEGACY="$(echo -n ${d} | grep -o Legacy || true)"
             ARM64="$(echo -n ${d} | grep -o arm64 || true)"
@@ -70,7 +70,7 @@ jobs:
             cd ..
           done
 
-          for d in PrismLauncher-Windows-MinGW-w64*; do
+          for d in FreesmLauncher-Windows-MinGW-w64*; do
             cd "${d}" || continue
             INST="$(echo -n ${d} | grep -o Setup || true)"
             PORT="$(echo -n ${d} | grep -o Portable || true)"
