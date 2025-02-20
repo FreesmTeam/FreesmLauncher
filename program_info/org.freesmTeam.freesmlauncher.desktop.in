@@ -9,5 +9,5 @@ StartupNotify=true
 Icon=org.freesmTeam.freesmlauncher
 Categories=Game;ActionGame;AdventureGame;Simulation;
 Keywords=game;minecraft;mc;
-StartupWMClass=PrismLauncher
+StartupWMClass=FreesmLauncher
 MimeType=application/zip;application/x-modrinth-modpack+zip;x-scheme-handler/curseforge;x-scheme-handler/@Launcher_APP_BINARY_NAME@;
