@@ -22,6 +22,7 @@
 #include <QOpenGLBuffer>
 #include <QVector2D>
 #include <QVector3D>
+#include <QtMath>
 
 #include "minecraft/skins/SkinModel.h"
 #include "rainbow.h"

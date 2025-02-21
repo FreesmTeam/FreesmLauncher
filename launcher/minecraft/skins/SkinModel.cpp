@@ -23,7 +23,7 @@
 #include "FileSystem.h"
 #include "Json.h"
 
-QImage improveSkin(const QImage& skin)
+static QImage improveSkin(const QImage& skin)
 {
     if (skin.size() == QSize(64, 32)) {  // old format
         QImage newSkin = QImage(QSize(64, 64), skin.format());
@@ -40,12 +40,12 @@ QImage improveSkin(const QImage& skin)
     }
     return skin;
 }
-QImage getSkin(const QString path)
+static QImage getSkin(const QString path)
 {
     return improveSkin(QImage(path));
 }
 
-QImage generatePreviews(QImage texture, bool slim)
+static QImage generatePreviews(QImage texture, bool slim)
 {
     QImage preview(36, 36, QImage::Format_ARGB32);
     preview.fill(Qt::transparent);
