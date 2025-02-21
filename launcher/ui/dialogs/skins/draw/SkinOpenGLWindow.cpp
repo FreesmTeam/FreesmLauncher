@@ -22,10 +22,9 @@
 #include <QOpenGLBuffer>
 #include <QVector2D>
 #include <QVector3D>
-#include <QtMath>
-#include <cmath>
 
 #include "minecraft/skins/SkinModel.h"
+#include "rainbow.h"
 #include "ui/dialogs/skins/draw/BoxGeometry.h"
 #include "ui/dialogs/skins/draw/Scene.h"
 
@@ -209,38 +208,15 @@ void SkinOpenGLWindow::updateCape(const QImage& cape)
     }
 }
 
-QVector3D RGBToYCbCr(QColor rgb)
-{
-    auto fr = rgb.redF() / 255.f;
-    auto fg = rgb.greenF() / 255.f;
-    auto fb = rgb.blueF() / 255.F;
-
-    auto Y = 0.2989f * fr + 0.5866f * fg + 0.1145f * fb;
-    auto Cb = -0.1687f * fr - 0.3313f * fg + 0.5000f * fb;
-    auto Cr = 0.5000f * fr - 0.4184f * fg - 0.0816f * fb;
-
-    return QVector3D(Y, Cb, Cr);
-}
-
-QColor YCbCrToRGB(QVector3D ycbcr)
-{
-    auto r = qBound(0.0f, ycbcr.x() + 0.0000f * ycbcr.y() + 1.4022f * ycbcr.z(), 1.0f);
-    auto g = qBound(0.0f, ycbcr.x() - 0.3456f * ycbcr.y() - 0.7145f * ycbcr.z(), 1.0f);
-    auto b = qBound(0.0f, ycbcr.x() + 1.7710f * ycbcr.y() + 0.0000f * ycbcr.z(), 1.0f);
-
-    return QColor::fromRgb(r * 255, g * 255, b * 255);
-}
-
 QColor calculateContrastingColor(const QColor& color)
 {
-    constexpr float contrast = 0.07;
-    auto lab = RGBToYCbCr(color);
-    if (lab.x() < contrast) {
-        lab.setX(lab.x() + contrast);
+    constexpr float contrast = 0.2;
+    auto luma = Rainbow::luma(color);
+    if (luma < 0.5) {
+        return Rainbow::lighten(color, contrast);
     } else {
-        lab.setX(lab.x() - contrast);
+        return Rainbow::darken(color, contrast);
     }
-    return YCbCrToRGB(lab);
 }
 
 QImage generateChessboardImage(int width, int height, int tileSize, QColor baseColor)
