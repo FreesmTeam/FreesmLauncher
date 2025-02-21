@@ -131,6 +131,7 @@ void LauncherPartLaunch::executeTask()
 
     QString wrapperCommandStr = instance->getWrapperCommand().trimmed();
     if (!wrapperCommandStr.isEmpty()) {
+        wrapperCommandStr = m_parent->substituteVariables(wrapperCommandStr);
         auto wrapperArgs = Commandline::splitArgs(wrapperCommandStr);
         auto wrapperCommand = wrapperArgs.takeFirst();
         auto realWrapperCommand = QStandardPaths::findExecutable(wrapperCommand);
@@ -170,6 +171,7 @@ void LauncherPartLaunch::on_state(LoggedProcess::State state)
         case LoggedProcess::Aborted:
         case LoggedProcess::Crashed: {
             m_parent->setPid(-1);
+            m_parent->instance()->setMinecraftRunning(false);
             emitFailed(tr("Game crashed."));
             return;
         }
