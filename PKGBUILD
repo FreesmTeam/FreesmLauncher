@@ -2,11 +2,12 @@
 # Maintainer: hand7s
 # Contributor: sophrtemin
 # Contributor: foxy_chipher
+# Contributor: fractal
 
 pkgname=freesmlauncher
-pkgver=1.0.0
+pkgver=1.1.0
 pkgcodename=sequoia
-pkgrel=2
+pkgrel=3
 pkgdesc="Minecraft launcher with ability to manage multiple instances."
 arch=('i686' 'x86_64' 'aarch64')
 url="https://github.com/FreesmTeam/FreesmLauncher"
@@ -14,11 +15,11 @@ license=('GPL-3.0-only AND LGPL-3.0-or-later AND LGPL-2.0-or-later AND Apache-2.
 depends=('java-runtime=17' 'qt6-networkauth' 'libgl' 'qt6-base' 'qt6-5compat' 'qt6-svg' 'qt6-imageformats' 'zlib' 'hicolor-icon-theme' 'quazip-qt6' 'tomlplusplus' 'cmark')
 makedepends=('cmake' 'extra-cmake-modules' 'git' 'jdk17-openjdk' 'scdoc' 'ghc-filesystem' 'gamemode')
 optdepends=('glfw: to use system GLFW libraries'
-            'openal: to use system OpenAL libraries'
-            'visualvm: Profiling support'
-            'xorg-xrandr: for older minecraft versions'
-            'java-runtime=8: for older minecraft versions'
-            'flite: minecraft voice narration')
+  'openal: to use system OpenAL libraries'
+  'visualvm: Profiling support'
+  'xorg-xrandr: for older minecraft versions'
+  'java-runtime=8: for older minecraft versions'
+  'flite: minecraft voice narration')
 source=("https://github.com/FreesmTeam/FreesmLauncher/releases/download/${pkgcodename}-${pkgver}/FreesmLauncher-release.tar.gz")
 sha256sums=('SKIP')
 
@@ -47,7 +48,7 @@ check() {
 
 package() {
   cd "FreesmLauncher-develop/build"
-  
+
   DESTDIR="${pkgdir}" cmake --install .
 
   mv ${pkgdir}/usr/share/mime/packages/modrinth-mrpack-mime.xml ${pkgdir}/usr/share/mime/packages/freesmlauncher-modrinth-mrpack-mime.xml
