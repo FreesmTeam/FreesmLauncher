@@ -11,11 +11,11 @@
     <strong>Not so "prism" as you think</strong><br />
     <div style="display: inline-flex; gap: 1rem;">
       <a href="#" style="text-decoration: none;">
-        <img src="https://upload.wikimedia.org/wikipedia/en/a/a4/Flag_of_the_United_States.svg" alt="English" style="height: 20px;"> English
+        <img src="https://upload.wikimedia.org/wikipedia/en/a/a4/Flag_of_the_United_States.svg" alt="English" style="height: 14px;"> English
       </a>
       |
       <a href="https://github.com/FreesmTeam/FreesmLauncher/blob/develop/README_russian.md" style="text-decoration: none;">
-        <img src="https://upload.wikimedia.org/wikipedia/commons/f/f3/Flag_of_Russia.svg" alt="Русский" style="height: 20px;"> Русский
+        <img src="https://upload.wikimedia.org/wikipedia/commons/f/f3/Flag_of_Russia.svg" alt="Русский" style="height: 14px;"> Русский
       </a>
     </div>
   </p>
