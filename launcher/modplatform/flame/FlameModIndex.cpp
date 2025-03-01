@@ -105,9 +105,6 @@ void FlameMod::loadIndexedPackVersions(ModPlatform::IndexedPack& pack,
 auto FlameMod::loadIndexedPackVersion(QJsonObject& obj, bool load_changelog) -> ModPlatform::IndexedVersion
 {
     auto versionArray = Json::requireArray(obj, "gameVersions");
-    if (versionArray.isEmpty()) {
-        return {};
-    }
 
     ModPlatform::IndexedVersion file;
     for (auto mcVer : versionArray) {
