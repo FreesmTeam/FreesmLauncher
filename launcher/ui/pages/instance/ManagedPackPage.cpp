@@ -348,7 +348,7 @@ void ManagedPackPage::onUpdateTaskCompleted(bool did_succeed) const
         CustomMessageBox::selectable(nullptr, tr("Update Successful"), tr("The instance updated to pack version %1 successfully.").arg(m_inst->getManagedPackVersionName()), QMessageBox::Information)
            ->show();
     } else if (!did_succeed) {
-        CustomMessageBox::selectable(nullptr, tr("Update Failed"), tr("The instance failed to update to pack version %1. -- Please check launcher logs for more information.").arg(m_inst->getManagedPackVersionName()), QMessageBox::Critical)
+        CustomMessageBox::selectable(nullptr, tr("Update Failed"), tr("The instance failed to update to pack version %1. Please check launcher logs for more information.").arg(m_inst->getManagedPackVersionName()), QMessageBox::Critical)
            ->show();
       qWarning() << "onUpdateTaskCompleted: unknown state encountered: did_succeed=" << did_succeed << " m_instance_window=" << m_instance_window;
     }
