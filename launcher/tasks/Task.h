@@ -137,7 +137,7 @@ class Task : public QObject, public QRunnable {
    signals:
     void started();
     void progress(qint64 current, qint64 total);
-    //! called when a task has eother succeeded, aborted or failed.
+    //! called when a task has either succeeded, aborted or failed.
     void finished();
     //! called when a task has succeeded
     void succeeded();
