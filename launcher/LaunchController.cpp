@@ -200,8 +200,7 @@ void LaunchController::login()
         m_accountToUse->shouldRefresh()) {
         // Force account refresh on the account used to launch the instance updating the AccountState
         //  only on first try and if it is not meant to be offline
-        auto accounts = APPLICATION->accounts();
-        accounts->requestRefresh(m_accountToUse->internalId());
+        m_accountToUse->refresh();
     }
     while (tryagain) {
         if (tries > 0 && tries % 3 == 0) {
