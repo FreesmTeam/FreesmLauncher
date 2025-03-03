@@ -1177,6 +1177,9 @@ bool Application::event(QEvent* event)
 #endif
 
     if (event->type() == QEvent::FileOpen) {
+        if (!m_mainWindow) {
+            showMainWindow(false);
+        }
         auto ev = static_cast<QFileOpenEvent*>(event);
         m_mainWindow->processURLs({ ev->url() });
     }
@@ -1309,6 +1312,9 @@ void Application::messageReceived(const QByteArray& message)
         if (url.isEmpty()) {
             qWarning() << "Received" << command << "message without a zip path/URL.";
             return;
+        }
+        if (!m_mainWindow) {
+            showMainWindow(false);
         }
         m_mainWindow->processURLs({ normalizeImportUrl(url) });
     } else if (command == "launch") {
