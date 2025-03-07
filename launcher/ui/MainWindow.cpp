@@ -1587,7 +1587,7 @@ void MainWindow::on_actionCreateInstanceShortcut_triggered()
         if (desktopFilePath.isEmpty())
             return;  // file dialog canceled by user
         appPath = "flatpak";
-        args.append({ "run", BuildConfig.LAUNCHER_DESKTOPFILENAME });
+        args.append({ "run", BuildConfig.LAUNCHER_APPID });
     }
 
 #elif defined(Q_OS_WIN)
