@@ -136,6 +136,8 @@ void Flame::FileResolvingTask::netJobFinished()
             auto obj = Json::requireObject(file);
             auto version = FlameMod::loadIndexedPackVersion(obj);
             auto fileid = version.fileId.toInt();
+            Q_ASSERT(fileid != 0);
+            Q_ASSERT(m_manifest.files.contains(fileid));
             m_manifest.files[fileid].version = version;
             auto url = QUrl(version.downloadUrl, QUrl::TolerantMode);
             if (!url.isValid() && "sha1" == version.hash_type && !version.hash.isEmpty()) {
