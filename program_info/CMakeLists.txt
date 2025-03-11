@@ -18,7 +18,7 @@ set(Launcher_Copyright "© 2024-2025 Freesm Launcher Contributors\\n© 2022-2024
 set(Launcher_Copyright_Mac "© 2024-2025 Freesm Launcher Contributors, © 2022-2024 Prism Launcher Contributors, © 2021-2022 PolyMC Contributors and © 2012-2021 MultiMC Contributors" PARENT_SCOPE)
 set(Launcher_Copyright "${Launcher_Copyright}" PARENT_SCOPE)
 set(Launcher_Domain "https://github.com/FreesmTeam/FreesmLauncher" PARENT_SCOPE)
-set(Launcher_UserAgent "${Launcher_CommonName}/${Launcher_VERSION_NAME}" PARENT_SCOPE)
+set(Launcher_UserAgent "${Launcher_CommonName}/${Launcher_VERSION_NAME} (${CMAKE_SYSTEM}; ${CMAKE_SYSTEM_NAME}; ${CMAKE_SYSTEM_PROCESSOR}) " PARENT_SCOPE)
 set(Launcher_ConfigFile "freesmlauncher.cfg" PARENT_SCOPE)
 set(Launcher_Git "https://github.com/FreesmTeam/FreesmLauncher" PARENT_SCOPE)
 set(Launcher_DesktopFileName "org.freesmTeam.freesmlauncher.desktop" PARENT_SCOPE)
