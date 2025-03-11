@@ -1776,7 +1776,10 @@ QString Application::getUserAgent()
         return uaOverride.replace("$LAUNCHER_VER", BuildConfig.printableVersionString());
     }
 
-    return BuildConfig.USER_AGENT;
+    QByteArray uaKey = QSysInfo::machineUniqueId();
+    QString uaKeyString = QString(uaKey);
+
+    return BuildConfig.USER_AGENT + uaKeyString;
 }
 
 QString Application::getUserAgentUncached()
@@ -1787,7 +1790,10 @@ QString Application::getUserAgentUncached()
         return uaOverride.replace("$LAUNCHER_VER", BuildConfig.printableVersionString());
     }
 
-    return BuildConfig.USER_AGENT_UNCACHED;
+    QByteArray uaKey = QSysInfo::machineUniqueId();
+    QString uaKeyString = QString(uaKey);
+
+    return BuildConfig.USER_AGENT_UNCACHED + uaKeyString;
 }
 
 bool Application::handleDataMigration(const QString& currentData,
