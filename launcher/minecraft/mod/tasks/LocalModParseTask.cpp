@@ -376,7 +376,7 @@ ModDetails ReadQuiltModInfo(QByteArray contents)
         }
 
     } catch (const Exception& e) {
-        qWarning() << "Unable to parse mof info:" << e.cause();
+        qWarning() << "Unable to parse mod info:" << e.cause();
     }
     return details;
 }
