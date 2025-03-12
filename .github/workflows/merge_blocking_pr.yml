@@ -51,7 +51,7 @@ jobs:
               ' \
               --paginate \
               --slurp \
-              | jq --argjson pr "${{ github.event.pull_request.number }}" '
+              | jq -c --argjson pr "${{ github.event.pull_request.number }}" '
                   [.[].data.repository.pullRequests.nodes[]] | .[] | select(
                     .bodyText |  
                       scan("(?:blocked (?:by|on)|stacked on):? #(?<num>[0-9]+)") |

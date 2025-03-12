@@ -35,7 +35,7 @@ jobs:
             echo "REPO=$(jq -r '.base.repo.name' <<< "$PR_JSON")"
             echo "OWNER=$(jq -r '.base.repo.owner.login' <<< "$PR_JSON")"
             echo "PR_NUMBER=$(jq -r '.number' <<< "$PR_JSON")"
-            echo "JOB_DATA=\"$(jq '
+            echo "JOB_DATA=$(jq -c '
               {
                 "repo": .base.repo.name,
                 "owner": .base.repo.owner.login,
@@ -46,7 +46,7 @@ jobs:
                 "prBody": .body,
                 "prLabels": (reduce .labels[].name as $l ([]; . + [$l]))
               }
-            ' <<< "$PR_JSON")\""
+            ' <<< "$PR_JSON")"
           } >> "$GITHUB_ENV"
           cat $GITHUB_ENV
 
@@ -72,7 +72,7 @@ jobs:
             echo "REPO=$(jq -r '.base.repo.name' <<< "$PR_JSON")"
             echo "OWNER=$(jq -r '.base.repo.owner.login' <<< "$PR_JSON")"
             echo "PR_NUMBER=$(jq -r '.number' <<< "$PR_JSON")"
-            echo "JOB_DATA=\"$(jq '
+            echo "JOB_DATA=$(jq -c '
               {
                 "repo": .base.repo.name,
                 "owner": .base.repo.owner.login,
@@ -83,7 +83,7 @@ jobs:
                 "prBody": .body,
                 "prLabels": (reduce .labels[].name as $l ([]; . + [$l]))
               }
-            ' <<< "$PR_JSON")\""
+            ' <<< "$PR_JSON")"
           } >> "$GITHUB_ENV"
           cat $GITHUB_ENV
 
@@ -92,7 +92,7 @@ jobs:
         id: pr_ids
         run: |
           PRS=$(
-            jq '
+            jq -c '
               .prBody as $body 
                 | (
                     $body | 
@@ -135,7 +135,7 @@ jobs:
                 -H "Accept: application/vnd.github+json" \
                 -H "X-GitHub-Api-Version: 2022-11-28" \
                 "/repos/$OWNER/$REPO/pulls/$(jq -r '.number' <<< "$pr_data")" \
-                | jq --arg type "$(jq -r '.type' <<< "$pr_data")" \
+                | jq -c --arg type "$(jq -r '.type' <<< "$pr_data")" \
                   '
                     . | {
                       "type": $type,
@@ -150,7 +150,7 @@ jobs:
                       "baseRefName": .head.ref,
                     }
                   '
-            done < <(jq -c '.blocking[]' <<< "${{steps.pr_ids.outputs.prs}}") | jq -s
+            done < <(jq -c '.blocking[]' <<< "${{steps.pr_ids.outputs.prs}}") | jq -c -s
           )
           echo "state=$BLOCKED_PR_DATA" >> "$GITHUB_OUTPUT"
           echo "all_merged=$(jq 'all(.[].merged; .)' <<< "$BLOCKED_PR_DATA")"
@@ -241,7 +241,7 @@ jobs:
             base_repo_owner=$(jq -r '.baseRepoOwner' <<< "$pr_data")
             base_repo_name=$(jq -r '.baseRepoName' <<< "$pr_data")
             compare_url="https://github.com/$base_repo_owner/$base_repo_name/compare/$base_ref_name...$pr_head_label"
-            status=$(jq 'if .merged then ":heavy_check_mark: Merged" else ":x: Not Merged" end' <<< "$pr_data")
+            status=$(jq -r 'if .merged then ":heavy_check_mark: Merged" else ":x: Not Merged" end' <<< "$pr_data")
             type=$(jq -r '.type' <<< "$pr_data")
             echo "  - $type #$base_pr $status [(compare)]($compare_url)" >> "$COMMENT_PATH"
           done < <(jq -c '.[]'  <<< "${{steps.blocked_data.outputs.state}}")
