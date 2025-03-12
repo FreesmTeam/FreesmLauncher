@@ -24,7 +24,7 @@ jobs:
       checks: write
 
     steps:
-      - name: Setup From Pull Request Vent
+      - name: Setup From Pull Request Event
         if: github.event_name != 'workflow_dispatch'
         id: pr_event_setup
         env:
@@ -35,7 +35,7 @@ jobs:
           PR_NUMBER_L: ${{ github.event.pull_request.number }}
           PR_HEAD_LABEL_L: ${{ github.event.pull_request.head.label }}
           PR_BODY_L: ${{ github.event.pull_request.body }}
-          PR_LABLES_L: ${{ github.event.pull_request.labels }}
+          PR_LABLES_L: "${{ github.event.pull_request.labels }}"
         run: |
           # setup env for the rest of the workflow
           {
