@@ -28,14 +28,14 @@ jobs:
         if: github.event_name != 'workflow_dispatch'
         id: pr_event_setup
         env:
-          PR_JSON: ${{ toJSON(github.event.pull_request) }}
+          PR_JSON: "${{ toJSON(github.event.pull_request) }}"
         run: |
           # setup env for the rest of the workflow
           {
             echo "REPO=$(jq -r '.base.repo.name' <<< "$PR_JSON")"
             echo "OWNER=$(jq -r '.base.repo.owner.login' <<< "$PR_JSON")"
             echo "PR_NUMBER=$(jq -r '.number' <<< "$PR_JSON")"
-            echo "JOB_DATA=$(jq '
+            echo "JOB_DATA=\"$(jq '
               {
                 "repo": .base.repo.name,
                 "owner": .base.repo.owner.login,
@@ -46,8 +46,9 @@ jobs:
                 "prBody": .body,
                 "prLabels": (reduce .labels[].name as $l ([]; . + [$l]))
               }
-            ' <<< "$PR_JSON")"
+            ' <<< "$PR_JSON")\""
           } >> "$GITHUB_ENV"
+          cat $GITHUB_ENV
 
       - name: Setup From Dispatch Event
         if: github.event_name == 'workflow_dispatch'
@@ -71,7 +72,7 @@ jobs:
             echo "REPO=$(jq -r '.base.repo.name' <<< "$PR_JSON")"
             echo "OWNER=$(jq -r '.base.repo.owner.login' <<< "$PR_JSON")"
             echo "PR_NUMBER=$(jq -r '.number' <<< "$PR_JSON")"
-            echo "JOB_DATA=$(jq '
+            echo "JOB_DATA=\"$(jq '
               {
                 "repo": .base.repo.name,
                 "owner": .base.repo.owner.login,
@@ -82,8 +83,9 @@ jobs:
                 "prBody": .body,
                 "prLabels": (reduce .labels[].name as $l ([]; . + [$l]))
               }
-            ' <<< "$PR_JSON")"
+            ' <<< "$PR_JSON")\""
           } >> "$GITHUB_ENV"
+          cat $GITHUB_ENV
 
 
       - name: Find Blocked/Stacked PRs in body
