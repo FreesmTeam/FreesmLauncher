@@ -30,7 +30,7 @@ jobs:
         env:
           REPO_L: ${{ github.event.pull_request.base.repo.name }}
           OWNER_L: ${{ github.event.pull_request.base.repo.owner.login }}
-          REPO_URL_L: $ {{ github.event.pull_request.base.repo.html_url }}
+          REPO_URL_L: ${{ github.event.pull_request.base.repo.html_url }}
           PR_HEAD_SHA_L: ${{ github.event.pull_request.head.sha }}
           PR_NUMBER_L: ${{ github.event.pull_request.number }}
           PR_HEAD_LABEL_L: ${{ github.event.pull_request.head.label }}
@@ -56,7 +56,7 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           OWNER_REPO_L: ${{ github.repository }}
           OWNER_L: ${{ github.repository_owner }}
-          REPO_URL_L: $ {{ github.repositoryUrl }}
+          REPO_URL_L: https://github.com/${{ github.repository }}
           PR_NUMBER_L: ${{ inputs.pr_id }}
         run: |
           # setup env for the rest of the workflow
