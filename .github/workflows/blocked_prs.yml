@@ -13,12 +13,19 @@ on:
         type: number
 
 jobs:
-  block_status:
+  blocked_status:
     name: Check Blocked Status
     runs-on: ubuntu-latest
+
+    permissions:
+      issues: write
+      pull-requests: write
+      statuses: write
+      checks: write
+
     steps:
       - name: Setup From Pull Request Vent
-        if: ${{ github.event_name != 'workflow_dispatch' }}
+        if: github.event_name != 'workflow_dispatch'
         id: pr_event_setup
         env:
           REPO_L: ${{ github.event.pull_request.base.repo.name }}
@@ -43,7 +50,7 @@ jobs:
           } >> "$GITHUB_ENV"
 
       - name: Setup From Dispatch Event
-        if: ${{ github.event_name == 'workflow_dispatch' }}
+        if: github.event_name == 'workflow_dispatch'
         id: dispatch_event_setup
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -57,13 +64,13 @@ jobs:
           REPO_L="${OWNER_REPO_L#"$owner_prefix"}"
           PR_L=$(
             gh api \
-              -H "Accept: application/vnd.github.raw+json" \
+              -H "Accept: application/vnd.github.text+json" \
               -H "X-GitHub-Api-Version: 2022-11-28" \
               "/repos/$OWNER_L/$REPO_L/pulls/$PR_NUMBER_L"
           )
           PR_HEAD_SHA_L=$(jq -r '.head.sha' <<< "$PR_L")
           PR_HEAD_LABEL_L=$(jq -r '.head.label' <<< "$PR_L")
-          PR_BODY_L=$(jq -r '.body' <<< "$PR_L")
+          PR_BODY_L=$(jq -r '.body_text' <<< "$PR_L")
           PR_LABELS_L=$(jq '.labels' <<< "$PR_L")
           {
             echo "REPO=$REPO_L"
@@ -84,7 +91,7 @@ jobs:
             jq '
               . as $body 
                 | (
-                    $body | scan("blocked (?by)|(?on):? #(?<num>[0-9]+)") 
+                    $body | scan("blocked (?(?by)|(?on)):? #(?<num>[0-9]+)") 
                       | map({
                         "type": "Blocked on",
                         "number": ( . | tonumber )
@@ -104,18 +111,18 @@ jobs:
                   }
               ' <<< "$PR_BODY"
           )
-          echo "prs=$PRS" >> "$GITHUB_OUPUT"
+          echo "prs=$PRS" >> "$GITHUB_OUTPUT"
 
       - name: Collect Blocked PR Data
         id: blocked_data
-        if: ${{ fromJSON(steps.pr_ids.outputs.prs).numBlocking > 0 }}
+        if: fromJSON(steps.pr_ids.outputs.prs).numBlocking > 0
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           BLOCKED_PR_DATA=$(
             while read -r PR ; do
               gh api \
-                -H "Accept: application/vnd.github.raw+json" \
+                -H "Accept: application/vnd.github+json" \
                 -H "X-GitHub-Api-Version: 2022-11-28" \
                 "/repos/$OWNER/$REPO/pulls/$(jq -r '.number' <<< "$PR")" \
                 | jq --arg type "$(jq -r '.type' <<< "$PR")" \
@@ -135,12 +142,12 @@ jobs:
                   '
             done < <(jq -c '.blocking[]' <<< "${{steps.pr_ids.outputs.prs}}") | jq -s
           )
-          echo "state=$BLOCKED_PR_DATA" >> "$GITHUB_OUPUT"
+          echo "state=$BLOCKED_PR_DATA" >> "$GITHUB_OUTPUT"
           echo "all_merged=$(jq 'all(.[].merged; .)' <<< "$BLOCKED_PR_DATA")"
 
       - name: Apply Blocked Label if Missing
         id: label_blocked
-        if: ${{ fromJSON(steps.pr_ids.outputs.prs).numBlocking > 0 && !contains(fromJSON(env.PR_LABELS), 'blocked') && !fromJSON(steps.blocked_data.outputs.all_merged) }}
+        if: fromJSON(steps.pr_ids.outputs.prs).numBlocking > 0 && !contains(fromJSON(env.PR_LABELS), 'blocked') && !fromJSON(steps.blocked_data.outputs.all_merged)
         continue-on-error: true
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -154,7 +161,7 @@ jobs:
 
       - name: Remove 'blocked' Label if All Dependencies Are Merged
         id: unlabel_blocked
-        if: ${{ fromJSON(steps.pr_ids.outputs.prs).numBlocking > 0 && fromJSON(steps.blocked_data.outputs.all_merged) }}
+        if: fromJSON(steps.pr_ids.outputs.prs).numBlocking > 0 && fromJSON(steps.blocked_data.outputs.all_merged)
         continue-on-error: true
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -167,7 +174,7 @@ jobs:
 
       - name: Apply 'blocking' Label to Dependencies if Missing
         id: label_blocking
-        if: ${{ fromJSON(steps.pr_ids.outputs.prs).numBlocking > 0 }}
+        if: fromJSON(steps.pr_ids.outputs.prs).numBlocking > 0
         continue-on-error: true
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -187,7 +194,7 @@ jobs:
 
       - name: Apply Blocking PR Status Check
         id: blocked_check
-        if: ${{ fromJSON(steps.pr_ids.outputs.prs).numBlocking > 0 }}
+        if: fromJSON(steps.pr_ids.outputs.prs).numBlocking > 0
         continue-on-error: true
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -210,7 +217,7 @@ jobs:
 
       - name: Context Comment
         id: blocked_comment
-        if: ${{ fromJSON(steps.pr_ids.outputs.prs).numBlocking > 0 }}
+        if: fromJSON(steps.pr_ids.outputs.prs).numBlocking > 0
         continue-on-error: true
         run: |
           COMMENT_PATH="$(pwd)/temp_comment_file.txt"
@@ -227,10 +234,11 @@ jobs:
           echo "file_path=${COMMENT_PATH}" >> "$GITHUB_OUTPUT"
 
       - name: 💬 PR Comment
-        if: ${{ fromJSON(steps.pr_ids.outputs.prs).numBlocking > 0 }}
+        if: fromJSON(steps.pr_ids.outputs.prs).numBlocking > 0
         continue-on-error: true
         uses: spicyparrot/pr-comment-action@v1.0.0
         with:
           comment: "### PR Dependencies :pushpin:"
           comment_path: ${{ steps.blocked_comment.outputs.file_path }}
           comment_id: "block_pr_dependencies"
+
