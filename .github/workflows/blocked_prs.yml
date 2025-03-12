@@ -28,25 +28,25 @@ jobs:
         if: github.event_name != 'workflow_dispatch'
         id: pr_event_setup
         env:
-          REPO_L: ${{ github.event.pull_request.base.repo.name }}
-          OWNER_L: ${{ github.event.pull_request.base.repo.owner.login }}
-          REPO_URL_L: ${{ github.event.pull_request.base.repo.html_url }}
-          PR_HEAD_SHA_L: ${{ github.event.pull_request.head.sha }}
-          PR_NUMBER_L: ${{ github.event.pull_request.number }}
-          PR_HEAD_LABEL_L: ${{ github.event.pull_request.head.label }}
-          PR_BODY_L: ${{ github.event.pull_request.body }}
-          PR_LABLES_L: "${{ github.event.pull_request.labels }}"
+          PR_JSON: ${{ toJSON(github.event.pull_request) }}
         run: |
           # setup env for the rest of the workflow
           {
-            echo "REPO=$REPO_L"
-            echo "OWNER=$OWNER_L"
-            echo "REPO_URL=$REPO_URL_L"
-            echo "PR_NUMBER=$PR_NUMBER_L"
-            echo "PR_HEAD_SHA=$PR_HEAD_SHA_L"
-            echo "PR_HEAD_LABEL=$PR_HEAD_LABEL_L"
-            echo "PR_BODY=$PR_BODY_L"
-            echo "PR_LABELS=$(jq 'reduce .[].name as $l ([]; . + [$l])' <<< "$PR_LABELS_L" )"
+            echo "REPO=$(jq -r '.base.repo.name' <<< "$PR_JSON")"
+            echo "OWNER=$(jq -r '.base.repo.owner.login' <<< "$PR_JSON")"
+            echo "PR_NUMBER=$(jq -r '.number' <<< "$PR_JSON")"
+            echo "JOB_DATA=$(jq '
+              {
+                "repo": .base.repo.name,
+                "owner": .base.repo.owner.login,
+                "repoUrl": .base.repo.html_url,
+                "prNumber": .number,
+                "prHeadSha": .head.sha,
+                "prHeadLabel": .head.label,
+                "prBody": .body,
+                "prLabels": reduce .labels[].name as $l ([]; . + [$l])
+              }
+            ' <<< "$PR_JSON")"
           } >> "$GITHUB_ENV"
 
       - name: Setup From Dispatch Event
@@ -54,33 +54,35 @@ jobs:
         id: dispatch_event_setup
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          OWNER_REPO_L: ${{ github.repository }}
-          OWNER_L: ${{ github.repository_owner }}
-          REPO_URL_L: https://github.com/${{ github.repository }}
-          PR_NUMBER_L: ${{ inputs.pr_id }}
+          OWNER_REPO: ${{ github.repository }}
+          OWNER: ${{ github.repository_owner }}
+          PR_NUMBER: ${{ inputs.pr_id }}
         run: |
           # setup env for the rest of the workflow
-          owner_prefix="$OWNER_L/"
-          REPO_L="${OWNER_REPO_L#"$owner_prefix"}"
-          PR_L=$(
+          owner_prefix="$OWNER/"
+          REPO="${OWNER_REPO#"$owner_prefix"}"
+          PR_JSON=$(
             gh api \
-              -H "Accept: application/vnd.github.text+json" \
+              -H "Accept: application/vnd.github.raw+json" \
               -H "X-GitHub-Api-Version: 2022-11-28" \
-              "/repos/$OWNER_L/$REPO_L/pulls/$PR_NUMBER_L"
+              "/repos/$OWNER/$REPO/pulls/$PR_NUMBER"
           )
-          PR_HEAD_SHA_L=$(jq -r '.head.sha' <<< "$PR_L")
-          PR_HEAD_LABEL_L=$(jq -r '.head.label' <<< "$PR_L")
-          PR_BODY_L=$(jq -r '.body_text' <<< "$PR_L")
-          PR_LABELS_L=$(jq '.labels' <<< "$PR_L")
           {
-            echo "REPO=$REPO_L"
-            echo "OWNER=$OWNER_L"
-            echo "REPO_URL=$REPO_URL_L"
-            echo "PR_NUMBER=$PR_NUMBER_L"
-            echo "PR_HEAD_SHA=$PR_HEAD_SHA_L"
-            echo "PR_HEAD_LABEL=$PR_HEAD_LABEL_L"
-            echo "PR_BODY=$PR_BODY_L"
-            echo "PR_LABELS=$(jq 'reduce .[].name as $l ([]; . + [$l])' <<< "$PR_LABELS_L" )"
+            echo "REPO=$(jq -r '.base.repo.name' <<< "$PR_JSON")"
+            echo "OWNER=$(jq -r '.base.repo.owner.login' <<< "$PR_JSON")"
+            echo "PR_NUMBER=$(jq -r '.number' <<< "$PR_JSON")"
+            echo "JOB_DATA=$(jq '
+              {
+                "repo": .base.repo.name,
+                "owner": .base.repo.owner.login,
+                "repoUrl": .base.repo.html_url,
+                "prNumber": .number,
+                "prHeadSha": .head.sha,
+                "prHeadLabel": .head.label,
+                "prBody": .body,
+                "prLabels": reduce .labels[].name as $l ([]; . + [$l])
+              }
+            ' <<< "$PR_JSON")"
           } >> "$GITHUB_ENV"
 
 
@@ -89,7 +91,7 @@ jobs:
         run: |
           PRS=$(
             jq '
-              . as $body 
+              .prBody as $body 
                 | (
                     $body | scan("blocked (?(?by)|(?on)):? #(?<num>[0-9]+)") 
                       | map({
@@ -109,7 +111,7 @@ jobs:
                     "blocking": $prs,
                     "numBlocking": ( $prs | length),
                   }
-              ' <<< "$PR_BODY"
+              ' <<< "$JOB_DATA"
           )
           echo "prs=$PRS" >> "$GITHUB_OUTPUT"
 
@@ -120,12 +122,12 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           BLOCKED_PR_DATA=$(
-            while read -r PR ; do
+            while read -r pr_data ; do
               gh api \
                 -H "Accept: application/vnd.github+json" \
                 -H "X-GitHub-Api-Version: 2022-11-28" \
-                "/repos/$OWNER/$REPO/pulls/$(jq -r '.number' <<< "$PR")" \
-                | jq --arg type "$(jq -r '.type' <<< "$PR")" \
+                "/repos/$OWNER/$REPO/pulls/$(jq -r '.number' <<< "$pr_data")" \
+                | jq --arg type "$(jq -r '.type' <<< "$pr_data")" \
                   '
                     . | {
                       "type": $type,
@@ -180,14 +182,14 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           # label pr dependencies with 'blocking' if not already
-          while read -r PR_DATA ; do
-            if jq -e 'all(.labels[]; . != "blocking")' <<< "$PR_DATA" > /dev/null ; then
-              PR=$(jq -r '.number' <<< "$PR_DATA")
+          while read -r pr_data ; do
+            if jq -e 'all(.labels[]; . != "blocking")' <<< "$pr_data" > /dev/null ; then
+              pr=$(jq -r '.number' <<< "$pr_data")
               gh api \
                 --method POST \
                 -H "Accept: application/vnd.github+json" \
                 -H "X-GitHub-Api-Version: 2022-11-28" \
-                "/repos/$OWNER/$REPO/issues/$PR/labels" \
+                "/repos/$OWNER/$REPO/issues/$pr/labels" \
                 -f "labels[]=blocking"
             fi
           done < <(jq -c '.[]' <<< "${{steps.blocked_data.outputs.state}}")
@@ -199,20 +201,21 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
+          pr_head_sha=$(jq -r '.prHeadSha' <<< "$JOB_DATA")
           # create commit Status, overwrites previous identical context
-          while read -r PR_DATA ; do
+          while read -r pr_data ; do
             DESC=$(
-              jq -r ' "Blocking PR #" + (.number | tostring) + " is " + (if .merged then "" else "not yet " end) + "merged"' <<< "$PR_DATA"
+              jq -r ' "Blocking PR #" + (.number | tostring) + " is " + (if .merged then "" else "not yet " end) + "merged"' <<< "$pr_data"
             )
             gh api \
               --method POST \
               -H "Accept: application/vnd.github+json" \
               -H "X-GitHub-Api-Version: 2022-11-28" \
-              "/repos/${OWNER}/${REPO}/statuses/${PR_HEAD_SHA}" \
-              -f "state=$(jq -r 'if .merged then "success" else "failure" end' <<< "$PR_DATA")" \
-              -f "target_url=$(jq -r '.basePrUrl' <<< "$PR_DATA" )" \
+              "/repos/${OWNER}/${REPO}/statuses/${pr_head_sha}" \
+              -f "state=$(jq -r 'if .merged then "success" else "failure" end' <<< "$pr_data")" \
+              -f "target_url=$(jq -r '.basePrUrl' <<< "$pr_data" )" \
               -f "description=$DESC" \
-              -f "context=continuous-integration/blocked-pr-check:$(jq '.number' <<< "$PR_DATA")"
+              -f "context=continuous-integration/blocked-pr-check:$(jq '.number' <<< "$pr_data")"
           done < <(jq -c '.[]' <<< "${{steps.blocked_data.outputs.state}}")
 
       - name: Context Comment
@@ -223,13 +226,16 @@ jobs:
           COMMENT_PATH="$(pwd)/temp_comment_file.txt"
           touch "$COMMENT_PATH"
           echo "" > "$COMMENT_PATH"
-          while read -r PR_DATA ; do
-            BASE_PR=$(jq '.number' <<< "$PR_DATA")
-            BASE_REF_NAME=$(jq '.baseRefName' <<< "$PR_DATA")
-            COMPARE_URL="$REPO_URL/compare/$BASE_REF_NAME...$PR_HEAD_LABEL"
-            STATUS=$(jq 'if .merged then ":heavy_check_mark: Merged" else ":x: Not Merged" end' <<< "$PR_DATA")
-            TYPE=$(jq -r '.type' <<< "$PR_DATA")
-            echo "  - $TYPE #$BASE_PR $STATUS [(compare)]($COMPARE_URL)" >> "$COMMENT_PATH"
+          pr_head_label=$(jq -r '.prHeadLabel' <<< "$JOB_DATA")
+          while read -r pr_data ; do
+            base_pr=$(jq -r '.number' <<< "$pr_data")
+            base_ref_name=$(jq -r '.baseRefName' <<< "$pr_data")
+            base_repo_owner=$(jq -r '.baseRepoOwner' <<< "$pr_data")
+            base_repo_name=$(jq -r '.baseRepoName' <<< "$pr_data")
+            compare_url="https://github.com/$base_repo_owner/$base_repo_name/compare/$base_ref_name...$pr_head_label"
+            status=$(jq 'if .merged then ":heavy_check_mark: Merged" else ":x: Not Merged" end' <<< "$pr_data")
+            type=$(jq -r '.type' <<< "$pr_data")
+            echo "  - $type #$base_pr $status [(compare)]($compare_url)" >> "$COMMENT_PATH"
           done < <(jq -c '.[]'  <<< "${{steps.blocked_data.outputs.state}}")
           echo "file_path=${COMMENT_PATH}" >> "$GITHUB_OUTPUT"
 
