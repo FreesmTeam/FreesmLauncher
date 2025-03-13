@@ -15,8 +15,7 @@ jobs:
     permissions:
       issues: write
       pull-requests: write
-      statuses: write
-      checks: write
+      actions: write
 
     steps:
       - name: Gather Dependent PRs
