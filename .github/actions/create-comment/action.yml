@@ -51,6 +51,7 @@ runs:
         data=$(
           gh api graphql \
             --paginate \
+            --slurp \
             -f owner="$owner" \
             -f repo="$repo" \
             -F issue="$ISSUE_NUMBER" \
@@ -90,16 +91,16 @@ runs:
                 }
               }
               ' \
-              --jq '' | jq -c --arg comment_id "<!--(ID:$COMMENT_ID)-->" '
-            .[0].data.repository.issueOrPullRequest.id as $id |
-            [ .[].data.repository.issueOrPullRequest.comments.nodes[] ] as $data | 
-            [ $data.[] | select(.body | startswith($comment_id)) ] as $id_comments |
-            if ($id_comments | length) > 0 then
-               { "issueId": $id, "commentId": $id_comments[0].id }
-            else
-               { "issueId": $id, "commentId": "" }
-            end
-          '
+            | jq -c --arg comment_id "<!--(ID:$COMMENT_ID)-->" '
+              .[0].data.repository.issueOrPullRequest.id as $id |
+              [ .[].data.repository.issueOrPullRequest.comments.nodes[] ] as $data | 
+              [ $data.[] | select(.body | startswith($comment_id)) ] as $id_comments |
+              if ($id_comments | length) > 0 then
+                { "issueId": $id, "commentId": $id_comments[0].id }
+              else
+                { "issueId": $id, "commentId": "" }
+              end
+            '
         )
         echo "ISSUE_NODE_ID=$(jq -r '.issueId' <<< "$data")" >> "$GITHUB_ENV"
         echo "COMMENT_NODE_ID=$(jq -r '.commentId' <<< "$data")" >> "$GITHUB_ENV"
