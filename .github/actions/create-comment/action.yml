@@ -36,7 +36,9 @@ runs:
           echo "Reading comment file from ${COMMENT_FILE}"
           comment_body="${comment_body}$(cat "$COMMENT_FILE")"
         fi
-        echo "COMMENT_BODY=$comment_body" >> "$GITHUB_ENV"
+        echo 'COMMENT_BODY<<EOF' >> "$GITHUB_ENV"
+        echo "$comment_body" >> "$GITHUB_ENV"
+        echo 'EOF' >> "$GITHUB_ENV"
 
     - name: Get Existing Comment Id
       shell: bash
