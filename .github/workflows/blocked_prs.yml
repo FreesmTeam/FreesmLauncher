@@ -84,13 +84,11 @@ jobs:
               }
             ' <<< "$PR_JSON")"
           } >> "$GITHUB_ENV"
-          cat $GITHUB_ENV
-
 
       - name: Find Blocked/Stacked PRs in body
         id: pr_ids
         run: |
-          PRS=$(
+          prs=$(
             jq -c '
               .prBody as $body 
                 | (
@@ -101,7 +99,7 @@ jobs:
                           "type": "Blocked on",
                           "number": ( . | tonumber )
                         })
-                      ) as $i ([]; . + [$i])
+                      ) as $i ([]; . + [$i[]])
                   ) as $bprs
                 | (
                     $body | 
@@ -111,7 +109,7 @@ jobs:
                           "type": "Stacked on",
                           "number": ( . | tonumber )
                         })
-                      ) as $i ([]; . + [$i])
+                      ) as $i ([]; . + [$i[]])
                   ) as $sprs
                 | ($bprs + $sprs) as $prs 
                 | { 
@@ -120,7 +118,7 @@ jobs:
                   }
               ' <<< "$JOB_DATA"
           )
-          echo "prs=$PRS" >> "$GITHUB_OUTPUT"
+          echo "prs=$prs" >> "$GITHUB_OUTPUT"
 
       - name: Collect Blocked PR Data
         id: blocking_data
