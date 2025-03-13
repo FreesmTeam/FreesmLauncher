@@ -26,6 +26,10 @@ jobs:
       checks: write
 
     steps:
+      - name: Checkout Default Branch
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.repository.default_branch }}
       - name: Setup From Pull Request Event
         if: github.event_name != 'workflow_dispatch'
         id: pr_event_setup
