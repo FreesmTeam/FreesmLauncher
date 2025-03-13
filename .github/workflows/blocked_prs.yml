@@ -155,7 +155,7 @@ jobs:
 
       - name: Apply Blocked Label if Missing
         id: label_blocked
-        if: fromJSON(steps.pr_ids.outputs.prs).numBlocking > 0 && !contains(fromJSON(env.PR_LABELS), 'blocked') && !fromJSON(steps.blocking_data.outputs.all_merged)
+        if: fromJSON(steps.pr_ids.outputs.prs).numBlocking > 0 && !contains(fromJSON(env.JOB_DATA).prLabels, 'blocked') && !fromJSON(steps.blocking_data.outputs.all_merged)
         continue-on-error: true
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
