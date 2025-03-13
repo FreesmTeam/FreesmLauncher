@@ -23,11 +23,9 @@ jobs:
         id: gather_deps
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
         run: |
-          owner="${{ github.repository_owner }}"
-          owner_repo="${{ github.repository }}"
-          repo="${owner_repo#"${owner}/"}"
+          owner=$(echo "${{ github.repository }}" | cut -d '/' -f 1)
+          repo=$(echo "${{ github.repository }}" | cut -d '/' -f 2)
           blocked_prs=$(
             gh api graphql \
               -f repo="$repo" \
@@ -52,16 +50,16 @@ jobs:
               --paginate \
               --slurp \
               | jq -c --argjson pr "${{ github.event.pull_request.number }}" '
-                  [.[].data.repository.pullRequests.nodes[]] | .[] | select(
+                  reduce ( .[].data.repository.pullRequests.nodes[] | select(
                     .bodyText |  
-                      scan("(?:blocked (?:by|on)|stacked on):? #(?<num>[0-9]+)") |
+                      scan("(?:blocked (?:by|on)|stacked on):? #([0-9]+)") |
                       map(tonumber) |
                       any(.[]; . == $pr)
-                  )
+                  )) as $i ([]; . + [$i])
                 '
           )
           echo "deps=$blocked_prs" >> "$GITHUB_OUTPUT"
-          echo "numdeps='$(jq -r '. | length' <<< "$blocked_prs")"
+          echo "numdeps=$(jq -r '. | length' <<< "$blocked_prs")" >> "$GITHUB_OUTPUT"
 
       - name: Trigger Blocked PP Workflows for Dependants
         if: fromJSON(steps.gather_deps.outputs.numdeps) > 0
