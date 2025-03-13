@@ -236,6 +236,8 @@ jobs:
         id: blocked_comment
         if: fromJSON(steps.pr_ids.outputs.prs).numBlocking > 0
         continue-on-error: true
+        env:
+          BLOCKING_DATA: ${{ steps.blocking_data.outputs.data }}
         run: |
           COMMENT_PATH="$(pwd)/temp_comment_file.txt"
           touch "$COMMENT_PATH"
@@ -250,7 +252,7 @@ jobs:
             status=$(jq -r 'if .merged then ":heavy_check_mark: Merged" else ":x: Not Merged" end' <<< "$pr_data")
             type=$(jq -r '.type' <<< "$pr_data")
             echo "  - $type #$base_pr $status [(compare)]($compare_url)" >> "$COMMENT_PATH"
-          done < <(jq -c '.[]'  <<< "${{steps.blocked_data.outputs.state}}")
+          done < <(jq -c '.[]'  <<< "$BLOCKING_DATA")
           echo "file_path=${COMMENT_PATH}" >> "$GITHUB_OUTPUT"
 
       - name: 💬 PR Comment
@@ -258,7 +260,7 @@ jobs:
         continue-on-error: true
         uses: ./.github/actions/create-comment
         with:
-          comment: "### PR Dependencies :pushpin:"
+          comment: "<h3> PR Dependencies :pushpin:</h3>"
           comment_path: ${{ steps.blocked_comment.outputs.file_path }}
           comment_id: "block_pr_dependencies"
           issue_number: ${{ env.PR_NUMBER }}
