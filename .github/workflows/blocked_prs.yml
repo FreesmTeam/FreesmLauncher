@@ -55,13 +55,12 @@ jobs:
         id: dispatch_event_setup
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          OWNER_REPO: ${{ github.repository }}
-          OWNER: ${{ github.repository_owner }}
+          REPOSITORY: ${{ github.repository }}
           PR_NUMBER: ${{ inputs.pr_id }}
         run: |
           # setup env for the rest of the workflow
-          owner_prefix="$OWNER/"
-          REPO="${OWNER_REPO#"$owner_prefix"}"
+          OWNER=$(echo "$REPOSITORY" | cut -d '/' -f 1)
+          REPO=$(echo "$REPOSITORY" | cut -d '/' -f 2)
           PR_JSON=$(
             gh api \
               -H "Accept: application/vnd.github.raw+json" \
@@ -124,10 +123,11 @@ jobs:
           echo "prs=$PRS" >> "$GITHUB_OUTPUT"
 
       - name: Collect Blocked PR Data
-        id: blocked_data
+        id: blocking_data
         if: fromJSON(steps.pr_ids.outputs.prs).numBlocking > 0
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          BLOCKING_PRS: ${{ steps.pr_ids.outputs.prs }}
         run: |
           BLOCKED_PR_DATA=$(
             while read -r pr_data ; do
@@ -150,14 +150,14 @@ jobs:
                       "baseRefName": .head.ref,
                     }
                   '
-            done < <(jq -c '.blocking[]' <<< "${{steps.pr_ids.outputs.prs}}") | jq -c -s
+            done < <(jq -c '.blocking[]' <<< "$BLOCKING_PRS") | jq -c -s
           )
-          echo "state=$BLOCKED_PR_DATA" >> "$GITHUB_OUTPUT"
-          echo "all_merged=$(jq 'all(.[].merged; .)' <<< "$BLOCKED_PR_DATA")"
+          echo "data=$BLOCKED_PR_DATA" >> "$GITHUB_OUTPUT"
+          echo "all_merged=$(jq -r 'all(.[].merged; .)' <<< "$BLOCKED_PR_DATA")"
 
       - name: Apply Blocked Label if Missing
         id: label_blocked
-        if: fromJSON(steps.pr_ids.outputs.prs).numBlocking > 0 && !contains(fromJSON(env.PR_LABELS), 'blocked') && !fromJSON(steps.blocked_data.outputs.all_merged)
+        if: fromJSON(steps.pr_ids.outputs.prs).numBlocking > 0 && !contains(fromJSON(env.PR_LABELS), 'blocked') && !fromJSON(steps.blocking_data.outputs.all_merged)
         continue-on-error: true
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -171,7 +171,7 @@ jobs:
 
       - name: Remove 'blocked' Label if All Dependencies Are Merged
         id: unlabel_blocked
-        if: fromJSON(steps.pr_ids.outputs.prs).numBlocking > 0 && fromJSON(steps.blocked_data.outputs.all_merged)
+        if: fromJSON(steps.pr_ids.outputs.prs).numBlocking > 0 && fromJSON(steps.blocking_data.outputs.all_merged)
         continue-on-error: true
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -188,6 +188,7 @@ jobs:
         continue-on-error: true
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          BLOCKING_DATA: ${{ steps.blocking_data.outputs.state }}
         run: |
           # label pr dependencies with 'blocking' if not already
           while read -r pr_data ; do
@@ -200,7 +201,7 @@ jobs:
                 "/repos/$OWNER/$REPO/issues/$pr/labels" \
                 -f "labels[]=blocking"
             fi
-          done < <(jq -c '.[]' <<< "${{steps.blocked_data.outputs.state}}")
+          done < <(jq -c '.[]' <<< "$BLOCKING_DATA")
 
       - name: Apply Blocking PR Status Check
         id: blocked_check
@@ -208,6 +209,7 @@ jobs:
         continue-on-error: true
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          BLOCKING_DATA: ${{ steps.blocking_data.outputs.state }}
         run: |
           pr_head_sha=$(jq -r '.prHeadSha' <<< "$JOB_DATA")
           # create commit Status, overwrites previous identical context
@@ -224,7 +226,7 @@ jobs:
               -f "target_url=$(jq -r '.basePrUrl' <<< "$pr_data" )" \
               -f "description=$DESC" \
               -f "context=continuous-integration/blocked-pr-check:$(jq '.number' <<< "$pr_data")"
-          done < <(jq -c '.[]' <<< "${{steps.blocked_data.outputs.state}}")
+          done < <(jq -c '.[]' <<< "$BLOCKING_DATA")
 
       - name: Context Comment
         id: blocked_comment
@@ -250,9 +252,12 @@ jobs:
       - name: 💬 PR Comment
         if: fromJSON(steps.pr_ids.outputs.prs).numBlocking > 0
         continue-on-error: true
-        uses: spicyparrot/pr-comment-action@v1.0.0
+        uses: ./.github/actions/create-comment
         with:
           comment: "### PR Dependencies :pushpin:"
           comment_path: ${{ steps.blocked_comment.outputs.file_path }}
           comment_id: "block_pr_dependencies"
+          issue_number: ${{ env.PR_NUMBER }}
+          repository: ${{ github.repository }}
+          gh_token: ${{ secrets.GITHUB_TOKEN }}
 

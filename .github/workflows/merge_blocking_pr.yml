@@ -67,6 +67,7 @@ jobs:
         if: fromJSON(steps.gather_deps.outputs.numdeps) > 0
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          DEPS: ${{ steps.gather_deps.outputs.deps }}
         run: |
           while read -r pr ; do
             gh api \
@@ -76,5 +77,5 @@ jobs:
               "/repos/${{ github.repository }}/actions/workflows/blocked_prs.yml/dispatches" \
               -f "ref=${{ github.ref_name }}" \
               -f "inputs[pr_id]=$pr"
-          done < <(jq -c '.[].number' <<< "${{steps.gather_deps.outputs.deps}}")
+          done < <(jq -c '.[].number' <<< "$DEPS")
 
