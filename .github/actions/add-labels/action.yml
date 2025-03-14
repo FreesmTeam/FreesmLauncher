@@ -3,7 +3,7 @@ description: adds label(s) to labelable
 inputs:
   gh_token:
     description: gh api access token to use
-    default: ${{ secrets.GITHUB_TOKEN }}
+    required: true
   repository:
     description: the OWNER/REPOSITORY to operate on
     default: ${{ github.repository }}
@@ -116,7 +116,7 @@ runs:
       env:
         GH_TOKEN: ${{ inputs.gh_token }}
         REPOSITORY: ${{ inputs.repository }}
-        ISSUES: ${{ inputs.labels }}
+        ISSUES: ${{ inputs.issues }}
       run: |
         owner=$(echo "$REPOSITORY" | cut -d '/' -f 1)
         repo=$(echo "$REPOSITORY" | cut -d '/' -f 2)
@@ -164,14 +164,13 @@ runs:
       env:
         GH_TOKEN: ${{ inputs.gh_token }}
         REPO_ID: ${{ steps.collect_labels.outputs.repo_id }}
-        LABELS: ${{ steps.collect_labels.outputs.labels }}
+        EXISTING: ${{ steps.collect_labels.outputs.found }}
         MISSING: ${{ steps.collect_labels.outputs.missing }}
       run: |
         query=$(
           jq -nr \
             --argjson labels "$MISSING" \
-            --arg repo "$REPO_ID" \
-            '
+            --arg repo "$REPO_ID" '
               "mutation {\n" + (
                 reduce ($labels | keys | .[] | [., $labels[.]]) as $i ([0, ""]; [
                   .[0] + 1,
@@ -196,15 +195,13 @@ runs:
             '
         )
         data=$(
-          gh api graphql -f query="$query" \ 
-            | jq --argjson existing "$LABELS" \
-              '
-                reduce .data[].label as $i ({}; .[$i.name] = {"id": $i.id, "color": $i.color })
-                | . + $existing
-              '
+          gh api graphql -f query="$query" | jq --argjson existing "$EXISTING" '
+              reduce .data[].label as $i ({}; .[$i.name] = {"id": $i.id, "color": $i.color })
+              | . + $existing
+            '
         )
-        lable_ids=$(jq -c '[.[].id]' <<< "$data")
-        echo "label_ids=$lable_ids" >> "$GITHUB_OUTPUT"
+        label_ids=$(jq -c '[.[].id]' <<< "$data")
+        echo "label_ids=$label_ids" >> "$GITHUB_OUTPUT"
 
     - name: Apply Labels
       id: apply_labels

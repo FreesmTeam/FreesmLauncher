@@ -3,7 +3,7 @@ description: delete Label(s)
 inputs:
   gh_token:
     description: gh api access token to use
-    default: ${{ secrets.GITHUB_TOKEN }}
+    required: true
   repository:
     description: the OWNER/REPOSITORY to operate on
     default: ${{ github.repository }}
@@ -66,10 +66,10 @@ runs:
                       | select( objects | .name as $name | any($labels[]; . == $name ) )
                     ) as $i ({}; .[$i.name] = {"id": $i.id})
                   ) as $found
-                | [.[].id]
+                | [$found[].id]
               '
         )
-        echo "label_ids=$data" >>> "$GITHUB_OUTPUT"
+        echo "label_ids=$data" >> "$GITHUB_OUTPUT"
             
     - name: Delete Labels
       id: delete_labels

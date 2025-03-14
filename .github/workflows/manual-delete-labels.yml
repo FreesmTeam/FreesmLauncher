@@ -1,5 +1,5 @@
 
-name: Manual workflow to delete labels in bulk
+name: Delete labels in bulk
 
 on: 
   workflow_dispatch:
@@ -26,4 +26,5 @@ jobs:
       - name: Run Label Action
         uses: ./.github/actions/delete-labels
         with:
+          gh_token: ${{ secrets.GITHUB_TOKEN }}
           labels: ${{ inputs.labels }}

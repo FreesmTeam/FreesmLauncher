@@ -1,4 +1,4 @@
-name: Manual workflow to apply labels in bulk
+name: Apply labels in bulk
 
 on: 
   workflow_dispatch:
@@ -38,6 +38,7 @@ jobs:
       - name: Run Label Action
         uses: ./.github/actions/add-labels
         with:
+          gh_token: ${{ secrets.GITHUB_TOKEN }}
           issues: ${{ inputs.issues }}
           labels: ${{ inputs.labels }}
           colors: ${{ inputs.colors }}
