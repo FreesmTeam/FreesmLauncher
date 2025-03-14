@@ -34,8 +34,8 @@ runs:
         COLORS: ${{ inputs.colors }}
         DEFAULT_COLOR: ${{ inputs.default-color }}
       run: |
-        owner=$(echo "$REPOSITORY" | cut -d '/' -f 1)
-        repo=$(echo "$REPOSITORY" | cut -d '/' -f 2)
+        owner="$(dirname "$REPOSITORY")"
+        repo="$(basename "$REPOSITORY")"
         query=$(
           jq -nr \
             --arg labels "$LABELS" \
@@ -118,8 +118,8 @@ runs:
         REPOSITORY: ${{ inputs.repository }}
         ISSUES: ${{ inputs.issues }}
       run: |
-        owner=$(echo "$REPOSITORY" | cut -d '/' -f 1)
-        repo=$(echo "$REPOSITORY" | cut -d '/' -f 2)
+        owner="$(dirname "$REPOSITORY")"
+        repo="$(basename "$REPOSITORY")"
         query=$(
           jq -nr \
             --arg issues "$ISSUES" \
