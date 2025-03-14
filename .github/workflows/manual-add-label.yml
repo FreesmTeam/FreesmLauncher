@@ -1,4 +1,4 @@
-name: Apply labels in bulk
+name: "Manual: Apply Labels in Bulk"
 
 on: 
   workflow_dispatch:

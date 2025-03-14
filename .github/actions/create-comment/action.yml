@@ -1,5 +1,5 @@
 name: Create Issue Comment
-description: Create or updste an issue comment
+description: Create or update an issue comment
 inputs:
   comment:
     description: Comment Text
@@ -19,7 +19,7 @@ inputs:
     required: true
   repository:
     description: the OWNER/REPOSITORY to operate on
-    required: true
+    default: ${{ github.repository }}
 
 runs:
   using: "composite"

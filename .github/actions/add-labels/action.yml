@@ -19,7 +19,7 @@ inputs:
       the list order is the same as `labels`. Missing or blank values (e.g. `FFFFFF,,FFFFFF`) use the `default-color`
   default-color:
     description: default color to create labels with
-    default: "#D4C5F9"
+    default: "#ffffff"
 
 runs:
   using: "composite"

@@ -70,10 +70,12 @@ runs:
               '
         )
         echo "label_ids=$data" >> "$GITHUB_OUTPUT"
+        echo "num_labels=$(jq -r 'length' <<< "$data")" >> "$GITHUB_OUTPUT"
             
     - name: Delete Labels
       id: delete_labels
       shell: bash
+      if: fromJSON( steps.collect_labels.outputs.num_labels ) > 0
       env:
         GH_TOKEN: ${{ inputs.gh_token }}
         LABELS: ${{ steps.collect_labels.outputs.label_ids }}

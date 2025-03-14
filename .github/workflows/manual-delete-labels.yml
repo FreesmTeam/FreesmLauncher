@@ -1,5 +1,5 @@
 
-name: Delete labels in bulk
+name: "Manual: Delete labels in bulk"
 
 on: 
   workflow_dispatch:
