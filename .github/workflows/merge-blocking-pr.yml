@@ -1,0 +1,52 @@
+name: Merged Blocking Pull Request Automation
+
+on:
+  pull_request:
+    types:
+      - closed
+
+jobs:
+  update-blocked-status:
+    name: Update Blocked Status
+    runs-on: ubuntu-latest
+
+    # a pr that was a `blocking:<id>` label was merged.
+    # find the open pr's it was blocked by and trigger a refresh of their state
+    if: github.event.pull_request.merged == true && contains( join( github.event.pull_request.labels.*.name, ',' ), "blocking" )
+
+    permissions:
+      issues: write
+      pull-requests: write
+      actions: write
+
+    steps:
+      - name: Gather Dependent PRs
+        id: gather_deps
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: |
+          blocked_prs=$(
+          gh -R ${{ github.repository }} pr list --label 'blocked' --json 'number,body' \
+            | jq -c --argjson pr "${{ github.event.pull_request.number }}" '
+                reduce ( .[] | select(
+                  .body |  
+                    scan("(?:blocked (?:by|on)|stacked on):? #([0-9]+)") |
+                    map(tonumber) |
+                    any(.[]; . == $pr)
+                )) as $i ([]; . + [$i])
+              '
+          )
+          echo "deps=$blocked_prs" >> "$GITHUB_OUTPUT"
+          echo "numdeps=$(jq -r '. | length' <<< "$blocked_prs")" >> "$GITHUB_OUTPUT"
+
+      - name: Trigger Blocked PR Workflows for Dependants
+        if: fromJSON(steps.gather_deps.outputs.numdeps) > 0
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          DEPS: ${{ steps.gather_deps.outputs.deps }}
+        run: |
+          while read -r pr ; do
+            gh -R ${{ github.repository }} workflow run 'blocked-prs.yml' -r "${{ github.ref_name }}" -f pr_id="$pr"
+          done < <(jq -c '.[].number' <<< "$DEPS")
+

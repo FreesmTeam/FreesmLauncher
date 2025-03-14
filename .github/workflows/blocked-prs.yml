@@ -60,12 +60,11 @@ jobs:
         id: dispatch_event_setup
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          REPOSITORY: ${{ github.repository }}
           PR_NUMBER: ${{ inputs.pr_id }}
         run: |
           # setup env for the rest of the workflow
-          OWNER=$(echo "$REPOSITORY" | cut -d '/' -f 1)
-          REPO=$(echo "$REPOSITORY" | cut -d '/' -f 2)
+          OWNER=$(dirname "${{ github.repository }}")
+          REPO=$(basename "${{ github.repository }}")
           PR_JSON=$(
             gh api \
               -H "Accept: application/vnd.github.raw+json" \
@@ -155,33 +154,38 @@ jobs:
                   '
             done < <(jq -c '.blocking[]' <<< "$BLOCKING_PRS") | jq -c -s
           )
-          blocked_by_labels=$(jq -c 'map( select( .merged | not ) | "blocked-by:" + (.number | tostring))' <<< "$blocked_pr_data" )
           echo "data=$blocked_pr_data" >> "$GITHUB_OUTPUT"
           echo "all_merged=$(jq -r 'all(.[].merged; .)' <<< "$blocked_pr_data")" >> "$GITHUB_OUTPUT"
-          echo "blocked_by_labels=$blocked_by_labels" >> "$GITHUB_OUTPUT"
           echo "current_blocking=$(jq -c 'map( select( .merged | not ) | .number )' <<< "$blocked_pr_data" )" >> "$GITHUB_OUTPUT"
 
-      - name: Apply Blocked by Labels
+      - name: Add 'blocked' Label is Missing
         id: label_blocked
-        if: fromJSON(steps.pr_ids.outputs.prs).numBlocking > 0 && steps.blocking_data.outputs.blocked_by_labels != ''
+        if: fromJSON(steps.pr_ids.outputs.prs).numBlocking > 0 && && !contains(fromJSON(env.JOB_DATA).prLabels, 'blocked') && !fromJSON(steps.blocking_data.outputs.all_merged)
         continue-on-error: true
-        uses: ./.github/actions/add-labels
-        with:
-          repository: ${{ github.repository }}
-          gh_token: ${{ secrets.GITHUB_TOKEN }}
-          issues: ${{ env.PR_NUMBER }}
-          labels: ${{ join( fromJSON(steps.blocking_data.outputs.blocked_by_labels), ',' ) }}
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh -R ${{ github.repository }} issue edit --add-label 'blocked' $PR_NUMBER
 
-      - name: Apply 'blocking:<id>' Label to Unmerged Dependencies
+      - name: Remove 'blocked' Label if All Dependencies Are Merged
+        id: unlabel_blocked
+        if: fromJSON(steps.pr_ids.outputs.prs).numBlocking > 0 && fromJSON(steps.blocking_data.outputs.all_merged)
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh -R ${{ github.repository }} issue edit --remove-label 'blocked' $PR_NUMBER
+
+      - name: Apply 'blocking' Label to Unmerged Dependencies
         id: label_blocking
         if: fromJSON(steps.pr_ids.outputs.prs).numBlocking > 0
         continue-on-error: true
-        uses: ./.github/actions/add-labels
-        with:
-          repository: ${{ github.repository }}
-          gh_token: ${{ secrets.GITHUB_TOKEN }}
-          issues: ${{ join( fromJSON(steps.blocking_data.outputs.current_blocking) , ',' )  }}
-          labels: ${{ format( 'blocking:{0}', env.PR_NUMBER ) }}
+        env:
+          BLOCKING_ISSUES: ${{ steps.blocking_data.outputs.current_blocking }}
+        run: |
+          while read -r pr ; do
+            gh -R ${{ github.repository }} issue edit --add-label 'blocking' "$pr" || true
+          done < <(jq -c '.[]' <<< "$BLOCKING_ISSUES")
 
       - name: Apply Blocking PR Status Check
         id: blocked_check
