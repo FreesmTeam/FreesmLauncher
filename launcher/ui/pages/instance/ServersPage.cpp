@@ -38,6 +38,7 @@
 #include "ServersPage.h"
 #include "ui/dialogs/CustomMessageBox.h"
 #include "ui_ServersPage.h"
+#include "ServerPingTask.h"
 
 #include <FileSystem.h>
 #include <io/stream_reader.h>
@@ -51,8 +52,9 @@
 #include <QFileSystemWatcher>
 #include <QMenu>
 #include <QTimer>
+#include <tasks/ConcurrentTask.h>
 
-static const int COLUMN_COUNT = 2;  // 3 , TBD: latency and other nice things.
+static const int COLUMN_COUNT = 3;  // 3 , TBD: latency and other nice things.
 
 struct Server {
     // Types
@@ -112,8 +114,7 @@ struct Server {
     bool m_checked = false;
     bool m_up = false;
     QString m_motd;  // https://mctools.org/motd-creator
-    int m_ping = 0;
-    int m_currentPlayers = 0;
+    std::optional<int> m_currentPlayers; // nullopt if not calculated/calculating
     int m_maxPlayers = 0;
 };
 
@@ -296,7 +297,7 @@ class ServersModel : public QAbstractListModel {
                 case 1:
                     return tr("Address");
                 case 2:
-                    return tr("Latency");
+                    return tr("Online");
             }
         }
 
@@ -345,7 +346,11 @@ class ServersModel : public QAbstractListModel {
             case 2:
                 switch (role) {
                     case Qt::DisplayRole:
-                        return m_servers[row].m_ping;
+                        if (m_servers[row].m_currentPlayers) {
+                            return *m_servers[row].m_currentPlayers;
+                        } else {
+                            return "...";
+                        }
                     default:
                         return QVariant();
                 }
@@ -431,6 +436,40 @@ class ServersModel : public QAbstractListModel {
         if (saveIsScheduled()) {
             save_internal();
         }
+    }
+
+    void queryServersStatus()
+    {
+        // Abort the currently running task if present
+        if (m_currentQueryTask != nullptr) {
+            m_currentQueryTask->abort();
+            qDebug() << "Aborted previous server query task";
+        }
+
+        m_currentQueryTask = ConcurrentTask::Ptr(
+            new ConcurrentTask("Query servers status", APPLICATION->settings()->get("NumberOfConcurrentTasks").toInt())
+        );
+        int row = 0;
+        for (Server &server : m_servers) {
+            // reset current players
+            server.m_currentPlayers = {};
+            emit dataChanged(index(row, 0), index(row, COLUMN_COUNT - 1));
+
+            // Start task to query server status
+            auto target = MinecraftTarget::parse(server.m_address, false);
+            auto *task = new ServerPingTask(target.address, target.port);
+            m_currentQueryTask->addTask(Task::Ptr(task));
+
+            // Update the model when the task is done
+            connect(task, &Task::finished, this, [this, task, row]() {
+                if (m_servers.size() < row) return;
+                m_servers[row].m_currentPlayers = task->m_outputOnlinePlayers;
+                emit dataChanged(index(row, 0), index(row, COLUMN_COUNT - 1));
+            });
+            row++;
+        }
+
+        m_currentQueryTask->start();
     }
 
    public slots:
@@ -520,6 +559,7 @@ class ServersModel : public QAbstractListModel {
     QList<Server> m_servers;
     QFileSystemWatcher* m_watcher = nullptr;
     QTimer m_saveTimer;
+    ConcurrentTask::Ptr m_currentQueryTask = nullptr;
 };
 
 ServersPage::ServersPage(InstancePtr inst, QWidget* parent) : QMainWindow(parent), ui(new Ui::ServersPage)
@@ -676,6 +716,9 @@ void ServersPage::openedImpl()
         m_wide_bar_setting = APPLICATION->settings()->getSetting(setting_name);
 
     ui->toolBar->setVisibilityState(m_wide_bar_setting->get().toByteArray());
+
+    // ping servers 
+    m_model->queryServersStatus();
 }
 
 void ServersPage::closedImpl()
@@ -732,6 +775,11 @@ void ServersPage::on_actionJoin_triggered()
 {
     const auto& address = m_model->at(currentServer)->m_address;
     APPLICATION->launch(m_inst, true, false, std::make_shared<MinecraftTarget>(MinecraftTarget::parse(address, false)));
+}
+
+void ServersPage::on_actionRefresh_triggered()
+{
+    m_model->queryServersStatus();
 }
 
 #include "ServersPage.moc"
