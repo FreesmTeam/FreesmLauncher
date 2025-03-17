@@ -2,6 +2,7 @@
 
 #include "Common.h"
 
+#include <QApplication>
 #include <QIcon>
 #include <QPainter>
 
@@ -16,12 +17,12 @@ void ProjectItemDelegate::paint(QPainter* painter, const QStyleOptionViewItem& o
 
     auto rect = opt.rect;
 
-    if (opt.state & QStyle::State_Selected) {
-        painter->fillRect(rect, opt.palette.highlight());
+    const QStyle* style = opt.widget == nullptr ? QApplication::style() : opt.widget->style();
+
+    style->drawPrimitive(QStyle::PE_PanelItemViewItem, &opt, painter, opt.widget);
+
+    if (option.state & QStyle::State_Selected)
         painter->setPen(opt.palette.highlightedText().color());
-    } else if (opt.state & QStyle::State_MouseOver) {
-        painter->fillRect(rect, opt.palette.window());
-    }
 
     // The default icon size will be a square (and height is usually the lower value).
     auto icon_width = rect.height(), icon_height = rect.height();
