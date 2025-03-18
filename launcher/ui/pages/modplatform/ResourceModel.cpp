@@ -84,6 +84,8 @@ auto ResourceModel::data(const QModelIndex& index, int role) const -> QVariant
             return pack->description;
         case UserDataTypes::SELECTED:
             return pack->isAnyVersionSelected();
+        case Qt::CheckStateRole:
+            return pack->isAnyVersionSelected() ? Qt::Checked : Qt::Unchecked;
         case UserDataTypes::INSTALLED:
             return this->isPackInstalled(pack);
         default:

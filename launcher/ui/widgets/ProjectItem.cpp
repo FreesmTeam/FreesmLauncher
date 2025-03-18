@@ -1,10 +1,11 @@
 #include "ProjectItem.h"
 
-#include "Common.h"
-
 #include <QApplication>
+
+#include <QDebug>
 #include <QIcon>
 #include <QPainter>
+#include "Common.h"
 
 ProjectItemDelegate::ProjectItemDelegate(QWidget* parent) : QStyledItemDelegate(parent) {}
 
@@ -23,6 +24,27 @@ void ProjectItemDelegate::paint(QPainter* painter, const QStyleOptionViewItem& o
 
     if (option.state & QStyle::State_Selected)
         painter->setPen(opt.palette.highlightedText().color());
+
+    if (opt.features & QStyleOptionViewItem::HasCheckIndicator) {
+        // 5px will be the typical margin with 48px icon size
+        // we don't want the checkbox to be all over the place
+        rect.translate(5, 0);
+
+        QStyleOptionViewItem checkboxOpt = opt;
+
+        checkboxOpt.state &= ~QStyle::State_HasFocus;
+
+        if (checkboxOpt.checkState == Qt::Checked)
+            checkboxOpt.state |= QStyle::State_On;
+
+        QRect checkboxRect = style->subElementRect(QStyle::SE_ItemViewItemCheckIndicator, &checkboxOpt, opt.widget);
+        checkboxOpt.rect =
+            QRect(rect.x(), rect.y() + (rect.height() / 2 - checkboxRect.height() / 2), checkboxRect.width(), checkboxRect.height());
+
+        style->drawPrimitive(QStyle::PE_IndicatorItemViewItemCheck, &checkboxOpt, painter, opt.widget);
+
+        rect.setX(rect.x() + checkboxRect.width());
+    }
 
     // The default icon size will be a square (and height is usually the lower value).
     auto icon_width = rect.height(), icon_height = rect.height();
@@ -43,6 +65,9 @@ void ProjectItemDelegate::paint(QPainter* painter, const QStyleOptionViewItem& o
         int x = rect.x() + icon_x_margin;
         int y = rect.y() + icon_y_margin;
 
+        if (opt.features & QStyleOptionViewItem::HasCheckIndicator)
+            rect.translate(icon_x_margin / 2, 0);
+
         // Prevent 'scaling null pixmap' warnings
         if (icon_width > 0 && icon_height > 0)
             opt.icon.paint(painter, x, y, icon_width, icon_height);
@@ -60,23 +85,6 @@ void ProjectItemDelegate::paint(QPainter* painter, const QStyleOptionViewItem& o
         painter->save();
 
         auto font = opt.font;
-        if (index.data(UserDataTypes::SELECTED).toBool()) {
-            // Set nice font
-            font.setBold(true);
-            font.setUnderline(true);
-        }
-        if (index.data(UserDataTypes::INSTALLED).toBool()) {
-            auto hRect = opt.rect;
-            hRect.setX(hRect.x() + 1);
-            hRect.setY(hRect.y() + 1);
-            hRect.setHeight(hRect.height() - 2);
-            hRect.setWidth(hRect.width() - 2);
-            // Set nice font
-            font.setItalic(true);
-            font.setOverline(true);
-            painter->drawRect(hRect);
-        }
-
         font.setPointSize(font.pointSize() + 2);
         painter->setFont(font);
 
