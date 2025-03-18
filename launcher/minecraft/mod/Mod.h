@@ -61,6 +61,7 @@ class Mod : public Resource {
 
     auto details() const -> const ModDetails&;
     auto name() const -> QString override;
+    auto mod_id() const -> QString;
     auto version() const -> QString;
     auto homepage() const -> QString override;
     auto description() const -> QString;
