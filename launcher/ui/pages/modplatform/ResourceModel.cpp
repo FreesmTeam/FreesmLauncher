@@ -82,8 +82,6 @@ auto ResourceModel::data(const QModelIndex& index, int role) const -> QVariant
             return pack->name;
         case UserDataTypes::DESCRIPTION:
             return pack->description;
-        case UserDataTypes::SELECTED:
-            return pack->isAnyVersionSelected();
         case Qt::CheckStateRole:
             return pack->isAnyVersionSelected() ? Qt::Checked : Qt::Unchecked;
         case UserDataTypes::INSTALLED:
@@ -105,7 +103,6 @@ QHash<int, QByteArray> ResourceModel::roleNames() const
     roles[Qt::UserRole] = "pack";
     roles[UserDataTypes::TITLE] = "title";
     roles[UserDataTypes::DESCRIPTION] = "description";
-    roles[UserDataTypes::SELECTED] = "selected";
     roles[UserDataTypes::INSTALLED] = "installed";
 
     return roles;
