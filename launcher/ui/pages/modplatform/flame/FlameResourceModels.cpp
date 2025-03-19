@@ -122,7 +122,7 @@ ResourceAPI::SearchArgs FlameTexturePackModel::createSearchArguments()
     return args;
 }
 
-ResourceAPI::VersionSearchArgs FlameTexturePackModel::createVersionsArguments(QModelIndex& entry)
+ResourceAPI::VersionSearchArgs FlameTexturePackModel::createVersionsArguments(const QModelIndex& entry)
 {
     auto args = TexturePackResourceModel::createVersionsArguments(entry);
 

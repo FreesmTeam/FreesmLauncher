@@ -44,7 +44,7 @@ ResourceAPI::SearchArgs ModModel::createSearchArguments()
     };
 }
 
-ResourceAPI::VersionSearchArgs ModModel::createVersionsArguments(QModelIndex& entry)
+ResourceAPI::VersionSearchArgs ModModel::createVersionsArguments(const QModelIndex& entry)
 {
     auto& pack = *m_packs[entry.row()];
     auto profile = static_cast<MinecraftInstance const&>(m_base_instance).getPackProfile();
@@ -62,7 +62,7 @@ ResourceAPI::VersionSearchArgs ModModel::createVersionsArguments(QModelIndex& en
     return { pack, versions, loaders };
 }
 
-ResourceAPI::ProjectInfoArgs ModModel::createInfoArguments(QModelIndex& entry)
+ResourceAPI::ProjectInfoArgs ModModel::createInfoArguments(const QModelIndex& entry)
 {
     auto& pack = *m_packs[entry.row()];
     return { pack };

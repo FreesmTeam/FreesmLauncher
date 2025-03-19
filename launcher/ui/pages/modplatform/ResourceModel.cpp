@@ -192,7 +192,7 @@ void ResourceModel::search()
         runSearchJob(job);
 }
 
-void ResourceModel::loadEntry(QModelIndex& entry)
+void ResourceModel::loadEntry(const QModelIndex& entry)
 {
     auto const& pack = m_packs[entry.row()];
 
@@ -503,7 +503,7 @@ void ResourceModel::versionRequestSucceeded(QJsonDocument& doc, ModPlatform::Ind
         return;
     }
 
-    emit versionListUpdated();
+    emit versionListUpdated(index);
 }
 
 void ResourceModel::infoRequestSucceeded(QJsonDocument& doc, ModPlatform::IndexedPack& pack, const QModelIndex& index)
@@ -530,7 +530,7 @@ void ResourceModel::infoRequestSucceeded(QJsonDocument& doc, ModPlatform::Indexe
         return;
     }
 
-    emit projectInfoUpdated();
+    emit projectInfoUpdated(index);
 }
 
 void ResourceModel::addPack(ModPlatform::IndexedPack::Ptr pack,

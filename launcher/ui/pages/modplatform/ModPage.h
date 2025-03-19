@@ -35,7 +35,7 @@ class ModPage : public ResourcePage {
         page->setFilterWidget(filter_widget);
         model->setFilter(page->getFilter());
 
-        connect(model, &ResourceModel::versionListUpdated, page, &ResourcePage::updateVersionList);
+        connect(model, &ResourceModel::versionListUpdated, page, &ResourcePage::versionListUpdated);
         connect(model, &ResourceModel::projectInfoUpdated, page, &ResourcePage::updateUi);
 
         return page;

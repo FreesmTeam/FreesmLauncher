@@ -71,9 +71,9 @@ class ResourcePage : public QWidget, public BasePage {
     void addSortings();
 
    public slots:
-    virtual void updateUi();
+    virtual void updateUi(const QModelIndex& index);
     virtual void updateSelectionButton();
-    virtual void updateVersionList();
+    virtual void versionListUpdated(const QModelIndex& index);
 
     void addResourceToDialog(ModPlatform::IndexedPack::Ptr, ModPlatform::IndexedVersion&);
     void removeResourceFromDialog(const QString& pack_name);
@@ -91,6 +91,7 @@ class ResourcePage : public QWidget, public BasePage {
     void onSelectionChanged(QModelIndex first, QModelIndex second);
     void onVersionSelectionChanged(int index);
     void onResourceSelected();
+    void onToggle(const QModelIndex& index);
 
     // NOTE: Can't use [[nodiscard]] here because of https://bugreports.qt.io/browse/QTBUG-58628 on Qt 5.12
 
@@ -115,6 +116,8 @@ class ResourcePage : public QWidget, public BasePage {
     QTimer m_searchTimer;
 
     bool m_doNotJumpToMod = false;
+
+    QSet<int> m_enableQueue;
 };
 
 }  // namespace ResourceDownload

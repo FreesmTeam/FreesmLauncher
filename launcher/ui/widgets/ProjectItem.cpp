@@ -16,9 +16,9 @@ void ProjectItemDelegate::paint(QPainter* painter, const QStyleOptionViewItem& o
     QStyleOptionViewItem opt(option);
     initStyleOption(&opt, index);
 
-    auto rect = opt.rect;
-
     const QStyle* style = opt.widget == nullptr ? QApplication::style() : opt.widget->style();
+
+    auto rect = opt.rect;
 
     style->drawPrimitive(QStyle::PE_PanelItemViewItem, &opt, painter, opt.widget);
 
@@ -26,24 +26,10 @@ void ProjectItemDelegate::paint(QPainter* painter, const QStyleOptionViewItem& o
         painter->setPen(opt.palette.highlightedText().color());
 
     if (opt.features & QStyleOptionViewItem::HasCheckIndicator) {
-        // 5px will be the typical margin with 48px icon size
-        // we don't want the checkbox to be all over the place
-        rect.translate(5, 0);
-
-        QStyleOptionViewItem checkboxOpt = opt;
-
-        checkboxOpt.state &= ~QStyle::State_HasFocus;
-
-        if (checkboxOpt.checkState == Qt::Checked)
-            checkboxOpt.state |= QStyle::State_On;
-
-        QRect checkboxRect = style->subElementRect(QStyle::SE_ItemViewItemCheckIndicator, &checkboxOpt, opt.widget);
-        checkboxOpt.rect =
-            QRect(rect.x(), rect.y() + (rect.height() / 2 - checkboxRect.height() / 2), checkboxRect.width(), checkboxRect.height());
-
+        QStyleOptionViewItem checkboxOpt = makeCheckboxStyleOption(opt, style);
         style->drawPrimitive(QStyle::PE_IndicatorItemViewItemCheck, &checkboxOpt, painter, opt.widget);
 
-        rect.setX(rect.x() + checkboxRect.width());
+        rect.setX(checkboxOpt.rect.right());
     }
 
     // The default icon size will be a square (and height is usually the lower value).
@@ -140,4 +126,52 @@ void ProjectItemDelegate::paint(QPainter* painter, const QStyleOptionViewItem& o
     }
 
     painter->restore();
+}
+
+bool ProjectItemDelegate::editorEvent(QEvent* event,
+                                      QAbstractItemModel* model,
+                                      const QStyleOptionViewItem& option,
+                                      const QModelIndex& index)
+{
+    if (!(event->type() == QEvent::MouseButtonRelease || event->type() == QEvent::MouseButtonPress ||
+          event->type() == QEvent::MouseButtonDblClick))
+        return false;
+
+    auto mouseEvent = (QMouseEvent*)event;
+
+    QStyleOptionViewItem opt(option);
+    initStyleOption(&opt, index);
+
+    const QStyle* style = opt.widget == nullptr ? QApplication::style() : opt.widget->style();
+
+    const QStyleOptionViewItem checkboxOpt = makeCheckboxStyleOption(opt, style);
+
+    if (!checkboxOpt.rect.contains(mouseEvent->x(), mouseEvent->y()))
+        return false;
+
+    // swallow other events
+    // (prevents item being selected or double click action triggering)
+    if (event->type() != QEvent::MouseButtonRelease)
+        return true;
+
+    emit checkboxClicked(index);
+    return true;
+}
+
+QStyleOptionViewItem ProjectItemDelegate::makeCheckboxStyleOption(const QStyleOptionViewItem& opt, const QStyle* style) const
+{
+    QStyleOptionViewItem checkboxOpt = opt;
+
+    checkboxOpt.state &= ~QStyle::State_HasFocus;
+
+    if (checkboxOpt.checkState == Qt::Checked)
+        checkboxOpt.state |= QStyle::State_On;
+
+    QRect checkboxRect = style->subElementRect(QStyle::SE_ItemViewItemCheckIndicator, &checkboxOpt, opt.widget);
+    // 5px is the typical top margin for image
+    // we don't want the checkboxes to be all over the place :)
+    checkboxOpt.rect = QRect(opt.rect.x() + 5, opt.rect.y() + (opt.rect.height() / 2 - checkboxRect.height() / 2), checkboxRect.width(),
+                             checkboxRect.height());
+
+    return checkboxOpt;
 }

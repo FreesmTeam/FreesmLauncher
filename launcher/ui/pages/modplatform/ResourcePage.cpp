@@ -78,10 +78,14 @@ ResourcePage::ResourcePage(ResourceDownloadDialog* parent, BaseInstance& base_in
 
     m_ui->verticalLayout->insertWidget(1, &m_fetchProgress);
 
-    m_ui->packView->setItemDelegate(new ProjectItemDelegate(this));
+    auto delegate = new ProjectItemDelegate(this);
+    m_ui->packView->setItemDelegate(delegate);
     m_ui->packView->installEventFilter(this);
 
     connect(m_ui->packDescription, &QTextBrowser::anchorClicked, this, &ResourcePage::openUrl);
+
+    connect(m_ui->packView, &QListView::doubleClicked, this, &ResourcePage::onToggle);
+    connect(delegate, &ProjectItemDelegate::checkboxClicked, this, &ResourcePage::onToggle);
 }
 
 ResourcePage::~ResourcePage()
@@ -177,8 +181,11 @@ ModPlatform::IndexedPack::Ptr ResourcePage::getCurrentPack() const
     return m_model->data(m_ui->packView->currentIndex(), Qt::UserRole).value<ModPlatform::IndexedPack::Ptr>();
 }
 
-void ResourcePage::updateUi()
+void ResourcePage::updateUi(const QModelIndex& index)
 {
+    if (index != m_ui->packView->currentIndex())
+        return;
+
     auto current_pack = getCurrentPack();
     if (!current_pack) {
         m_ui->packDescription->setHtml({});
@@ -268,39 +275,48 @@ void ResourcePage::updateSelectionButton()
     }
 }
 
-void ResourcePage::updateVersionList()
+void ResourcePage::versionListUpdated(const QModelIndex& index)
 {
-    auto current_pack = getCurrentPack();
+    if (index == m_ui->packView->currentIndex()) {
+        auto current_pack = getCurrentPack();
 
-    m_ui->versionSelectionBox->blockSignals(true);
-    m_ui->versionSelectionBox->clear();
-    m_ui->versionSelectionBox->blockSignals(false);
+        m_ui->versionSelectionBox->blockSignals(true);
+        m_ui->versionSelectionBox->clear();
+        m_ui->versionSelectionBox->blockSignals(false);
 
-    if (current_pack) {
-        auto installedVersion = m_model->getInstalledPackVersion(current_pack);
+        if (current_pack) {
+            auto installedVersion = m_model->getInstalledPackVersion(current_pack);
 
-        for (int i = 0; i < current_pack->versions.size(); i++) {
-            auto& version = current_pack->versions[i];
-            if (!m_model->checkVersionFilters(version))
-                continue;
+            for (int i = 0; i < current_pack->versions.size(); i++) {
+                auto& version = current_pack->versions[i];
+                if (!m_model->checkVersionFilters(version))
+                    continue;
 
-            auto versionText = version.version;
-            if (version.version_type.isValid()) {
-                versionText += QString(" [%1]").arg(version.version_type.toString());
+                auto versionText = version.version;
+                if (version.version_type.isValid()) {
+                    versionText += QString(" [%1]").arg(version.version_type.toString());
+                }
+                if (version.fileId == installedVersion) {
+                    versionText += tr(" [installed]", "Mod version select");
+                }
+
+                m_ui->versionSelectionBox->addItem(versionText, QVariant(i));
             }
-            if (version.fileId == installedVersion) {
-                versionText += tr(" [installed]", "Mod version select");
-            }
-
-            m_ui->versionSelectionBox->addItem(versionText, QVariant(i));
         }
-    }
-    if (m_ui->versionSelectionBox->count() == 0) {
-        m_ui->versionSelectionBox->addItem(tr("No valid version found."), QVariant(-1));
-        m_ui->resourceSelectionButton->setText(tr("Cannot select invalid version :("));
-    }
+        if (m_ui->versionSelectionBox->count() == 0) {
+            m_ui->versionSelectionBox->addItem(tr("No valid version found."), QVariant(-1));
+            m_ui->resourceSelectionButton->setText(tr("Cannot select invalid version :("));
+        }
 
-    updateSelectionButton();
+        if (m_enableQueue.contains(index.row())) {
+            m_enableQueue.remove(index.row());
+            onToggle(index);
+        } else
+            updateSelectionButton();
+    } else if (m_enableQueue.contains(index.row())) {
+        m_enableQueue.remove(index.row());
+        onToggle(index);
+    }
 }
 
 void ResourcePage::onSelectionChanged(QModelIndex curr, [[maybe_unused]] QModelIndex prev)
@@ -318,16 +334,20 @@ void ResourcePage::onSelectionChanged(QModelIndex curr, [[maybe_unused]] QModelI
 
         request_load = true;
     } else {
-        updateVersionList();
+        versionListUpdated(curr);
     }
 
     if (current_pack && !current_pack->extraDataLoaded)
         request_load = true;
 
+    // we are already requesting this
+    if (m_enableQueue.contains(curr.row()))
+        request_load = false;
+
     if (request_load)
         m_model->loadEntry(curr);
 
-    updateUi();
+    updateUi(curr);
 }
 
 void ResourcePage::onVersionSelectionChanged(int index)
@@ -383,6 +403,41 @@ void ResourcePage::onResourceSelected()
 
     /* Force redraw on the resource list when the selection changes */
     m_ui->packView->repaint();
+}
+
+void ResourcePage::onToggle(const QModelIndex& index)
+{
+    const bool is_selected = index == m_ui->packView->currentIndex();
+    auto pack = m_model->data(index, Qt::UserRole).value<ModPlatform::IndexedPack::Ptr>();
+
+    if (pack->versionsLoaded) {
+        if (pack->isAnyVersionSelected())
+            removeResourceFromDialog(pack->name);
+        else {
+            auto version = std::find_if(pack->versions.begin(), pack->versions.end(), [this](const ModPlatform::IndexedVersion& version) {
+                return m_model->checkVersionFilters(version);
+            });
+
+            if (version != pack->versions.end())
+                addResourceToDialog(pack, *version);
+        }
+
+        if (is_selected)
+            updateSelectionButton();
+
+        // force update
+        QVariant variant;
+        variant.setValue(pack);
+        m_model->setData(index, variant, Qt::UserRole);
+    } else {
+        // the model is just 1 dimensional so this is fine
+        m_enableQueue.insert(index.row());
+
+        // we can't be sure that this hasn't already been requested...
+        // but this does the job well enough and there's not much point preventing edgecases
+        if (!is_selected)
+            m_model->loadEntry(index);
+    }
 }
 
 void ResourcePage::openUrl(const QUrl& url)

@@ -69,7 +69,7 @@ class FlameTexturePackModel : public TexturePackResourceModel {
     void loadIndexedPackVersions(ModPlatform::IndexedPack& m, QJsonArray& arr) override;
 
     ResourceAPI::SearchArgs createSearchArguments() override;
-    ResourceAPI::VersionSearchArgs createVersionsArguments(QModelIndex&) override;
+    ResourceAPI::VersionSearchArgs createVersionsArguments(const QModelIndex&) override;
 
     auto documentToArray(QJsonDocument& obj) const -> QJsonArray override;
 };
