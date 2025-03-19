@@ -374,6 +374,11 @@ void ResourcePage::addResourceToPage(ModPlatform::IndexedPack::Ptr pack,
     m_model->addPack(pack, ver, base_model, is_indexed);
 }
 
+void ResourcePage::modelReset()
+{
+    m_enableQueue.clear();
+}
+
 void ResourcePage::removeResourceFromPage(const QString& name)
 {
     m_model->removePack(name);

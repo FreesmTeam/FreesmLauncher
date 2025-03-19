@@ -27,6 +27,7 @@ class ShaderPackResourcePage : public ResourcePage {
 
         connect(model, &ResourceModel::versionListUpdated, page, &ResourcePage::versionListUpdated);
         connect(model, &ResourceModel::projectInfoUpdated, page, &ResourcePage::updateUi);
+        connect(model, &QAbstractListModel::modelReset, page, &ResourcePage::modelReset);
 
         return page;
     }

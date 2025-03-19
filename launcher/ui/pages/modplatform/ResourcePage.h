@@ -80,6 +80,8 @@ class ResourcePage : public QWidget, public BasePage {
     virtual void removeResourceFromPage(const QString& name);
     virtual void addResourceToPage(ModPlatform::IndexedPack::Ptr, ModPlatform::IndexedVersion&, std::shared_ptr<ResourceFolderModel>);
 
+    virtual void modelReset();
+
     QList<DownloadTaskPtr> selectedPacks() { return m_model->selectedPacks(); }
     bool hasSelectedPacks() { return !(m_model->selectedPacks().isEmpty()); }
 
