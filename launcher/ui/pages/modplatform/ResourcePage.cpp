@@ -84,8 +84,8 @@ ResourcePage::ResourcePage(ResourceDownloadDialog* parent, BaseInstance& base_in
 
     connect(m_ui->packDescription, &QTextBrowser::anchorClicked, this, &ResourcePage::openUrl);
 
-    connect(m_ui->packView, &QListView::doubleClicked, this, &ResourcePage::onToggle);
-    connect(delegate, &ProjectItemDelegate::checkboxClicked, this, &ResourcePage::onToggle);
+    connect(m_ui->packView, &QListView::doubleClicked, this, &ResourcePage::onResourceToggle);
+    connect(delegate, &ProjectItemDelegate::checkboxClicked, this, &ResourcePage::onResourceToggle);
 }
 
 ResourcePage::~ResourcePage()
@@ -134,7 +134,7 @@ auto ResourcePage::eventFilter(QObject* watched, QEvent* event) -> bool
         } else if (watched == m_ui->packView) {
             // stop the event from going to the confirm button
             if (keyEvent->key() == Qt::Key_Return) {
-                onToggle(m_ui->packView->currentIndex());
+                onResourceToggle(m_ui->packView->currentIndex());
                 keyEvent->accept();
                 return true;
             }
@@ -306,12 +306,12 @@ void ResourcePage::versionListUpdated(const QModelIndex& index)
 
         if (m_enableQueue.contains(index.row())) {
             m_enableQueue.remove(index.row());
-            onToggle(index);
+            onResourceToggle(index);
         } else
             updateSelectionButton();
     } else if (m_enableQueue.contains(index.row())) {
         m_enableQueue.remove(index.row());
-        onToggle(index);
+        onResourceToggle(index);
     }
 }
 
@@ -406,7 +406,7 @@ void ResourcePage::onResourceSelected()
     m_ui->packView->repaint();
 }
 
-void ResourcePage::onToggle(const QModelIndex& index)
+void ResourcePage::onResourceToggle(const QModelIndex& index)
 {
     const bool isSelected = index == m_ui->packView->currentIndex();
     auto pack = m_model->data(index, Qt::UserRole).value<ModPlatform::IndexedPack::Ptr>();

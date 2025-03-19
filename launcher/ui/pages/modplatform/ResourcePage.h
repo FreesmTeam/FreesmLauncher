@@ -93,7 +93,7 @@ class ResourcePage : public QWidget, public BasePage {
     void onSelectionChanged(QModelIndex first, QModelIndex second);
     void onVersionSelectionChanged(int index);
     void onResourceSelected();
-    void onToggle(const QModelIndex& index);
+    void onResourceToggle(const QModelIndex& index);
 
     // NOTE: Can't use [[nodiscard]] here because of https://bugreports.qt.io/browse/QTBUG-58628 on Qt 5.12
 
