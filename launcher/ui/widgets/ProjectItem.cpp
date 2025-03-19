@@ -22,7 +22,7 @@ void ProjectItemDelegate::paint(QPainter* painter, const QStyleOptionViewItem& o
 
     style->drawPrimitive(QStyle::PE_PanelItemViewItem, &opt, painter, opt.widget);
 
-    if (option.state & QStyle::State_Selected)
+    if (option.state & QStyle::State_Selected && style->objectName() != "windowsvista")
         painter->setPen(opt.palette.highlightedText().color());
 
     if (opt.features & QStyleOptionViewItem::HasCheckIndicator) {
