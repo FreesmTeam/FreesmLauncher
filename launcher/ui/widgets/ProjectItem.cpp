@@ -69,7 +69,7 @@ void ProjectItemDelegate::paint(QPainter* painter, const QStyleOptionViewItem& o
         auto title = index.data(UserDataTypes::TITLE).toString();
 
         if (index.data(UserDataTypes::INSTALLED).toBool())
-            title += " [installed]";
+            title = tr("%1 [installed]").arg(title);
 
         painter->save();
 
