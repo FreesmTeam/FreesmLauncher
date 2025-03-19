@@ -172,6 +172,8 @@ QStyleOptionViewItem ProjectItemDelegate::makeCheckboxStyleOption(const QStyleOp
 
     if (checkboxOpt.checkState == Qt::Checked)
         checkboxOpt.state |= QStyle::State_On;
+    else
+        checkboxOpt.state |= QStyle::State_Off;
 
     QRect checkboxRect = style->subElementRect(QStyle::SE_ItemViewItemCheckIndicator, &checkboxOpt, opt.widget);
     // 5px is the typical top margin for image
