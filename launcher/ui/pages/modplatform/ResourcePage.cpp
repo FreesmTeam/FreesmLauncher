@@ -132,13 +132,9 @@ auto ResourcePage::eventFilter(QObject* watched, QEvent* event) -> bool
                 m_searchTimer.start(350);
             }
         } else if (watched == m_ui->packView) {
+            // stop the event from going to the confirm button
             if (keyEvent->key() == Qt::Key_Return) {
-                onResourceSelected();
-
-                // To have the 'select mod' button outlined instead of the 'review and confirm' one
-                m_ui->resourceSelectionButton->setFocus(Qt::FocusReason::ShortcutFocusReason);
-                m_ui->packView->setFocus(Qt::FocusReason::NoFocusReason);
-
+                onToggle(m_ui->packView->currentIndex());
                 keyEvent->accept();
                 return true;
             }
