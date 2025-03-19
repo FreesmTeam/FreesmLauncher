@@ -68,6 +68,9 @@ void ProjectItemDelegate::paint(QPainter* painter, const QStyleOptionViewItem& o
     {  // Title painting
         auto title = index.data(UserDataTypes::TITLE).toString();
 
+        if (index.data(UserDataTypes::INSTALLED).toBool())
+            title += " [installed]";
+
         painter->save();
 
         auto font = opt.font;
