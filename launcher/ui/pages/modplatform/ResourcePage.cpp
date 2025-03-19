@@ -81,6 +81,7 @@ ResourcePage::ResourcePage(ResourceDownloadDialog* parent, BaseInstance& base_in
     auto delegate = new ProjectItemDelegate(this);
     m_ui->packView->setItemDelegate(delegate);
     m_ui->packView->installEventFilter(this);
+    m_ui->packView->viewport()->installEventFilter(this);
 
     connect(m_ui->packDescription, &QTextBrowser::anchorClicked, this, &ResourcePage::openUrl);
 
@@ -138,6 +139,13 @@ auto ResourcePage::eventFilter(QObject* watched, QEvent* event) -> bool
                 keyEvent->accept();
                 return true;
             }
+        }
+    } else if (watched == m_ui->packView->viewport() && event->type() == QEvent::MouseButtonPress) {
+        auto* mouseEvent = static_cast<QMouseEvent*>(event);
+
+        if (mouseEvent->button() == Qt::MiddleButton) {
+            onResourceToggle(m_ui->packView->indexAt(mouseEvent->pos()));
+            return true;
         }
     }
 

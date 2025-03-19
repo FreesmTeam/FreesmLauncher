@@ -142,6 +142,9 @@ bool ProjectItemDelegate::editorEvent(QEvent* event,
 
     auto mouseEvent = (QMouseEvent*)event;
 
+    if (mouseEvent->button() != Qt::LeftButton)
+        return false;
+
     QStyleOptionViewItem opt(option);
     initStyleOption(&opt, index);
 
