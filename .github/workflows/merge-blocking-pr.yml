@@ -14,16 +14,18 @@ jobs:
     # find the open pr's it was blocked by and trigger a refresh of their state
     if: github.event.pull_request.merged == true && contains( join( github.event.pull_request.labels.*.name, ',' ), 'blocking' )
 
-    permissions:
-      issues: write
-      pull-requests: write
-      actions: write
-
     steps:
+      - name: Generate token
+        id: generate-token
+        uses: actions/create-github-app-token@v1
+        with:
+          app-id: ${{ vars.PULL_REQUEST_APP_ID }}
+          private-key: ${{ secrets.PULL_REQUEST_APP_PRIVATE_KEY }}
+
       - name: Gather Dependent PRs
         id: gather_deps
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ steps.generate-token.outputs.token }}
           PR_NUMBER: ${{ github.event.pull_request.number }}
         run: |
           blocked_prs=$(
@@ -43,7 +45,7 @@ jobs:
       - name: Trigger Blocked PR Workflows for Dependants
         if: fromJSON(steps.gather_deps.outputs.numdeps) > 0
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ steps.generate-token.outputs.token }}
           DEPS: ${{ steps.gather_deps.outputs.deps }}
         run: |
           while read -r pr ; do

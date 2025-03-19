@@ -19,13 +19,14 @@ jobs:
     name: Check Blocked Status
     runs-on: ubuntu-latest
 
-    permissions:
-      issues: write
-      pull-requests: write
-      statuses: write
-      checks: write
-
     steps:
+      - name: Generate token
+        id: generate-token
+        uses: actions/create-github-app-token@v1
+        with:
+          app-id: ${{ vars.PULL_REQUEST_APP_ID }}
+          private-key: ${{ secrets.PULL_REQUEST_APP_PRIVATE_KEY }}
+
       - name: Checkout Default Branch
         uses: actions/checkout@v4
         with:
@@ -35,7 +36,7 @@ jobs:
         if: github.event_name == 'workflow_dispatch'
         id: dispatch_event_setup
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ steps.generate-token.outputs.token }}
           PR_NUMBER: ${{ inputs.pr_id }}
         run: |
           # setup env for the rest of the workflow
@@ -112,7 +113,7 @@ jobs:
         id: blocking_data
         if: fromJSON(steps.pr_ids.outputs.prs).numBlocking > 0
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ steps.generate-token.outputs.token }}
           BLOCKING_PRS: ${{ steps.pr_ids.outputs.prs }}
         run: |
           blocked_pr_data=$(
@@ -147,7 +148,7 @@ jobs:
         if: (fromJSON(steps.pr_ids.outputs.prs).numBlocking > 0) && !contains(fromJSON(env.JOB_DATA).prLabels, 'blocked') && !fromJSON(steps.blocking_data.outputs.all_merged)
         continue-on-error: true
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ steps.generate-token.outputs.token }}
         run: |
           gh -R ${{ github.repository }} issue edit --add-label 'blocked' $PR_NUMBER
 
@@ -156,7 +157,7 @@ jobs:
         if: fromJSON(steps.pr_ids.outputs.prs).numBlocking > 0 && fromJSON(steps.blocking_data.outputs.all_merged)
         continue-on-error: true
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ steps.generate-token.outputs.token }}
         run: |
           gh -R ${{ github.repository }} issue edit --remove-label 'blocked' $PR_NUMBER
 
@@ -176,7 +177,7 @@ jobs:
         if: fromJSON(steps.pr_ids.outputs.prs).numBlocking > 0
         continue-on-error: true
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ steps.generate-token.outputs.token }}
           BLOCKING_DATA: ${{ steps.blocking_data.outputs.data }}
         run: |
           pr_head_sha=$(jq -r '.prHeadSha' <<< "$JOB_DATA")
@@ -229,5 +230,5 @@ jobs:
           comment_id: "block_pr_dependencies"
           issue_number: ${{ env.PR_NUMBER }}
           repository: ${{ github.repository }}
-          gh_token: ${{ secrets.GITHUB_TOKEN }}
+          gh_token: ${{ steps.generate-token.outputs.token }}
 
