@@ -407,7 +407,7 @@ void ResourcePage::onResourceSelected()
 
 void ResourcePage::onToggle(const QModelIndex& index)
 {
-    const bool is_selected = index == m_ui->packView->currentIndex();
+    const bool isSelected = index == m_ui->packView->currentIndex();
     auto pack = m_model->data(index, Qt::UserRole).value<ModPlatform::IndexedPack::Ptr>();
 
     if (pack->versionsLoaded) {
@@ -429,7 +429,7 @@ void ResourcePage::onToggle(const QModelIndex& index)
                 addResourceToDialog(pack, *version);
         }
 
-        if (is_selected)
+        if (isSelected)
             updateSelectionButton();
 
         // force update
@@ -442,7 +442,7 @@ void ResourcePage::onToggle(const QModelIndex& index)
 
         // we can't be sure that this hasn't already been requested...
         // but this does the job well enough and there's not much point preventing edgecases
-        if (!is_selected)
+        if (!isSelected)
             m_model->loadEntry(index);
     }
 }
