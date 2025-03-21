@@ -134,9 +134,11 @@ jobs:
                   '
             done < <(jq -c '.blocking[]' <<< "$BLOCKING_PRS") | jq -c -s
           )
-          echo "data=$blocked_pr_data" >> "$GITHUB_OUTPUT"
-          echo "all_merged=$(jq -r 'all(.[].merged; .)' <<< "$blocked_pr_data")" >> "$GITHUB_OUTPUT"
-          echo "current_blocking=$(jq -c 'map( select( .merged | not ) | .number )' <<< "$blocked_pr_data" )" >> "$GITHUB_OUTPUT"
+          {
+            echo "data=$blocked_pr_data";
+            echo "all_merged=$(jq -r 'all(.[].merged; .)' <<< "$blocked_pr_data")";
+            echo "current_blocking=$(jq -c 'map( select( .merged | not ) | .number )' <<< "$blocked_pr_data" )";
+          } >> "$GITHUB_OUTPUT"
 
       - name: Add 'blocked' Label is Missing
         id: label_blocked
@@ -145,7 +147,7 @@ jobs:
         env:
           GH_TOKEN: ${{ steps.generate-token.outputs.token }}
         run: |
-          gh -R ${{ github.repository }} issue edit --add-label 'blocked' $PR_NUMBER
+          gh -R ${{ github.repository }} issue edit --add-label 'blocked' "$PR_NUMBER"
 
       - name: Remove 'blocked' Label if All Dependencies Are Merged
         id: unlabel_blocked
@@ -154,7 +156,7 @@ jobs:
         env:
           GH_TOKEN: ${{ steps.generate-token.outputs.token }}
         run: |
-          gh -R ${{ github.repository }} issue edit --remove-label 'blocked' $PR_NUMBER
+          gh -R ${{ github.repository }} issue edit --remove-label 'blocked' "$PR_NUMBER"
 
       - name: Apply 'blocking' Label to Unmerged Dependencies
         id: label_blocking
@@ -213,9 +215,11 @@ jobs:
             echo "  - $type #$base_pr $status [(compare)]($compare_url)" >> "$COMMENT_PATH"
           done < <(jq -c '.[]'  <<< "$BLOCKING_DATA")
 
-          echo 'body<<EOF' >> "$GITHUB_OUTPUT"
-          cat "${COMMENT_PATH}" >> "$GITHUB_OUTPUT"
-          echo 'EOF' >> "$GITHUB_OUTPUT"
+          {
+            echo 'body<<EOF';
+            cat "${COMMENT_PATH}";
+            echo 'EOF';
+          } >> "$GITHUB_OUTPUT"
 
       - name: 💬 PR Comment
         if: fromJSON(steps.pr_ids.outputs.prs).numBlocking > 0
