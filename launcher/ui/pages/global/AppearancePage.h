@@ -58,7 +58,7 @@ class AppearancePage : public QWidget, public BasePage {
     ~AppearancePage();
 
     QString displayName() const override { return tr("Appearance"); }
-    QIcon icon() const override { return APPLICATION->getThemedIcon("resourcepacks"); }
+    QIcon icon() const override { return APPLICATION->getThemedIcon("appearance"); }
     QString id() const override { return "appearance-settings"; }
     QString helpPage() const override { return "Launcher-settings"; }
     bool apply() override;

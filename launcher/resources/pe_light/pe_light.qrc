@@ -41,5 +41,6 @@
         <file>scalable/launch.svg</file>
         <file>scalable/shortcut.svg</file>
         <file>scalable/server.svg</file>
+        <file>scalable/appearance.svg</file>
     </qresource>
 </RCC>
