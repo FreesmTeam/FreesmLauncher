@@ -137,6 +137,7 @@
 
 #if defined(Q_OS_LINUX)
 #include <sys/statvfs.h>
+#include <ui/pages/global/AppearancePage.h>
 #endif
 
 #if defined(Q_OS_FREEBSD) || defined(Q_OS_OPENBSD)
@@ -798,6 +799,7 @@ Application::Application(int& argc, char** argv) : QApplication(argc, argv)
         {
             m_globalSettingsProvider = std::make_shared<GenericPageProvider>(tr("Settings"));
             m_globalSettingsProvider->addPage<LauncherPage>();
+            m_globalSettingsProvider->addPage<AppearancePage>();
             m_globalSettingsProvider->addPage<MinecraftPage>();
             m_globalSettingsProvider->addPage<JavaPage>();
             m_globalSettingsProvider->addPage<LanguagePage>();

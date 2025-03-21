@@ -924,7 +924,7 @@ SET(LAUNCHER_SOURCES
     ui/pages/instance/McResolver.h
     ui/pages/instance/ServerPingTask.cpp
     ui/pages/instance/ServerPingTask.h
-    
+
     # GUI - global settings pages
     ui/pages/global/AccountListPage.cpp
     ui/pages/global/AccountListPage.h
@@ -937,6 +937,8 @@ SET(LAUNCHER_SOURCES
     ui/pages/global/MinecraftPage.h
     ui/pages/global/LauncherPage.cpp
     ui/pages/global/LauncherPage.h
+    ui/pages/global/AppearancePage.cpp
+    ui/pages/global/AppearancePage.h
     ui/pages/global/ProxyPage.cpp
     ui/pages/global/ProxyPage.h
     ui/pages/global/APIPage.cpp
@@ -1177,6 +1179,7 @@ qt_wrap_ui(LAUNCHER_UI
     ui/pages/global/AccountListPage.ui
     ui/pages/global/JavaPage.ui
     ui/pages/global/LauncherPage.ui
+    ui/pages/global/AppearancePage.ui
     ui/pages/global/APIPage.ui
     ui/pages/global/ProxyPage.ui
     ui/pages/global/ExternalToolsPage.ui
