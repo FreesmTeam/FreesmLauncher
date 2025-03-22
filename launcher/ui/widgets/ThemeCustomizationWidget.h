@@ -33,8 +33,6 @@ class ThemeCustomizationWidget : public QWidget {
     explicit ThemeCustomizationWidget(QWidget* parent = nullptr);
     ~ThemeCustomizationWidget() override;
 
-    void showFeatures(ThemeFields features);
-
     void applySettings();
 
     void loadSettings();

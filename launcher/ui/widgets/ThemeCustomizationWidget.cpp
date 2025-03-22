@@ -49,40 +49,6 @@ ThemeCustomizationWidget::~ThemeCustomizationWidget()
     delete ui;
 }
 
-/// <summary>
-/// The layout was not quite right, so currently this just disables the UI elements, which should be hidden instead
-/// TODO FIXME
-///
-/// Original Method One:
-/// ui->iconsComboBox->setVisible(features& ThemeFields::ICONS);
-/// ui->iconsLabel->setVisible(features& ThemeFields::ICONS);
-/// ui->widgetStyleComboBox->setVisible(features& ThemeFields::WIDGETS);
-/// ui->widgetThemeLabel->setVisible(features& ThemeFields::WIDGETS);
-/// ui->backgroundCatComboBox->setVisible(features& ThemeFields::CAT);
-/// ui->backgroundCatLabel->setVisible(features& ThemeFields::CAT);
-///
-/// original Method Two:
-///     if (!(features & ThemeFields::ICONS)) {
-///         ui->formLayout->setRowVisible(0, false);
-///     }
-///     if (!(features & ThemeFields::WIDGETS)) {
-///         ui->formLayout->setRowVisible(1, false);
-///     }
-///     if (!(features & ThemeFields::CAT)) {
-///         ui->formLayout->setRowVisible(2, false);
-///     }
-/// </summary>
-/// <param name="features"></param>
-void ThemeCustomizationWidget::showFeatures(ThemeFields features)
-{
-    ui->iconsComboBox->setEnabled(features & ThemeFields::ICONS);
-    ui->iconsLabel->setEnabled(features & ThemeFields::ICONS);
-    ui->widgetStyleComboBox->setEnabled(features & ThemeFields::WIDGETS);
-    ui->widgetStyleLabel->setEnabled(features & ThemeFields::WIDGETS);
-    ui->backgroundCatComboBox->setEnabled(features & ThemeFields::CAT);
-    ui->backgroundCatLabel->setEnabled(features & ThemeFields::CAT);
-}
-
 void ThemeCustomizationWidget::applyIconTheme(int index)
 {
     auto settings = APPLICATION->settings();

@@ -31,7 +31,7 @@
         <x>0</x>
         <y>0</y>
         <width>563</width>
-        <height>1293</height>
+        <height>1336</height>
        </rect>
       </property>
       <layout class="QVBoxLayout" name="verticalLayout_8">
@@ -72,11 +72,20 @@
            </widget>
           </item>
           <item>
-           <widget class="Line" name="line">
+           <spacer name="verticalSpacer">
             <property name="orientation">
-             <enum>Qt::Horizontal</enum>
+             <enum>Qt::Vertical</enum>
             </property>
-           </widget>
+            <property name="sizeType">
+             <enum>QSizePolicy::Fixed</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>0</width>
+              <height>6</height>
+             </size>
+            </property>
+           </spacer>
           </item>
           <item>
            <widget class="QCheckBox" name="preferMenuBarCheckBox">
@@ -105,6 +114,22 @@
            </widget>
           </item>
           <item>
+           <spacer name="verticalSpacer_7">
+            <property name="orientation">
+             <enum>Qt::Vertical</enum>
+            </property>
+            <property name="sizeType">
+             <enum>QSizePolicy::Fixed</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>0</width>
+              <height>6</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+          <item>
            <widget class="QLabel" name="updateIntervalLabel">
             <property name="text">
              <string>Update checking interval</string>
@@ -112,37 +137,26 @@
            </widget>
           </item>
           <item>
-           <layout class="QHBoxLayout" name="horizontalLayout">
-            <item>
-             <widget class="QSpinBox" name="updateIntervalSpinBox">
-              <property name="toolTip">
-               <string>Set it to 0 to only check on launch</string>
-              </property>
-              <property name="suffix">
-               <string>h</string>
-              </property>
-              <property name="minimum">
-               <number>0</number>
-              </property>
-              <property name="maximum">
-               <number>168</number>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <spacer name="horizontalSpacer_2">
-              <property name="orientation">
-               <enum>Qt::Horizontal</enum>
-              </property>
-              <property name="sizeHint" stdset="0">
-               <size>
-                <width>0</width>
-                <height>0</height>
-               </size>
-              </property>
-             </spacer>
-            </item>
-           </layout>
+           <widget class="QSpinBox" name="updateIntervalSpinBox">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="toolTip">
+             <string>Set it to 0 to only check on launch</string>
+            </property>
+            <property name="suffix">
+             <string>h</string>
+            </property>
+            <property name="minimum">
+             <number>0</number>
+            </property>
+            <property name="maximum">
+             <number>168</number>
+            </property>
+           </widget>
           </item>
          </layout>
         </widget>
@@ -163,26 +177,10 @@
             </property>
            </widget>
           </item>
-          <item row="8" column="2">
-           <widget class="QToolButton" name="downloadsDirBrowseBtn">
+          <item row="3" column="2">
+           <widget class="QToolButton" name="javaDirBrowseBtn">
             <property name="text">
              <string>Browse</string>
-            </property>
-           </widget>
-          </item>
-          <item row="2" column="1">
-           <widget class="QLineEdit" name="iconsDirTextBox"/>
-          </item>
-          <item row="3" column="1">
-           <widget class="QLineEdit" name="javaDirTextBox"/>
-          </item>
-          <item row="4" column="0">
-           <widget class="QLabel" name="labelSkinsDir">
-            <property name="text">
-             <string>&amp;Skins</string>
-            </property>
-            <property name="buddy">
-             <cstring>skinsDirTextBox</cstring>
             </property>
            </widget>
           </item>
@@ -196,19 +194,10 @@
             </property>
            </widget>
           </item>
-          <item row="9" column="1" colspan="2">
-           <layout class="QHBoxLayout" name="downloadModsCheckLayout"/>
-          </item>
-          <item row="8" column="1">
-           <widget class="QLineEdit" name="downloadsDirTextBox"/>
-          </item>
-          <item row="3" column="0">
-           <widget class="QLabel" name="labelJavaDir">
+          <item row="0" column="2">
+           <widget class="QToolButton" name="instDirBrowseBtn">
             <property name="text">
-             <string>&amp;Java</string>
-            </property>
-            <property name="buddy">
-             <cstring>javaDirTextBox</cstring>
+             <string>Browse</string>
             </property>
            </widget>
           </item>
@@ -222,35 +211,28 @@
             </property>
            </widget>
           </item>
-          <item row="4" column="1">
-           <widget class="QLineEdit" name="skinsDirTextBox"/>
-          </item>
-          <item row="1" column="1">
-           <widget class="QLineEdit" name="modsDirTextBox"/>
-          </item>
-          <item row="0" column="1">
-           <widget class="QLineEdit" name="instDirTextBox"/>
-          </item>
-          <item row="1" column="2">
-           <widget class="QToolButton" name="modsDirBrowseBtn">
-            <property name="text">
-             <string>Browse</string>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="2">
-           <widget class="QToolButton" name="instDirBrowseBtn">
-            <property name="text">
-             <string>Browse</string>
-            </property>
-           </widget>
-          </item>
           <item row="2" column="2">
            <widget class="QToolButton" name="iconsDirBrowseBtn">
             <property name="text">
              <string>Browse</string>
             </property>
            </widget>
+          </item>
+          <item row="3" column="1">
+           <widget class="QLineEdit" name="javaDirTextBox"/>
+          </item>
+          <item row="8" column="2">
+           <widget class="QToolButton" name="downloadsDirBrowseBtn">
+            <property name="text">
+             <string>Browse</string>
+            </property>
+           </widget>
+          </item>
+          <item row="8" column="1">
+           <widget class="QLineEdit" name="downloadsDirTextBox"/>
+          </item>
+          <item row="1" column="1">
+           <widget class="QLineEdit" name="modsDirTextBox"/>
           </item>
           <item row="0" column="0">
            <widget class="QLabel" name="labelInstDir">
@@ -262,10 +244,36 @@
             </property>
            </widget>
           </item>
-          <item row="3" column="2">
-           <widget class="QToolButton" name="javaDirBrowseBtn">
+          <item row="3" column="0">
+           <widget class="QLabel" name="labelJavaDir">
+            <property name="text">
+             <string>&amp;Java</string>
+            </property>
+            <property name="buddy">
+             <cstring>javaDirTextBox</cstring>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="1">
+           <widget class="QLineEdit" name="iconsDirTextBox"/>
+          </item>
+          <item row="1" column="2">
+           <widget class="QToolButton" name="modsDirBrowseBtn">
             <property name="text">
              <string>Browse</string>
+            </property>
+           </widget>
+          </item>
+          <item row="4" column="1">
+           <widget class="QLineEdit" name="skinsDirTextBox"/>
+          </item>
+          <item row="4" column="0">
+           <widget class="QLabel" name="labelSkinsDir">
+            <property name="text">
+             <string>&amp;Skins</string>
+            </property>
+            <property name="buddy">
+             <cstring>skinsDirTextBox</cstring>
             </property>
            </widget>
           </item>
@@ -276,13 +284,16 @@
             </property>
            </widget>
           </item>
+          <item row="0" column="1">
+           <widget class="QLineEdit" name="instDirTextBox"/>
+          </item>
          </layout>
         </widget>
        </item>
        <item>
         <widget class="QGroupBox" name="modsBox">
          <property name="title">
-          <string>Mod Management</string>
+          <string>Mods</string>
          </property>
          <layout class="QVBoxLayout" name="verticalLayout_4">
           <item>
@@ -350,7 +361,7 @@
              <string>When creating a new modpack instance, do not suggest updating existing instances instead.</string>
             </property>
             <property name="text">
-             <string>Ask whether to update an existing instance when installing modpacks</string>
+             <string>Suggest to update an existing instance</string>
             </property>
            </widget>
           </item>
@@ -374,40 +385,45 @@
            </widget>
           </item>
           <item>
-           <layout class="QHBoxLayout" name="horizontalLayout_6">
-            <item>
-             <widget class="QSpinBox" name="lineLimitSpinBox">
-              <property name="sizePolicy">
-               <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-                <horstretch>0</horstretch>
-                <verstretch>0</verstretch>
-               </sizepolicy>
-              </property>
-              <property name="suffix">
-               <string> lines</string>
-              </property>
-              <property name="minimum">
-               <number>10000</number>
-              </property>
-              <property name="maximum">
-               <number>1000000</number>
-              </property>
-              <property name="singleStep">
-               <number>10000</number>
-              </property>
-              <property name="value">
-               <number>100000</number>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <spacer name="horizontalSpacer_6">
-              <property name="orientation">
-               <enum>Qt::Horizontal</enum>
-              </property>
-             </spacer>
-            </item>
-           </layout>
+           <widget class="QSpinBox" name="lineLimitSpinBox">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="suffix">
+             <string> lines</string>
+            </property>
+            <property name="minimum">
+             <number>10000</number>
+            </property>
+            <property name="maximum">
+             <number>1000000</number>
+            </property>
+            <property name="singleStep">
+             <number>10000</number>
+            </property>
+            <property name="value">
+             <number>100000</number>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <spacer name="verticalSpacer_6">
+            <property name="orientation">
+             <enum>Qt::Vertical</enum>
+            </property>
+            <property name="sizeType">
+             <enum>QSizePolicy::Fixed</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>0</width>
+              <height>6</height>
+             </size>
+            </property>
+           </spacer>
           </item>
           <item>
            <widget class="QCheckBox" name="checkStopLogging">
@@ -433,28 +449,33 @@
            </widget>
           </item>
           <item>
-           <layout class="QHBoxLayout" name="horizontalLayout_2">
-            <item>
-             <widget class="QSpinBox" name="numberOfConcurrentTasksSpinBox">
-              <property name="minimum">
-               <number>1</number>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <spacer name="horizontalSpacer">
-              <property name="orientation">
-               <enum>Qt::Horizontal</enum>
-              </property>
-              <property name="sizeHint" stdset="0">
-               <size>
-                <width>0</width>
-                <height>0</height>
-               </size>
-              </property>
-             </spacer>
-            </item>
-           </layout>
+           <widget class="QSpinBox" name="numberOfConcurrentTasksSpinBox">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="minimum">
+             <number>1</number>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <spacer name="verticalSpacer_3">
+            <property name="orientation">
+             <enum>Qt::Vertical</enum>
+            </property>
+            <property name="sizeType">
+             <enum>QSizePolicy::Fixed</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>0</width>
+              <height>6</height>
+             </size>
+            </property>
+           </spacer>
           </item>
           <item>
            <widget class="QLabel" name="numberOfConcurrentDownloadsLabel">
@@ -464,28 +485,33 @@
            </widget>
           </item>
           <item>
-           <layout class="QHBoxLayout" name="horizontalLayout_3">
-            <item>
-             <widget class="QSpinBox" name="numberOfConcurrentDownloadsSpinBox">
-              <property name="minimum">
-               <number>1</number>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <spacer name="horizontalSpacer_3">
-              <property name="orientation">
-               <enum>Qt::Horizontal</enum>
-              </property>
-              <property name="sizeHint" stdset="0">
-               <size>
-                <width>0</width>
-                <height>0</height>
-               </size>
-              </property>
-             </spacer>
-            </item>
-           </layout>
+           <widget class="QSpinBox" name="numberOfConcurrentDownloadsSpinBox">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="minimum">
+             <number>1</number>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <spacer name="verticalSpacer_4">
+            <property name="orientation">
+             <enum>Qt::Vertical</enum>
+            </property>
+            <property name="sizeType">
+             <enum>QSizePolicy::Fixed</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>0</width>
+              <height>6</height>
+             </size>
+            </property>
+           </spacer>
           </item>
           <item>
            <widget class="QLabel" name="numberOfManualRetriesLabel">
@@ -495,28 +521,33 @@
            </widget>
           </item>
           <item>
-           <layout class="QHBoxLayout" name="horizontalLayout_4">
-            <item>
-             <widget class="QSpinBox" name="numberOfManualRetriesSpinBox">
-              <property name="minimum">
-               <number>0</number>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <spacer name="horizontalSpacer_4">
-              <property name="orientation">
-               <enum>Qt::Horizontal</enum>
-              </property>
-              <property name="sizeHint" stdset="0">
-               <size>
-                <width>0</width>
-                <height>0</height>
-               </size>
-              </property>
-             </spacer>
-            </item>
-           </layout>
+           <widget class="QSpinBox" name="numberOfManualRetriesSpinBox">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="minimum">
+             <number>0</number>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <spacer name="verticalSpacer_5">
+            <property name="orientation">
+             <enum>Qt::Vertical</enum>
+            </property>
+            <property name="sizeType">
+             <enum>QSizePolicy::Fixed</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>0</width>
+              <height>6</height>
+             </size>
+            </property>
+           </spacer>
           </item>
           <item>
            <widget class="QLabel" name="timeoutSecondsLabel">
@@ -529,28 +560,17 @@
            </widget>
           </item>
           <item>
-           <layout class="QHBoxLayout" name="horizontalLayout_5">
-            <item>
-             <widget class="QSpinBox" name="timeoutSecondsSpinBox">
-              <property name="suffix">
-               <string>s</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <spacer name="horizontalSpacer_5">
-              <property name="orientation">
-               <enum>Qt::Horizontal</enum>
-              </property>
-              <property name="sizeHint" stdset="0">
-               <size>
-                <width>0</width>
-                <height>0</height>
-               </size>
-              </property>
-             </spacer>
-            </item>
-           </layout>
+           <widget class="QSpinBox" name="timeoutSecondsSpinBox">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="suffix">
+             <string>s</string>
+            </property>
+           </widget>
           </item>
          </layout>
         </widget>

@@ -67,7 +67,14 @@ class AppearancePage : public QWidget, public BasePage {
    private:
     void applySettings();
     void loadSettings();
-    void updateFontPreview();
+
+    void applyIconTheme(int index);
+    void applyWidgetTheme(int index);
+    void applyCatTheme(int index);
+    void loadThemeSettings();
+
+    void updateConsolePreview();
+    void updateCatPreview();
 
    private:
     Ui::AppearancePage* m_ui;
