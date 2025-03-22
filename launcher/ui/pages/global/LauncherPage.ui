@@ -167,22 +167,18 @@
           <string>Folders</string>
          </property>
          <layout class="QGridLayout" name="foldersBoxLayout">
-          <item row="8" column="0">
-           <widget class="QLabel" name="labelDownloadsDir">
+          <item row="1" column="0">
+           <widget class="QLabel" name="labelModsDir">
             <property name="text">
-             <string>&amp;Downloads</string>
+             <string>&amp;Mods</string>
             </property>
             <property name="buddy">
-             <cstring>downloadsDirTextBox</cstring>
+             <cstring>modsDirTextBox</cstring>
             </property>
            </widget>
           </item>
-          <item row="3" column="2">
-           <widget class="QToolButton" name="javaDirBrowseBtn">
-            <property name="text">
-             <string>Browse</string>
-            </property>
-           </widget>
+          <item row="8" column="1">
+           <widget class="QLineEdit" name="downloadsDirTextBox"/>
           </item>
           <item row="2" column="0">
            <widget class="QLabel" name="labelIconsDir">
@@ -194,78 +190,15 @@
             </property>
            </widget>
           </item>
-          <item row="0" column="2">
-           <widget class="QToolButton" name="instDirBrowseBtn">
+          <item row="8" column="0">
+           <widget class="QLabel" name="labelDownloadsDir">
             <property name="text">
-             <string>Browse</string>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="0">
-           <widget class="QLabel" name="labelModsDir">
-            <property name="text">
-             <string>&amp;Mods</string>
+             <string>&amp;Downloads</string>
             </property>
             <property name="buddy">
-             <cstring>modsDirTextBox</cstring>
+             <cstring>downloadsDirTextBox</cstring>
             </property>
            </widget>
-          </item>
-          <item row="2" column="2">
-           <widget class="QToolButton" name="iconsDirBrowseBtn">
-            <property name="text">
-             <string>Browse</string>
-            </property>
-           </widget>
-          </item>
-          <item row="3" column="1">
-           <widget class="QLineEdit" name="javaDirTextBox"/>
-          </item>
-          <item row="8" column="2">
-           <widget class="QToolButton" name="downloadsDirBrowseBtn">
-            <property name="text">
-             <string>Browse</string>
-            </property>
-           </widget>
-          </item>
-          <item row="8" column="1">
-           <widget class="QLineEdit" name="downloadsDirTextBox"/>
-          </item>
-          <item row="1" column="1">
-           <widget class="QLineEdit" name="modsDirTextBox"/>
-          </item>
-          <item row="0" column="0">
-           <widget class="QLabel" name="labelInstDir">
-            <property name="text">
-             <string>I&amp;nstances</string>
-            </property>
-            <property name="buddy">
-             <cstring>instDirTextBox</cstring>
-            </property>
-           </widget>
-          </item>
-          <item row="3" column="0">
-           <widget class="QLabel" name="labelJavaDir">
-            <property name="text">
-             <string>&amp;Java</string>
-            </property>
-            <property name="buddy">
-             <cstring>javaDirTextBox</cstring>
-            </property>
-           </widget>
-          </item>
-          <item row="2" column="1">
-           <widget class="QLineEdit" name="iconsDirTextBox"/>
-          </item>
-          <item row="1" column="2">
-           <widget class="QToolButton" name="modsDirBrowseBtn">
-            <property name="text">
-             <string>Browse</string>
-            </property>
-           </widget>
-          </item>
-          <item row="4" column="1">
-           <widget class="QLineEdit" name="skinsDirTextBox"/>
           </item>
           <item row="4" column="0">
            <widget class="QLabel" name="labelSkinsDir">
@@ -277,15 +210,82 @@
             </property>
            </widget>
           </item>
-          <item row="4" column="2">
-           <widget class="QToolButton" name="skinsDirBrowseBtn">
+          <item row="0" column="0">
+           <widget class="QLabel" name="labelInstDir">
+            <property name="text">
+             <string>I&amp;nstances</string>
+            </property>
+            <property name="buddy">
+             <cstring>instDirTextBox</cstring>
+            </property>
+           </widget>
+          </item>
+          <item row="4" column="1">
+           <widget class="QLineEdit" name="skinsDirTextBox"/>
+          </item>
+          <item row="0" column="1">
+           <widget class="QLineEdit" name="instDirTextBox"/>
+          </item>
+          <item row="2" column="1">
+           <widget class="QLineEdit" name="iconsDirTextBox"/>
+          </item>
+          <item row="3" column="0">
+           <widget class="QLabel" name="labelJavaDir">
+            <property name="text">
+             <string>&amp;Java</string>
+            </property>
+            <property name="buddy">
+             <cstring>javaDirTextBox</cstring>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="1">
+           <widget class="QLineEdit" name="javaDirTextBox"/>
+          </item>
+          <item row="1" column="1">
+           <widget class="QLineEdit" name="modsDirTextBox"/>
+          </item>
+          <item row="0" column="2">
+           <widget class="QPushButton" name="instDirBrowseBtn">
             <property name="text">
              <string>Browse</string>
             </property>
            </widget>
           </item>
-          <item row="0" column="1">
-           <widget class="QLineEdit" name="instDirTextBox"/>
+          <item row="1" column="2">
+           <widget class="QPushButton" name="modsDirBrowseBtn">
+            <property name="text">
+             <string>Browse</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="2">
+           <widget class="QPushButton" name="iconsDirBrowseBtn">
+            <property name="text">
+             <string>Browse</string>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="2">
+           <widget class="QPushButton" name="javaDirBrowseBtn">
+            <property name="text">
+             <string>Browse</string>
+            </property>
+           </widget>
+          </item>
+          <item row="4" column="2">
+           <widget class="QPushButton" name="skinsDirBrowseBtn">
+            <property name="text">
+             <string>Browse</string>
+            </property>
+           </widget>
+          </item>
+          <item row="8" column="2">
+           <widget class="QPushButton" name="downloadsDirBrowseBtn">
+            <property name="text">
+             <string>Browse</string>
+            </property>
+           </widget>
           </item>
          </layout>
         </widget>
