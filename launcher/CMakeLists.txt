@@ -843,7 +843,6 @@ SET(LAUNCHER_SOURCES
     ui/setupwizard/LanguageWizardPage.h
     ui/setupwizard/PasteWizardPage.cpp
     ui/setupwizard/PasteWizardPage.h
-    ui/setupwizard/ThemeWizardPage.cpp
     ui/setupwizard/ThemeWizardPage.h
     ui/setupwizard/AutoJavaWizardPage.cpp
     ui/setupwizard/AutoJavaWizardPage.h
@@ -937,7 +936,6 @@ SET(LAUNCHER_SOURCES
     ui/pages/global/MinecraftPage.h
     ui/pages/global/LauncherPage.cpp
     ui/pages/global/LauncherPage.h
-    ui/pages/global/AppearancePage.cpp
     ui/pages/global/AppearancePage.h
     ui/pages/global/ProxyPage.cpp
     ui/pages/global/ProxyPage.h
@@ -1132,8 +1130,8 @@ SET(LAUNCHER_SOURCES
     ui/widgets/ProgressWidget.cpp
     ui/widgets/WideBar.h
     ui/widgets/WideBar.cpp
-    ui/widgets/ThemeCustomizationWidget.h
-    ui/widgets/ThemeCustomizationWidget.cpp
+    ui/widgets/AppearanceWidget.h
+    ui/widgets/AppearanceWidget.cpp
     ui/widgets/MinecraftSettingsWidget.h
     ui/widgets/MinecraftSettingsWidget.cpp
     ui/widgets/JavaSettingsWidget.h
@@ -1175,11 +1173,9 @@ qt_wrap_ui(LAUNCHER_UI
     ui/setupwizard/PasteWizardPage.ui
     ui/setupwizard/AutoJavaWizardPage.ui
     ui/setupwizard/LoginWizardPage.ui
-    ui/setupwizard/ThemeWizardPage.ui
     ui/pages/global/AccountListPage.ui
     ui/pages/global/JavaPage.ui
     ui/pages/global/LauncherPage.ui
-    ui/pages/global/AppearancePage.ui
     ui/pages/global/APIPage.ui
     ui/pages/global/ProxyPage.ui
     ui/pages/global/ExternalToolsPage.ui
@@ -1210,7 +1206,7 @@ qt_wrap_ui(LAUNCHER_UI
     ui/widgets/InfoFrame.ui
     ui/widgets/ModFilterWidget.ui
     ui/widgets/SubTaskProgressBar.ui
-    ui/widgets/ThemeCustomizationWidget.ui
+    ui/widgets/AppearanceWidget.ui
     ui/widgets/MinecraftSettingsWidget.ui
     ui/widgets/JavaSettingsWidget.ui
     ui/dialogs/CopyInstanceDialog.ui

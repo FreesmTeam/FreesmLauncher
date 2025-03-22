@@ -1,5 +1,41 @@
-#include "AppearancePage.h"
-#include "ui_AppearancePage.h"
+// SPDX-License-Identifier: GPL-3.0-only
+/*
+ *  Prism Launcher - Minecraft Launcher
+ *  Copyright (C) 2025 TheKodeToad <TheKodeToad@proton.me>
+ *  Copyright (C) 2022 Tayou <git@tayou.org>
+ *
+ *  This program is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, version 3.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ *
+ * This file incorporates work covered by the following copyright and
+ * permission notice:
+ *
+ *      Copyright 2013-2021 MultiMC Contributors
+ *
+ *      Licensed under the Apache License, Version 2.0 (the "License");
+ *      you may not use this file except in compliance with the License.
+ *      You may obtain a copy of the License at
+ *
+ *          http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *      Unless required by applicable law or agreed to in writing, software
+ *      distributed under the License is distributed on an "AS IS" BASIS,
+ *      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *      See the License for the specific language governing permissions and
+ *      limitations under the License.
+ */
+
+#include "AppearanceWidget.h"
+#include "ui_AppearanceWidget.h"
 
 #include <DesktopServices.h>
 #include <QGraphicsOpacityEffect>
@@ -7,27 +43,38 @@
 #include "ui/themes/ITheme.h"
 #include "ui/themes/ThemeManager.h"
 
-AppearancePage::AppearancePage(QWidget* parent) : QWidget(parent), m_ui(new Ui::AppearancePage)
+AppearanceWidget::AppearanceWidget(bool themesOnly, QWidget* parent)
+    : QWidget(parent), m_ui(new Ui::AppearanceWidget), m_themesOnly(themesOnly)
 {
     m_ui->setupUi(this);
 
     m_ui->catPreview->setGraphicsEffect(new QGraphicsOpacityEffect(this));
 
-    defaultFormat = new QTextCharFormat(m_ui->consolePreview->currentCharFormat());
+    m_defaultFormat = new QTextCharFormat(m_ui->consolePreview->currentCharFormat());
 
-    loadSettings();
-    loadThemeSettings();
+    if (themesOnly) {
+        m_ui->catPackLabel->hide();
+        m_ui->catPackComboBox->hide();
+        m_ui->catPackFolder->hide();
+        m_ui->settingsBox->hide();
+        m_ui->consolePreview->hide();
+        m_ui->catPreview->hide();
+        loadThemeSettings();
+    } else {
+        loadSettings();
+        loadThemeSettings();
 
-    updateConsolePreview();
-    updateCatPreview();
+        updateConsolePreview();
+        updateCatPreview();
+    }
 
-    connect(m_ui->fontSizeBox, QOverload<int>::of(&QSpinBox::valueChanged), this, &AppearancePage::updateConsolePreview);
-    connect(m_ui->consoleFont, &QFontComboBox::currentFontChanged, this, &AppearancePage::updateConsolePreview);
+    connect(m_ui->fontSizeBox, QOverload<int>::of(&QSpinBox::valueChanged), this, &AppearanceWidget::updateConsolePreview);
+    connect(m_ui->consoleFont, &QFontComboBox::currentFontChanged, this, &AppearanceWidget::updateConsolePreview);
 
-    connect(m_ui->iconsComboBox, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &AppearancePage::applyIconTheme);
-    connect(m_ui->widgetStyleComboBox, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &AppearancePage::applyWidgetTheme);
-    connect(m_ui->catPackComboBox, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &AppearancePage::applyCatTheme);
-    connect(m_ui->catOpacitySlider, &QAbstractSlider::valueChanged, this, &AppearancePage::updateCatPreview);
+    connect(m_ui->iconsComboBox, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &AppearanceWidget::applyIconTheme);
+    connect(m_ui->widgetStyleComboBox, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &AppearanceWidget::applyWidgetTheme);
+    connect(m_ui->catPackComboBox, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &AppearanceWidget::applyCatTheme);
+    connect(m_ui->catOpacitySlider, &QAbstractSlider::valueChanged, this, &AppearanceWidget::updateCatPreview);
 
     connect(m_ui->iconsFolder, &QPushButton::clicked, this,
             [] { DesktopServices::openPath(APPLICATION->themeManager()->getIconThemesFolder().path()); });
@@ -35,26 +82,15 @@ AppearancePage::AppearancePage(QWidget* parent) : QWidget(parent), m_ui(new Ui::
             [] { DesktopServices::openPath(APPLICATION->themeManager()->getApplicationThemesFolder().path()); });
     connect(m_ui->catPackFolder, &QPushButton::clicked, this,
             [] { DesktopServices::openPath(APPLICATION->themeManager()->getCatPacksFolder().path()); });
-    connect(m_ui->reloadThemesButton, &QPushButton::pressed, this, &AppearancePage::loadThemeSettings);
+    connect(m_ui->reloadThemesButton, &QPushButton::pressed, this, &AppearanceWidget::loadThemeSettings);
 }
 
-AppearancePage::~AppearancePage()
+AppearanceWidget::~AppearanceWidget()
 {
     delete m_ui;
 }
 
-bool AppearancePage::apply()
-{
-    applySettings();
-    return true;
-}
-
-void AppearancePage::retranslate()
-{
-    m_ui->retranslateUi(this);
-}
-
-void AppearancePage::applySettings()
+void AppearanceWidget::applySettings()
 {
     SettingsObjectPtr settings = APPLICATION->settings();
     QString consoleFontFamily = m_ui->consoleFont->currentFont().family();
@@ -63,7 +99,7 @@ void AppearancePage::applySettings()
     settings->set("CatOpacity", m_ui->catOpacitySlider->value());
 }
 
-void AppearancePage::loadSettings()
+void AppearanceWidget::loadSettings()
 {
     QString fontFamily = APPLICATION->settings()->get("ConsoleFont").toString();
     QFont consoleFont(fontFamily);
@@ -79,7 +115,12 @@ void AppearancePage::loadSettings()
     m_ui->catOpacitySlider->setValue(APPLICATION->settings()->get("CatOpacity").toInt());
 }
 
-void AppearancePage::applyIconTheme(int index)
+void AppearanceWidget::retranslateUi()
+{
+    m_ui->retranslateUi(this);
+}
+
+void AppearanceWidget::applyIconTheme(int index)
 {
     auto settings = APPLICATION->settings();
     auto originalIconTheme = settings->get("IconTheme").toString();
@@ -90,7 +131,7 @@ void AppearancePage::applyIconTheme(int index)
     }
 }
 
-void AppearancePage::applyWidgetTheme(int index)
+void AppearanceWidget::applyWidgetTheme(int index)
 {
     auto settings = APPLICATION->settings();
     auto originalAppTheme = settings->get("ApplicationTheme").toString();
@@ -103,7 +144,7 @@ void AppearancePage::applyWidgetTheme(int index)
     updateConsolePreview();
 }
 
-void AppearancePage::applyCatTheme(int index)
+void AppearanceWidget::applyCatTheme(int index)
 {
     auto settings = APPLICATION->settings();
     auto originalCat = settings->get("BackgroundCat").toString();
@@ -116,7 +157,7 @@ void AppearancePage::applyCatTheme(int index)
     updateCatPreview();
 }
 
-void AppearancePage::loadThemeSettings()
+void AppearanceWidget::loadThemeSettings()
 {
     APPLICATION->themeManager()->refresh();
 
@@ -157,16 +198,18 @@ void AppearancePage::loadThemeSettings()
             m_ui->widgetStyleComboBox->setCurrentIndex(i);
     }
 
-    const QString currentCat = settings->get("BackgroundCat").toString();
-    const auto cats = APPLICATION->themeManager()->getValidCatPacks();
-    for (int i = 0; i < cats.count(); ++i) {
-        const CatPack* cat = cats[i];
+    if (!m_themesOnly) {
+        const QString currentCat = settings->get("BackgroundCat").toString();
+        const auto cats = APPLICATION->themeManager()->getValidCatPacks();
+        for (int i = 0; i < cats.count(); ++i) {
+            const CatPack* cat = cats[i];
 
-        QIcon catIcon = QIcon(QString("%1").arg(cat->path()));
-        m_ui->catPackComboBox->addItem(catIcon, cat->name(), cat->id());
+            QIcon catIcon = QIcon(QString("%1").arg(cat->path()));
+            m_ui->catPackComboBox->addItem(catIcon, cat->name(), cat->id());
 
-        if (currentCat == cat->id())
-            m_ui->catPackComboBox->setCurrentIndex(i);
+            if (currentCat == cat->id())
+                m_ui->catPackComboBox->setCurrentIndex(i);
+        }
     }
 
     m_ui->iconsComboBox->blockSignals(false);
@@ -174,17 +217,17 @@ void AppearancePage::loadThemeSettings()
     m_ui->catPackComboBox->blockSignals(false);
 }
 
-void AppearancePage::updateConsolePreview()
+void AppearanceWidget::updateConsolePreview()
 {
     const LogColors& colors = APPLICATION->themeManager()->getLogColors();
 
     int fontSize = m_ui->fontSizeBox->value();
     QString fontFamily = m_ui->consoleFont->currentFont().family();
     m_ui->consolePreview->clear();
-    defaultFormat->setFont(QFont(fontFamily, fontSize));
+    m_defaultFormat->setFont(QFont(fontFamily, fontSize));
 
     auto print = [this, colors](const QString& message, MessageLevel::Enum level) {
-        QTextCharFormat format(*defaultFormat);
+        QTextCharFormat format(*m_defaultFormat);
 
         QColor bg = colors.background.value(level);
         QColor fg = colors.foreground.value(level);
@@ -202,24 +245,24 @@ void AppearancePage::updateConsolePreview()
         workCursor.insertBlock();
     };
 
-    print(QString("%1 version: %2 (%3)\n")
-              .arg(BuildConfig.LAUNCHER_DISPLAYNAME, BuildConfig.printableVersionString(), BuildConfig.BUILD_PLATFORM),
+    print(QString("%1 version: %2\n")
+              .arg(BuildConfig.LAUNCHER_DISPLAYNAME, BuildConfig.printableVersionString()),
           MessageLevel::Launcher);
 
     QDate today = QDate::currentDate();
 
     if (today.month() == 10 && today.day() == 31)
-        print(tr("[Test/ERROR] OOoooOOOoooo! A spooky error!"), MessageLevel::Error);
+        print(tr("[ERROR] OOoooOOOoooo! A spooky error!"), MessageLevel::Error);
     else
-        print(tr("[Test/ERROR] A spooky error!"), MessageLevel::Error);
+        print(tr("[ERROR] A spooky error!"), MessageLevel::Error);
 
-    print(tr("[Test/INFO] A harmless message..."), MessageLevel::Info);
-    print(tr("[Test/WARN] A not so spooky warning."), MessageLevel::Warning);
-    print(tr("[Test/DEBUG] A secret debugging message..."), MessageLevel::Debug);
-    print(tr("[Test/FATAL] A terrifying fatal error!"), MessageLevel::Fatal);
+    print(tr("[INFO] A harmless message..."), MessageLevel::Info);
+    print(tr("[WARN] A not so spooky warning."), MessageLevel::Warning);
+    print(tr("[DEBUG] A secret debugging message..."), MessageLevel::Debug);
+    print(tr("[FATAL] A terrifying fatal error!"), MessageLevel::Fatal);
 }
 
-void AppearancePage::updateCatPreview()
+void AppearanceWidget::updateCatPreview()
 {
     QIcon catPackIcon(APPLICATION->themeManager()->getCatPack());
     m_ui->catPreview->setIcon(catPackIcon);

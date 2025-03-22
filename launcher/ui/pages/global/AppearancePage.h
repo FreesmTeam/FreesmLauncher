@@ -40,43 +40,29 @@
 
 #include <Application.h>
 #include <translations/TranslationsModel.h>
+#include <ui/widgets/AppearanceWidget.h>
 #include "java/JavaChecker.h"
 #include "ui/pages/BasePage.h"
 
 class QTextCharFormat;
 class SettingsObject;
 
-namespace Ui {
-class AppearancePage;
-}
-
-class AppearancePage : public QWidget, public BasePage {
+class AppearancePage : public AppearanceWidget, public BasePage {
     Q_OBJECT
 
    public:
-    explicit AppearancePage(QWidget* parent = 0);
-    ~AppearancePage();
+    explicit AppearancePage(QWidget *parent = nullptr) : AppearanceWidget(false, parent) {}
 
     QString displayName() const override { return tr("Appearance"); }
     QIcon icon() const override { return APPLICATION->getThemedIcon("appearance"); }
     QString id() const override { return "appearance-settings"; }
     QString helpPage() const override { return "Launcher-settings"; }
-    bool apply() override;
-    void retranslate() override;
 
-   private:
-    void applySettings();
-    void loadSettings();
+    bool apply() override
+    {
+        applySettings();
+        return true;
+    }
 
-    void applyIconTheme(int index);
-    void applyWidgetTheme(int index);
-    void applyCatTheme(int index);
-    void loadThemeSettings();
-
-    void updateConsolePreview();
-    void updateCatPreview();
-
-   private:
-    Ui::AppearancePage* m_ui;
-    QTextCharFormat* defaultFormat;
+    void retranslate() override { retranslateUi(); }
 };
