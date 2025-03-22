@@ -29,34 +29,34 @@
 PageDialog::PageDialog(BasePageProvider* pageProvider, QString defaultId, QWidget* parent) : QDialog(parent)
 {
     setWindowTitle(pageProvider->dialogTitle());
-    m_container = new PageContainer(pageProvider, defaultId, this);
+    m_container = new PageContainer(pageProvider, std::move(defaultId), this);
 
-    QVBoxLayout* mainLayout = new QVBoxLayout;
+    QVBoxLayout* mainLayout = new QVBoxLayout(this);
     mainLayout->addWidget(m_container);
     mainLayout->setSpacing(0);
     mainLayout->setContentsMargins(0, 0, 0, 0);
     setLayout(mainLayout);
 
-    QDialogButtonBox* buttons = new QDialogButtonBox(QDialogButtonBox::Help | QDialogButtonBox::Close);
-    buttons->button(QDialogButtonBox::Close)->setDefault(true);
-    buttons->button(QDialogButtonBox::Close)->setText(tr("Close"));
+    QDialogButtonBox* buttons = new QDialogButtonBox(QDialogButtonBox::Help | QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
+    buttons->button(QDialogButtonBox::Ok)->setDefault(true);
     buttons->button(QDialogButtonBox::Help)->setText(tr("Help"));
     buttons->setContentsMargins(6, 0, 6, 0);
     m_container->addButtons(buttons);
 
-    connect(buttons->button(QDialogButtonBox::Close), SIGNAL(clicked()), this, SLOT(close()));
-    connect(buttons->button(QDialogButtonBox::Help), SIGNAL(clicked()), m_container, SLOT(help()));
+    connect(buttons->button(QDialogButtonBox::Ok), &QPushButton::clicked, this, &PageDialog::applyAndClose);
+    connect(buttons->button(QDialogButtonBox::Cancel), &QPushButton::clicked, this, &PageDialog::reject);
+    connect(buttons->button(QDialogButtonBox::Help), &QPushButton::clicked, m_container, &PageContainer::help);
 
     restoreGeometry(QByteArray::fromBase64(APPLICATION->settings()->get("PagedGeometry").toByteArray()));
 }
-
-void PageDialog::closeEvent(QCloseEvent* event)
+void PageDialog::applyAndClose()
 {
-    qDebug() << "Paged dialog close requested";
+    qDebug() << "Paged dialog apply and close requested";
     if (m_container->prepareToClose()) {
         qDebug() << "Paged dialog close approved";
         APPLICATION->settings()->set("PagedGeometry", saveGeometry().toBase64());
         qDebug() << "Paged dialog geometry saved";
-        QDialog::closeEvent(event);
+        close();
     }
+
 }
