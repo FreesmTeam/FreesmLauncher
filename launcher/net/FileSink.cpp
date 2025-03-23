@@ -82,7 +82,9 @@ Task::State FileSink::write(QByteArray& data)
 
 Task::State FileSink::abort()
 {
-    m_output_file->cancelWriting();
+    if (m_output_file) {
+        m_output_file->cancelWriting();
+    }
     failAllValidators();
     return Task::State::Failed;
 }
