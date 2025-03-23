@@ -47,6 +47,18 @@ SystemTheme::SystemTheme(const QString& styleName, bool isDefaultTheme)
     colorPalette = QStyleFactory::create(styleName)->standardPalette();
 }
 
+void SystemTheme::apply(bool initial)
+{
+    // See https://github.com/MultiMC/Launcher/issues/1790
+    // or https://github.com/PrismLauncher/PrismLauncher/issues/490
+    if (initial && themeName == "system") {
+        QApplication::setStyle(new HintOverrideProxyStyle(QStyleFactory::create(qtTheme())));
+        return;
+    }
+
+    ITheme::apply(initial);
+}
+
 QString SystemTheme::id()
 {
     return themeName;
