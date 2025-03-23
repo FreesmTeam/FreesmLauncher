@@ -43,20 +43,26 @@ PageDialog::PageDialog(BasePageProvider* pageProvider, QString defaultId, QWidge
     buttons->setContentsMargins(6, 0, 6, 0);
     m_container->addButtons(buttons);
 
-    connect(buttons->button(QDialogButtonBox::Ok), &QPushButton::clicked, this, &PageDialog::applyAndClose);
+    connect(buttons->button(QDialogButtonBox::Ok), &QPushButton::clicked, this, &PageDialog::accept);
     connect(buttons->button(QDialogButtonBox::Cancel), &QPushButton::clicked, this, &PageDialog::reject);
     connect(buttons->button(QDialogButtonBox::Help), &QPushButton::clicked, m_container, &PageContainer::help);
 
+    connect(this, &QDialog::accepted, this, &PageDialog::onAccepted);
+    connect(this, &QDialog::rejected, this, &PageDialog::storeGeometry);
+
     restoreGeometry(QByteArray::fromBase64(APPLICATION->settings()->get("PagedGeometry").toByteArray()));
 }
-void PageDialog::applyAndClose()
+void PageDialog::onAccepted()
 {
-    qDebug() << "Paged dialog apply and close requested";
+    qDebug() << "Paged dialog accepted";
     if (m_container->prepareToClose()) {
         qDebug() << "Paged dialog close approved";
-        APPLICATION->settings()->set("PagedGeometry", saveGeometry().toBase64());
-        qDebug() << "Paged dialog geometry saved";
-        close();
+        emit applied();
     }
+}
 
+void PageDialog::storeGeometry()
+{
+    APPLICATION->settings()->set("PagedGeometry", saveGeometry().toBase64());
+    qDebug() << "Paged dialog geometry saved";
 }
