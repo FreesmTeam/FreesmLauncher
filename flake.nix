@@ -78,6 +78,7 @@
             buildInputs = with pkgs; [
               ccache
               ninja
+              llvmPackages_19.clang-tools
             ];
 
             cmakeFlags = self.packages.${system}.prismlauncher-unwrapped.cmakeFlags ++ [
