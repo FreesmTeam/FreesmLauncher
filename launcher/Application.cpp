@@ -665,7 +665,6 @@ Application::Application(int& argc, char** argv) : QApplication(argc, argv)
         m_settings->registerSetting("AutomaticJavaSwitch", defaultEnableAutoJava);
         m_settings->registerSetting("AutomaticJavaDownload", defaultEnableAutoJava);
         m_settings->registerSetting("UserAskedAboutAutomaticJavaDownload", false);
-        m_settings->registerSetting("AdvancedJavaMemoryControl", false);
 
         // Legacy settings
         m_settings->registerSetting("OnlineFixes", false);
