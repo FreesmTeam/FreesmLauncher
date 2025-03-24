@@ -57,9 +57,9 @@
 #include "ui/instanceview/AccessibleInstanceView.h"
 
 #include "ui/pages/BasePageProvider.h"
-#include "ui/pages/global/AppearancePage.h"
 #include "ui/pages/global/APIPage.h"
 #include "ui/pages/global/AccountListPage.h"
+#include "ui/pages/global/AppearancePage.h"
 #include "ui/pages/global/ExternalToolsPage.h"
 #include "ui/pages/global/JavaPage.h"
 #include "ui/pages/global/LanguagePage.h"
