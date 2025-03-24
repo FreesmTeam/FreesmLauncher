@@ -29,7 +29,7 @@
       <property name="geometry">
        <rect>
         <x>0</x>
-        <y>0</y>
+        <y>-616</y>
         <width>566</width>
         <height>1296</height>
        </rect>
@@ -325,7 +325,7 @@
           <item>
            <widget class="QCheckBox" name="metadataEnableBtn">
             <property name="toolTip">
-             <string>Disable using metadata provided by mod providers (like Modrinth or CurseForge) for mods.</string>
+             <string>Store version information provided by mod providers (like Modrinth or CurseForge) for mods.</string>
             </property>
             <property name="text">
              <string>Keep track of mod metadata</string>
@@ -345,7 +345,7 @@
           <item>
            <widget class="QCheckBox" name="dependenciesEnableBtn">
             <property name="toolTip">
-             <string>Disable the automatic detection, installation, and updating of mod dependencies.</string>
+             <string>Automatically detect, install, and update mod dependencies.</string>
             </property>
             <property name="text">
              <string>Install dependencies automatically</string>
@@ -355,7 +355,7 @@
           <item>
            <widget class="QCheckBox" name="modpackUpdatePromptBtn">
             <property name="toolTip">
-             <string>When creating a new modpack instance, do not suggest updating existing instances instead.</string>
+             <string>When creating a new modpack instance, suggest updating an existing instance instead.</string>
             </property>
             <property name="text">
              <string>Suggest to update an existing instance</string>
