@@ -53,6 +53,11 @@
 
 #include "ui_JavaSettingsWidget.h"
 
+static QString formatGiBLabel(int value)
+{
+    return QObject::tr("%1 GiB").arg(value / 1024.0, 0, 'f', 1);
+}
+
 JavaSettingsWidget::JavaSettingsWidget(InstancePtr instance, QWidget* parent)
     : QWidget(parent), m_instance(std::move(instance)), m_ui(new Ui::JavaSettingsWidget)
 {
@@ -101,11 +106,50 @@ JavaSettingsWidget::JavaSettingsWidget(InstancePtr instance, QWidget* parent)
     connect(m_ui->javaDetectBtn, &QPushButton::clicked, this, &JavaSettingsWidget::onJavaAutodetect);
     connect(m_ui->javaBrowseBtn, &QPushButton::clicked, this, &JavaSettingsWidget::onJavaBrowse);
 
-    connect(m_ui->maxMemSpinBox, QOverload<int>::of(&QSpinBox::valueChanged), this, &JavaSettingsWidget::updateThresholds);
-    connect(m_ui->minMemSpinBox, QOverload<int>::of(&QSpinBox::valueChanged), this, &JavaSettingsWidget::updateThresholds);
+    connect(m_ui->minMemSpinBox, QOverload<int>::of(&QSpinBox::valueChanged), m_ui->minMemSlider, [this](int value) {
+        m_ui->minMemSlider->blockSignals(true);
+        m_ui->minMemSlider->setValue(value);
+        m_ui->minMemSlider->blockSignals(false);
+    });
+    connect(m_ui->maxMemSpinBox, QOverload<int>::of(&QSpinBox::valueChanged), m_ui->maxMemSlider, [this](int value) {
+        m_ui->maxMemSlider->blockSignals(true);
+        m_ui->maxMemSlider->setValue(value);
+        m_ui->maxMemSlider->blockSignals(false);
+    });
+
+    connect(m_ui->minMemSlider, &QAbstractSlider::valueChanged, m_ui->minMemSpinBox, QOverload<int>::of(&QSpinBox::setValue));
+    connect(m_ui->maxMemSlider, &QAbstractSlider::valueChanged, m_ui->maxMemSpinBox, QOverload<int>::of(&QSpinBox::setValue));
+
+    connect(m_ui->minMemSpinBox, &QAbstractSpinBox::editingFinished, this, &JavaSettingsWidget::finishAdjustingMinMemory);
+    connect(m_ui->maxMemSpinBox, &QAbstractSpinBox::editingFinished, this, &JavaSettingsWidget::finishAdjustingMaxMemory);
+    connect(m_ui->minMemSlider, &QAbstractSlider::valueChanged, this, &JavaSettingsWidget::finishAdjustingMinMemory);
+    connect(m_ui->maxMemSlider, &QAbstractSlider::valueChanged, this, &JavaSettingsWidget::finishAdjustingMaxMemory);
+
+    connect(m_ui->maxMemSpinBox, QOverload<int>::of(&QSpinBox::valueChanged), this, &JavaSettingsWidget::onMemoryChange);
+    connect(m_ui->minMemSpinBox, QOverload<int>::of(&QSpinBox::valueChanged), this, &JavaSettingsWidget::onMemoryChange);
+
+    int maxSystemMemory = (Sys::getSystemRam() / Sys::mebibyte) - 1;
+    m_ui->minMemSlider->setMaximum(maxSystemMemory - 1);
+    m_ui->maxMemSlider->setMaximum(maxSystemMemory - 1);
+    m_ui->minMemMaxValueHint->setText(formatGiBLabel(maxSystemMemory - 1));
+    m_ui->maxMemMaxValueHint->setText(formatGiBLabel(maxSystemMemory - 1));
+
+    SettingsObjectPtr settings = APPLICATION->settings();
+
+    enableAdvancedMemoryControl(settings->get("AdvancedJavaMemoryControl").toBool());
+
+    connect(m_ui->memorySimpleButton, &QPushButton::clicked, this, [this, settings] () {
+        enableAdvancedMemoryControl(false);
+        settings->set("AdvancedJavaMemoryControl", false);
+    });
+
+    connect(m_ui->memoryAdvancedButton, &QPushButton::clicked, this, [this, settings] () {
+        enableAdvancedMemoryControl(true);
+        settings->set("AdvancedJavaMemoryControl", true);
+    });
 
     loadSettings();
-    updateThresholds();
+    onMemoryChange();
 }
 
 JavaSettingsWidget::~JavaSettingsWidget()
@@ -283,32 +327,43 @@ void JavaSettingsWidget::onJavaAutodetect()
         }
     }
 }
-void JavaSettingsWidget::updateThresholds()
+
+void JavaSettingsWidget::onMemoryChange()
 {
     auto sysMiB = Sys::getSystemRam() / Sys::mebibyte;
     unsigned int maxMem = m_ui->maxMemSpinBox->value();
-    unsigned int minMem = m_ui->minMemSpinBox->value();
-
-    QString iconName;
 
     if (maxMem >= sysMiB) {
-        iconName = "status-bad";
-        m_ui->labelMaxMemIcon->setToolTip(tr("Your maximum memory allocation exceeds your system memory capacity."));
+        m_ui->labelMaxMemNotice->setText(QString("<span style='color:red'>%1</span>").arg(tr("Your maximum memory allocation exceeds your system memory capacity.")));
+        m_ui->labelMaxMemNotice->show();
     } else if (maxMem > (sysMiB * 0.9)) {
-        iconName = "status-yellow";
-        m_ui->labelMaxMemIcon->setToolTip(tr("Your maximum memory allocation approaches your system memory capacity."));
-    } else if (maxMem < minMem) {
-        iconName = "status-yellow";
-        m_ui->labelMaxMemIcon->setToolTip(tr("Your maximum memory allocation is smaller than the minimum value"));
+        // TODO: where is this colour from
+        m_ui->labelMaxMemNotice->setText(QString("<span style='color:#f5c211'>%1</span>")
+                                           .arg(tr("Your maximum memory allocation is close to your system memory capacity.")));
+        m_ui->labelMaxMemNotice->show();
     } else {
-        iconName = "status-good";
-        m_ui->labelMaxMemIcon->setToolTip("");
+        m_ui->labelMaxMemNotice->hide();
     }
 
-    {
-        auto height = m_ui->labelMaxMemIcon->fontInfo().pixelSize();
-        QIcon icon = APPLICATION->getThemedIcon(iconName);
-        QPixmap pix = icon.pixmap(height, height);
-        m_ui->labelMaxMemIcon->setPixmap(pix);
-    }
+    m_ui->minMemGBLabel->setText(formatGiBLabel(m_ui->minMemSlider->value()));
+    m_ui->maxMemGBLabel->setText(formatGiBLabel(m_ui->maxMemSlider->value()));
+}
+
+void JavaSettingsWidget::finishAdjustingMinMemory()
+{
+    if (m_ui->minMemSpinBox->value() > m_ui->maxMemSpinBox->value())
+        m_ui->maxMemSpinBox->setValue(m_ui->minMemSpinBox->value());
+}
+
+void JavaSettingsWidget::finishAdjustingMaxMemory()
+{
+    if (m_ui->maxMemSpinBox->value() < m_ui->minMemSpinBox->value())
+        m_ui->minMemSpinBox->setValue(m_ui->maxMemSpinBox->value());
+}
+
+void JavaSettingsWidget::enableAdvancedMemoryControl(bool enabled) {
+    m_ui->memorySimpleButton->setChecked(!enabled);
+    m_ui->memoryAdvancedButton->setChecked(enabled);
+    m_ui->memorySimple->setVisible(!enabled);
+    m_ui->memoryAdvanced->setVisible(enabled);
 }

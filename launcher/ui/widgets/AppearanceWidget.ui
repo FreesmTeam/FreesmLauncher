@@ -239,6 +239,9 @@
          </item>
          <item row="2" column="1">
           <widget class="QLabel" name="label_4">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
            <property name="text">
             <string>Transparent</string>
            </property>
@@ -247,7 +250,7 @@
          <item row="2" column="3">
           <widget class="QLabel" name="label_5">
            <property name="enabled">
-            <bool>true</bool>
+            <bool>false</bool>
            </property>
            <property name="text">
             <string>Opaque</string>

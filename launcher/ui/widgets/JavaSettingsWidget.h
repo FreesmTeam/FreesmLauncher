@@ -59,7 +59,10 @@ class JavaSettingsWidget : public QWidget {
     void onJavaBrowse();
     void onJavaAutodetect();
     void onJavaTest();
-    void updateThresholds();
+    void onMemoryChange();
+    void finishAdjustingMinMemory();
+    void finishAdjustingMaxMemory();
+    void enableAdvancedMemoryControl(bool enabled);
 
    private:
     InstancePtr m_instance;
