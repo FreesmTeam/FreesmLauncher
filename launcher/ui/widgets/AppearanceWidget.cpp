@@ -50,7 +50,7 @@ AppearanceWidget::AppearanceWidget(bool themesOnly, QWidget* parent)
 
     m_ui->catPreview->setGraphicsEffect(new QGraphicsOpacityEffect(this));
 
-    m_defaultFormat = new QTextCharFormat(m_ui->consolePreview->currentCharFormat());
+    m_defaultFormat = QTextCharFormat(m_ui->consolePreview->currentCharFormat());
 
     if (themesOnly) {
         m_ui->catPackLabel->hide();
@@ -224,10 +224,10 @@ void AppearanceWidget::updateConsolePreview()
     int fontSize = m_ui->fontSizeBox->value();
     QString fontFamily = m_ui->consoleFont->currentFont().family();
     m_ui->consolePreview->clear();
-    m_defaultFormat->setFont(QFont(fontFamily, fontSize));
+    m_defaultFormat.setFont(QFont(fontFamily, fontSize));
 
     auto print = [this, colors](const QString& message, MessageLevel::Enum level) {
-        QTextCharFormat format(*m_defaultFormat);
+        QTextCharFormat format(m_defaultFormat);
 
         QColor bg = colors.background.value(level);
         QColor fg = colors.foreground.value(level);

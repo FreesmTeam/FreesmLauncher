@@ -24,6 +24,7 @@
 
 #include <Application.h>
 #include <translations/TranslationsModel.h>
+#include <QTextCursor>
 #include "java/JavaChecker.h"
 #include "ui/pages/BasePage.h"
 
@@ -56,6 +57,6 @@ class AppearanceWidget : public QWidget {
     void updateCatPreview();
 
     Ui::AppearanceWidget* m_ui;
-    QTextCharFormat* m_defaultFormat;
+    QTextCharFormat m_defaultFormat;
     bool m_themesOnly;
 };
