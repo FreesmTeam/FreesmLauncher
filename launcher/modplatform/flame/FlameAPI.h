@@ -15,8 +15,7 @@ class FlameAPI : public NetworkResourceAPI {
     QString getModFileChangelog(int modId, int fileId);
     QString getModDescription(int modId);
 
-    QList<ModPlatform::IndexedVersion> getLatestVersions(VersionSearchArgs&& args);
-    std::optional<ModPlatform::IndexedVersion> getLatestVersion(QList<ModPlatform::IndexedVersion> versions,
+    std::optional<ModPlatform::IndexedVersion> getLatestVersion(QVector<ModPlatform::IndexedVersion> versions,
                                                                 QList<ModPlatform::ModLoaderType> instanceLoaders,
                                                                 ModPlatform::ModLoaderTypes fallback);
 
@@ -25,6 +24,7 @@ class FlameAPI : public NetworkResourceAPI {
     Task::Ptr getFiles(const QStringList& fileIds, std::shared_ptr<QByteArray> response) const;
     Task::Ptr getFile(const QString& addonId, const QString& fileId, std::shared_ptr<QByteArray> response) const;
 
+    static Task::Ptr getCategories(std::shared_ptr<QByteArray> response, ModPlatform::ResourceType type);
     static Task::Ptr getModCategories(std::shared_ptr<QByteArray> response);
     static QList<ModPlatform::Category> loadModCategories(std::shared_ptr<QByteArray> response);
 
@@ -47,6 +47,8 @@ class FlameAPI : public NetworkResourceAPI {
                 return 12;
             case ModPlatform::ResourceType::SHADER_PACK:
                 return 6552;
+            case ModPlatform::ResourceType::MODPACK:
+                return 4471;
         }
     }
 
@@ -83,12 +85,9 @@ class FlameAPI : public NetworkResourceAPI {
 
     static const QString getModLoaderFilters(ModPlatform::ModLoaderTypes types) { return "[" + getModLoaderStrings(types).join(',') + "]"; }
 
-   private:
+   public:
     [[nodiscard]] std::optional<QString> getSearchURL(SearchArgs const& args) const override
     {
-        auto gameVersionStr =
-            args.versions.has_value() ? QString("gameVersion=%1").arg(args.versions.value().front().toString()) : QString();
-
         QStringList get_arguments;
         get_arguments.append(QString("classId=%1").arg(getClassId(args.type)));
         get_arguments.append(QString("index=%1").arg(args.offset));
@@ -98,20 +97,16 @@ class FlameAPI : public NetworkResourceAPI {
         if (args.sorting.has_value())
             get_arguments.append(QString("sortField=%1").arg(args.sorting.value().index));
         get_arguments.append("sortOrder=desc");
-        if (args.loaders.has_value())
+        if (args.loaders.has_value() && args.loaders.value() != 0)
             get_arguments.append(QString("modLoaderTypes=%1").arg(getModLoaderFilters(args.loaders.value())));
         if (args.categoryIds.has_value() && !args.categoryIds->empty())
             get_arguments.append(QString("categoryIds=[%1]").arg(args.categoryIds->join(",")));
 
-        get_arguments.append(gameVersionStr);
+        if (args.versions.has_value() && !args.versions.value().empty())
+            get_arguments.append(QString("gameVersion=%1").arg(args.versions.value().front().toString()));
 
         return "https://api.curseforge.com/v1/mods/search?gameId=432&" + get_arguments.join('&');
-    };
-
-    [[nodiscard]] std::optional<QString> getInfoURL(QString const& id) const override
-    {
-        return QString("https://api.curseforge.com/v1/mods/%1").arg(id);
-    };
+    }
 
     [[nodiscard]] std::optional<QString> getVersionsURL(VersionSearchArgs const& args) const override
     {
@@ -126,8 +121,13 @@ class FlameAPI : public NetworkResourceAPI {
             url += QString("&modLoaderType=%1").arg(mappedModLoader);
         }
         return url;
-    };
+    }
 
+   private:
+    [[nodiscard]] std::optional<QString> getInfoURL(QString const& id) const override
+    {
+        return QString("https://api.curseforge.com/v1/mods/%1").arg(id);
+    }
     [[nodiscard]] std::optional<QString> getDependencyURL(DependencySearchArgs const& args) const override
     {
         auto addonId = args.dependency.addonId.toString();
@@ -138,5 +138,5 @@ class FlameAPI : public NetworkResourceAPI {
             url += QString("&modLoaderType=%1").arg(mappedModLoader);
         }
         return url;
-    };
+    }
 };

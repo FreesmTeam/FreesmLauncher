@@ -34,14 +34,12 @@ DataPackPage::DataPackPage(MinecraftInstance* instance, std::shared_ptr<DataPack
     ui->actionViewConfigs->setVisible(false);
 }
 
-bool DataPackPage::onSelectionChanged(const QModelIndex& current, [[maybe_unused]] const QModelIndex& previous)
+void DataPackPage::updateFrame(const QModelIndex& current, [[maybe_unused]] const QModelIndex& previous)
 {
     auto sourceCurrent = m_filterModel->mapToSource(current);
     int row = sourceCurrent.row();
     auto& dp = static_cast<DataPack&>(m_model->at(row));
     ui->frame->updateWithDataPack(dp);
-
-    return true;
 }
 
 void DataPackPage::downloadDataPacks()
@@ -52,7 +50,7 @@ void DataPackPage::downloadDataPacks()
     ResourceDownload::DataPackDownloadDialog mdownload(this, std::static_pointer_cast<DataPackFolderModel>(m_model), m_instance);
     if (mdownload.exec()) {
         auto tasks =
-            new ConcurrentTask(this, "Download Data Pack", APPLICATION->settings()->get("NumberOfConcurrentDownloads").toInt());
+            new ConcurrentTask("Download Data Pack", APPLICATION->settings()->get("NumberOfConcurrentDownloads").toInt());
         connect(tasks, &Task::failed, [this, tasks](QString reason) {
             CustomMessageBox::selectable(this, tr("Error"), reason, QMessageBox::Critical)->show();
             tasks->deleteLater();

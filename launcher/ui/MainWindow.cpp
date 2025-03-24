@@ -154,7 +154,7 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent), ui(new Ui::MainWi
         // Qt doesn't like vertical moving toolbars, so we have to force them...
         // See https://github.com/PolyMC/PolyMC/issues/493
         connect(ui->instanceToolBar, &QToolBar::orientationChanged,
-                [=](Qt::Orientation) { ui->instanceToolBar->setOrientation(Qt::Vertical); });
+                [this](Qt::Orientation) { ui->instanceToolBar->setOrientation(Qt::Vertical); });
 
         // if you try to add a widget to a toolbar in a .ui file
         // qt designer will delete it when you save the file >:(
@@ -233,6 +233,8 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent), ui(new Ui::MainWi
         if (qgetenv("XDG_CURRENT_DESKTOP") == "gamescope") {
             ui->mainToolBar->addAction(ui->actionCloseWindow);
         }
+
+        ui->actionViewJavaFolder->setEnabled(BuildConfig.JAVA_DOWNLOADER_ENABLED);
     }
 
     // add the toolbar toggles to the view menu
@@ -1025,6 +1027,14 @@ void MainWindow::processURLs(QList<QUrl> urls)
             continue;
         }
 
+        if (APPLICATION->instances()->count() <= 0) {
+            CustomMessageBox::selectable(this, tr("No instance!"),
+                                         tr("No instance available to add the resource to.\nPlease create a new instance before "
+                                            "attempting to install this resource again."),
+                                         QMessageBox::Critical)
+                ->show();
+            continue;
+        }
         ImportResourceDialog dlg(localFileName, type, this);
 
         if (dlg.exec() != QDialog::Accepted)
@@ -1037,19 +1047,19 @@ void MainWindow::processURLs(QList<QUrl> urls)
 
         switch (type) {
             case PackedResourceType::ResourcePack:
-                minecraftInst->resourcePackList()->installResource(localFileName);
+                minecraftInst->resourcePackList()->installResourceWithFlameMetadata(localFileName, version);
                 break;
             case PackedResourceType::TexturePack:
-                minecraftInst->texturePackList()->installResource(localFileName);
+                minecraftInst->texturePackList()->installResourceWithFlameMetadata(localFileName, version);
                 break;
             case PackedResourceType::DataPack:
                 qWarning() << "Importing of Data Packs not supported at this time. Ignoring" << localFileName;
                 break;
             case PackedResourceType::Mod:
-                minecraftInst->loaderModList()->installMod(localFileName, version);
+                minecraftInst->loaderModList()->installResourceWithFlameMetadata(localFileName, version);
                 break;
             case PackedResourceType::ShaderPack:
-                minecraftInst->shaderPackList()->installResource(localFileName);
+                minecraftInst->shaderPackList()->installResourceWithFlameMetadata(localFileName, version);
                 break;
             case PackedResourceType::WorldSave:
                 minecraftInst->worldList()->installWorld(localFileInfo);
@@ -1221,6 +1231,11 @@ void MainWindow::on_actionViewIconsFolder_triggered()
 void MainWindow::on_actionViewLogsFolder_triggered()
 {
     DesktopServices::openPath("logs", true);
+}
+
+void MainWindow::on_actionViewJavaFolder_triggered()
+{
+    DesktopServices::openPath(APPLICATION->javaPath(), true);
 }
 
 void MainWindow::refreshInstances()
@@ -1572,9 +1587,7 @@ void MainWindow::on_actionCreateInstanceShortcut_triggered()
         if (desktopFilePath.isEmpty())
             return;  // file dialog canceled by user
         appPath = "flatpak";
-        QString flatpakAppId = BuildConfig.LAUNCHER_DESKTOPFILENAME;
-        flatpakAppId.remove(".desktop");
-        args.append({ "run", flatpakAppId });
+        args.append({ "run", BuildConfig.LAUNCHER_APPID });
     }
 
 #elif defined(Q_OS_WIN)

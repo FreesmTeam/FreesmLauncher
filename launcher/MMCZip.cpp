@@ -2,7 +2,7 @@
 /*
  *  Prism Launcher - Minecraft Launcher
  *  Copyright (C) 2022 Sefa Eyeoglu <contact@scrumplex.net>
- *  Copyright (c) 2023 Trial97 <alexandru.tripon97@gmail.com>
+ *  Copyright (c) 2023-2024 Trial97 <alexandru.tripon97@gmail.com>
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -378,7 +378,7 @@ std::optional<QStringList> extractDir(QString fileCompressed, QString dir)
         if (fileInfo.size() == 22) {
             return QStringList();
         }
-        qWarning() << "Could not open archive for unzipping:" << fileCompressed << "Error:" << zip.getZipError();
+        qWarning() << "Could not open archive for unpacking:" << fileCompressed << "Error:" << zip.getZipError();
         ;
         return std::nullopt;
     }
@@ -395,7 +395,7 @@ std::optional<QStringList> extractDir(QString fileCompressed, QString subdir, QS
         if (fileInfo.size() == 22) {
             return QStringList();
         }
-        qWarning() << "Could not open archive for unzipping:" << fileCompressed << "Error:" << zip.getZipError();
+        qWarning() << "Could not open archive for unpacking:" << fileCompressed << "Error:" << zip.getZipError();
         ;
         return std::nullopt;
     }
@@ -412,7 +412,7 @@ bool extractFile(QString fileCompressed, QString file, QString target)
         if (fileInfo.size() == 22) {
             return true;
         }
-        qWarning() << "Could not open archive for unzipping:" << fileCompressed << "Error:" << zip.getZipError();
+        qWarning() << "Could not open archive for unpacking:" << fileCompressed << "Error:" << zip.getZipError();
         return false;
     }
     return extractRelFile(&zip, file, target);
@@ -536,6 +536,10 @@ bool ExportToZipTask::abort()
 
 void ExtractZipTask::executeTask()
 {
+    if (!m_input->isOpen() && !m_input->open(QuaZip::mdUnzip)) {
+        emitFailed(tr("Unable to open supplied zip file."));
+        return;
+    }
     m_zip_future = QtConcurrent::run(QThreadPool::globalInstance(), [this]() { return extractZip(); });
     connect(&m_zip_watcher, &QFutureWatcher<ZipResult>::finished, this, &ExtractZipTask::finish);
     m_zip_watcher.setFuture(m_zip_future);
@@ -573,7 +577,7 @@ auto ExtractZipTask::extractZip() -> ZipResult
 
         auto relative_file_name = QDir::fromNativeSeparators(file_name.mid(m_subdirectory.size()));
         auto original_name = relative_file_name;
-        setStatus("Unziping: " + relative_file_name);
+        setStatus("Unpacking: " + relative_file_name);
 
         // Fix subdirs/files ending with a / getting transformed into absolute paths
         if (relative_file_name.startsWith('/'))

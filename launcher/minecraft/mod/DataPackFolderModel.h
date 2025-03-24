@@ -46,7 +46,7 @@ class DataPackFolderModel : public ResourceFolderModel {
    public:
     enum Columns { ActiveColumn = 0, ImageColumn, NameColumn, PackFormatColumn, DateColumn, NUM_COLUMNS };
 
-    explicit DataPackFolderModel(const QString& dir, BaseInstance* instance);
+    explicit DataPackFolderModel(const QString& dir, BaseInstance* instance, bool is_indexed, bool create_dir, QObject* parent = nullptr);
 
     virtual QString id() const override { return "datapacks"; }
 
@@ -55,7 +55,7 @@ class DataPackFolderModel : public ResourceFolderModel {
     [[nodiscard]] QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const override;
     [[nodiscard]] int columnCount(const QModelIndex& parent) const override;
 
-    [[nodiscard]] Task* createUpdateTask() override;
+    [[nodiscard]] Resource* createResource(const QFileInfo& file) override;
     [[nodiscard]] Task* createParseTask(Resource&) override;
 
     RESOURCE_HELPERS(DataPack)

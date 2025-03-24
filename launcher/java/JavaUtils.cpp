@@ -102,6 +102,8 @@ QProcessEnvironment CleanEnviroment()
             QString newValue = stripVariableEntries(key, value, rawenv.value("LAUNCHER_" + key));
 
             qDebug() << "Env: stripped" << key << value << "to" << newValue;
+
+            value = newValue;
         }
 #if defined(Q_OS_LINUX) || defined(Q_OS_FREEBSD) || defined(Q_OS_OPENBSD)
         // Strip IBus
@@ -347,6 +349,7 @@ QList<QString> JavaUtils::FindJavaPaths()
     }
 
     candidates.append(getMinecraftJavaBundle());
+    candidates.append(getPrismJavaBundle());
     candidates = addJavasFromEnv(candidates);
     candidates.removeDuplicates();
     return candidates;
@@ -391,6 +394,7 @@ QList<QString> JavaUtils::FindJavaPaths()
     }
 
     javas.append(getMinecraftJavaBundle());
+    javas.append(getPrismJavaBundle());
     javas = addJavasFromEnv(javas);
     javas.removeDuplicates();
     return javas;
@@ -401,12 +405,17 @@ QList<QString> JavaUtils::FindJavaPaths()
 {
     QList<QString> javas;
     javas.append(this->GetDefaultJava()->path);
-    auto scanJavaDir = [&](const QString& dirPath) {
+    auto scanJavaDir = [&javas](
+                           const QString& dirPath,
+                           const std::function<bool(const QFileInfo&)>& filter = [](const QFileInfo&) { return true; }) {
         QDir dir(dirPath);
         if (!dir.exists())
             return;
         auto entries = dir.entryInfoList(QDir::Dirs | QDir::NoDotAndDotDot);
         for (auto& entry : entries) {
+            if (!filter(entry))
+                continue;
+
             QString prefix;
             prefix = entry.canonicalFilePath();
             javas.append(FS::PathCombine(prefix, "jre/bin/java"));
@@ -415,7 +424,7 @@ QList<QString> JavaUtils::FindJavaPaths()
     };
     // java installed in a snap is installed in the standard directory, but underneath $SNAP
     auto snap = qEnvironmentVariable("SNAP");
-    auto scanJavaDirs = [&](const QString& dirPath) {
+    auto scanJavaDirs = [scanJavaDir, snap](const QString& dirPath) {
         scanJavaDir(dirPath);
         if (!snap.isNull()) {
             scanJavaDir(snap + dirPath);
@@ -429,9 +438,19 @@ QList<QString> JavaUtils::FindJavaPaths()
     scanJavaDirs("/usr/lib64/jvm");
     scanJavaDirs("/usr/lib32/jvm");
     // Gentoo's locations for openjdk and openjdk-bin respectively
-    scanJavaDir("/usr/lib64");
-    scanJavaDir("/usr/lib");
-    scanJavaDir("/opt");
+    auto gentooFilter = [](const QFileInfo& info) {
+        QString fileName = info.fileName();
+        return fileName.startsWith("openjdk-") || fileName.startsWith("openj9-");
+    };
+    // AOSC OS's locations for openjdk
+    auto aoscFilter = [](const QFileInfo& info) {
+        QString fileName = info.fileName();
+        return fileName == "java" || fileName.startsWith("java-");
+    };
+    scanJavaDir("/usr/lib64", gentooFilter);
+    scanJavaDir("/usr/lib", gentooFilter);
+    scanJavaDir("/opt", gentooFilter);
+    scanJavaDir("/usr/lib", aoscFilter);
     // javas stored in Prism Launcher's folder
     scanJavaDirs("java");
     // manually installed JDKs in /opt
@@ -454,6 +473,7 @@ QList<QString> JavaUtils::FindJavaPaths()
     scanJavaDirs(FS::PathCombine(home, ".gradle/jdks"));
 
     javas.append(getMinecraftJavaBundle());
+    javas.append(getPrismJavaBundle());
     javas = addJavasFromEnv(javas);
     javas.removeDuplicates();
     return javas;
@@ -467,6 +487,8 @@ QList<QString> JavaUtils::FindJavaPaths()
     javas.append(this->GetDefaultJava()->path);
 
     javas.append(getMinecraftJavaBundle());
+    javas.append(getPrismJavaBundle());
+    javas.removeDuplicates();
     return addJavasFromEnv(javas);
 }
 #endif
@@ -478,12 +500,10 @@ QString JavaUtils::getJavaCheckPath()
 
 QStringList getMinecraftJavaBundle()
 {
-    QString executable = "java";
     QStringList processpaths;
 #if defined(Q_OS_OSX)
     processpaths << FS::PathCombine(QDir::homePath(), FS::PathCombine("Library", "Application Support", "minecraft", "runtime"));
 #elif defined(Q_OS_WIN32)
-    executable += "w.exe";
 
     auto appDataPath = QProcessEnvironment::systemEnvironment().value("APPDATA", "");
     processpaths << FS::PathCombine(QFileInfo(appDataPath).absoluteFilePath(), ".minecraft", "runtime");
@@ -508,7 +528,7 @@ QStringList getMinecraftJavaBundle()
         auto binFound = false;
         for (auto& entry : entries) {
             if (entry.baseName() == "bin") {
-                javas.append(FS::PathCombine(entry.canonicalFilePath(), executable));
+                javas.append(FS::PathCombine(entry.canonicalFilePath(), JavaUtils::javaExecutable));
                 binFound = true;
                 break;
             }
@@ -519,5 +539,35 @@ QStringList getMinecraftJavaBundle()
             }
         }
     }
+    return javas;
+}
+
+#if defined(Q_OS_WIN32)
+const QString JavaUtils::javaExecutable = "javaw.exe";
+#else
+const QString JavaUtils::javaExecutable = "java";
+#endif
+
+QStringList getPrismJavaBundle()
+{
+    QList<QString> javas;
+
+    auto scanDir = [&javas](QString prefix) {
+        javas.append(FS::PathCombine(prefix, "jre", "bin", JavaUtils::javaExecutable));
+        javas.append(FS::PathCombine(prefix, "bin", JavaUtils::javaExecutable));
+        javas.append(FS::PathCombine(prefix, JavaUtils::javaExecutable));
+    };
+    auto scanJavaDir = [scanDir](const QString& dirPath) {
+        QDir dir(dirPath);
+        if (!dir.exists())
+            return;
+        auto entries = dir.entryInfoList(QDir::Dirs | QDir::NoDotAndDotDot);
+        for (auto& entry : entries) {
+            scanDir(entry.canonicalFilePath());
+        }
+    };
+
+    scanJavaDir(APPLICATION->javaPath());
+
     return javas;
 }

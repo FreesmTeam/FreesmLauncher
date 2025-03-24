@@ -42,6 +42,7 @@
 #include <QDebug>
 #include <QFlag>
 #include <QIcon>
+#include <QMutex>
 #include <QUrl>
 #include <memory>
 
@@ -81,6 +82,12 @@ class Index;
 #endif
 #define APPLICATION (static_cast<Application*>(QCoreApplication::instance()))
 
+// Used for checking if is a test
+#if defined(APPLICATION_DYN)
+#undef APPLICATION_DYN
+#endif
+#define APPLICATION_DYN (dynamic_cast<Application*>(QCoreApplication::instance()))
+
 class Application : public QApplication {
     // friends for the purpose of limiting access to deprecated stuff
     Q_OBJECT
@@ -105,7 +112,7 @@ class Application : public QApplication {
 
     std::shared_ptr<SettingsObject> settings() const { return m_settings; }
 
-    qint64 timeSinceStart() const { return startTime.msecsTo(QDateTime::currentDateTime()); }
+    qint64 timeSinceStart() const { return m_startTime.msecsTo(QDateTime::currentDateTime()); }
 
     QIcon getThemedIcon(const QString& name);
 
@@ -161,6 +168,9 @@ class Application : public QApplication {
     /// the data path the application is using
     const QString& dataRoot() { return m_dataPath; }
 
+    /// the java installed path the application is using
+    const QString javaPath();
+
     bool isPortable() { return m_portable; }
 
     const Capabilities capabilities() { return m_capabilities; }
@@ -178,8 +188,6 @@ class Application : public QApplication {
     bool updatesAreAllowed();
 
     void ShowGlobalSettings(class QWidget* parent, QString open_page = QString());
-
-    int suitableMaxMem();
 
     bool updaterEnabled();
     QString updaterBinaryName();
@@ -203,7 +211,8 @@ class Application : public QApplication {
                 bool online = true,
                 bool demo = false,
                 MinecraftTarget::Ptr targetToJoin = nullptr,
-                MinecraftAccountPtr accountToUse = nullptr);
+                MinecraftAccountPtr accountToUse = nullptr,
+                const QString& offlineName = QString());
     bool kill(InstancePtr instance);
     void closeCurrentWindow();
 
@@ -228,7 +237,7 @@ class Application : public QApplication {
     bool shouldExitNow() const;
 
    private:
-    QDateTime startTime;
+    QDateTime m_startTime;
 
     shared_qobject_ptr<QNetworkAccessManager> m_network;
 
@@ -271,6 +280,7 @@ class Application : public QApplication {
         shared_qobject_ptr<LaunchController> controller;
     };
     std::map<QString, InstanceXtras> m_instanceExtras;
+    mutable QMutex m_instanceExtrasMutex;
 
     // main state variables
     size_t m_openWindows = 0;
@@ -292,8 +302,19 @@ class Application : public QApplication {
     QString m_serverToJoin;
     QString m_worldToJoin;
     QString m_profileToUse;
+    bool m_offline = false;
+    QString m_offlineName;
     bool m_liveCheck = false;
     QList<QUrl> m_urlsToImport;
     QString m_instanceIdToShowWindowOf;
     std::unique_ptr<QFile> logFile;
+
+   public:
+    void addQSavePath(QString);
+    void removeQSavePath(QString);
+    bool checkQSavePath(QString);
+
+   private:
+    QHash<QString, int> m_qsaveResources;
+    mutable QMutex m_qsaveResourcesMutex;
 };

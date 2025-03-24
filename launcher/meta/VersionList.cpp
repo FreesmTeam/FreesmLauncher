@@ -16,6 +16,7 @@
 #include "VersionList.h"
 
 #include <QDateTime>
+#include <algorithm>
 
 #include "Application.h"
 #include "Index.h"
@@ -33,8 +34,7 @@ VersionList::VersionList(const QString& uid, QObject* parent) : BaseVersionList(
 
 Task::Ptr VersionList::getLoadTask()
 {
-    auto loadTask =
-        makeShared<SequentialTask>(this, tr("Load meta for %1", "This is for the task name that loads the meta index.").arg(m_uid));
+    auto loadTask = makeShared<SequentialTask>(tr("Load meta for %1", "This is for the task name that loads the meta index.").arg(m_uid));
     loadTask->addTask(APPLICATION->metadataIndex()->loadTask(Net::Mode::Online));
     loadTask->addTask(this->loadTask(Net::Mode::Online));
     return loadTask;
@@ -99,7 +99,14 @@ QVariant VersionList::data(const QModelIndex& index, int role) const
         case VersionPtrRole:
             return QVariant::fromValue(version);
         case RecommendedRole:
-            return version->isRecommended();
+            return version->isRecommended() || m_externalRecommendsVersions.contains(version->version());
+        case JavaMajorRole: {
+            auto major = version->version();
+            if (major.startsWith("java")) {
+                major = "Java " + major.mid(4);
+            }
+            return major;
+        }
         // FIXME: this should be determined in whatever view/proxy is used...
         // case LatestRole: return version == getLatestStable();
         default:
@@ -109,9 +116,13 @@ QVariant VersionList::data(const QModelIndex& index, int role) const
 
 BaseVersionList::RoleList VersionList::providesRoles() const
 {
-    return { VersionPointerRole, VersionRole,  VersionIdRole, ParentVersionRole, TypeRole,   UidRole,
-             TimeRole,           RequiresRole, SortRole,      RecommendedRole,   LatestRole, VersionPtrRole };
+    return m_provided_roles;
 }
+
+void VersionList::setProvidedRoles(RoleList roles)
+{
+    m_provided_roles = roles;
+};
 
 QHash<int, QByteArray> VersionList::roleNames() const
 {
@@ -147,8 +158,8 @@ Version::Ptr VersionList::getVersion(const QString& version)
 
 bool VersionList::hasVersion(QString version) const
 {
-    auto ver =
-        std::find_if(m_versions.constBegin(), m_versions.constEnd(), [&](Meta::Version::Ptr const& a) { return a->version() == version; });
+    auto ver = std::find_if(m_versions.constBegin(), m_versions.constEnd(),
+                            [version](Meta::Version::Ptr const& a) { return a->version() == version; });
     return (ver != m_versions.constEnd());
 }
 
@@ -179,6 +190,16 @@ void VersionList::setVersions(const QVector<Version::Ptr>& versions)
 void VersionList::parse(const QJsonObject& obj)
 {
     parseVersionList(obj, this);
+}
+
+void VersionList::addExternalRecommends(const QStringList& recommends)
+{
+    m_externalRecommendsVersions.append(recommends);
+}
+
+void VersionList::clearExternalRecommends()
+{
+    m_externalRecommendsVersions.clear();
 }
 
 // FIXME: this is dumb, we have 'recommended' as part of the metadata already...
@@ -265,4 +286,35 @@ void VersionList::waitToLoad()
     task->start();
     ev.exec();
 }
+
+Version::Ptr VersionList::getRecommendedForParent(const QString& uid, const QString& version)
+{
+    auto foundExplicit = std::find_if(m_versions.begin(), m_versions.end(), [uid, version](Version::Ptr ver) -> bool {
+        auto& reqs = ver->requiredSet();
+        auto parentReq = std::find_if(reqs.begin(), reqs.end(), [uid, version](const Require& req) -> bool {
+            return req.uid == uid && req.equalsVersion == version;
+        });
+        return parentReq != reqs.end() && ver->isRecommended();
+    });
+    if (foundExplicit != m_versions.end()) {
+        return *foundExplicit;
+    }
+    return nullptr;
+}
+
+Version::Ptr VersionList::getLatestForParent(const QString& uid, const QString& version)
+{
+    Version::Ptr latestCompat = nullptr;
+    for (auto ver : m_versions) {
+        auto& reqs = ver->requiredSet();
+        auto parentReq = std::find_if(reqs.begin(), reqs.end(), [uid, version](const Require& req) -> bool {
+            return req.uid == uid && req.equalsVersion == version;
+        });
+        if (parentReq != reqs.end()) {
+            latestCompat = getBetterVersion(latestCompat, ver);
+        }
+    }
+    return latestCompat;
+}
+
 }  // namespace Meta

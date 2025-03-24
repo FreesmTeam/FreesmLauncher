@@ -64,6 +64,9 @@ ExportToModListDialog::ExportToModListDialog(QString name, QList<Mod*> mods, QWi
         this->ui->finalText->selectAll();
         this->ui->finalText->copy();
     });
+
+    ui->buttonBox->button(QDialogButtonBox::Cancel)->setText(tr("Cancel"));
+    ui->buttonBox->button(QDialogButtonBox::Save)->setText(tr("Save"));
     triggerImp();
 }
 
@@ -164,7 +167,12 @@ void ExportToModListDialog::done(int result)
 
         if (output.isEmpty())
             return;
-        FS::write(output, ui->finalText->toPlainText().toUtf8());
+
+        try {
+            FS::write(output, ui->finalText->toPlainText().toUtf8());
+        } catch (const FS::FileSystemException& e) {
+            qCritical() << "Failed to save mod list file :" << e.cause();
+        }
     }
 
     QDialog::done(result);

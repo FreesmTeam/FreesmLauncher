@@ -134,7 +134,8 @@ ModrinthDataPackPage::ModrinthDataPackPage(DataPackDownloadDialog* dialog, BaseI
     // so it's best not to connect them in the parent's constructor...
     connect(m_ui->sortByBox, SIGNAL(currentIndexChanged(int)), this, SLOT(triggerSearch()));
     connect(m_ui->packView->selectionModel(), &QItemSelectionModel::currentChanged, this, &ModrinthDataPackPage::onSelectionChanged);
-    connect(m_ui->versionSelectionBox, &QComboBox::currentTextChanged, this, &ModrinthDataPackPage::onVersionSelectionChanged);
+    connect(m_ui->versionSelectionBox, QOverload<int>::of(&QComboBox::currentIndexChanged), this,
+            &ModrinthDataPackPage::onVersionSelectionChanged);
     connect(m_ui->resourceSelectionButton, &QPushButton::clicked, this, &ModrinthDataPackPage::onResourceSelected);
 
     m_ui->packDescription->setMetaEntry(metaEntryBase());
@@ -166,7 +167,7 @@ auto ModrinthDataPackPage::shouldDisplay() const -> bool
 
 unique_qobject_ptr<ModFilterWidget> ModrinthModPage::createFilterWidget()
 {
-    return ModFilterWidget::create(&static_cast<MinecraftInstance&>(m_base_instance), true, this);
+    return ModFilterWidget::create(&static_cast<MinecraftInstance&>(m_baseInstance), true, this);
 }
 
 void ModrinthModPage::prepareProviderCategories()

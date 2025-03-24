@@ -36,20 +36,18 @@ class Version;
 class DataPack : public Resource {
     Q_OBJECT
    public:
-    using Ptr = shared_qobject_ptr<Resource>;
-
     DataPack(QObject* parent = nullptr) : Resource(parent) {}
     DataPack(QFileInfo file_info) : Resource(file_info) {}
 
     /** Gets the numerical ID of the pack format. */
     [[nodiscard]] int packFormat() const { return m_pack_format; }
     /** Gets, respectively, the lower and upper versions supported by the set pack format. */
-    [[nodiscard]] std::pair<Version, Version> compatibleVersions() const;
+    [[nodiscard]] virtual std::pair<Version, Version> compatibleVersions() const;
 
     /** Gets the description of the data pack. */
     [[nodiscard]] QString description() const { return m_description; }
 
-    /** Gets the image of the resource pack, converted to a QPixmap for drawing, and scaled to size. */
+    /** Gets the image of the data pack, converted to a QPixmap for drawing, and scaled to size. */
     [[nodiscard]] QPixmap image(QSize size, Qt::AspectRatioMode mode = Qt::AspectRatioMode::IgnoreAspectRatio) const;
 
     /** Thread-safe. */
@@ -65,6 +63,8 @@ class DataPack : public Resource {
 
     [[nodiscard]] int compare(Resource const& other, SortType type) const override;
     [[nodiscard]] bool applyFilter(QRegularExpression filter) const override;
+
+    virtual QString directory() { return "/data"; }
 
    protected:
     mutable QMutex m_data_lock;

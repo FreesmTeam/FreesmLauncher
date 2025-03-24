@@ -17,7 +17,6 @@ namespace ResourceDownload {
 
 DataPackResourcePage::DataPackResourcePage(DataPackDownloadDialog* dialog, BaseInstance& instance) : ResourcePage(dialog, instance)
 {
-    connect(m_ui->searchButton, &QPushButton::clicked, this, &DataPackResourcePage::triggerSearch);
     connect(m_ui->packView, &QListView::doubleClicked, this, &DataPackResourcePage::onResourceSelected);
 }
 
@@ -32,7 +31,7 @@ void DataPackResourcePage::triggerSearch()
     updateSelectionButton();
 
     static_cast<DataPackResourceModel*>(m_model)->searchWithTerm(getSearchTerm(), m_ui->sortByBox->currentData().toUInt());
-    m_fetch_progress.watch(m_model->activeSearchJob().get());
+    m_fetchProgress.watch(m_model->activeSearchJob().get());
 }
 
 QMap<QString, QString> DataPackResourcePage::urlHandlers() const

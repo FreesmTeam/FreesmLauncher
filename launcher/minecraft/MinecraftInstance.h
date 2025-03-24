@@ -104,7 +104,7 @@ class MinecraftInstance : public BaseInstance {
     /** Returns whether the instance, with its version, has support for demo mode. */
     [[nodiscard]] bool supportsDemo() const;
 
-    void updateRuntimeContext();
+    void updateRuntimeContext() override;
 
     //////  Profile management //////
     std::shared_ptr<PackProfile> getPackProfile() const;
@@ -116,11 +116,12 @@ class MinecraftInstance : public BaseInstance {
     std::shared_ptr<ResourcePackFolderModel> resourcePackList();
     std::shared_ptr<TexturePackFolderModel> texturePackList();
     std::shared_ptr<ShaderPackFolderModel> shaderPackList();
+    QList<std::shared_ptr<ResourceFolderModel>> resourceLists();
     std::shared_ptr<WorldList> worldList();
     std::shared_ptr<GameOptions> gameOptionsModel();
 
     //////  Launch stuff //////
-    Task::Ptr createUpdateTask(Net::Mode mode) override;
+    QList<Task::Ptr> createUpdateTask() override;
     shared_qobject_ptr<LaunchTask> createLaunchTask(AuthSessionPtr account, MinecraftTarget::Ptr targetToJoin) override;
     QStringList extraArguments() override;
     QStringList verboseDescription(AuthSessionPtr session, MinecraftTarget::Ptr targetToJoin) override;

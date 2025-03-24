@@ -40,18 +40,18 @@
 #include "HintOverrideProxyStyle.h"
 #include "ThemeManager.h"
 
-SystemTheme::SystemTheme(QString& styleName, bool isSystemTheme)
+SystemTheme::SystemTheme(const QString& styleName, bool isDefaultTheme)
 {
-    themeName = isSystemTheme ? "system" : styleName;
+    themeName = isDefaultTheme ? "system" : styleName;
     widgetTheme = styleName;
-    colorPalette = QApplication::palette();
+    colorPalette = QStyleFactory::create(styleName)->standardPalette();
 }
 
 void SystemTheme::apply(bool initial)
 {
     // See https://github.com/MultiMC/Launcher/issues/1790
     // or https://github.com/PrismLauncher/PrismLauncher/issues/490
-    if (initial) {
+    if (initial && themeName == "system") {
         QApplication::setStyle(new HintOverrideProxyStyle(QStyleFactory::create(qtTheme())));
         return;
     }
@@ -124,9 +124,4 @@ QColor SystemTheme::fadeColor()
 bool SystemTheme::hasStyleSheet()
 {
     return false;
-}
-
-bool SystemTheme::hasColorScheme()
-{
-    return true;
 }

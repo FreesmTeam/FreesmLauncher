@@ -36,6 +36,8 @@
 #include "OneSixVersionFormat.h"
 #include <Json.h>
 #include <minecraft/MojangVersionFormat.h>
+#include <QList>
+#include "java/JavaMetadata.h"
 #include "minecraft/Agent.h"
 #include "minecraft/ParseUtils.h"
 
@@ -174,7 +176,7 @@ VersionFilePtr OneSixVersionFormat::versionFileFromJson(const QJsonDocument& doc
         }
     }
 
-    auto readLibs = [&](const char* which, QList<LibraryPtr>& outList) {
+    auto readLibs = [&root, &out, &filename](const char* which, QList<LibraryPtr>& outList) {
         for (auto libVal : requireArray(root.value(which))) {
             QJsonObject libObj = requireObject(libVal);
             // parse the library
@@ -253,6 +255,13 @@ VersionFilePtr OneSixVersionFormat::versionFileFromJson(const QJsonDocument& doc
     }
     if (root.contains("volatile")) {
         out->m_volatile = requireBoolean(root, "volatile");
+    }
+
+    if (root.contains("runtimes")) {
+        out->runtimes = {};
+        for (auto runtime : ensureArray(root, "runtimes")) {
+            out->runtimes.append(Java::parseJavaMeta(ensureObject(runtime)));
+        }
     }
 
     /* removed features that shouldn't be used */

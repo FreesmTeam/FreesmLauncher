@@ -239,7 +239,7 @@ void WorldListPage::on_actionData_Packs_triggered()
     dialog->restoreGeometry(QByteArray::fromBase64(APPLICATION->settings()->get("DataPackDownloadGeometry").toByteArray()));
 
     auto layout = new QHBoxLayout(dialog);
-    auto page = new DataPackPage(m_inst, std::make_shared<DataPackFolderModel>(folder, m_inst));
+    auto page = new DataPackPage(m_inst.get(), std::make_shared<DataPackFolderModel>(folder, m_inst.get(), true, true));
     page->setParent(dialog);  // HACK: many pages extend QMainWindow; setting the parent manually prevents them from creating a window.
     layout->addWidget(page);
     dialog->setLayout(layout);
