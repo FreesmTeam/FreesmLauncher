@@ -29,9 +29,9 @@
       <property name="geometry">
        <rect>
         <x>0</x>
-        <y>0</y>
-        <width>563</width>
-        <height>1336</height>
+        <y>-329</y>
+        <width>566</width>
+        <height>1296</height>
        </rect>
       </property>
       <layout class="QVBoxLayout" name="verticalLayout_8">
@@ -293,7 +293,7 @@
        <item>
         <widget class="QGroupBox" name="modsBox">
          <property name="title">
-          <string>Mods</string>
+          <string>Mods and Modpacks</string>
          </property>
          <layout class="QVBoxLayout" name="verticalLayout_4">
           <item>
@@ -346,15 +346,6 @@
             </property>
            </widget>
           </item>
-         </layout>
-        </widget>
-       </item>
-       <item>
-        <widget class="QGroupBox" name="groupBox">
-         <property name="title">
-          <string>Modpacks</string>
-         </property>
-         <layout class="QVBoxLayout" name="verticalLayout_11">
           <item>
            <widget class="QCheckBox" name="modpackUpdatePromptBtn">
             <property name="toolTip">
