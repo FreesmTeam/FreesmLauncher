@@ -18,7 +18,7 @@ DataPackResourceModel::DataPackResourceModel(BaseInstance const& base_inst, Reso
 ResourceAPI::SearchArgs DataPackResourceModel::createSearchArguments()
 {
     auto sort = getCurrentSortingMethodByIndex();
-    return { ModPlatform::ResourceType::DATA_PACK, m_next_search_offset, m_search_term, sort, ModPlatform::ModLoaderType::DataPack };
+    return { ModPlatform::ResourceType::DataPack, m_next_search_offset, m_search_term, sort, ModPlatform::ModLoaderType::DataPack };
 }
 
 ResourceAPI::VersionSearchArgs DataPackResourceModel::createVersionsArguments(const QModelIndex& entry)
