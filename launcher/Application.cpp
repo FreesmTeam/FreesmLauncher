@@ -57,6 +57,7 @@
 #include "ui/instanceview/AccessibleInstanceView.h"
 
 #include "ui/pages/BasePageProvider.h"
+#include "ui/pages/global/AppearancePage.h"
 #include "ui/pages/global/APIPage.h"
 #include "ui/pages/global/AccountListPage.h"
 #include "ui/pages/global/ExternalToolsPage.h"
@@ -137,7 +138,6 @@
 
 #if defined(Q_OS_LINUX)
 #include <sys/statvfs.h>
-#include <ui/pages/global/AppearancePage.h>
 #endif
 
 #if defined(Q_OS_FREEBSD) || defined(Q_OS_OPENBSD)
