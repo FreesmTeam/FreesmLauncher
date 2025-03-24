@@ -800,14 +800,14 @@ Application::Application(int& argc, char** argv) : QApplication(argc, argv)
         {
             m_globalSettingsProvider = std::make_shared<GenericPageProvider>(tr("Settings"));
             m_globalSettingsProvider->addPage<LauncherPage>();
+            m_globalSettingsProvider->addPage<LanguagePage>();
             m_globalSettingsProvider->addPage<AppearancePage>();
             m_globalSettingsProvider->addPage<MinecraftPage>();
             m_globalSettingsProvider->addPage<JavaPage>();
-            m_globalSettingsProvider->addPage<LanguagePage>();
-            m_globalSettingsProvider->addPage<ProxyPage>();
-            m_globalSettingsProvider->addPage<ExternalToolsPage>();
             m_globalSettingsProvider->addPage<AccountListPage>();
             m_globalSettingsProvider->addPage<APIPage>();
+            m_globalSettingsProvider->addPage<ExternalToolsPage>();
+            m_globalSettingsProvider->addPage<ProxyPage>();
         }
 
         PixmapCache::setInstance(new PixmapCache(this));
