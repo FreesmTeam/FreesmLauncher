@@ -298,7 +298,7 @@ void JavaSettingsWidget::updateThresholds()
         m_ui->labelMaxMemNotice->setText(warningColour.arg(tr("Your maximum memory allocation is close to your system memory capacity.")));
         m_ui->labelMaxMemNotice->show();
     } else if (maxMem < minMem) {
-        m_ui->labelMaxMemNotice->setText(warningColour.arg(tr("Your maximum memory allocation is below the minimum memory allocation.")))
+        m_ui->labelMaxMemNotice->setText(warningColour.arg(tr("Your maximum memory allocation is below the minimum memory allocation.")));
     } else {
         m_ui->labelMaxMemNotice->hide();
     }
