@@ -266,7 +266,7 @@ jobs:
           sha256sum -c - <<< "$LINUXDEPLOY_QT_HASH"
           sha256sum -c - <<< "$APPIMAGEUPDATE_HASH"
 
-          sudo apt install libopengl0 libfuse2
+          sudo apt install libopengl0
 
       - name: Add QT_HOST_PATH var (Windows MSVC arm64)
         if: runner.os == 'Windows' && matrix.architecture == 'arm64'
