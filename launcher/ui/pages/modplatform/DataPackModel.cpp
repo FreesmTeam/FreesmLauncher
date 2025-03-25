@@ -18,13 +18,13 @@ DataPackResourceModel::DataPackResourceModel(BaseInstance const& base_inst, Reso
 ResourceAPI::SearchArgs DataPackResourceModel::createSearchArguments()
 {
     auto sort = getCurrentSortingMethodByIndex();
-    return { ModPlatform::ResourceType::DATA_PACK, m_next_search_offset, m_search_term, sort };
+    return { ModPlatform::ResourceType::DATA_PACK, m_next_search_offset, m_search_term, sort, ModPlatform::ModLoaderType::DataPack };
 }
 
 ResourceAPI::VersionSearchArgs DataPackResourceModel::createVersionsArguments(QModelIndex& entry)
 {
     auto& pack = m_packs[entry.row()];
-    return { *pack };
+    return { *pack, {}, ModPlatform::ModLoaderType::DataPack };
 }
 
 ResourceAPI::ProjectInfoArgs DataPackResourceModel::createInfoArguments(QModelIndex& entry)

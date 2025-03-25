@@ -42,8 +42,8 @@ class ModrinthAPI : public NetworkResourceAPI {
     static auto getModLoaderStrings(const ModPlatform::ModLoaderTypes types) -> const QStringList
     {
         QStringList l;
-        for (auto loader :
-             { ModPlatform::NeoForge, ModPlatform::Forge, ModPlatform::Fabric, ModPlatform::Quilt, ModPlatform::LiteLoader }) {
+        for (auto loader : { ModPlatform::NeoForge, ModPlatform::Forge, ModPlatform::Fabric, ModPlatform::Quilt, ModPlatform::LiteLoader,
+                             ModPlatform::DataPack }) {
             if (types & loader) {
                 l << getModLoaderAsString(loader);
             }
@@ -103,12 +103,13 @@ class ModrinthAPI : public NetworkResourceAPI {
     {
         switch (type) {
             case ModPlatform::ResourceType::MOD:
-            case ModPlatform::ResourceType::DATA_PACK:
                 return "mod";
             case ModPlatform::ResourceType::RESOURCE_PACK:
                 return "resourcepack";
             case ModPlatform::ResourceType::SHADER_PACK:
                 return "shader";
+            case ModPlatform::ResourceType::DATA_PACK:
+                return "datapack";
             case ModPlatform::ResourceType::MODPACK:
                 return "modpack";
             default:
@@ -127,8 +128,6 @@ class ModrinthAPI : public NetworkResourceAPI {
             facets_list.append(QString("[%1]").arg(getModLoaderFilters(args.loaders.value())));
         if (args.versions.has_value() && !args.versions.value().empty())
             facets_list.append(QString("[%1]").arg(getGameVersionsArray(args.versions.value())));
-        if (args.type == ModPlatform::ResourceType::DATA_PACK)
-            facets_list.append("[\"categories:datapack\"]");
         if (args.side.has_value()) {
             auto side = getSideFilters(args.side.value());
             if (!side.isEmpty())
@@ -200,7 +199,8 @@ class ModrinthAPI : public NetworkResourceAPI {
 
     static inline auto validateModLoaders(ModPlatform::ModLoaderTypes loaders) -> bool
     {
-        return loaders & (ModPlatform::NeoForge | ModPlatform::Forge | ModPlatform::Fabric | ModPlatform::Quilt | ModPlatform::LiteLoader);
+        return loaders & (ModPlatform::NeoForge | ModPlatform::Forge | ModPlatform::Fabric | ModPlatform::Quilt | ModPlatform::LiteLoader |
+                          ModPlatform::DataPack);
     }
 
     [[nodiscard]] std::optional<QString> getDependencyURL(DependencySearchArgs const& args) const override

@@ -122,11 +122,13 @@ auto getModLoaderAsString(ModLoaderType type) -> const QString
         case Cauldron:
             return "cauldron";
         case LiteLoader:
-            return "liteloader";
+             return "liteloader";
         case Fabric:
             return "fabric";
         case Quilt:
             return "quilt";
+        case DataPack:
+            return "datapack";
         default:
             break;
     }
