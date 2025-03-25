@@ -1,5 +1,5 @@
 // SPDX-FileCopyrightText: 2023 flowln <flowlnlnln@gmail.com>
-// SPDX-FileCopyrightText: 2023 TheKodeToad <flowlnlnln@gmail.com>
+// SPDX-FileCopyrightText: 2023 TheKodeToad <TheKodeToad@proton.me>
 //
 // SPDX-License-Identifier: GPL-3.0-only
 
