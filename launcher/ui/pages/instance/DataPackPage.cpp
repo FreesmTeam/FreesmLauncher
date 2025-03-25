@@ -125,7 +125,7 @@ bool GlobalDataPackPage::shouldDisplay() const
 
 bool GlobalDataPackPage::apply()
 {
-    return m_underlyingPage != nullptr && m_underlyingPage->apply();
+    return m_underlyingPage == nullptr || m_underlyingPage->apply();
 }
 
 void GlobalDataPackPage::openedImpl()
