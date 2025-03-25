@@ -1,5 +1,6 @@
 #pragma once
 #include <FileSystem.h>
+#include <ui/pages/instance/DataPackPage.h>
 #include "minecraft/MinecraftInstance.h"
 #include "ui/pages/BasePage.h"
 #include "ui/pages/BasePageProvider.h"
@@ -36,6 +37,7 @@ class InstancePageProvider : protected QObject, public BasePageProvider {
         values.append(new CoreModFolderPage(onesix.get(), onesix->coreModList()));
         values.append(new NilModFolderPage(onesix.get(), onesix->nilModList()));
         values.append(new ResourcePackPage(onesix.get(), onesix->resourcePackList()));
+        values.append(new GlobalDataPackPage(onesix.get()));
         values.append(new TexturePackPage(onesix.get(), onesix->texturePackList()));
         values.append(new ShaderPackPage(onesix.get(), onesix->shaderPackList()));
         values.append(new NotesPage(onesix.get()));

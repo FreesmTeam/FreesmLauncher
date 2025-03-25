@@ -61,9 +61,9 @@
           <property name="geometry">
            <rect>
             <x>0</x>
-            <y>-253</y>
+            <y>-166</y>
             <width>610</width>
-            <height>550</height>
+            <height>768</height>
            </rect>
           </property>
           <layout class="QVBoxLayout" name="verticalLayout_5">
@@ -141,6 +141,70 @@
                   </property>
                   <property name="value">
                    <number>480</number>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
+              </item>
+             </layout>
+            </widget>
+           </item>
+           <item>
+            <widget class="QGroupBox" name="globalDataPacksGroupBox">
+             <property name="title">
+              <string>&amp;Global Data Packs</string>
+             </property>
+             <property name="checkable">
+              <bool>true</bool>
+             </property>
+             <property name="checked">
+              <bool>true</bool>
+             </property>
+             <layout class="QVBoxLayout" name="verticalLayout_18">
+              <item>
+               <widget class="QLabel" name="label_2">
+                <property name="text">
+                 <string>Allows installing data packs across all worlds if an applicable mod is installed.
+It is most likely you will need to change the path - please refer to the mod's website.</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <spacer name="verticalSpacer_4">
+                <property name="orientation">
+                 <enum>Qt::Vertical</enum>
+                </property>
+                <property name="sizeType">
+                 <enum>QSizePolicy::Fixed</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>0</width>
+                  <height>6</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+              <item>
+               <widget class="QLabel" name="label">
+                <property name="text">
+                 <string>Folder Path</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <layout class="QHBoxLayout" name="horizontalLayout">
+                <item>
+                 <widget class="QLineEdit" name="dataPacksPathEdit">
+                  <property name="placeholderText">
+                   <string>datapacks</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QPushButton" name="dataPacksPathBrowse">
+                  <property name="text">
+                   <string>Browse</string>
                   </property>
                  </widget>
                 </item>
@@ -298,7 +362,7 @@
             <x>0</x>
             <y>0</y>
             <width>624</width>
-            <height>297</height>
+            <height>291</height>
            </rect>
           </property>
          </widget>
@@ -323,9 +387,9 @@
           <property name="geometry">
            <rect>
             <x>0</x>
-            <y>-101</y>
+            <y>0</y>
             <width>610</width>
-            <height>398</height>
+            <height>439</height>
            </rect>
           </property>
           <layout class="QVBoxLayout" name="verticalLayout_7">
@@ -513,7 +577,7 @@
             <x>0</x>
             <y>0</y>
             <width>624</width>
-            <height>297</height>
+            <height>291</height>
            </rect>
           </property>
           <layout class="QVBoxLayout" name="verticalLayout_14">
@@ -647,7 +711,6 @@
  <tabstops>
   <tabstop>openGlobalSettingsButton</tabstop>
   <tabstop>settingsTabs</tabstop>
-  <tabstop>scrollArea</tabstop>
   <tabstop>maximizedCheckBox</tabstop>
   <tabstop>windowWidthSpinBox</tabstop>
   <tabstop>windowHeightSpinBox</tabstop>

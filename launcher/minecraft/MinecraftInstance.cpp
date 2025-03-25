@@ -250,6 +250,12 @@ void MinecraftInstance::loadSpecificSettings()
     m_settings->registerSetting("ExportAuthor", "");
     m_settings->registerSetting("ExportOptionalFiles", true);
 
+    auto dataPacksEnabled = m_settings->registerSetting("GlobalDataPacksEnabled", false);
+    auto dataPacksPath = m_settings->registerSetting("GlobalDataPacksPath", "");
+
+    connect(dataPacksEnabled.get(), &Setting::SettingChanged, this, [this] { m_data_pack_list.reset(); });
+    connect(dataPacksPath.get(), &Setting::SettingChanged, this, [this] { m_data_pack_list.reset(); });
+
     qDebug() << "Instance-type specific settings were loaded!";
 
     setSpecificSettingsLoaded(true);
@@ -390,6 +396,16 @@ QString MinecraftInstance::coreModsDir() const
 QString MinecraftInstance::nilModsDir() const
 {
     return FS::PathCombine(gameRoot(), "nilmods");
+}
+
+QString MinecraftInstance::dataPacksDir()
+{
+    QString relativePath = settings()->get("GlobalDataPacksPath").toString();
+
+    if (relativePath.isEmpty())
+        relativePath = "datapacks";
+
+    return FS::PathCombine(gameRoot(), relativePath);
 }
 
 QString MinecraftInstance::resourcePacksDir() const
@@ -1303,9 +1319,18 @@ std::shared_ptr<ShaderPackFolderModel> MinecraftInstance::shaderPackList()
     return m_shader_pack_list;
 }
 
+std::shared_ptr<DataPackFolderModel> MinecraftInstance::dataPackList()
+{
+    if (!m_data_pack_list && settings()->get("GlobalDataPacksEnabled").toBool()) {
+        bool isIndexed = !APPLICATION->settings()->get("ModMetadataDisabled").toBool();
+        m_data_pack_list.reset(new DataPackFolderModel(dataPacksDir(), this, isIndexed, true));
+    }
+    return m_data_pack_list;
+}
+
 QList<std::shared_ptr<ResourceFolderModel>> MinecraftInstance::resourceLists()
 {
-    return { loaderModList(), coreModList(), nilModList(), resourcePackList(), texturePackList(), shaderPackList() };
+    return { loaderModList(), coreModList(), nilModList(), resourcePackList(), texturePackList(), shaderPackList(), dataPackList() };
 }
 
 std::shared_ptr<WorldList> MinecraftInstance::worldList()

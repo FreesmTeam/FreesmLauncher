@@ -238,8 +238,11 @@ void WorldListPage::on_actionData_Packs_triggered()
                    static_cast<int>(std::max(0.75 * window()->height(), 400.0)));
     dialog->restoreGeometry(QByteArray::fromBase64(APPLICATION->settings()->get("DataPackDownloadGeometry").toByteArray()));
 
+    bool isIndexed = !APPLICATION->settings()->get("ModMetadataDisabled").toBool();
+    auto model = std::make_shared<DataPackFolderModel>(folder, m_inst.get(), isIndexed, true);
+
     auto layout = new QHBoxLayout(dialog);
-    auto page = new DataPackPage(m_inst.get(), std::make_shared<DataPackFolderModel>(folder, m_inst.get(), true, true));
+    auto page = new DataPackPage(m_inst.get(), std::move(model));
     page->setParent(dialog);  // HACK: many pages extend QMainWindow; setting the parent manually prevents them from creating a window.
     layout->addWidget(page);
     dialog->setLayout(layout);

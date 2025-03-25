@@ -58,6 +58,8 @@ MinecraftSettingsWidget::MinecraftSettingsWidget(MinecraftInstancePtr instance, 
         }
 
         m_ui->openGlobalSettingsButton->setVisible(false);
+
+        m_ui->globalDataPacksGroupBox->hide();
     } else {
         m_javaSettings = new JavaSettingsWidget(m_instance, this);
         m_ui->javaScrollArea->setWidget(m_javaSettings);
@@ -97,6 +99,11 @@ MinecraftSettingsWidget::MinecraftSettingsWidget(MinecraftInstancePtr instance, 
         connect(m_ui->openGlobalSettingsButton, &QCommandLinkButton::clicked, this, &MinecraftSettingsWidget::openGlobalSettings);
         connect(m_ui->serverJoinAddressButton, &QAbstractButton::toggled, m_ui->serverJoinAddress, &QWidget::setEnabled);
         connect(m_ui->worldJoinButton, &QAbstractButton::toggled, m_ui->worldsCb, &QWidget::setEnabled);
+
+        connect(m_ui->globalDataPacksGroupBox, &QGroupBox::toggled, this,
+                [this](bool value) { m_instance->settings()->set("GlobalDataPacksEnabled", value); });
+        connect(m_ui->dataPacksPathEdit, &QLineEdit::editingFinished, this,
+                [this]() { m_instance->settings()->set("GlobalDataPacksPath", m_ui->dataPacksPathEdit->text()); });
     }
 
     m_ui->maximizedWarning->hide();
@@ -231,6 +238,13 @@ void MinecraftSettingsWidget::loadSettings()
 
     m_ui->legacySettingsGroupBox->setChecked(settings->get("OverrideLegacySettings").toBool());
     m_ui->onlineFixes->setChecked(settings->get("OnlineFixes").toBool());
+
+    m_ui->globalDataPacksGroupBox->blockSignals(true);
+    m_ui->dataPacksPathEdit->blockSignals(true);
+    m_ui->globalDataPacksGroupBox->setChecked(settings->get("GlobalDataPacksEnabled").toBool());
+    m_ui->dataPacksPathEdit->setText(settings->get("GlobalDataPacksPath").toString());
+    m_ui->globalDataPacksGroupBox->blockSignals(false);
+    m_ui->dataPacksPathEdit->blockSignals(false);
 }
 
 void MinecraftSettingsWidget::saveSettings()

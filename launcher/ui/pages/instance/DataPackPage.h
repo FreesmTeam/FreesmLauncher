@@ -25,9 +25,9 @@
 class DataPackPage : public ExternalResourcesPage {
     Q_OBJECT
    public:
-    explicit DataPackPage(MinecraftInstance* instance, std::shared_ptr<DataPackFolderModel> model, QWidget* parent = 0);
+    explicit DataPackPage(BaseInstance* instance, std::shared_ptr<DataPackFolderModel> model, QWidget* parent = nullptr);
 
-    QString displayName() const override { return tr("Data packs"); }
+    QString displayName() const override { return QObject::tr("Data packs"); }
     QIcon icon() const override { return APPLICATION->getThemedIcon("datapacks"); }
     QString id() const override { return "datapacks"; }
     QString helpPage() const override { return "Data-packs"; }
@@ -36,4 +36,32 @@ class DataPackPage : public ExternalResourcesPage {
    public slots:
     void updateFrame(const QModelIndex& current, const QModelIndex& previous) override;
     void downloadDataPacks();
+};
+
+/**
+ * Syncs DataPackPage with GlobalDataPacksPath and shows/hides based on GlobalDataPacksEnabled.
+ */
+class GlobalDataPackPage : public QWidget, public BasePage {
+   public:
+    explicit GlobalDataPackPage(MinecraftInstance* instance, QWidget* parent = nullptr);
+
+    QString displayName() const override;
+    QIcon icon() const override;
+    QString id() const override { return "datapacks"; }
+    QString helpPage() const override;
+
+    bool shouldDisplay() const override;
+
+    bool apply() override;
+    void openedImpl() override;
+    void closedImpl() override;
+
+    void setParentContainer(BasePageContainer *container) override;
+
+   private:
+    void updateContent();
+    QVBoxLayout* layout() { return static_cast<QVBoxLayout*>(QWidget::layout()); }
+
+    MinecraftInstance* m_instance;
+    DataPackPage* m_underlyingPage = nullptr;
 };
