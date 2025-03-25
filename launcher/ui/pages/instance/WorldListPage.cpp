@@ -40,7 +40,9 @@
 #include "ui/dialogs/CustomMessageBox.h"
 #include "ui_WorldListPage.h"
 
+#include <ui/widgets/PageContainer.h>
 #include <QClipboard>
+#include <QDialogButtonBox>
 #include <QEvent>
 #include <QInputDialog>
 #include <QKeyEvent>
@@ -49,6 +51,7 @@
 #include <QSortFilterProxyModel>
 #include <QTreeView>
 #include <Qt>
+#include <QPushButton>
 
 #include "FileSystem.h"
 #include "tools/MCEditTool.h"
@@ -230,7 +233,7 @@ void WorldListPage::on_actionData_Packs_triggered()
     const QString fullPath = m_worlds->data(index, WorldList::FolderRole).toString();
     const QString folder = FS::PathCombine(fullPath, "datapacks");
 
-    auto dialog = new QDialog(window());
+    auto dialog = new QDialog(this);
     dialog->setWindowTitle(tr("Data packs for %1").arg(m_worlds->data(index, WorldList::NameRole).toString()));
     dialog->setWindowModality(Qt::WindowModal);
 
@@ -238,22 +241,35 @@ void WorldListPage::on_actionData_Packs_triggered()
                    static_cast<int>(std::max(0.75 * window()->height(), 400.0)));
     dialog->restoreGeometry(QByteArray::fromBase64(APPLICATION->settings()->get("DataPackDownloadGeometry").toByteArray()));
 
-    bool isIndexed = !APPLICATION->settings()->get("ModMetadataDisabled").toBool();
-    auto model = std::make_shared<DataPackFolderModel>(folder, m_inst.get(), isIndexed, true);
+    GenericPageProvider provider(dialog->windowTitle());
 
-    auto layout = new QHBoxLayout(dialog);
-    auto page = new DataPackPage(m_inst.get(), std::move(model));
-    page->setParent(dialog);  // HACK: many pages extend QMainWindow; setting the parent manually prevents them from creating a window.
-    layout->addWidget(page);
-    dialog->setLayout(layout);
-
-    connect(dialog, &QDialog::finished, this, [dialog, page] {
-        APPLICATION->settings()->set("DataPackDownloadGeometry", dialog->saveGeometry().toBase64());
-        page->closed();
+    provider.addPageCreator([this, folder] {
+        bool isIndexed = !APPLICATION->settings()->get("ModMetadataDisabled").toBool();
+        auto model = std::make_shared<DataPackFolderModel>(folder, m_inst.get(), isIndexed, true);
+        return new DataPackPage(m_inst.get(), std::move(model));
     });
 
-    dialog->show();
-    page->opened();
+    auto layout = new QVBoxLayout(dialog);
+
+    auto focusStealer = new QPushButton(dialog);
+    layout->addWidget(focusStealer);
+    focusStealer->setDefault(true);
+    focusStealer->hide();
+
+    auto pageContainer = new PageContainer(&provider, {}, dialog);
+    pageContainer->hidePageList();
+    layout->addWidget(pageContainer);
+
+    auto buttonBox = new QDialogButtonBox(QDialogButtonBox::Close | QDialogButtonBox::Help);
+    connect(buttonBox, &QDialogButtonBox::accepted, dialog, &QDialog::accept);
+    connect(buttonBox, &QDialogButtonBox::helpRequested, pageContainer, &PageContainer::help);
+    layout->addWidget(buttonBox);
+
+    dialog->setLayout(layout);
+
+    dialog->exec();
+
+    APPLICATION->settings()->set("DataPackDownloadGeometry", dialog->saveGeometry().toBase64());
 }
 
 void WorldListPage::on_actionReset_Icon_triggered()

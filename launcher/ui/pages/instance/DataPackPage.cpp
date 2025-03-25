@@ -156,6 +156,8 @@ void GlobalDataPackPage::updateContent()
 
     if (shouldDisplay()) {
         m_underlyingPage = new DataPackPage(m_instance, m_instance->dataPackList());
+        m_underlyingPage->setParentContainer(m_container);
+        m_underlyingPage->updateExtraInfo = [this](QString id, QString value) { updateExtraInfo(std::move(id), std::move(value)); };
 
         if (m_container->selectedPage() == this)
             m_underlyingPage->openedImpl();
@@ -163,7 +165,6 @@ void GlobalDataPackPage::updateContent()
         layout()->addWidget(m_underlyingPage);
     }
 }
-
 void GlobalDataPackPage::setParentContainer(BasePageContainer* container)
 {
     BasePage::setParentContainer(container);
