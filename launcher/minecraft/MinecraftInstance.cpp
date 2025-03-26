@@ -405,7 +405,7 @@ QString MinecraftInstance::dataPacksDir()
     if (relativePath.isEmpty())
         relativePath = "datapacks";
 
-    return FS::PathCombine(gameRoot(), relativePath);
+    return QDir(gameRoot()).filePath(relativePath);
 }
 
 QString MinecraftInstance::resourcePacksDir() const
