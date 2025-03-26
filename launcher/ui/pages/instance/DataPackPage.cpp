@@ -96,7 +96,6 @@ void DataPackPage::downloadDataPacks()
     }
 }
 
-
 void DataPackPage::updateDataPacks()
 {
     if (m_instance->typeName() != "Minecraft")
@@ -108,13 +107,13 @@ void DataPackPage::updateDataPacks()
         return;
     }
     if (m_instance != nullptr && m_instance->isRunning()) {
-        auto response = CustomMessageBox::selectable(
-                            this, tr("Confirm Update"),
-                            tr("Updating data packs while the game is running may cause pack duplication and game crashes.\n"
-                               "The old files may not be deleted as they are in use.\n"
-                               "Are you sure you want to do this?"),
-                            QMessageBox::Warning, QMessageBox::Yes | QMessageBox::No, QMessageBox::No)
-                            ->exec();
+        auto response =
+            CustomMessageBox::selectable(this, tr("Confirm Update"),
+                                         tr("Updating data packs while the game is running may cause pack duplication and game crashes.\n"
+                                            "The old files may not be deleted as they are in use.\n"
+                                            "Are you sure you want to do this?"),
+                                         QMessageBox::Warning, QMessageBox::Yes | QMessageBox::No, QMessageBox::No)
+                ->exec();
 
         if (response != QMessageBox::Yes)
             return;
@@ -126,7 +125,7 @@ void DataPackPage::updateDataPacks()
     if (use_all)
         mods_list = m_model->allResources();
 
-    ResourceUpdateDialog update_dialog(this, m_instance, m_model, mods_list, false, false);
+    ResourceUpdateDialog update_dialog(this, m_instance, m_model, mods_list, false, { ModPlatform::ModLoaderType::DataPack });
     update_dialog.checkCandidates();
 
     if (update_dialog.aborted()) {
