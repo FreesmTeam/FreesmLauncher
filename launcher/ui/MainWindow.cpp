@@ -597,7 +597,6 @@ void MainWindow::updateInstanceRoot()
         messageBox.setIcon(QMessageBox::Question);
 
         auto checkBox = new QCheckBox(tr("&Remember my choice"), this);
-        checkBox->setChecked(true);
         messageBox.setCheckBox(checkBox);
 
         auto res = messageBox.exec();
