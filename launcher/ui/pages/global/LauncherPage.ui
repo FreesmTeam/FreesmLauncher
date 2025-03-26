@@ -401,32 +401,59 @@
       </attribute>
       <layout class="QVBoxLayout" name="verticalLayout_6">
        <item>
-        <widget class="QGroupBox" name="sortingModeBox">
+        <widget class="QGroupBox" name="instanceBox">
          <property name="enabled">
           <bool>true</bool>
          </property>
          <property name="title">
-          <string>Instance view sorting mode</string>
+          <string>Instance</string>
          </property>
-         <layout class="QHBoxLayout" name="sortingModeBoxLayout">
-          <item>
-           <widget class="QRadioButton" name="sortLastLaunchedBtn">
+         <layout class="QGridLayout" name="instanceBoxLayout">
+          <item row="0" column="0">
+           <widget class="QLabel" name="labelSortingMode">
             <property name="text">
-             <string>&amp;By last launched</string>
+             <string>Instance view sorting mode</string>
             </property>
-            <attribute name="buttonGroup">
-             <string notr="true">sortingModeGroup</string>
-            </attribute>
            </widget>
           </item>
-          <item>
-           <widget class="QRadioButton" name="sortByNameBtn">
+          <item row="0" column="1">
+           <widget class="QComboBox" name="viewSortingComboBox">
+            <item>
+             <property name="text">
+              <string>By last launched</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>By name</string>
+             </property>
+            </item>
+           </widget>
+          </item>
+          <item row="1" column="0">
+           <widget class="QLabel" name="labelRenamingBehavior">
             <property name="text">
-             <string>By &amp;name</string>
+             <string>Instance renaming behavior</string>
             </property>
-            <attribute name="buttonGroup">
-             <string notr="true">sortingModeGroup</string>
-            </attribute>
+           </widget>
+          </item>
+          <item row="1" column="1">
+           <widget class="QComboBox" name="renamingBehaviorComboBox">
+            <item>
+             <property name="text">
+              <string>Rename metadata only</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>Rename physical directory</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>Ask everytime</string>
+             </property>
+            </item>
            </widget>
           </item>
          </layout>
@@ -674,7 +701,7 @@
   <tabstop>numberOfConcurrentDownloadsSpinBox</tabstop>
   <tabstop>numberOfManualRetriesSpinBox</tabstop>
   <tabstop>timeoutSecondsSpinBox</tabstop>
-  <tabstop>sortLastLaunchedBtn</tabstop>
+  <tabstop>sortLastLaunchedComboBox</tabstop>
   <tabstop>sortByNameBtn</tabstop>
   <tabstop>catOpacitySpinBox</tabstop>
   <tabstop>preferMenuBarCheckBox</tabstop>
@@ -686,7 +713,4 @@
  </tabstops>
  <resources/>
  <connections/>
- <buttongroups>
-  <buttongroup name="sortingModeGroup"/>
- </buttongroups>
 </ui>

@@ -65,12 +65,18 @@ enum InstSortMode {
     Sort_LastLaunch
 };
 
+enum InstRenamingMode {
+    // Rename metadata only.
+    Rename_Metadata,
+    // Rename physical directory too.
+    Rename_Physical,
+    // Ask everytime.
+    Rename_Ask
+};
+
 LauncherPage::LauncherPage(QWidget* parent) : QWidget(parent), ui(new Ui::LauncherPage)
 {
     ui->setupUi(this);
-
-    ui->sortingModeGroup->setId(ui->sortByNameBtn, Sort_Name);
-    ui->sortingModeGroup->setId(ui->sortLastLaunchedBtn, Sort_LastLaunch);
 
     defaultFormat = new QTextCharFormat(ui->fontPreview->currentCharFormat());
 
@@ -234,7 +240,8 @@ void LauncherPage::applySettings()
     s->set("DownloadsDirWatchRecursive", ui->downloadsDirWatchRecursiveCheckBox->isChecked());
     s->set("MoveModsFromDownloadsDir", ui->downloadsDirMoveCheckBox->isChecked());
 
-    auto sortMode = (InstSortMode)ui->sortingModeGroup->checkedId();
+    // Instance
+    auto sortMode = (InstSortMode) ui->viewSortingComboBox->currentIndex();
     switch (sortMode) {
         case Sort_LastLaunch:
             s->set("InstSortMode", "LastLaunch");
@@ -242,6 +249,20 @@ void LauncherPage::applySettings()
         case Sort_Name:
         default:
             s->set("InstSortMode", "Name");
+            break;
+    }
+
+    auto renamingMode = (InstRenamingMode) ui->renamingBehaviorComboBox->currentIndex();
+    switch (renamingMode) {
+        case Rename_Metadata:
+            s->set("InstRenamingMode", "MetadataOnly");
+            break;
+        case Rename_Physical:
+            s->set("InstRenamingMode", "PhysicalDir");
+            break;
+        case Rename_Ask:
+        default:
+            s->set("InstRenamingMode", "AskEverytime");
             break;
     }
 
@@ -299,13 +320,26 @@ void LauncherPage::loadSettings()
     ui->downloadsDirWatchRecursiveCheckBox->setChecked(s->get("DownloadsDirWatchRecursive").toBool());
     ui->downloadsDirMoveCheckBox->setChecked(s->get("MoveModsFromDownloadsDir").toBool());
 
+    // Instance
     QString sortMode = s->get("InstSortMode").toString();
-
+    InstSortMode sortModeEnum;
     if (sortMode == "LastLaunch") {
-        ui->sortLastLaunchedBtn->setChecked(true);
+        sortModeEnum = Sort_LastLaunch;
     } else {
-        ui->sortByNameBtn->setChecked(true);
+        sortModeEnum = Sort_Name;
     }
+    ui->viewSortingComboBox->setCurrentIndex(sortModeEnum);
+
+    QString renamingMode = s->get("InstRenamingMode").toString();
+    InstRenamingMode renamingModeEnum;
+    if (renamingMode == "MetadataOnly") {
+        renamingModeEnum = Rename_Metadata;
+    } else if (renamingMode == "PhysicalDir"){
+        renamingModeEnum = Rename_Physical;
+    } else {
+        renamingModeEnum = Rename_Ask;
+    }
+    ui->renamingBehaviorComboBox->setCurrentIndex(renamingModeEnum);
 
     // Cat
     ui->catOpacitySpinBox->setValue(s->get("CatOpacity").toInt());
