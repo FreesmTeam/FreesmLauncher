@@ -477,7 +477,7 @@ bool MinecraftSettingsWidget::isQuickPlaySupported()
 
 void MinecraftSettingsWidget::selectDataPacksFolder()
 {
-    QString path = QFileDialog::getExistingDirectory(this, tr("Select Global Data Packs Folder"), m_instance->instanceRoot());
+    QString path = QFileDialog::getExistingDirectory(this, tr("Select Global Data Packs Folder"), m_instance->gameRoot());
 
     if (path.isEmpty())
         return;
