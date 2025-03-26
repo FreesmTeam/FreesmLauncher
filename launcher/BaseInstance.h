@@ -117,9 +117,6 @@ class BaseInstance : public QObject, public std::enable_shared_from_this<BaseIns
     /// Path to the instance's root directory.
     QString instanceRoot() const;
 
-    /// Update instanceRoot to make it sync with name/id; return true if a refresh is needed
-    bool updateInstanceRoot(QWidget* parent);
-
     /// Path to the instance's game root directory.
     virtual QString gameRoot() const { return instanceRoot(); }
 

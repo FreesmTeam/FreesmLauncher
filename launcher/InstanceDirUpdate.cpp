@@ -1,0 +1,99 @@
+// SPDX-License-Identifier: GPL-3.0-only
+/*
+ *  Prism Launcher - Minecraft Launcher
+ *  Copyright (C) 2022 Sefa Eyeoglu <contact@scrumplex.net>
+ *  Copyright (c) 2022 Jamie Mansfield <jmansfield@cadixdev.org>
+ *  Copyright (C) 2023 TheKodeToad <TheKodeToad@proton.me>
+ *
+ *  This program is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, version 3.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ *
+ * This file incorporates work covered by the following copyright and
+ * permission notice:
+ *
+ *      Copyright 2013-2021 MultiMC Contributors
+ *
+ *      Licensed under the Apache License, Version 2.0 (the "License");
+ *      you may not use this file except in compliance with the License.
+ *      You may obtain a copy of the License at
+ *
+ *          http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *      Unless required by applicable law or agreed to in writing, software
+ *      distributed under the License is distributed on an "AS IS" BASIS,
+ *      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *      See the License for the specific language governing permissions and
+ *      limitations under the License.
+ */
+
+#include "InstanceDirUpdate.h"
+
+#include <QCheckBox>
+#include <QMessageBox>
+
+#include "FileSystem.h"
+
+bool askToUpdateInstanceDirName(SettingsObjectPtr globalSettings, InstancePtr instance, QWidget* parent)
+{
+    QString renamingMode = globalSettings->get("InstRenamingMode").toString();
+    if (renamingMode == "MetadataOnly")
+        return false;
+
+    auto oldRoot = instance->instanceRoot();
+    auto oldName = QFileInfo(oldRoot).baseName();
+    auto newRoot = FS::PathCombine(QFileInfo(oldRoot).dir().absolutePath(), instance->name());
+    if (oldRoot == newRoot)
+        return false;
+
+    // Check for conflict
+    if (QDir(newRoot).exists()) {
+        QMessageBox::warning(parent, QObject::tr("Cannot rename instance"),
+                             QObject::tr("New instance root (%1) already exists. <br />Only the metadata will be renamed.").arg(newRoot));
+        return false;
+    }
+
+    // Ask if we should rename
+    if (renamingMode == "AskEverytime") {
+        QMessageBox messageBox(parent);
+        messageBox.setText(QObject::tr("Would you also like to rename the instance folder?"));
+        messageBox.setInformativeText(QObject::tr("Renaming \'%1\' -> \'%2\'").arg(oldName, instance->name()));
+        messageBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
+        messageBox.setDefaultButton(QMessageBox::Yes);
+        messageBox.setIcon(QMessageBox::Question);
+
+        auto checkBox = new QCheckBox(QObject::tr("&Remember my choice"), parent);
+        messageBox.setCheckBox(checkBox);
+
+        auto res = messageBox.exec();
+        if (checkBox->isChecked()) {
+            if (res == QMessageBox::Yes)
+                globalSettings->set("InstRenamingMode", "PhysicalDir");
+            else
+                globalSettings->set("InstRenamingMode", "MetadataOnly");
+        }
+        if (res == QMessageBox::No)
+            return false;
+    }
+
+    // Now we can confirm that a renaming is happening
+    auto ret = QFile::rename(oldRoot, newRoot);
+    if (!ret) {
+        QMessageBox::warning(parent, QObject::tr("Cannot rename instance"),
+                             QObject::tr("An error occurred when performing the following renaming operation: <br/>"
+                                " - Old instance root: %1<br/>"
+                                " - New instance root: %2<br/>"
+                                "Only the metadata is renamed.")
+                                 .arg(oldRoot, newRoot));
+        return false;
+    }
+    return true;
+}

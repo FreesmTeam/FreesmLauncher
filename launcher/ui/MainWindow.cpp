@@ -124,6 +124,7 @@
 #include "KonamiCode.h"
 
 #include "InstanceCopyTask.h"
+#include "InstanceDirUpdate.h"
 
 #include "Json.h"
 
@@ -1704,7 +1705,7 @@ void MainWindow::instanceDataChanged(const QModelIndex& topLeft, const QModelInd
     QItemSelection test(topLeft, bottomRight);
     if (test.contains(current)) {
         instanceChanged(current, current);
-        if (m_selectedInstance && m_selectedInstance->updateInstanceRoot(this)) {
+        if (m_selectedInstance && askToUpdateInstanceDirName(APPLICATION->settings(), m_selectedInstance, this)) {
             auto newID = m_selectedInstance->name();
             refreshInstances();
             setSelectedInstanceById(newID);
