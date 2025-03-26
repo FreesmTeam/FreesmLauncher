@@ -1428,6 +1428,13 @@ void MainWindow::on_actionExportInstanceFlamePack_triggered()
 void MainWindow::on_actionRenameInstance_triggered()
 {
     if (m_selectedInstance) {
+        connect(view->itemDelegate(), &QAbstractItemDelegate::closeEditor, this, [this] {
+            if (askToUpdateInstanceDirName(m_selectedInstance, this)) {
+                auto newID = m_selectedInstance->name();
+                refreshInstances();
+                setSelectedInstanceById(newID);
+            }
+        }, Qt::SingleShotConnection);
         view->edit(view->currentIndex());
     }
 }
@@ -1693,11 +1700,6 @@ void MainWindow::instanceDataChanged(const QModelIndex& topLeft, const QModelInd
     QItemSelection test(topLeft, bottomRight);
     if (test.contains(current)) {
         instanceChanged(current, current);
-        if (m_selectedInstance && askToUpdateInstanceDirName(m_selectedInstance, this)) {
-            auto newID = m_selectedInstance->name();
-            refreshInstances();
-            setSelectedInstanceById(newID);
-        }
     }
 }
 

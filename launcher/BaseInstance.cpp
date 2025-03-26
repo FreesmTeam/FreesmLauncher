@@ -388,6 +388,17 @@ void BaseInstance::setName(QString val)
     emit propertiesChanged(this);
 }
 
+bool BaseInstance::syncInstanceDirName() const
+{
+    auto oldRoot = instanceRoot();
+    auto newRoot = FS::PathCombine(QFileInfo(oldRoot).dir().absolutePath(), name());
+    if (oldRoot == newRoot)
+        return true;
+    if (!QFile::rename(oldRoot, newRoot))
+        return false;
+    return true;
+}
+
 QString BaseInstance::name() const
 {
     return m_settings->get("name").toString();

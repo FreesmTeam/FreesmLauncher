@@ -93,8 +93,7 @@ bool askToUpdateInstanceDirName(InstancePtr instance, QWidget* parent)
         return false;
 
     // Now we can confirm that a renaming is happening
-    auto ret = QFile::rename(oldRoot, newRoot);
-    if (!ret) {
+    if (!instance->syncInstanceDirName()) {
         QMessageBox::warning(parent, QObject::tr("Cannot rename instance"),
                              QObject::tr("An error occurred when performing the following renaming operation: <br/>"
                                          " - Old instance root: %1<br/>"
