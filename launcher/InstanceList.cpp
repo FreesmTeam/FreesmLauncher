@@ -149,6 +149,11 @@ QStringList InstanceList::getLinkedInstancesById(const QString& id) const
     return linkedInstances;
 }
 
+QString InstanceList::getInstanceRootById(const InstanceId& id) const
+{
+    return FS::PathCombine(m_instDir, id);
+}
+
 int InstanceList::rowCount(const QModelIndex& parent) const
 {
     Q_UNUSED(parent);
@@ -627,7 +632,7 @@ InstancePtr InstanceList::loadInstance(const InstanceId& id)
         loadGroupList();
     }
 
-    auto instanceRoot = FS::PathCombine(m_instDir, id);
+    auto instanceRoot = getInstanceRootById(id);
     auto instanceSettings = std::make_shared<INISettingsObject>(FS::PathCombine(instanceRoot, "instance.cfg"));
     InstancePtr inst;
 

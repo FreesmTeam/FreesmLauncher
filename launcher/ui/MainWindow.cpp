@@ -54,6 +54,7 @@
 #include <QActionGroup>
 #include <QApplication>
 #include <QButtonGroup>
+#include <QCheckBox>
 #include <QFileDialog>
 #include <QHBoxLayout>
 #include <QHeaderView>
@@ -562,6 +563,67 @@ void MainWindow::showInstanceContextMenu(const QPoint& pos)
         myMenu.setEnabled(m_selectedInstance->canLaunch());
     */
     myMenu.exec(view->mapToGlobal(pos));
+}
+
+void MainWindow::updateInstanceRoot()
+{
+    QString renamingMode = APPLICATION->settings()->get("InstRenamingMode").toString();
+    if (renamingMode == "MetadataOnly")
+        return;
+
+    auto oldRoot = m_selectedInstance->instanceRoot();
+    auto newID = m_selectedInstance->name();
+    auto newRoot = APPLICATION->instances()->getInstanceRootById(newID);
+    if (oldRoot == newRoot)
+        return;
+
+    // Check for conflict
+    if (QDir(newRoot).exists()) {
+        QMessageBox::warning(this, tr("Cannot rename instance"),
+                             tr("New instance root (%1) already exists. <br />Only the metadata will be renamed.").arg(newRoot));
+        return;
+    }
+
+    // Ask if we should rename
+    if (renamingMode == "AskEverytime") {
+        QMessageBox messageBox(this);
+        messageBox.setText(tr("Do you want to also rename the instance\'s physical directory?"));
+        messageBox.setInformativeText(tr("The following renaming operation will be performed: <br/>"
+                                         " - Old instance root: %1<br/>"
+                                         " - New instance root: %2")
+                                          .arg(oldRoot, newRoot));
+        messageBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
+        messageBox.setDefaultButton(QMessageBox::Yes);
+        messageBox.setIcon(QMessageBox::Question);
+
+        auto checkBox = new QCheckBox(tr("&Remember my choice"), this);
+        checkBox->setChecked(true);
+        messageBox.setCheckBox(checkBox);
+
+        auto res = messageBox.exec();
+        if (checkBox->isChecked()) {
+            if (res == QMessageBox::Yes)
+                APPLICATION->settings()->set("InstRenamingMode", "PhysicalDir");
+            else
+                APPLICATION->settings()->set("InstRenamingMode", "MetadataOnly");
+        }
+        if (res == QMessageBox::No)
+            return;
+    }
+
+    // Now we can confirm that a renaming is happening
+    auto ret = QFile::rename(oldRoot, newRoot);
+    if (!ret) {
+        QMessageBox::warning(this, tr("Cannot rename instance"),
+                             tr("An error occurred when performing the following renaming operation: <br/>"
+                                " - Old instance root: %1<br/>"
+                                " - New instance root: %2<br/>"
+                                "Only the metadata is renamed.")
+                                 .arg(oldRoot, newRoot));
+        return;
+    }
+    refreshInstances();
+    setSelectedInstanceById(newID);
 }
 
 void MainWindow::updateMainToolBar()
@@ -1703,6 +1765,7 @@ void MainWindow::instanceDataChanged(const QModelIndex& topLeft, const QModelInd
     QItemSelection test(topLeft, bottomRight);
     if (test.contains(current)) {
         instanceChanged(current, current);
+        updateInstanceRoot();
     }
 }
 

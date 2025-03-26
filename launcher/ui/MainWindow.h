@@ -176,6 +176,8 @@ class MainWindow : public QMainWindow {
 
     void showInstanceContextMenu(const QPoint&);
 
+    void updateInstanceRoot();
+
     void updateMainToolBar();
 
     void updateLaunchButton();

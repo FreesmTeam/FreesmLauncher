@@ -152,6 +152,7 @@ class InstanceList : public QAbstractListModel {
     QMimeData* mimeData(const QModelIndexList& indexes) const override;
 
     QStringList getLinkedInstancesById(const QString& id) const;
+    QString getInstanceRootById(const InstanceId& id) const;
 
    signals:
     void dataIsInvalid();

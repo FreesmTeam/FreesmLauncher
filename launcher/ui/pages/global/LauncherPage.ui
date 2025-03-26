@@ -701,8 +701,6 @@
   <tabstop>numberOfConcurrentDownloadsSpinBox</tabstop>
   <tabstop>numberOfManualRetriesSpinBox</tabstop>
   <tabstop>timeoutSecondsSpinBox</tabstop>
-  <tabstop>sortLastLaunchedComboBox</tabstop>
-  <tabstop>sortByNameBtn</tabstop>
   <tabstop>catOpacitySpinBox</tabstop>
   <tabstop>preferMenuBarCheckBox</tabstop>
   <tabstop>lineLimitSpinBox</tabstop>

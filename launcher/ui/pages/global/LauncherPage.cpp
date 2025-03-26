@@ -241,7 +241,7 @@ void LauncherPage::applySettings()
     s->set("MoveModsFromDownloadsDir", ui->downloadsDirMoveCheckBox->isChecked());
 
     // Instance
-    auto sortMode = (InstSortMode) ui->viewSortingComboBox->currentIndex();
+    auto sortMode = (InstSortMode)ui->viewSortingComboBox->currentIndex();
     switch (sortMode) {
         case Sort_LastLaunch:
             s->set("InstSortMode", "LastLaunch");
@@ -252,7 +252,7 @@ void LauncherPage::applySettings()
             break;
     }
 
-    auto renamingMode = (InstRenamingMode) ui->renamingBehaviorComboBox->currentIndex();
+    auto renamingMode = (InstRenamingMode)ui->renamingBehaviorComboBox->currentIndex();
     switch (renamingMode) {
         case Rename_Metadata:
             s->set("InstRenamingMode", "MetadataOnly");
@@ -334,7 +334,7 @@ void LauncherPage::loadSettings()
     InstRenamingMode renamingModeEnum;
     if (renamingMode == "MetadataOnly") {
         renamingModeEnum = Rename_Metadata;
-    } else if (renamingMode == "PhysicalDir"){
+    } else if (renamingMode == "PhysicalDir") {
         renamingModeEnum = Rename_Physical;
     } else {
         renamingModeEnum = Rename_Ask;
