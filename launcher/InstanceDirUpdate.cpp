@@ -54,7 +54,8 @@ bool askToUpdateInstanceDirName(InstancePtr instance, QWidget* parent)
 
     auto oldRoot = instance->instanceRoot();
     auto oldName = QFileInfo(oldRoot).baseName();
-    auto newRoot = FS::PathCombine(QFileInfo(oldRoot).dir().absolutePath(), instance->name());
+    auto newName = FS::DirNameFromString(instance->name(), QFileInfo(oldRoot).dir().absolutePath());
+    auto newRoot = FS::PathCombine(QFileInfo(oldRoot).dir().absolutePath(), newName);
     if (oldRoot == newRoot)
         return false;
 
@@ -69,7 +70,7 @@ bool askToUpdateInstanceDirName(InstancePtr instance, QWidget* parent)
     if (renamingMode == "AskEverytime") {
         QMessageBox messageBox(parent);
         messageBox.setText(QObject::tr("Would you also like to rename the instance folder?"));
-        messageBox.setInformativeText(QObject::tr("Renaming \'%1\' -> \'%2\'").arg(oldName, instance->name()));
+        messageBox.setInformativeText(QObject::tr("Renaming \'%1\' -> \'%2\'").arg(oldName, newName));
         messageBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
         messageBox.setDefaultButton(QMessageBox::Yes);
         messageBox.setIcon(QMessageBox::Question);
@@ -93,7 +94,7 @@ bool askToUpdateInstanceDirName(InstancePtr instance, QWidget* parent)
         return false;
 
     // Now we can confirm that a renaming is happening
-    if (!instance->syncInstanceDirName()) {
+    if (!instance->syncInstanceDirName(newRoot)) {
         QMessageBox::warning(parent, QObject::tr("Cannot rename instance"),
                              QObject::tr("An error occurred when performing the following renaming operation: <br/>"
                                          " - Old instance root: %1<br/>"
