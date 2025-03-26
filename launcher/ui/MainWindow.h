@@ -224,6 +224,7 @@ class MainWindow : public QMainWindow {
     void setCatBackground(bool enabled);
     void updateInstanceToolIcon(QString new_icon);
     void setSelectedInstanceById(const QString& id);
+    void setSelectedInstanceByRoot(const QString& instanceRoot);
     void updateStatusCenter();
     void setInstanceActionsEnabled(bool enabled);
 

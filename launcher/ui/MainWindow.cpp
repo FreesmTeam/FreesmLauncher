@@ -294,6 +294,12 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent), ui(new Ui::MainWi
         view->setFrameShape(QFrame::NoFrame);
         // do not show ugly blue border on the mac
         view->setAttribute(Qt::WA_MacShowFocusRect, false);
+        connect(view->itemDelegate(), &QAbstractItemDelegate::closeEditor, this, [this] {
+            if (auto newRoot = askToUpdateInstanceDirName(m_selectedInstance, this); !newRoot.isEmpty()) {
+                refreshInstances();
+                setSelectedInstanceByRoot(newRoot);
+            }
+        });
 
         view->installEventFilter(this);
         view->setContextMenuPolicy(Qt::CustomContextMenu);
@@ -1133,6 +1139,18 @@ void MainWindow::setSelectedInstanceById(const QString& id)
     }
 }
 
+void MainWindow::setSelectedInstanceByRoot(const QString& instanceRoot)
+{
+    if (instanceRoot.isNull())
+        return;
+    const QModelIndex index = APPLICATION->instances()->getInstanceIndexByRoot(instanceRoot);
+    if (index.isValid()) {
+        QModelIndex selectionIndex = proxymodel->mapFromSource(index);
+        view->selectionModel()->setCurrentIndex(selectionIndex, QItemSelectionModel::ClearAndSelect);
+        updateStatusCenter();
+    }
+}
+
 void MainWindow::on_actionChangeInstGroup_triggered()
 {
     if (!m_selectedInstance)
@@ -1428,13 +1446,6 @@ void MainWindow::on_actionExportInstanceFlamePack_triggered()
 void MainWindow::on_actionRenameInstance_triggered()
 {
     if (m_selectedInstance) {
-        connect(view->itemDelegate(), &QAbstractItemDelegate::closeEditor, this, [this] {
-            if (askToUpdateInstanceDirName(m_selectedInstance, this)) {
-                auto newID = m_selectedInstance->name();
-                refreshInstances();
-                setSelectedInstanceById(newID);
-            }
-        }, Qt::SingleShotConnection);
         view->edit(view->currentIndex());
     }
 }

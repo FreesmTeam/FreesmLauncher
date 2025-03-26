@@ -39,8 +39,8 @@
 
 #include "BaseInstance.h"
 
-/// Update instanceRoot to make it sync with name/id; return true if a refresh is needed
-bool askToUpdateInstanceDirName(InstancePtr instance, QWidget* parent);
+/// Update instanceRoot to make it sync with name/id; return newRoot if a directory rename happened
+QString askToUpdateInstanceDirName(InstancePtr instance, QWidget* parent);
 
 /// Check if there are linked instances, and display a warning; return true if the operation should proceed
 bool checkLinkedInstances(const QString& id, QWidget* parent);

@@ -46,24 +46,27 @@
 #include "InstanceList.h"
 #include "ui/dialogs/CustomMessageBox.h"
 
-bool askToUpdateInstanceDirName(InstancePtr instance, QWidget* parent)
+QString askToUpdateInstanceDirName(InstancePtr instance, QWidget* parent)
 {
     QString renamingMode = APPLICATION->settings()->get("InstRenamingMode").toString();
     if (renamingMode == "MetadataOnly")
-        return false;
+        return QString();
 
     auto oldRoot = instance->instanceRoot();
     auto oldName = QFileInfo(oldRoot).baseName();
+    if (oldName == FS::RemoveInvalidFilenameChars(instance->name(), '-'))
+        return QString();
+
     auto newName = FS::DirNameFromString(instance->name(), QFileInfo(oldRoot).dir().absolutePath());
     auto newRoot = FS::PathCombine(QFileInfo(oldRoot).dir().absolutePath(), newName);
     if (oldRoot == newRoot)
-        return false;
+        return QString();
 
     // Check for conflict
     if (QDir(newRoot).exists()) {
         QMessageBox::warning(parent, QObject::tr("Cannot rename instance"),
                              QObject::tr("New instance root (%1) already exists. <br />Only the metadata will be renamed.").arg(newRoot));
-        return false;
+        return QString();
     }
 
     // Ask if we should rename
@@ -86,12 +89,12 @@ bool askToUpdateInstanceDirName(InstancePtr instance, QWidget* parent)
                 APPLICATION->settings()->set("InstRenamingMode", "MetadataOnly");
         }
         if (res == QMessageBox::No)
-            return false;
+            return QString();
     }
 
     // Check for linked instances
     if (!checkLinkedInstances(instance->id(), parent))
-        return false;
+        return QString();
 
     // Now we can confirm that a renaming is happening
     if (!instance->syncInstanceDirName(newRoot)) {
@@ -101,9 +104,9 @@ bool askToUpdateInstanceDirName(InstancePtr instance, QWidget* parent)
                                          " - New instance root: %2<br/>"
                                          "Only the metadata is renamed.")
                                  .arg(oldRoot, newRoot));
-        return false;
+        return QString();
     }
-    return true;
+    return newRoot;
 }
 
 bool checkLinkedInstances(const QString& id, QWidget* parent)

@@ -583,6 +583,18 @@ InstancePtr InstanceList::getInstanceById(QString instId) const
     return InstancePtr();
 }
 
+InstancePtr InstanceList::getInstanceByRoot(QString instanceRoot) const
+{
+    if (instanceRoot.isEmpty())
+        return InstancePtr();
+    for (auto& inst : m_instances) {
+        if (inst->instanceRoot() == instanceRoot) {
+            return inst;
+        }
+    }
+    return InstancePtr();
+}
+
 InstancePtr InstanceList::getInstanceByManagedName(const QString& managed_name) const
 {
     if (managed_name.isEmpty())
@@ -599,6 +611,11 @@ InstancePtr InstanceList::getInstanceByManagedName(const QString& managed_name) 
 QModelIndex InstanceList::getInstanceIndexById(const QString& id) const
 {
     return index(getInstIndex(getInstanceById(id).get()));
+}
+
+QModelIndex InstanceList::getInstanceIndexByRoot(const QString& instanceRoot) const
+{
+    return index(getInstIndex(getInstanceByRoot(instanceRoot).get()));
 }
 
 int InstanceList::getInstIndex(BaseInstance* inst) const
