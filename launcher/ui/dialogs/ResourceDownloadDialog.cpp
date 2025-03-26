@@ -397,10 +397,9 @@ void ResourceDownloadDialog::setResourceMetadata(const std::shared_ptr<Metadata:
     page->openProject(meta->project_id);
 }
 
-  
 DataPackDownloadDialog::DataPackDownloadDialog(QWidget* parent,
-                                                   const std::shared_ptr<DataPackFolderModel>& data_packs,
-                                                   BaseInstance* instance)
+                                               const std::shared_ptr<DataPackFolderModel>& data_packs,
+                                               BaseInstance* instance)
     : ResourceDownloadDialog(parent, data_packs), m_instance(instance)
 {
     setWindowTitle(dialogTitle());
@@ -416,7 +415,9 @@ QList<BasePage*> DataPackDownloadDialog::getPages()
 {
     QList<BasePage*> pages;
     pages.append(ModrinthDataPackPage::create(this, *m_instance));
+    if (APPLICATION->capabilities() & Application::SupportsFlame)
+        pages.append(FlameDataPackPage::create(this, *m_instance));
     return pages;
 }
-  
+
 }  // namespace ResourceDownload

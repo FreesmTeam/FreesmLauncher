@@ -43,12 +43,13 @@ class FlameAPI : public NetworkResourceAPI {
             case ModPlatform::ResourceType::MOD:
                 return 6;
             case ModPlatform::ResourceType::RESOURCE_PACK:
-            case ModPlatform::ResourceType::DATA_PACK:
                 return 12;
             case ModPlatform::ResourceType::SHADER_PACK:
                 return 6552;
             case ModPlatform::ResourceType::MODPACK:
                 return 4471;
+            case ModPlatform::ResourceType::DATA_PACK:
+                return 6945;
         }
     }
 
@@ -69,7 +70,7 @@ class FlameAPI : public NetworkResourceAPI {
             case ModPlatform::NeoForge:
                 return 6;
             case ModPlatform::DataPack:
-                break; // not supported
+                break;  // not supported
         }
         return 0;
     }
