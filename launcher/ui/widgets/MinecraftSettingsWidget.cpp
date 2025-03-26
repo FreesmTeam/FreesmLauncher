@@ -106,8 +106,7 @@ MinecraftSettingsWidget::MinecraftSettingsWidget(MinecraftInstancePtr instance, 
             if (!value)
                 m_instance->settings()->reset("GlobalDataPacksPath");
         });
-        connect(m_ui->dataPacksPathEdit, &QLineEdit::editingFinished, this,
-                [this] { m_instance->settings()->set("GlobalDataPacksPath", m_ui->dataPacksPathEdit->text()); });
+        connect(m_ui->dataPacksPathEdit, &QLineEdit::editingFinished, this, &MinecraftSettingsWidget::editedDataPacksPath);
         connect(m_ui->dataPacksPathBrowse, &QPushButton::clicked, this, &MinecraftSettingsWidget::selectDataPacksFolder);
     }
 
@@ -476,6 +475,14 @@ void MinecraftSettingsWidget::updateAccountsMenu(const SettingsObject& settings)
 bool MinecraftSettingsWidget::isQuickPlaySupported()
 {
     return m_instance->traits().contains("feature:is_quick_play_singleplayer");
+}
+
+void MinecraftSettingsWidget::editedDataPacksPath()
+{
+    if (QDir::separator() != '/')
+        m_ui->dataPacksPathEdit->setText(m_ui->dataPacksPathEdit->text().replace(QDir::separator(), '/'));
+
+    m_instance->settings()->set("GlobalDataPacksPath", m_ui->dataPacksPathEdit->text());
 }
 
 void MinecraftSettingsWidget::selectDataPacksFolder()
