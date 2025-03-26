@@ -36,6 +36,13 @@ class DataPackPage : public ExternalResourcesPage {
    public slots:
     void updateFrame(const QModelIndex& current, const QModelIndex& previous) override;
     void downloadDataPacks();
+    void updateDataPacks();
+    void deleteDataPackMetadata();
+    void changeDataPackVersion();
+
+   private:
+    std::shared_ptr<DataPackFolderModel> m_model;
+
 };
 
 /**
