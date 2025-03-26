@@ -336,6 +336,7 @@ bool BaseInstance::updateInstanceRoot(QWidget* parent)
         return false;
 
     auto oldRoot = instanceRoot();
+    auto oldName = QFileInfo(oldRoot).baseName();
     auto newRoot = FS::PathCombine(QFileInfo(oldRoot).dir().absolutePath(), name());
     if (oldRoot == newRoot)
         return false;
@@ -350,11 +351,8 @@ bool BaseInstance::updateInstanceRoot(QWidget* parent)
     // Ask if we should rename
     if (renamingMode == "AskEverytime") {
         QMessageBox messageBox(parent);
-        messageBox.setText(tr("Do you want to also rename the instance\'s physical directory?"));
-        messageBox.setInformativeText(tr("The following renaming operation will be performed: <br/>"
-                                         " - Old instance root: %1<br/>"
-                                         " - New instance root: %2")
-                                          .arg(oldRoot, newRoot));
+        messageBox.setText(tr("Would you also like to rename the instance folder?"));
+        messageBox.setInformativeText(tr("Renaming \'%1\' -> \'%2\'").arg(oldName, name()));
         messageBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
         messageBox.setDefaultButton(QMessageBox::Yes);
         messageBox.setIcon(QMessageBox::Question);

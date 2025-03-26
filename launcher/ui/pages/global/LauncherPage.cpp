@@ -67,16 +67,19 @@ enum InstSortMode {
 
 enum InstRenamingMode {
     // Rename metadata only.
-    Rename_Metadata,
-    // Rename physical directory too.
-    Rename_Physical,
+    Rename_Always,
     // Ask everytime.
-    Rename_Ask
+    Rename_Ask,
+    // Rename physical directory too.
+    Rename_Never
 };
 
 LauncherPage::LauncherPage(QWidget* parent) : QWidget(parent), ui(new Ui::LauncherPage)
 {
     ui->setupUi(this);
+
+    ui->sortingModeGroup->setId(ui->sortByNameBtn, Sort_Name);
+    ui->sortingModeGroup->setId(ui->sortLastLaunchedBtn, Sort_LastLaunch);
 
     defaultFormat = new QTextCharFormat(ui->fontPreview->currentCharFormat());
 
@@ -241,7 +244,7 @@ void LauncherPage::applySettings()
     s->set("MoveModsFromDownloadsDir", ui->downloadsDirMoveCheckBox->isChecked());
 
     // Instance
-    auto sortMode = (InstSortMode)ui->viewSortingComboBox->currentIndex();
+    auto sortMode = (InstSortMode)ui->sortingModeGroup->checkedId();
     switch (sortMode) {
         case Sort_LastLaunch:
             s->set("InstSortMode", "LastLaunch");
@@ -254,10 +257,10 @@ void LauncherPage::applySettings()
 
     auto renamingMode = (InstRenamingMode)ui->renamingBehaviorComboBox->currentIndex();
     switch (renamingMode) {
-        case Rename_Metadata:
+        case Rename_Always:
             s->set("InstRenamingMode", "MetadataOnly");
             break;
-        case Rename_Physical:
+        case Rename_Never:
             s->set("InstRenamingMode", "PhysicalDir");
             break;
         case Rename_Ask:
@@ -322,20 +325,18 @@ void LauncherPage::loadSettings()
 
     // Instance
     QString sortMode = s->get("InstSortMode").toString();
-    InstSortMode sortModeEnum;
     if (sortMode == "LastLaunch") {
-        sortModeEnum = Sort_LastLaunch;
+        ui->sortLastLaunchedBtn->setChecked(true);
     } else {
-        sortModeEnum = Sort_Name;
+        ui->sortByNameBtn->setChecked(true);
     }
-    ui->viewSortingComboBox->setCurrentIndex(sortModeEnum);
 
     QString renamingMode = s->get("InstRenamingMode").toString();
     InstRenamingMode renamingModeEnum;
     if (renamingMode == "MetadataOnly") {
-        renamingModeEnum = Rename_Metadata;
+        renamingModeEnum = Rename_Always;
     } else if (renamingMode == "PhysicalDir") {
-        renamingModeEnum = Rename_Physical;
+        renamingModeEnum = Rename_Never;
     } else {
         renamingModeEnum = Rename_Ask;
     }
