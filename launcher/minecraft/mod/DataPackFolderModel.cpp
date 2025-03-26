@@ -47,7 +47,8 @@
 
 #include "minecraft/mod/tasks/LocalDataPackParseTask.h"
 
-DataPackFolderModel::DataPackFolderModel(const QString& dir, BaseInstance* instance, bool is_indexed, bool create_dir, QObject* parent) : ResourceFolderModel(QDir(dir), instance, is_indexed, create_dir, parent)
+DataPackFolderModel::DataPackFolderModel(const QString& dir, BaseInstance* instance, bool is_indexed, bool create_dir, QObject* parent)
+    : ResourceFolderModel(QDir(dir), instance, is_indexed, create_dir, parent)
 {
     m_column_names = QStringList({ "Enable", "Image", "Name", "Pack Format", "Last Modified" });
     m_column_names_translated = QStringList({ tr("Enable"), tr("Image"), tr("Name"), tr("Pack Format"), tr("Last Modified") });
@@ -123,12 +124,10 @@ QVariant DataPackFolderModel::data(const QModelIndex& index, int role) const
             }
             return {};
         case Qt::CheckStateRole:
-            switch (column) {
-                case ActiveColumn:
-                    return at(row).enabled() ? Qt::Checked : Qt::Unchecked;
-                default:
-                    return {};
-            }
+            if (column == ActiveColumn)
+                return at(row).enabled() ? Qt::Checked : Qt::Unchecked;
+            else
+                return {};
         default:
             return {};
     }
