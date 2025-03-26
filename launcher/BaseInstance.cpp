@@ -37,13 +37,11 @@
 
 #include "BaseInstance.h"
 
-#include <QCheckBox>
 #include <QDebug>
 #include <QDir>
 #include <QFileInfo>
 #include <QJsonDocument>
 #include <QJsonObject>
-#include <QMessageBox>
 #include <QRegularExpression>
 
 #include "settings/INISettingsObject.h"

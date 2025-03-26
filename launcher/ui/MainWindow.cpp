@@ -54,7 +54,6 @@
 #include <QActionGroup>
 #include <QApplication>
 #include <QButtonGroup>
-#include <QCheckBox>
 #include <QFileDialog>
 #include <QHBoxLayout>
 #include <QHeaderView>
