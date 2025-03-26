@@ -36,6 +36,7 @@
  */
 
 #include "MinecraftSettingsWidget.h"
+#include <QFileDialog>
 
 #include "Application.h"
 #include "BuildConfig.h"
@@ -103,7 +104,8 @@ MinecraftSettingsWidget::MinecraftSettingsWidget(MinecraftInstancePtr instance, 
         connect(m_ui->globalDataPacksGroupBox, &QGroupBox::toggled, this,
                 [this](bool value) { m_instance->settings()->set("GlobalDataPacksEnabled", value); });
         connect(m_ui->dataPacksPathEdit, &QLineEdit::editingFinished, this,
-                [this]() { m_instance->settings()->set("GlobalDataPacksPath", m_ui->dataPacksPathEdit->text()); });
+                [this] { m_instance->settings()->set("GlobalDataPacksPath", m_ui->dataPacksPathEdit->text()); });
+        connect(m_ui->dataPacksPathBrowse, &QPushButton::clicked, this, &MinecraftSettingsWidget::selectDataPacksFolder);
     }
 
     m_ui->maximizedWarning->hide();
@@ -471,4 +473,24 @@ void MinecraftSettingsWidget::updateAccountsMenu(const SettingsObject& settings)
 bool MinecraftSettingsWidget::isQuickPlaySupported()
 {
     return m_instance->traits().contains("feature:is_quick_play_singleplayer");
+}
+
+void MinecraftSettingsWidget::selectDataPacksFolder()
+{
+    QString path = QFileDialog::getExistingDirectory(this, tr("Select Global Data Packs Folder"), m_instance->instanceRoot());
+
+    if (path.isEmpty())
+        return;
+
+    // if it's inside the instance dir, set path relative to .minecraft
+    // (so that if it's directly in instance dir it will still lead with .. but more than two levels up are kept absolute)
+
+    const QUrl instanceRootUrl = QUrl::fromLocalFile(m_instance->instanceRoot());
+    const QUrl pathUrl = QUrl::fromLocalFile(path);
+
+    if (instanceRootUrl.isParentOf(pathUrl))
+        path = QDir(m_instance->gameRoot()).relativeFilePath(path);
+
+    m_ui->dataPacksPathEdit->setText(path);
+    m_instance->settings()->set("GlobalDataPacksPath", path);
 }
