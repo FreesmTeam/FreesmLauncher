@@ -101,8 +101,11 @@ MinecraftSettingsWidget::MinecraftSettingsWidget(MinecraftInstancePtr instance, 
         connect(m_ui->serverJoinAddressButton, &QAbstractButton::toggled, m_ui->serverJoinAddress, &QWidget::setEnabled);
         connect(m_ui->worldJoinButton, &QAbstractButton::toggled, m_ui->worldsCb, &QWidget::setEnabled);
 
-        connect(m_ui->globalDataPacksGroupBox, &QGroupBox::toggled, this,
-                [this](bool value) { m_instance->settings()->set("GlobalDataPacksEnabled", value); });
+        connect(m_ui->globalDataPacksGroupBox, &QGroupBox::toggled, this, [this](bool value) {
+            m_instance->settings()->set("GlobalDataPacksEnabled", value);
+            if (!value)
+                m_instance->settings()->reset("GlobalDataPacksPath");
+        });
         connect(m_ui->dataPacksPathEdit, &QLineEdit::editingFinished, this,
                 [this] { m_instance->settings()->set("GlobalDataPacksPath", m_ui->dataPacksPathEdit->text()); });
         connect(m_ui->dataPacksPathBrowse, &QPushButton::clicked, this, &MinecraftSettingsWidget::selectDataPacksFolder);
