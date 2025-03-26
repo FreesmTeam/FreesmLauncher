@@ -100,8 +100,12 @@ class FlameAPI : public NetworkResourceAPI {
         if (args.sorting.has_value())
             get_arguments.append(QString("sortField=%1").arg(args.sorting.value().index));
         get_arguments.append("sortOrder=desc");
-        if (args.loaders.has_value() && args.loaders.value() != 0)
-            get_arguments.append(QString("modLoaderTypes=%1").arg(getModLoaderFilters(args.loaders.value())));
+        if (args.loaders.has_value()) {
+            ModPlatform::ModLoaderTypes loaders = args.loaders.value();
+            loaders &= ~ModPlatform::ModLoaderType::DataPack;
+            if (loaders != 0)
+                get_arguments.append(QString("modLoaderTypes=%1").arg(getModLoaderFilters(loaders)));
+        }
         if (args.categoryIds.has_value() && !args.categoryIds->empty())
             get_arguments.append(QString("categoryIds=[%1]").arg(args.categoryIds->join(",")));
 
@@ -119,7 +123,7 @@ class FlameAPI : public NetworkResourceAPI {
         if (args.mcVersions.has_value())
             url += QString("&gameVersion=%1").arg(args.mcVersions.value().front().toString());
 
-        if (args.loaders.has_value() && ModPlatform::hasSingleModLoaderSelected(args.loaders.value())) {
+        if (args.loaders.has_value() && args.loaders.value() != ModPlatform::ModLoaderType::DataPack && ModPlatform::hasSingleModLoaderSelected(args.loaders.value())) {
             int mappedModLoader = getMappedModLoader(static_cast<ModPlatform::ModLoaderType>(static_cast<int>(args.loaders.value())));
             url += QString("&modLoaderType=%1").arg(mappedModLoader);
         }
