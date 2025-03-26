@@ -100,7 +100,7 @@ void LogModel::setMaxLines(int maxLines)
         return;
     }
     // otherwise, we need to reorganize the data because it crosses the wrap boundary
-    QVector<entry> newContent;
+    QList<entry> newContent;
     newContent.resize(maxLines);
     if (m_numLines <= maxLines) {
         // if it all fits in the new buffer, just copy it over
