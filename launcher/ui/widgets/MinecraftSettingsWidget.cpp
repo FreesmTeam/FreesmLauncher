@@ -36,14 +36,14 @@
  */
 
 #include "MinecraftSettingsWidget.h"
-#include <QFileDialog>
+#include "ui_MinecraftSettingsWidget.h"
 
+#include <QFileDialog>
 #include "Application.h"
 #include "BuildConfig.h"
 #include "minecraft/WorldList.h"
 #include "minecraft/auth/AccountList.h"
 #include "settings/Setting.h"
-#include "ui_MinecraftSettingsWidget.h"
 
 MinecraftSettingsWidget::MinecraftSettingsWidget(MinecraftInstancePtr instance, QWidget* parent)
     : QWidget(parent), m_instance(std::move(instance)), m_ui(new Ui::MinecraftSettingsWidget)

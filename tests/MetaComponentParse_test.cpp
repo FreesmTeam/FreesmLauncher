@@ -41,6 +41,7 @@
 
 #include <FileSystem.h>
 
+#include <minecraft/mod/tasks/LocalDataPackParseTask.h>
 #include <minecraft/mod/tasks/LocalResourcePackParseTask.h>
 
 class MetaComponentParseTest : public QObject {
@@ -69,7 +70,7 @@ class MetaComponentParseTest : public QObject {
 
         QString expected = expected_json.toString();
 
-        QString processed = ResourcePackUtils::processComponent(description_json);
+        QString processed = DataPackUtils::processComponent(description_json);
 
         QCOMPARE(processed, expected);
     }
