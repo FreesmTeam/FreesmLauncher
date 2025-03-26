@@ -40,11 +40,15 @@
 #include <QCheckBox>
 #include <QMessageBox>
 
+#include "Application.h"
 #include "FileSystem.h"
 
-bool askToUpdateInstanceDirName(SettingsObjectPtr globalSettings, InstancePtr instance, QWidget* parent)
+#include "InstanceList.h"
+#include "ui/dialogs/CustomMessageBox.h"
+
+bool askToUpdateInstanceDirName(InstancePtr instance, QWidget* parent)
 {
-    QString renamingMode = globalSettings->get("InstRenamingMode").toString();
+    QString renamingMode = APPLICATION->settings()->get("InstRenamingMode").toString();
     if (renamingMode == "MetadataOnly")
         return false;
 
@@ -76,24 +80,47 @@ bool askToUpdateInstanceDirName(SettingsObjectPtr globalSettings, InstancePtr in
         auto res = messageBox.exec();
         if (checkBox->isChecked()) {
             if (res == QMessageBox::Yes)
-                globalSettings->set("InstRenamingMode", "PhysicalDir");
+                APPLICATION->settings()->set("InstRenamingMode", "PhysicalDir");
             else
-                globalSettings->set("InstRenamingMode", "MetadataOnly");
+                APPLICATION->settings()->set("InstRenamingMode", "MetadataOnly");
         }
         if (res == QMessageBox::No)
             return false;
     }
+
+    // Check for linked instances
+    if (!checkLinkedInstances(instance->id(), parent))
+        return false;
 
     // Now we can confirm that a renaming is happening
     auto ret = QFile::rename(oldRoot, newRoot);
     if (!ret) {
         QMessageBox::warning(parent, QObject::tr("Cannot rename instance"),
                              QObject::tr("An error occurred when performing the following renaming operation: <br/>"
-                                " - Old instance root: %1<br/>"
-                                " - New instance root: %2<br/>"
-                                "Only the metadata is renamed.")
+                                         " - Old instance root: %1<br/>"
+                                         " - New instance root: %2<br/>"
+                                         "Only the metadata is renamed.")
                                  .arg(oldRoot, newRoot));
         return false;
+    }
+    return true;
+}
+
+bool checkLinkedInstances(const QString& id, QWidget* parent)
+{
+    auto linkedInstances = APPLICATION->instances()->getLinkedInstancesById(id);
+    if (!linkedInstances.empty()) {
+        auto response = CustomMessageBox::selectable(parent, QObject::tr("There are linked instances"),
+                                                     QObject::tr("The following instance(s) might reference files in this instance:\n\n"
+                                                                 "%1\n\n"
+                                                                 "Deleting it could break the other instance(s), \n\n"
+                                                                 "Do you wish to proceed?",
+                                                                 nullptr, linkedInstances.count())
+                                                         .arg(linkedInstances.join("\n")),
+                                                     QMessageBox::Warning, QMessageBox::Yes | QMessageBox::No, QMessageBox::No)
+                            ->exec();
+        if (response != QMessageBox::Yes)
+            return false;
     }
     return true;
 }
