@@ -20,9 +20,9 @@
       <property name="geometry">
        <rect>
         <x>0</x>
-        <y>-270</y>
-        <width>807</width>
-        <height>870</height>
+        <y>0</y>
+        <width>804</width>
+        <height>832</height>
        </rect>
       </property>
       <layout class="QVBoxLayout" name="verticalLayout">
@@ -84,19 +84,6 @@
           <string>Meta&amp;data Server</string>
          </property>
          <layout class="QVBoxLayout" name="verticalLayout_5">
-          <item>
-           <widget class="QLabel" name="metaURLLabel">
-            <property name="text">
-             <string>Base URL</string>
-            </property>
-            <property name="textFormat">
-             <enum>Qt::RichText</enum>
-            </property>
-            <property name="wordWrap">
-             <bool>true</bool>
-            </property>
-           </widget>
-          </item>
           <item>
            <widget class="QLineEdit" name="metaURL">
             <property name="placeholderText">
@@ -202,6 +189,9 @@
           </item>
           <item>
            <spacer name="verticalSpacer">
+            <property name="orientation">
+             <enum>Qt::Vertical</enum>
+            </property>
             <property name="sizeType">
              <enum>QSizePolicy::Fixed</enum>
             </property>
@@ -257,6 +247,9 @@
           </item>
           <item>
            <spacer name="verticalSpacer_4">
+            <property name="orientation">
+             <enum>Qt::Vertical</enum>
+            </property>
             <property name="sizeType">
              <enum>QSizePolicy::Fixed</enum>
             </property>
@@ -309,6 +302,9 @@
           </item>
           <item>
            <spacer name="verticalSpacer_3">
+            <property name="orientation">
+             <enum>Qt::Vertical</enum>
+            </property>
             <property name="sizeType">
              <enum>QSizePolicy::Fixed</enum>
             </property>

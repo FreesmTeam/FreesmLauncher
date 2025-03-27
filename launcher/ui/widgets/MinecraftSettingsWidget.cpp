@@ -137,7 +137,6 @@ void MinecraftSettingsWidget::loadSettings()
     // Game Window
     m_ui->windowSizeGroupBox->setChecked(m_instance == nullptr || settings->get("OverrideWindow").toBool() ||
                                          settings->get("OverrideMiscellaneous").toBool());
-    m_ui->windowSizeGroupBox->setChecked(settings->get("OverrideWindow").toBool());
     m_ui->maximizedCheckBox->setChecked(settings->get("LaunchMaximized").toBool());
     m_ui->windowWidthSpinBox->setValue(settings->get("MinecraftWinWidth").toInt());
     m_ui->windowHeightSpinBox->setValue(settings->get("MinecraftWinHeight").toInt());

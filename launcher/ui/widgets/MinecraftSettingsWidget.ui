@@ -58,9 +58,9 @@
           <property name="geometry">
            <rect>
             <x>0</x>
-            <y>0</y>
+            <y>-130</y>
             <width>603</width>
-            <height>744</height>
+            <height>812</height>
            </rect>
           </property>
           <layout class="QVBoxLayout" name="verticalLayout_5">
@@ -201,16 +201,32 @@
                </layout>
               </item>
               <item>
+               <spacer name="verticalSpacer_3">
+                <property name="orientation">
+                 <enum>Qt::Vertical</enum>
+                </property>
+                <property name="sizeType">
+                 <enum>QSizePolicy::Fixed</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>0</width>
+                  <height>6</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+              <item>
                <widget class="QCheckBox" name="closeAfterLaunchCheck">
                 <property name="text">
-                 <string>Close the launcher after the game window opens</string>
+                 <string>When the game window opens, hide the launcher</string>
                 </property>
                </widget>
               </item>
               <item>
                <widget class="QCheckBox" name="quitAfterGameStopCheck">
                 <property name="text">
-                 <string>Quit the launcher after the game window closes</string>
+                 <string>When the game window closes, quit the launcher</string>
                 </property>
                </widget>
               </item>
@@ -235,96 +251,23 @@
               <item>
                <widget class="QCheckBox" name="showConsoleCheck">
                 <property name="text">
-                 <string>Show console window while the game is running</string>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="QCheckBox" name="autoCloseConsoleCheck">
-                <property name="text">
-                 <string>Automatically close console window when the game quits</string>
+                 <string>When the game is launched, show the console window</string>
                 </property>
                </widget>
               </item>
               <item>
                <widget class="QCheckBox" name="showConsoleErrorCheck">
                 <property name="text">
-                 <string>Show console window when the game crashes</string>
-                </property>
-               </widget>
-              </item>
-             </layout>
-            </widget>
-           </item>
-           <item>
-            <widget class="QGroupBox" name="instanceAccountGroupBox">
-             <property name="title">
-              <string>&amp;Override Default Account</string>
-             </property>
-             <property name="checkable">
-              <bool>true</bool>
-             </property>
-             <property name="checked">
-              <bool>false</bool>
-             </property>
-             <layout class="QVBoxLayout" name="verticalLayout_15">
-              <item>
-               <widget class="QLabel" name="instanceAccountNameLabel">
-                <property name="sizePolicy">
-                 <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
-                  <horstretch>0</horstretch>
-                  <verstretch>0</verstretch>
-                 </sizepolicy>
-                </property>
-                <property name="text">
-                 <string>Account</string>
+                 <string>When the game crashes, show the console window</string>
                 </property>
                </widget>
               </item>
               <item>
-               <widget class="QComboBox" name="instanceAccountSelector">
-                <property name="sizePolicy">
-                 <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
-                  <horstretch>0</horstretch>
-                  <verstretch>0</verstretch>
-                 </sizepolicy>
-                </property>
-               </widget>
-              </item>
-             </layout>
-            </widget>
-           </item>
-           <item>
-            <widget class="QGroupBox" name="serverJoinGroupBox">
-             <property name="title">
-              <string>Enable &amp;Auto-join</string>
-             </property>
-             <property name="checkable">
-              <bool>true</bool>
-             </property>
-             <property name="checked">
-              <bool>false</bool>
-             </property>
-             <layout class="QGridLayout" name="gridLayout_4">
-              <item row="2" column="0">
-               <widget class="QRadioButton" name="worldJoinButton">
+               <widget class="QCheckBox" name="autoCloseConsoleCheck">
                 <property name="text">
-                 <string>Singleplayer world</string>
+                 <string>When the game quits, hide the console window</string>
                 </property>
                </widget>
-              </item>
-              <item row="0" column="0">
-               <widget class="QRadioButton" name="serverJoinAddressButton">
-                <property name="text">
-                 <string>Server address</string>
-                </property>
-               </widget>
-              </item>
-              <item row="0" column="2">
-               <widget class="QLineEdit" name="serverJoinAddress"/>
-              </item>
-              <item row="2" column="2">
-               <widget class="QComboBox" name="worldsCb"/>
               </item>
              </layout>
             </widget>
@@ -369,6 +312,93 @@
                <widget class="QCheckBox" name="showGameTimeWithoutDays">
                 <property name="text">
                  <string>Always show durations in &amp;hours</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </widget>
+           </item>
+           <item>
+            <widget class="QGroupBox" name="instanceAccountGroupBox">
+             <property name="title">
+              <string>Override &amp;Default Account</string>
+             </property>
+             <property name="checkable">
+              <bool>true</bool>
+             </property>
+             <property name="checked">
+              <bool>false</bool>
+             </property>
+             <layout class="QVBoxLayout" name="verticalLayout_15">
+              <item>
+               <widget class="QLabel" name="instanceAccountNameLabel">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="text">
+                 <string>Account</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QComboBox" name="instanceAccountSelector">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </widget>
+           </item>
+           <item>
+            <widget class="QGroupBox" name="serverJoinGroupBox">
+             <property name="title">
+              <string>Enable Auto-&amp;join</string>
+             </property>
+             <property name="checkable">
+              <bool>true</bool>
+             </property>
+             <property name="checked">
+              <bool>false</bool>
+             </property>
+             <layout class="QVBoxLayout" name="verticalLayout_9">
+              <item>
+               <widget class="QRadioButton" name="serverJoinAddressButton">
+                <property name="text">
+                 <string>Server address</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QLineEdit" name="serverJoinAddress">
+                <property name="maximumSize">
+                 <size>
+                  <width>200</width>
+                  <height>16777215</height>
+                 </size>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QRadioButton" name="worldJoinButton">
+                <property name="text">
+                 <string>Singleplayer world</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QComboBox" name="worldsCb">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
                 </property>
                </widget>
               </item>
@@ -682,7 +712,6 @@
   <tabstop>showGameTimeWithoutDays</tabstop>
   <tabstop>showConsoleCheck</tabstop>
   <tabstop>autoCloseConsoleCheck</tabstop>
-  <tabstop>showConsoleErrorCheck</tabstop>
   <tabstop>javaScrollArea</tabstop>
   <tabstop>scrollArea_2</tabstop>
   <tabstop>onlineFixes</tabstop>
@@ -694,9 +723,7 @@
   <tabstop>useDiscreteGpuCheck</tabstop>
   <tabstop>useZink</tabstop>
   <tabstop>serverJoinAddressButton</tabstop>
-  <tabstop>serverJoinAddress</tabstop>
   <tabstop>worldJoinButton</tabstop>
-  <tabstop>worldsCb</tabstop>
  </tabstops>
  <resources/>
  <connections/>
