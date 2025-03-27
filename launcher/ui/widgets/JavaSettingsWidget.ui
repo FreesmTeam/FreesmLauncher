@@ -27,37 +27,6 @@
     <number>0</number>
    </property>
    <item>
-    <layout class="QHBoxLayout" name="horizontalLayout_4">
-     <item>
-      <widget class="QPushButton" name="javaTestBtn">
-       <property name="text">
-        <string>Test S&amp;ettings</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QPushButton" name="javaDownloadBtn">
-       <property name="text">
-        <string>Open Java &amp;Downloader</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <spacer name="horizontalSpacer_7">
-       <property name="orientation">
-        <enum>Qt::Horizontal</enum>
-       </property>
-       <property name="sizeHint" stdset="0">
-        <size>
-         <width>0</width>
-         <height>0</height>
-        </size>
-       </property>
-      </spacer>
-     </item>
-    </layout>
-   </item>
-   <item>
     <widget class="QGroupBox" name="javaInstallationGroupBox">
      <property name="enabled">
       <bool>true</bool>
@@ -72,6 +41,16 @@
       <bool>false</bool>
      </property>
      <layout class="QGridLayout" name="gridLayout_2">
+      <item row="0" column="0">
+       <widget class="QLabel" name="label_4">
+        <property name="text">
+         <string>Java &amp;Executable</string>
+        </property>
+        <property name="buddy">
+         <cstring>javaPathTextBox</cstring>
+        </property>
+       </widget>
+      </item>
       <item row="1" column="0">
        <layout class="QHBoxLayout" name="horizontalLayout_8">
         <item>
@@ -99,23 +78,6 @@
         </item>
        </layout>
       </item>
-      <item row="3" column="0">
-       <widget class="QCheckBox" name="skipCompatibilityCheckBox">
-        <property name="toolTip">
-         <string>If enabled, the launcher will not check if an instance is compatible with the selected Java version.</string>
-        </property>
-        <property name="text">
-         <string>Skip Java compatibility checks</string>
-        </property>
-       </widget>
-      </item>
-      <item row="6" column="0">
-       <widget class="QCheckBox" name="autodetectJavaCheckBox">
-        <property name="text">
-         <string>Auto-&amp;detect Java version</string>
-        </property>
-       </widget>
-      </item>
       <item row="7" column="0">
        <widget class="QCheckBox" name="autodownloadJavaCheckBox">
         <property name="toolTip">
@@ -136,15 +98,53 @@
         </property>
        </widget>
       </item>
-      <item row="0" column="0">
-       <widget class="QLabel" name="label_4">
+      <item row="6" column="0">
+       <widget class="QCheckBox" name="autodetectJavaCheckBox">
         <property name="text">
-         <string>Java &amp;Executable</string>
-        </property>
-        <property name="buddy">
-         <cstring>javaPathTextBox</cstring>
+         <string>Auto-&amp;detect Java version</string>
         </property>
        </widget>
+      </item>
+      <item row="3" column="0">
+       <widget class="QCheckBox" name="skipCompatibilityCheckBox">
+        <property name="toolTip">
+         <string>If enabled, the launcher will not check if an instance is compatible with the selected Java version.</string>
+        </property>
+        <property name="text">
+         <string>Skip Java compatibility checks</string>
+        </property>
+       </widget>
+      </item>
+      <item row="8" column="0">
+       <layout class="QHBoxLayout" name="horizontalLayout_4">
+        <item>
+         <widget class="QPushButton" name="javaTestBtn">
+          <property name="text">
+           <string>Test S&amp;ettings</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="javaDownloadBtn">
+          <property name="text">
+           <string>Open Java &amp;Downloader</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <spacer name="horizontalSpacer_7">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>0</width>
+            <height>0</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+       </layout>
       </item>
      </layout>
     </widget>

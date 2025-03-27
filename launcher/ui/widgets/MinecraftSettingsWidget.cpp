@@ -50,14 +50,11 @@ MinecraftSettingsWidget::MinecraftSettingsWidget(MinecraftInstancePtr instance, 
     m_ui->setupUi(this);
 
     if (m_instance == nullptr) {
-        for (int i = m_ui->settingsTabs->count() - 1; i >= 0; --i) {
-            const QString name = m_ui->settingsTabs->widget(i)->objectName();
-
-            if (name == "javaPage" || name == "launchPage")
-                m_ui->settingsTabs->removeTab(i);
-        }
+        m_ui->settingsTabs->removeTab(1);
 
         m_ui->openGlobalSettingsButton->setVisible(false);
+        m_ui->instanceAccountGroupBox->hide();
+        m_ui->serverJoinGroupBox->hide();
     } else {
         m_javaSettings = new JavaSettingsWidget(m_instance, this);
         m_ui->javaScrollArea->setWidget(m_javaSettings);

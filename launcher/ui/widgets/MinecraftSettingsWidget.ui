@@ -58,9 +58,9 @@
           <property name="geometry">
            <rect>
             <x>0</x>
-            <y>0</y>
-            <width>610</width>
-            <height>610</height>
+            <y>-125</y>
+            <width>603</width>
+            <height>786</height>
            </rect>
           </property>
           <layout class="QVBoxLayout" name="verticalLayout_5">
@@ -199,6 +199,79 @@
                  </spacer>
                 </item>
                </layout>
+              </item>
+             </layout>
+            </widget>
+           </item>
+           <item>
+            <widget class="QGroupBox" name="instanceAccountGroupBox">
+             <property name="title">
+              <string>&amp;Override Default Account</string>
+             </property>
+             <property name="checkable">
+              <bool>true</bool>
+             </property>
+             <property name="checked">
+              <bool>false</bool>
+             </property>
+             <layout class="QVBoxLayout" name="verticalLayout_15">
+              <item>
+               <widget class="QLabel" name="instanceAccountNameLabel">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="text">
+                 <string>Account</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QComboBox" name="instanceAccountSelector">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </widget>
+           </item>
+           <item>
+            <widget class="QGroupBox" name="serverJoinGroupBox">
+             <property name="title">
+              <string>Enable &amp;Auto-join</string>
+             </property>
+             <property name="checkable">
+              <bool>true</bool>
+             </property>
+             <property name="checked">
+              <bool>false</bool>
+             </property>
+             <layout class="QGridLayout" name="gridLayout_4">
+              <item row="0" column="0">
+               <widget class="QRadioButton" name="serverJoinAddressButton">
+                <property name="text">
+                 <string>Server address</string>
+                </property>
+               </widget>
+              </item>
+              <item row="0" column="2">
+               <widget class="QLineEdit" name="serverJoinAddress"/>
+              </item>
+              <item row="1" column="0">
+               <widget class="QRadioButton" name="worldJoinButton">
+                <property name="text">
+                 <string>Singleplayer world</string>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="2">
+               <widget class="QComboBox" name="worldsCb"/>
               </item>
              </layout>
             </widget>
@@ -352,7 +425,7 @@
             <x>0</x>
             <y>0</y>
             <width>624</width>
-            <height>291</height>
+            <height>287</height>
            </rect>
           </property>
          </widget>
@@ -375,8 +448,8 @@
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>610</width>
-            <height>501</height>
+            <width>603</width>
+            <height>470</height>
            </rect>
           </property>
           <layout class="QVBoxLayout" name="verticalLayout_7">
@@ -564,118 +637,6 @@
        </item>
       </layout>
      </widget>
-     <widget class="QWidget" name="launchPage">
-      <attribute name="title">
-       <string>Launch</string>
-      </attribute>
-      <layout class="QVBoxLayout" name="verticalLayout_9">
-       <item>
-        <widget class="QScrollArea" name="scrollArea_3">
-         <property name="widgetResizable">
-          <bool>true</bool>
-         </property>
-         <widget class="QWidget" name="scrollAreaWidgetContents_5">
-          <property name="geometry">
-           <rect>
-            <x>0</x>
-            <y>0</y>
-            <width>624</width>
-            <height>291</height>
-           </rect>
-          </property>
-          <layout class="QVBoxLayout" name="verticalLayout_14">
-           <item>
-            <widget class="QGroupBox" name="instanceAccountGroupBox">
-             <property name="title">
-              <string>Override default &amp;account</string>
-             </property>
-             <property name="checkable">
-              <bool>true</bool>
-             </property>
-             <property name="checked">
-              <bool>false</bool>
-             </property>
-             <layout class="QVBoxLayout" name="verticalLayout_15">
-              <item>
-               <widget class="QLabel" name="instanceAccountNameLabel">
-                <property name="sizePolicy">
-                 <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
-                  <horstretch>0</horstretch>
-                  <verstretch>0</verstretch>
-                 </sizepolicy>
-                </property>
-                <property name="text">
-                 <string>Account</string>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="QComboBox" name="instanceAccountSelector">
-                <property name="sizePolicy">
-                 <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
-                  <horstretch>0</horstretch>
-                  <verstretch>0</verstretch>
-                 </sizepolicy>
-                </property>
-               </widget>
-              </item>
-             </layout>
-            </widget>
-           </item>
-           <item>
-            <widget class="QGroupBox" name="serverJoinGroupBox">
-             <property name="title">
-              <string>Set a &amp;target to join on launch</string>
-             </property>
-             <property name="checkable">
-              <bool>true</bool>
-             </property>
-             <property name="checked">
-              <bool>false</bool>
-             </property>
-             <layout class="QGridLayout" name="gridLayout_4">
-              <item row="0" column="0">
-               <widget class="QRadioButton" name="serverJoinAddressButton">
-                <property name="text">
-                 <string>Server address</string>
-                </property>
-               </widget>
-              </item>
-              <item row="0" column="2">
-               <widget class="QLineEdit" name="serverJoinAddress"/>
-              </item>
-              <item row="1" column="0">
-               <widget class="QRadioButton" name="worldJoinButton">
-                <property name="text">
-                 <string>Singleplayer world</string>
-                </property>
-               </widget>
-              </item>
-              <item row="1" column="2">
-               <widget class="QComboBox" name="worldsCb"/>
-              </item>
-             </layout>
-            </widget>
-           </item>
-           <item>
-            <spacer name="verticalSpacer_3">
-             <property name="orientation">
-              <enum>Qt::Vertical</enum>
-             </property>
-             <property name="sizeHint" stdset="0">
-              <size>
-               <width>20</width>
-               <height>40</height>
-              </size>
-             </property>
-            </spacer>
-           </item>
-          </layout>
-         </widget>
-        </widget>
-       </item>
-      </layout>
-     </widget>
      <widget class="QWidget" name="customCommandsPage">
       <attribute name="title">
        <string>Custom Commands</string>
@@ -691,6 +652,18 @@
        <string>Environment Variables</string>
       </attribute>
       <layout class="QVBoxLayout" name="verticalLayout_16">
+       <property name="leftMargin">
+        <number>0</number>
+       </property>
+       <property name="topMargin">
+        <number>0</number>
+       </property>
+       <property name="rightMargin">
+        <number>0</number>
+       </property>
+       <property name="bottomMargin">
+        <number>0</number>
+       </property>
        <item>
         <widget class="EnvironmentVariables" name="environmentVariables" native="true"/>
        </item>
@@ -737,9 +710,6 @@
   <tabstop>enableMangoHud</tabstop>
   <tabstop>useDiscreteGpuCheck</tabstop>
   <tabstop>useZink</tabstop>
-  <tabstop>scrollArea_3</tabstop>
-  <tabstop>instanceAccountGroupBox</tabstop>
-  <tabstop>serverJoinGroupBox</tabstop>
   <tabstop>serverJoinAddressButton</tabstop>
   <tabstop>serverJoinAddress</tabstop>
   <tabstop>worldJoinButton</tabstop>
