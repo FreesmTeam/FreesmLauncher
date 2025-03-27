@@ -58,9 +58,9 @@
           <property name="geometry">
            <rect>
             <x>0</x>
-            <y>-125</y>
+            <y>0</y>
             <width>603</width>
-            <height>786</height>
+            <height>744</height>
            </rect>
           </property>
           <layout class="QVBoxLayout" name="verticalLayout_5">
@@ -200,6 +200,59 @@
                 </item>
                </layout>
               </item>
+              <item>
+               <widget class="QCheckBox" name="closeAfterLaunchCheck">
+                <property name="text">
+                 <string>Close the launcher after the game window opens</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QCheckBox" name="quitAfterGameStopCheck">
+                <property name="text">
+                 <string>Quit the launcher after the game window closes</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </widget>
+           </item>
+           <item>
+            <widget class="QGroupBox" name="consoleSettingsBox">
+             <property name="enabled">
+              <bool>true</bool>
+             </property>
+             <property name="title">
+              <string>&amp;Console Window</string>
+             </property>
+             <property name="checkable">
+              <bool>false</bool>
+             </property>
+             <property name="checked">
+              <bool>false</bool>
+             </property>
+             <layout class="QVBoxLayout" name="verticalLayout_2">
+              <item>
+               <widget class="QCheckBox" name="showConsoleCheck">
+                <property name="text">
+                 <string>Show console window while the game is running</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QCheckBox" name="autoCloseConsoleCheck">
+                <property name="text">
+                 <string>Automatically close console window when the game quits</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QCheckBox" name="showConsoleErrorCheck">
+                <property name="text">
+                 <string>Show console window when the game crashes</string>
+                </property>
+               </widget>
+              </item>
              </layout>
             </widget>
            </item>
@@ -253,6 +306,13 @@
               <bool>false</bool>
              </property>
              <layout class="QGridLayout" name="gridLayout_4">
+              <item row="2" column="0">
+               <widget class="QRadioButton" name="worldJoinButton">
+                <property name="text">
+                 <string>Singleplayer world</string>
+                </property>
+               </widget>
+              </item>
               <item row="0" column="0">
                <widget class="QRadioButton" name="serverJoinAddressButton">
                 <property name="text">
@@ -263,14 +323,7 @@
               <item row="0" column="2">
                <widget class="QLineEdit" name="serverJoinAddress"/>
               </item>
-              <item row="1" column="0">
-               <widget class="QRadioButton" name="worldJoinButton">
-                <property name="text">
-                 <string>Singleplayer world</string>
-                </property>
-               </widget>
-              </item>
-              <item row="1" column="2">
+              <item row="2" column="2">
                <widget class="QComboBox" name="worldsCb"/>
               </item>
              </layout>
@@ -316,74 +369,6 @@
                <widget class="QCheckBox" name="showGameTimeWithoutDays">
                 <property name="text">
                  <string>Always show durations in &amp;hours</string>
-                </property>
-               </widget>
-              </item>
-             </layout>
-            </widget>
-           </item>
-           <item>
-            <widget class="QGroupBox" name="consoleSettingsBox">
-             <property name="enabled">
-              <bool>true</bool>
-             </property>
-             <property name="title">
-              <string>&amp;Console</string>
-             </property>
-             <property name="checkable">
-              <bool>false</bool>
-             </property>
-             <property name="checked">
-              <bool>false</bool>
-             </property>
-             <layout class="QVBoxLayout" name="verticalLayout_2">
-              <item>
-               <widget class="QCheckBox" name="showConsoleCheck">
-                <property name="text">
-                 <string>Show console while the game is running</string>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="QCheckBox" name="autoCloseConsoleCheck">
-                <property name="text">
-                 <string>Automatically close console when the game quits</string>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="QCheckBox" name="showConsoleErrorCheck">
-                <property name="text">
-                 <string>Show console when the game crashes</string>
-                </property>
-               </widget>
-              </item>
-             </layout>
-            </widget>
-           </item>
-           <item>
-            <widget class="QGroupBox" name="miscellaneousSettingsBox">
-             <property name="title">
-              <string>&amp;Miscellaneous</string>
-             </property>
-             <property name="checkable">
-              <bool>false</bool>
-             </property>
-             <property name="checked">
-              <bool>false</bool>
-             </property>
-             <layout class="QVBoxLayout" name="verticalLayout_12">
-              <item>
-               <widget class="QCheckBox" name="closeAfterLaunchCheck">
-                <property name="text">
-                 <string>Close the launcher after game window opens</string>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="QCheckBox" name="quitAfterGameStopCheck">
-                <property name="text">
-                 <string>Quit the launcher after game window closes</string>
                 </property>
                </widget>
               </item>
@@ -698,8 +683,6 @@
   <tabstop>showConsoleCheck</tabstop>
   <tabstop>autoCloseConsoleCheck</tabstop>
   <tabstop>showConsoleErrorCheck</tabstop>
-  <tabstop>closeAfterLaunchCheck</tabstop>
-  <tabstop>quitAfterGameStopCheck</tabstop>
   <tabstop>javaScrollArea</tabstop>
   <tabstop>scrollArea_2</tabstop>
   <tabstop>onlineFixes</tabstop>
