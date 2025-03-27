@@ -46,20 +46,21 @@
 #include "InstanceList.h"
 #include "ui/dialogs/CustomMessageBox.h"
 
-QString askToUpdateInstanceDirName(InstancePtr instance, QWidget* parent)
+QString askToUpdateInstanceDirName(InstancePtr instance, const QString& oldName, const QString& newName, QWidget* parent)
 {
+    if (oldName == newName)
+        return QString();
+
     QString renamingMode = APPLICATION->settings()->get("InstRenamingMode").toString();
     if (renamingMode == "MetadataOnly")
         return QString();
 
     auto oldRoot = instance->instanceRoot();
-    auto oldName = QFileInfo(oldRoot).baseName();
-    if (oldName == FS::RemoveInvalidFilenameChars(instance->name(), '-'))
-        return QString();
-
-    auto newName = FS::DirNameFromString(instance->name(), QFileInfo(oldRoot).dir().absolutePath());
-    auto newRoot = FS::PathCombine(QFileInfo(oldRoot).dir().absolutePath(), newName);
+    auto newDirName = FS::DirNameFromString(newName, QFileInfo(oldRoot).dir().absolutePath());
+    auto newRoot = FS::PathCombine(QFileInfo(oldRoot).dir().absolutePath(), newDirName);
     if (oldRoot == newRoot)
+        return QString();
+    if (oldRoot == FS::PathCombine(QFileInfo(oldRoot).dir().absolutePath(), newName))
         return QString();
 
     // Check for conflict
