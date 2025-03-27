@@ -93,7 +93,7 @@ QString askToUpdateInstanceDirName(InstancePtr instance, QWidget* parent)
     }
 
     // Check for linked instances
-    if (!checkLinkedInstances(instance->id(), parent))
+    if (!checkLinkedInstances(instance->id(), parent, QObject::tr("Renaming")))
         return QString();
 
     // Now we can confirm that a renaming is happening
@@ -109,17 +109,18 @@ QString askToUpdateInstanceDirName(InstancePtr instance, QWidget* parent)
     return newRoot;
 }
 
-bool checkLinkedInstances(const QString& id, QWidget* parent)
+bool checkLinkedInstances(const QString& id, QWidget* parent, const QString& verb)
 {
     auto linkedInstances = APPLICATION->instances()->getLinkedInstancesById(id);
     if (!linkedInstances.empty()) {
         auto response = CustomMessageBox::selectable(parent, QObject::tr("There are linked instances"),
                                                      QObject::tr("The following instance(s) might reference files in this instance:\n\n"
                                                                  "%1\n\n"
-                                                                 "Deleting it could break the other instance(s), \n\n"
+                                                                 "%2 it could break the other instance(s), \n\n"
                                                                  "Do you wish to proceed?",
                                                                  nullptr, linkedInstances.count())
-                                                         .arg(linkedInstances.join("\n")),
+                                                         .arg(linkedInstances.join("\n"))
+                                                         .arg(verb),
                                                      QMessageBox::Warning, QMessageBox::Yes | QMessageBox::No, QMessageBox::No)
                             ->exec();
         if (response != QMessageBox::Yes)

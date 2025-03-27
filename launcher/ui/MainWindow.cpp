@@ -1396,7 +1396,7 @@ void MainWindow::on_actionDeleteInstance_triggered()
     if (response != QMessageBox::Yes)
         return;
 
-    if (!checkLinkedInstances(id, this))
+    if (!checkLinkedInstances(id, this, tr("Deleting")))
         return;
 
     if (APPLICATION->instances()->trashInstance(id)) {

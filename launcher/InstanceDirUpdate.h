@@ -43,4 +43,4 @@
 QString askToUpdateInstanceDirName(InstancePtr instance, QWidget* parent);
 
 /// Check if there are linked instances, and display a warning; return true if the operation should proceed
-bool checkLinkedInstances(const QString& id, QWidget* parent);
+bool checkLinkedInstances(const QString& id, QWidget* parent, const QString& verb);
