@@ -296,8 +296,18 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent), ui(new Ui::MainWi
         view->setAttribute(Qt::WA_MacShowFocusRect, false);
         connect(delegate, &ListViewDelegate::textChanged, this, [this](QString before, QString after) {
             if (auto newRoot = askToUpdateInstanceDirName(m_selectedInstance, before, after, this); !newRoot.isEmpty()) {
+                auto oldID = m_selectedInstance->id();
+                auto newID = QFileInfo(newRoot).fileName();
+                QString origGroup(APPLICATION->instances()->getInstanceGroup(oldID));
+                bool syncGroup = origGroup != GroupId() && oldID != newID;
+                if (syncGroup)
+                    APPLICATION->instances()->setInstanceGroup(oldID, GroupId());
+
                 refreshInstances();
-                setSelectedInstanceById(QFileInfo(newRoot).fileName());
+                setSelectedInstanceById(newID);
+
+                if (syncGroup)
+                    APPLICATION->instances()->setInstanceGroup(newID, origGroup);
             }
         });
 
