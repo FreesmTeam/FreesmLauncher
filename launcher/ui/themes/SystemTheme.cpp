@@ -42,16 +42,18 @@
 
 SystemTheme::SystemTheme(const QString& styleName, bool isDefaultTheme)
 {
-    themeName = isDefaultTheme ? "system" : styleName;
-    widgetTheme = styleName;
-    colorPalette = QStyleFactory::create(styleName)->standardPalette();
+    m_themeName = isDefaultTheme ? "system" : styleName;
+    m_widgetTheme = styleName;
+    auto style = QStyleFactory::create(styleName);
+    m_colorPalette = style->standardPalette();
+    delete style;
 }
 
 void SystemTheme::apply(bool initial)
 {
     // See https://github.com/MultiMC/Launcher/issues/1790
     // or https://github.com/PrismLauncher/PrismLauncher/issues/490
-    if (initial && themeName == "system") {
+    if (initial && m_themeName == "system") {
         QApplication::setStyle(new HintOverrideProxyStyle(QStyleFactory::create(qtTheme())));
         return;
     }
@@ -61,35 +63,35 @@ void SystemTheme::apply(bool initial)
 
 QString SystemTheme::id()
 {
-    return themeName;
+    return m_themeName;
 }
 
 QString SystemTheme::name()
 {
-    if (themeName.toLower() == "windowsvista") {
+    if (m_themeName.toLower() == "windowsvista") {
         return QObject::tr("Windows Vista");
-    } else if (themeName.toLower() == "windows") {
+    } else if (m_themeName.toLower() == "windows") {
         return QObject::tr("Windows 9x");
-    } else if (themeName.toLower() == "windows11") {
+    } else if (m_themeName.toLower() == "windows11") {
         return QObject::tr("Windows 11");
-    } else if (themeName.toLower() == "system") {
+    } else if (m_themeName.toLower() == "system") {
         return QObject::tr("System");
     } else {
-        return themeName;
+        return m_themeName;
     }
 }
 
 QString SystemTheme::tooltip()
 {
-    if (themeName.toLower() == "windowsvista") {
+    if (m_themeName.toLower() == "windowsvista") {
         return QObject::tr("Widget style trying to look like your win32 theme");
-    } else if (themeName.toLower() == "windows") {
+    } else if (m_themeName.toLower() == "windows") {
         return QObject::tr("Windows 9x inspired widget style");
-    } else if (themeName.toLower() == "windows11") {
+    } else if (m_themeName.toLower() == "windows11") {
         return QObject::tr("WinUI 3 inspired Qt widget style");
-    } else if (themeName.toLower() == "fusion") {
+    } else if (m_themeName.toLower() == "fusion") {
         return QObject::tr("The default Qt widget style");
-    } else if (themeName.toLower() == "system") {
+    } else if (m_themeName.toLower() == "system") {
         return QObject::tr("Your current system theme");
     } else {
         return "";
@@ -98,12 +100,12 @@ QString SystemTheme::tooltip()
 
 QString SystemTheme::qtTheme()
 {
-    return widgetTheme;
+    return m_widgetTheme;
 }
 
 QPalette SystemTheme::colorScheme()
 {
-    return colorPalette;
+    return m_colorPalette;
 }
 
 QString SystemTheme::appStyleSheet()
