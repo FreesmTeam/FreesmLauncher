@@ -53,7 +53,7 @@ class SystemTheme : public ITheme {
     QColor fadeColor() override;
 
    private:
-    QPalette colorPalette;
-    QString widgetTheme;
-    QString themeName;
+    QPalette m_colorPalette;
+    QString m_widgetTheme;
+    QString m_themeName;
 };
