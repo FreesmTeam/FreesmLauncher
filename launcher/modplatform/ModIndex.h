@@ -128,6 +128,23 @@ struct IndexedVersion {
 
     // For internal use, not provided by APIs
     bool is_currently_selected = false;
+
+    QString getVersionDisplayString() const
+    {
+        auto release_type = version_type.isValid() ? QString(" [%1]").arg(version_type.toString()) : "";
+        auto versionStr = !version.contains(version_number) ? version_number : "";
+        QString gameVersion = "";
+        for (auto v : mcVersion) {
+            if (version.contains(v)) {
+                gameVersion = "";
+                break;
+            }
+            if (gameVersion.isEmpty()) {
+                gameVersion = QObject::tr(" for %1").arg(v);
+            }
+        }
+        return QString("%1%2 — %3%4").arg(version, gameVersion, versionStr, release_type);
+    }
 };
 
 struct ExtraPackData {

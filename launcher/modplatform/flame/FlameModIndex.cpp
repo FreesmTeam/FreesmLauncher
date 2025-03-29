@@ -58,7 +58,7 @@ void FlameMod::loadURLs(ModPlatform::IndexedPack& pack, QJsonObject& obj)
         pack.extraDataLoaded = true;
 }
 
-void FlameMod::loadBody(ModPlatform::IndexedPack& pack, [[maybe_unused]] QJsonObject& obj)
+void FlameMod::loadBody(ModPlatform::IndexedPack& pack)
 {
     pack.extraData.body = api.getModDescription(pack.addonId.toInt());
 
@@ -203,32 +203,4 @@ auto FlameMod::loadIndexedPackVersion(QJsonObject& obj, bool load_changelog) -> 
         file.changelog = api.getModFileChangelog(file.addonId.toInt(), file.fileId.toInt());
 
     return file;
-}
-
-ModPlatform::IndexedVersion FlameMod::loadDependencyVersions(const ModPlatform::Dependency& m, QJsonArray& arr, const BaseInstance* inst)
-{
-    auto profile = (dynamic_cast<const MinecraftInstance*>(inst))->getPackProfile();
-    QString mcVersion = profile->getComponentVersion("net.minecraft");
-    auto loaders = profile->getSupportedModLoaders();
-    QList<ModPlatform::IndexedVersion> versions;
-    for (auto versionIter : arr) {
-        auto obj = versionIter.toObject();
-
-        auto file = loadIndexedPackVersion(obj);
-        if (!file.addonId.isValid())
-            file.addonId = m.addonId;
-
-        if (file.fileId.isValid() &&
-            (!loaders.has_value() || !file.loaders || loaders.value() & file.loaders))  // Heuristic to check if the returned value is valid
-            versions.append(file);
-    }
-
-    auto orderSortPredicate = [](const ModPlatform::IndexedVersion& a, const ModPlatform::IndexedVersion& b) -> bool {
-        // dates are in RFC 3339 format
-        return a.date > b.date;
-    };
-    std::sort(versions.begin(), versions.end(), orderSortPredicate);
-    if (versions.size() != 0)
-        return versions.front();
-    return {};
 }
