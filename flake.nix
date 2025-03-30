@@ -105,8 +105,10 @@
             ];
 
             shellHook = ''
-              cmake $cmakeFlags -D CMAKE_BUILD_TYPE=Debug
-              ln -s {build/,}compile_commands.json
+              if [ ! -f compile_commands.json ]; then
+                cmake $cmakeFlags -D CMAKE_BUILD_TYPE=Debug
+                ln -s {build/,}compile_commands.json
+              fi
             '';
           };
         }
