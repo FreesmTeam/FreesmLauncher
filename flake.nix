@@ -88,13 +88,35 @@
           llvm = pkgs.llvmPackages_19;
 
           packages' = self.packages.${system};
+
+          # Re-use our package wrapper to wrap our development environment
+          qt-wrapper-env = packages'.prismlauncher.overrideAttrs (old: {
+            name = "qt-wrapper-env";
+
+            # Required to use script-based makeWrapper below
+            strictDeps = true;
+
+            # We don't need/want the unwrapped Prism package
+            paths = [ ];
+
+            nativeBuildInputs = old.nativeBuildInputs or [ ] ++ [
+              # Ensure the wrapper is script based so it can be sourced
+              pkgs.makeWrapper
+            ];
+
+            # Inspired by https://discourse.nixos.org/t/python-qt-woes/11808/10
+            buildCommand = ''
+              makeQtWrapper ${lib.getExe pkgs.runtimeShellPackage} "$out"
+              sed -i '/^exec/d' "$out"
+            '';
+          });
         in
 
         {
           default = pkgs.mkShell {
             inputsFrom = [ packages'.prismlauncher-unwrapped ];
 
-            nativeBuildInputs = with pkgs; [
+            packages = with pkgs; [
               ccache
               llvm.clang-tools
             ];
@@ -105,6 +127,9 @@
             ];
 
             shellHook = ''
+              echo "Sourcing ${qt-wrapper-env}"
+              source ${qt-wrapper-env}
+
               if [ ! -f compile_commands.json ]; then
                 cmake $cmakeFlags -D CMAKE_BUILD_TYPE=Debug
                 ln -s {build/,}compile_commands.json
