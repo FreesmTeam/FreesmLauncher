@@ -147,6 +147,8 @@
               echo "Sourcing ${qt-wrapper-env}"
               source ${qt-wrapper-env}
 
+              git submodule update --init --force
+
               if [ ! -f compile_commands.json ]; then
                 cmakeConfigurePhase
                 cd ..
