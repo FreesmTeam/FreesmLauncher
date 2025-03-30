@@ -22,8 +22,8 @@
       self,
       nixpkgs,
       libnbtplusplus,
-      ...
     }:
+
     let
       inherit (nixpkgs) lib;
 
@@ -35,30 +35,71 @@
       forAllSystems = lib.genAttrs systems;
       nixpkgsFor = forAllSystems (system: nixpkgs.legacyPackages.${system});
     in
+
     {
       checks = forAllSystems (
         system:
+
         let
-          checks' = nixpkgsFor.${system}.callPackage ./nix/checks.nix { inherit self; };
+          pkgs = nixpkgsFor.${system};
+          llvm = pkgs.llvmPackages_19;
         in
-        lib.filterAttrs (_: lib.isDerivation) checks'
+
+        {
+          formatting =
+            pkgs.runCommand "check-formatting"
+              {
+                nativeBuildInputs = with pkgs; [
+                  deadnix
+                  llvm.clang-tools
+                  markdownlint-cli
+                  nixfmt-rfc-style
+                  statix
+                ];
+              }
+              ''
+                cd ${self}
+
+                echo "Running clang-format...."
+                clang-format --dry-run --style='file' --Werror */**.{c,cc,cpp,h,hh,hpp}
+
+                echo "Running deadnix..."
+                deadnix --fail
+
+                echo "Running markdownlint..."
+                markdownlint --dot .
+
+                echo "Running nixfmt..."
+                find -type f -name '*.nix' -exec nixfmt --check {} +
+
+                echo "Running statix"
+                statix check .
+
+                touch $out
+              '';
+        }
       );
 
       devShells = forAllSystems (
         system:
+
         let
           pkgs = nixpkgsFor.${system};
+          llvm = pkgs.llvmPackages_19;
+
+          packages' = self.packages.${system};
         in
+
         {
           default = pkgs.mkShell {
-            inputsFrom = [ self.packages.${system}.prismlauncher-unwrapped ];
-            buildInputs = with pkgs; [
+            inputsFrom = [ packages'.prismlauncher-unwrapped ];
+
+            nativeBuildInputs = with pkgs; [
               ccache
-              ninja
-              llvmPackages_19.clang-tools
+              llvm.clang-tools
             ];
 
-            cmakeFlags = self.packages.${system}.prismlauncher-unwrapped.cmakeFlags ++ [
+            cmakeFlags = packages'.prismlauncher-unwrapped.cmakeFlags ++ [
               "-GNinja"
               "-Bbuild"
             ];
@@ -86,6 +127,7 @@
 
       packages = forAllSystems (
         system:
+
         let
           pkgs = nixpkgsFor.${system};
 
@@ -98,6 +140,7 @@
             default = prismPackages.prismlauncher;
           };
         in
+
         # Only output them if they're available on the current system
         lib.filterAttrs (_: lib.meta.availableOn pkgs.stdenv.hostPlatform) packages
       );
@@ -105,16 +148,18 @@
       # We put these under legacyPackages as they are meant for CI, not end user consumption
       legacyPackages = forAllSystems (
         system:
+
         let
-          prismPackages = self.packages.${system};
-          legacyPackages = self.legacyPackages.${system};
+          packages' = self.packages.${system};
+          legacyPackages' = self.legacyPackages.${system};
         in
+
         {
-          prismlauncher-debug = prismPackages.prismlauncher.override {
-            prismlauncher-unwrapped = legacyPackages.prismlauncher-unwrapped-debug;
+          prismlauncher-debug = packages'.prismlauncher.override {
+            prismlauncher-unwrapped = legacyPackages'.prismlauncher-unwrapped-debug;
           };
 
-          prismlauncher-unwrapped-debug = prismPackages.prismlauncher-unwrapped.overrideAttrs {
+          prismlauncher-unwrapped-debug = packages'.prismlauncher-unwrapped.overrideAttrs {
             cmakeBuildType = "Debug";
             dontStrip = true;
           };
