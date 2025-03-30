@@ -35,7 +35,6 @@
 #include "InstanceDirUpdate.h"
 
 #include <QCheckBox>
-#include <QMessageBox>
 
 #include "Application.h"
 #include "FileSystem.h"
@@ -69,17 +68,16 @@ QString askToUpdateInstanceDirName(InstancePtr instance, const QString& oldName,
 
     // Ask if we should rename
     if (renamingMode == "AskEverytime") {
-        QMessageBox messageBox(parent);
-        messageBox.setText(QObject::tr("Would you also like to rename the instance folder?"));
-        messageBox.setInformativeText(QObject::tr("Renaming \'%1\' -> \'%2\'").arg(oldName, newName));
-        messageBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
-        messageBox.setDefaultButton(QMessageBox::Yes);
-        messageBox.setIcon(QMessageBox::Question);
-
         auto checkBox = new QCheckBox(QObject::tr("&Remember my choice"), parent);
-        messageBox.setCheckBox(checkBox);
+        auto dialog =
+            CustomMessageBox::selectable(parent, QObject::tr("Rename instance folder"),
+                                         QObject::tr("Would you also like to rename the instance folder?\n\n"
+                                                     "Old name: %1\n"
+                                                     "New name: %2")
+                                             .arg(oldName, newName),
+                                         QMessageBox::Question, QMessageBox::No | QMessageBox::Yes, QMessageBox::NoButton, checkBox);
 
-        auto res = messageBox.exec();
+        auto res = dialog->exec();
         if (checkBox->isChecked()) {
             if (res == QMessageBox::Yes)
                 APPLICATION->settings()->set("InstRenamingMode", "PhysicalDir");
