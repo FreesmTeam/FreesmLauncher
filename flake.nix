@@ -15,26 +15,6 @@
       url = "github:PrismLauncher/libnbtplusplus";
       flake = false;
     };
-
-    /*
-      Inputs below this are optional and can be removed
-
-      ```
-      {
-        inputs.prismlauncher = {
-          url = "github:PrismLauncher/PrismLauncher";
-          inputs = {
-      	    flake-compat.follows = "";
-          };
-        };
-      }
-      ```
-    */
-
-    flake-compat = {
-      url = "github:edolstra/flake-compat";
-      flake = false;
-    };
   };
 
   outputs =
