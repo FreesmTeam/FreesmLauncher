@@ -121,18 +121,18 @@
               llvm.clang-tools
             ];
 
-            cmakeFlags = packages'.prismlauncher-unwrapped.cmakeFlags ++ [
-              "-GNinja"
-              "-Bbuild"
-            ];
+            cmakeBuildType = "Debug";
+            cmakeFlags = [ "-GNinja" ] ++ packages'.prismlauncher.cmakeFlags;
+            dontFixCmake = true;
 
             shellHook = ''
               echo "Sourcing ${qt-wrapper-env}"
               source ${qt-wrapper-env}
 
               if [ ! -f compile_commands.json ]; then
-                cmake $cmakeFlags -D CMAKE_BUILD_TYPE=Debug
-                ln -s {build/,}compile_commands.json
+                cmakeConfigurePhase
+                cd ..
+                ln -s "$cmakeBuildDir"/compile_commands.json compile_commands.json
               fi
             '';
           };
