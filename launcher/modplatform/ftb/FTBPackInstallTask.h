@@ -47,7 +47,7 @@
 
 #include <QWidget>
 
-namespace ModpacksCH {
+namespace FTB {
 
 class PackInstallTask final : public InstanceTask {
     Q_OBJECT
@@ -97,4 +97,4 @@ class PackInstallTask final : public InstanceTask {
     QWidget* m_parent;
 };
 
-}  // namespace ModpacksCH
+}  // namespace FTB

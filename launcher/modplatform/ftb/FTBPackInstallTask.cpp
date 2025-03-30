@@ -42,6 +42,7 @@
 #include "Json.h"
 #include "minecraft/MinecraftInstance.h"
 #include "minecraft/PackProfile.h"
+#include "modplatform/flame/FileResolvingTask.h"
 #include "modplatform/flame/PackManifest.h"
 #include "net/ChecksumValidator.h"
 #include "settings/INISettingsObject.h"
@@ -50,7 +51,7 @@
 #include "BuildConfig.h"
 #include "ui/dialogs/BlockedModsDialog.h"
 
-namespace ModpacksCH {
+namespace FTB {
 
 PackInstallTask::PackInstallTask(Modpack pack, QString version, QWidget* parent)
     : m_pack(std::move(pack)), m_versionName(std::move(version)), m_parent(parent)
@@ -78,7 +79,7 @@ void PackInstallTask::executeTask()
 
     // Find pack version
     auto version_it = std::find_if(m_pack.versions.constBegin(), m_pack.versions.constEnd(),
-                                   [this](ModpacksCH::VersionInfo const& a) { return a.name == m_versionName; });
+                                   [this](FTB::VersionInfo const& a) { return a.name == m_versionName; });
 
     if (version_it == m_pack.versions.constEnd()) {
         emitFailed(tr("Failed to find pack version %1").arg(m_versionName));
@@ -87,9 +88,9 @@ void PackInstallTask::executeTask()
 
     auto version = *version_it;
 
-    auto netJob = makeShared<NetJob>("ModpacksCH::VersionFetch", APPLICATION->network());
+    auto netJob = makeShared<NetJob>("FTB::VersionFetch", APPLICATION->network());
 
-    auto searchUrl = QString(BuildConfig.MODPACKSCH_API_BASE_URL + "public/modpack/%1/%2").arg(m_pack.id).arg(version.id);
+    auto searchUrl = QString(BuildConfig.FTB_API_BASE_URL + "/modpack/%1/%2").arg(m_pack.id).arg(version.id);
     m_response.reset(new QByteArray());
     netJob->addNetAction(Net::Download::makeByteArray(QUrl(searchUrl), m_response));
 
@@ -111,16 +112,15 @@ void PackInstallTask::onManifestDownloadSucceeded()
     QJsonParseError parse_error{};
     QJsonDocument doc = QJsonDocument::fromJson(*m_response, &parse_error);
     if (parse_error.error != QJsonParseError::NoError) {
-        qWarning() << "Error while parsing JSON response from ModpacksCH at " << parse_error.offset
-                   << " reason: " << parse_error.errorString();
+        qWarning() << "Error while parsing JSON response from FTB at " << parse_error.offset << " reason: " << parse_error.errorString();
         qWarning() << *m_response;
         return;
     }
 
-    ModpacksCH::Version version;
+    FTB::Version version;
     try {
         auto obj = Json::requireObject(doc);
-        ModpacksCH::loadVersion(version, obj);
+        FTB::loadVersion(version, obj);
     } catch (const JSONValidationError& e) {
         emitFailed(tr("Could not understand pack manifest:\n") + e.cause());
         return;
@@ -151,8 +151,6 @@ void PackInstallTask::resolveMods()
             flameFile.projectId = file.curseforge.project_id;
             flameFile.fileId = file.curseforge.file_id;
 
-            // flame_file.hash = file.sha1;
-
             manifest.files.insert(flameFile.fileId, flameFile);
             m_fileIds.append(flameFile.fileId);
         } else {
@@ -160,7 +158,7 @@ void PackInstallTask::resolveMods()
         }
     }
 
-    m_modIdResolverTask.reset(new Flame::FileResolvingTask(APPLICATION->network(), manifest));
+    m_modIdResolverTask.reset(new Flame::FileResolvingTask(manifest));
 
     connect(m_modIdResolverTask.get(), &Flame::FileResolvingTask::succeeded, this, &PackInstallTask::onResolveModsSucceeded);
     connect(m_modIdResolverTask.get(), &Flame::FileResolvingTask::failed, this, &PackInstallTask::onResolveModsFailed);
@@ -279,7 +277,7 @@ void PackInstallTask::createInstance()
 
     instance.setName(name());
     instance.setIconKey(m_instIcon);
-    instance.setManagedPack("modpacksch", QString::number(m_pack.id), m_pack.name, QString::number(m_version.id), m_version.name);
+    instance.setManagedPack("ftb", QString::number(m_pack.id), m_pack.name, QString::number(m_version.id), m_version.name);
 
     instance.saveNow();
 
@@ -385,4 +383,4 @@ void PackInstallTask::copyBlockedMods()
     setAbortable(true);
 }
 
-}  // namespace ModpacksCH
+}  // namespace FTB

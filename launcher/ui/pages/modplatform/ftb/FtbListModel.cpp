@@ -45,7 +45,7 @@ QVariant ListModel::data(const QModelIndex& index, int role) const
         return QString("INVALID INDEX %1").arg(pos);
     }
 
-    ModpacksCH::Modpack pack = m_modpacks.at(pos);
+    FTB::Modpack pack = m_modpacks.at(pos);
     if (role == Qt::DisplayRole) {
         return pack.name;
     } else if (role == Qt::ToolTipRole) {
@@ -80,7 +80,7 @@ QVariant ListModel::data(const QModelIndex& index, int role) const
 void ListModel::getLogo(const QString& logo, const QString& logoUrl, LogoCallback callback)
 {
     if (m_logoMap.contains(logo)) {
-        callback(APPLICATION->metacache()->resolveEntry("ModpacksCHPacks", QString("logos/%1").arg(logo))->getFullPath());
+        callback(APPLICATION->metacache()->resolveEntry("FTBPacks", QString("logos/%1").arg(logo))->getFullPath());
     } else {
         requestLogo(logo, logoUrl);
     }
@@ -95,7 +95,7 @@ void ListModel::request()
     endResetModel();
 
     auto netJob = makeShared<NetJob>("Ftb::Request", APPLICATION->network());
-    auto url = QString(BuildConfig.MODPACKSCH_API_BASE_URL + "public/modpack/all");
+    auto url = QString(BuildConfig.FTB_API_BASE_URL + "/modpack/all");
     m_response.reset(new QByteArray());
     netJob->addNetAction(Net::Download::makeByteArray(QUrl(url), m_response));
     m_jobPtr = netJob;
@@ -119,8 +119,7 @@ void ListModel::requestFinished()
     QJsonParseError parse_error{};
     QJsonDocument doc = QJsonDocument::fromJson(*m_response, &parse_error);
     if (parse_error.error != QJsonParseError::NoError) {
-        qWarning() << "Error while parsing JSON response from ModpacksCH at " << parse_error.offset
-                   << " reason: " << parse_error.errorString();
+        qWarning() << "Error while parsing JSON response from FTB at " << parse_error.offset << " reason: " << parse_error.errorString();
         qWarning() << *m_response;
         return;
     }
@@ -146,7 +145,7 @@ void ListModel::requestFailed(QString)
 void ListModel::requestPack()
 {
     auto netJob = makeShared<NetJob>("Ftb::Search", APPLICATION->network());
-    auto searchUrl = QString(BuildConfig.MODPACKSCH_API_BASE_URL + "public/modpack/%1").arg(m_currentPack);
+    auto searchUrl = QString(BuildConfig.FTB_API_BASE_URL + "/modpack/%1").arg(m_currentPack);
     m_response.reset(new QByteArray());
     netJob->addNetAction(Net::Download::makeByteArray(QUrl(searchUrl), m_response));
     m_jobPtr = netJob;
@@ -168,27 +167,26 @@ void ListModel::packRequestFinished()
     QJsonDocument doc = QJsonDocument::fromJson(*m_response, &parse_error);
 
     if (parse_error.error != QJsonParseError::NoError) {
-        qWarning() << "Error while parsing JSON response from ModpacksCH at " << parse_error.offset
-                   << " reason: " << parse_error.errorString();
+        qWarning() << "Error while parsing JSON response from FTB at " << parse_error.offset << " reason: " << parse_error.errorString();
         qWarning() << *m_response;
         return;
     }
 
     auto obj = doc.object();
 
-    ModpacksCH::Modpack pack;
+    FTB::Modpack pack;
     try {
-        ModpacksCH::loadModpack(pack, obj);
+        FTB::loadModpack(pack, obj);
     } catch (const JSONValidationError& e) {
         qDebug() << QString::fromUtf8(*m_response);
-        qWarning() << "Error while reading pack manifest from ModpacksCH: " << e.cause();
+        qWarning() << "Error while reading pack manifest from FTB: " << e.cause();
         return;
     }
 
     // Since there is no guarantee that packs have a version, this will just
     // ignore those "dud" packs.
     if (pack.versions.empty()) {
-        qWarning() << "ModpacksCH Pack " << pack.id << " ignored. reason: lacking any versions";
+        qWarning() << "FTB Pack " << pack.id << " ignored. reason: lacking any versions";
     } else {
         beginInsertRows(QModelIndex(), m_modpacks.size(), m_modpacks.size());
         m_modpacks.append(pack);
@@ -231,9 +229,9 @@ void ListModel::requestLogo(QString logo, QString url)
         return;
     }
 
-    MetaEntryPtr entry = APPLICATION->metacache()->resolveEntry("ModpacksCHPacks", QString("logos/%1").arg(logo));
+    MetaEntryPtr entry = APPLICATION->metacache()->resolveEntry("FTBPacks", QString("logos/%1").arg(logo));
 
-    auto job = makeShared<NetJob>(QString("ModpacksCH Icon Download %1").arg(logo), APPLICATION->network());
+    auto job = makeShared<NetJob>(QString("FTB Icon Download %1").arg(logo), APPLICATION->network());
     job->setAskRetry(false);
     job->addNetAction(Net::Download::makeCached(QUrl(url), entry));
 

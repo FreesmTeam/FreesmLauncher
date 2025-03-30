@@ -42,7 +42,7 @@
 #include <QUrl>
 #include <QVector>
 
-namespace ModpacksCH {
+namespace FTB {
 
 struct Specs {
     int id;
@@ -152,6 +152,6 @@ struct VersionChangelog {
 void loadModpack(Modpack& m, QJsonObject& obj);
 
 void loadVersion(Version& m, QJsonObject& obj);
-}  // namespace ModpacksCH
+}  // namespace FTB
 
-Q_DECLARE_METATYPE(ModpacksCH::Modpack)
+Q_DECLARE_METATYPE(FTB::Modpack)

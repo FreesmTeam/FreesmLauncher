@@ -38,20 +38,20 @@
 
 #include "Json.h"
 
-static void loadSpecs(ModpacksCH::Specs& s, QJsonObject& obj)
+static void loadSpecs(FTB::Specs& s, QJsonObject& obj)
 {
     s.id = Json::requireInteger(obj, "id");
     s.minimum = Json::requireInteger(obj, "minimum");
     s.recommended = Json::requireInteger(obj, "recommended");
 }
 
-static void loadTag(ModpacksCH::Tag& t, QJsonObject& obj)
+static void loadTag(FTB::Tag& t, QJsonObject& obj)
 {
     t.id = Json::requireInteger(obj, "id");
     t.name = Json::requireString(obj, "name");
 }
 
-static void loadArt(ModpacksCH::Art& a, QJsonObject& obj)
+static void loadArt(FTB::Art& a, QJsonObject& obj)
 {
     a.id = Json::requireInteger(obj, "id");
     a.url = Json::requireString(obj, "url");
@@ -60,11 +60,11 @@ static void loadArt(ModpacksCH::Art& a, QJsonObject& obj)
     a.height = Json::requireInteger(obj, "height");
     a.compressed = Json::requireBoolean(obj, "compressed");
     a.sha1 = Json::requireString(obj, "sha1");
-    a.size = Json::requireInteger(obj, "size");
+    a.size = Json::ensureInteger(obj, "size");
     a.updated = Json::requireInteger(obj, "updated");
 }
 
-static void loadAuthor(ModpacksCH::Author& a, QJsonObject& obj)
+static void loadAuthor(FTB::Author& a, QJsonObject& obj)
 {
     a.id = Json::requireInteger(obj, "id");
     a.name = Json::requireString(obj, "name");
@@ -73,7 +73,7 @@ static void loadAuthor(ModpacksCH::Author& a, QJsonObject& obj)
     a.updated = Json::requireInteger(obj, "updated");
 }
 
-static void loadVersionInfo(ModpacksCH::VersionInfo& v, QJsonObject& obj)
+static void loadVersionInfo(FTB::VersionInfo& v, QJsonObject& obj)
 {
     v.id = Json::requireInteger(obj, "id");
     v.name = Json::requireString(obj, "name");
@@ -83,7 +83,7 @@ static void loadVersionInfo(ModpacksCH::VersionInfo& v, QJsonObject& obj)
     loadSpecs(v.specs, specs);
 }
 
-void ModpacksCH::loadModpack(ModpacksCH::Modpack& m, QJsonObject& obj)
+void FTB::loadModpack(FTB::Modpack& m, QJsonObject& obj)
 {
     m.id = Json::requireInteger(obj, "id");
     m.name = Json::requireString(obj, "name");
@@ -95,39 +95,39 @@ void ModpacksCH::loadModpack(ModpacksCH::Modpack& m, QJsonObject& obj)
     m.installs = Json::requireInteger(obj, "installs");
     m.plays = Json::requireInteger(obj, "plays");
     m.updated = Json::requireInteger(obj, "updated");
-    m.refreshed = Json::requireInteger(obj, "refreshed");
+    m.refreshed = Json::ensureInteger(obj, "refreshed");
     auto artArr = Json::requireArray(obj, "art");
     for (QJsonValueRef artRaw : artArr) {
         auto artObj = Json::requireObject(artRaw);
-        ModpacksCH::Art art;
+        FTB::Art art;
         loadArt(art, artObj);
         m.art.append(art);
     }
     auto authorArr = Json::requireArray(obj, "authors");
     for (QJsonValueRef authorRaw : authorArr) {
         auto authorObj = Json::requireObject(authorRaw);
-        ModpacksCH::Author author;
+        FTB::Author author;
         loadAuthor(author, authorObj);
         m.authors.append(author);
     }
     auto versionArr = Json::requireArray(obj, "versions");
     for (QJsonValueRef versionRaw : versionArr) {
         auto versionObj = Json::requireObject(versionRaw);
-        ModpacksCH::VersionInfo version;
+        FTB::VersionInfo version;
         loadVersionInfo(version, versionObj);
         m.versions.append(version);
     }
     auto tagArr = Json::requireArray(obj, "tags");
     for (QJsonValueRef tagRaw : tagArr) {
         auto tagObj = Json::requireObject(tagRaw);
-        ModpacksCH::Tag tag;
+        FTB::Tag tag;
         loadTag(tag, tagObj);
         m.tags.append(tag);
     }
     m.updated = Json::requireInteger(obj, "updated");
 }
 
-static void loadVersionTarget(ModpacksCH::VersionTarget& a, QJsonObject& obj)
+static void loadVersionTarget(FTB::VersionTarget& a, QJsonObject& obj)
 {
     a.id = Json::requireInteger(obj, "id");
     a.name = Json::requireString(obj, "name");
@@ -136,7 +136,7 @@ static void loadVersionTarget(ModpacksCH::VersionTarget& a, QJsonObject& obj)
     a.updated = Json::requireInteger(obj, "updated");
 }
 
-static void loadVersionFile(ModpacksCH::VersionFile& a, QJsonObject& obj)
+static void loadVersionFile(FTB::VersionFile& a, QJsonObject& obj)
 {
     a.id = Json::requireInteger(obj, "id");
     a.type = Json::requireString(obj, "type");
@@ -145,7 +145,7 @@ static void loadVersionFile(ModpacksCH::VersionFile& a, QJsonObject& obj)
     a.version = Json::requireString(obj, "version");
     a.url = Json::ensureString(obj, "url");  // optional
     a.sha1 = Json::requireString(obj, "sha1");
-    a.size = Json::requireInteger(obj, "size");
+    a.size = Json::ensureInteger(obj, "size");
     a.clientOnly = Json::requireBoolean(obj, "clientonly");
     a.serverOnly = Json::requireBoolean(obj, "serveronly");
     a.optional = Json::requireBoolean(obj, "optional");
@@ -155,7 +155,7 @@ static void loadVersionFile(ModpacksCH::VersionFile& a, QJsonObject& obj)
     a.curseforge.file_id = Json::ensureInteger(curseforgeObj, "file");
 }
 
-void ModpacksCH::loadVersion(ModpacksCH::Version& m, QJsonObject& obj)
+void FTB::loadVersion(FTB::Version& m, QJsonObject& obj)
 {
     m.id = Json::requireInteger(obj, "id");
     m.parent = Json::requireInteger(obj, "parent");
@@ -164,20 +164,20 @@ void ModpacksCH::loadVersion(ModpacksCH::Version& m, QJsonObject& obj)
     m.installs = Json::requireInteger(obj, "installs");
     m.plays = Json::requireInteger(obj, "plays");
     m.updated = Json::requireInteger(obj, "updated");
-    m.refreshed = Json::requireInteger(obj, "refreshed");
+    m.refreshed = Json::ensureInteger(obj, "refreshed");
     auto specs = Json::requireObject(obj, "specs");
     loadSpecs(m.specs, specs);
     auto targetArr = Json::requireArray(obj, "targets");
     for (QJsonValueRef targetRaw : targetArr) {
         auto versionObj = Json::requireObject(targetRaw);
-        ModpacksCH::VersionTarget target;
+        FTB::VersionTarget target;
         loadVersionTarget(target, versionObj);
         m.targets.append(target);
     }
     auto fileArr = Json::requireArray(obj, "files");
     for (QJsonValueRef fileRaw : fileArr) {
         auto fileObj = Json::requireObject(fileRaw);
-        ModpacksCH::VersionFile file;
+        FTB::VersionFile file;
         loadVersionFile(file, fileObj);
         m.files.append(file);
     }

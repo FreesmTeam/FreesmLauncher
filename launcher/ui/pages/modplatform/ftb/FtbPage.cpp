@@ -40,7 +40,7 @@
 
 #include <QKeyEvent>
 
-#include "modplatform/modpacksch/FTBPackInstallTask.h"
+#include "modplatform/ftb/FTBPackInstallTask.h"
 #include "ui/dialogs/NewInstanceDialog.h"
 
 #include "Markdown.h"
@@ -130,7 +130,7 @@ void FtbPage::suggestCurrent()
         return;
     }
 
-    m_dialog->setSuggestedPack(m_selected.name, m_selectedVersion, new ModpacksCH::PackInstallTask(m_selected, m_selectedVersion, this));
+    m_dialog->setSuggestedPack(m_selected.name, m_selectedVersion, new FTB::PackInstallTask(m_selected, m_selectedVersion, this));
     for (auto art : m_selected.art) {
         if (art.type == "square") {
             auto editedLogoName = "ftb_" + m_selected.safeName;
@@ -162,7 +162,7 @@ void FtbPage::onSelectionChanged(QModelIndex first, QModelIndex second)
         return;
     }
 
-    m_selected = m_filterModel->data(first, Qt::UserRole).value<ModpacksCH::Modpack>();
+    m_selected = m_filterModel->data(first, Qt::UserRole).value<FTB::Modpack>();
 
     QString output = markdownToHTML(m_selected.description.toUtf8());
     m_ui->packDescription->setHtml(output);
@@ -184,4 +184,14 @@ void FtbPage::onVersionSelectionChanged(QString data)
 
     m_selectedVersion = data;
     suggestCurrent();
+}
+
+QString FtbPage::getSerachTerm() const
+{
+    return m_ui->searchEdit->text();
+}
+
+void FtbPage::setSearchTerm(QString term)
+{
+    m_ui->searchEdit->setText(term);
 }

@@ -19,7 +19,7 @@
 #include <QAbstractListModel>
 
 #include <QIcon>
-#include "modplatform/modpacksch/FTBPackManifest.h"
+#include "modplatform/ftb/FTBPackManifest.h"
 #include "net/NetJob.h"
 
 namespace Ftb {
@@ -31,8 +31,8 @@ struct Logo {
     bool failed = false;
 };
 
-typedef QMap<QString, Logo> LogoMap;
-typedef std::function<void(QString)> LogoCallback;
+using LogoMap = QMap<QString, Logo>;
+using LogoCallback = std::function<void(QString)>;
 
 class ListModel : public QAbstractListModel {
     Q_OBJECT
@@ -70,7 +70,7 @@ class ListModel : public QAbstractListModel {
    private:
     bool m_aborted = false;
 
-    QList<ModpacksCH::Modpack> m_modpacks;
+    QList<FTB::Modpack> m_modpacks;
     LogoMap m_logoMap;
 
     NetJob::Ptr m_jobPtr;

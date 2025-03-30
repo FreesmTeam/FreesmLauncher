@@ -527,6 +527,11 @@ set(FTB_SOURCES
     modplatform/import_ftb/PackInstallTask.cpp
     modplatform/import_ftb/PackHelpers.h
     modplatform/import_ftb/PackHelpers.cpp
+
+    modplatform/ftb/FTBPackInstallTask.h
+    modplatform/ftb/FTBPackInstallTask.cpp
+    modplatform/ftb/FTBPackManifest.h
+    modplatform/ftb/FTBPackManifest.cpp
 )
 
 set(FLAME_SOURCES
@@ -554,13 +559,6 @@ set(MODRINTH_SOURCES
     modplatform/modrinth/ModrinthInstanceCreationTask.h
     modplatform/modrinth/ModrinthPackExportTask.cpp
     modplatform/modrinth/ModrinthPackExportTask.h
-)
-
-set(MODPACKSCH_SOURCES
-    modplatform/modpacksch/FTBPackInstallTask.h
-    modplatform/modpacksch/FTBPackInstallTask.cpp
-    modplatform/modpacksch/FTBPackManifest.h
-    modplatform/modpacksch/FTBPackManifest.cpp
 )
 
 set(PACKWIZ_SOURCES
@@ -778,7 +776,6 @@ set(LOGIC_SOURCES
     ${FTB_SOURCES}
     ${FLAME_SOURCES}
     ${MODRINTH_SOURCES}
-    ${MODPACKSCH_SOURCES}
     ${PACKWIZ_SOURCES}
     ${TECHNIC_SOURCES}
     ${ATLAUNCHER_SOURCES}
