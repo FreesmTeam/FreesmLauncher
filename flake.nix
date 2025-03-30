@@ -89,6 +89,24 @@
 
           packages' = self.packages.${system};
 
+          welcomeMessage = ''
+            Welcome to the Prism Launcher repository! 🌈
+
+            We just set some things up for you. To get building, you can run:
+
+            ```
+            $ cd "$cmakeBuildDir"
+            $ ninjaBuildPhase
+            $ ninjaInstallPhase
+            ```
+
+            Feel free to ask any questions in our Discord server or Matrix space:
+              - https://prismlauncher.org/discord
+              - https://matrix.to/#/#prismlauncher:matrix.org
+
+            And thanks for helping out :)
+          '';
+
           # Re-use our package wrapper to wrap our development environment
           qt-wrapper-env = packages'.prismlauncher.overrideAttrs (old: {
             name = "qt-wrapper-env";
@@ -134,6 +152,8 @@
                 cd ..
                 ln -s "$cmakeBuildDir"/compile_commands.json compile_commands.json
               fi
+
+              echo ${lib.escapeShellArg welcomeMessage}
             '';
           };
         }
