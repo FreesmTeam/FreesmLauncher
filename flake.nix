@@ -16,8 +16,6 @@
       flake = false;
     };
 
-    nix-filter.url = "github:numtide/nix-filter";
-
     /*
       Inputs below this are optional and can be removed
 
@@ -44,7 +42,6 @@
       self,
       nixpkgs,
       libnbtplusplus,
-      nix-filter,
       ...
     }:
     let
@@ -100,7 +97,6 @@
         prismlauncher-unwrapped = prev.callPackage ./nix/unwrapped.nix {
           inherit
             libnbtplusplus
-            nix-filter
             self
             ;
         };
