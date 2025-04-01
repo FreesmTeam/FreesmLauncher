@@ -1199,7 +1199,7 @@ void Application::performMainStartupAction()
         auto inst = instances()->getInstanceById(m_instanceIdToLaunch);
         if (inst) {
             MinecraftTarget::Ptr targetToJoin = nullptr;
-            MinecraftAccountPtr accountToUse = nullptr;
+            BaseAccountPtr accountToUse = nullptr;
 
             qDebug() << "<> Instance" << m_instanceIdToLaunch << "launching";
             if (!m_serverToJoin.isEmpty()) {
@@ -1337,7 +1337,7 @@ void Application::messageReceived(const QByteArray& message)
         } else if (!world.isEmpty()) {
             serverObject = std::make_shared<MinecraftTarget>(MinecraftTarget::parse(world, true));
         }
-        MinecraftAccountPtr accountObject;
+        BaseAccountPtr accountObject;
         if (!profile.isEmpty()) {
             accountObject = accounts()->getAccountByProfileName(profile);
             if (!accountObject) {
@@ -1385,7 +1385,7 @@ bool Application::openJsonEditor(const QString& filename)
     }
 }
 
-bool Application::launch(InstancePtr instance, bool online, bool demo, MinecraftTarget::Ptr targetToJoin, MinecraftAccountPtr accountToUse)
+bool Application::launch(InstancePtr instance, bool online, bool demo, MinecraftTarget::Ptr targetToJoin, BaseAccountPtr accountToUse)
 {
     if (m_updateRunning) {
         qDebug() << "Cannot launch instances while an update is running. Please try again when updates are completed.";
@@ -1748,6 +1748,11 @@ QString Application::getMSAClientID()
     }
 
     return BuildConfig.MSA_CLIENT_ID;
+}
+
+QString Application::getElybyClientID()
+{
+    return BuildConfig.ELYBY_CLIENT_ID;
 }
 
 QString Application::getFlameAPIKey()

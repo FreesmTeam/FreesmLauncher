@@ -1,5 +1,5 @@
 /* Copyright 2013-2021 MultiMC Contributors
- *
+*
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -17,18 +17,26 @@
 
 #include <launch/LaunchStep.h>
 #include <minecraft/auth/BaseAccount.h>
+#include "minecraft/MinecraftInstance.h"
+#include "net/Download.h"
+#include "net/NetJob.h"
 
-class ClaimAccount : public LaunchStep {
+class ApplyLibraryOverrides : public LaunchStep {
     Q_OBJECT
    public:
-    explicit ClaimAccount(LaunchTask* parent, AuthSessionPtr session);
-    virtual ~ClaimAccount() = default;
+    explicit ApplyLibraryOverrides(LaunchTask* parent, AuthSessionPtr session);
+    virtual ~ApplyLibraryOverrides() = default;
 
     void executeTask() override;
-    void finalize() override;
+    void downloadLibraryOverrideList();
+    void onLibraryOverrideDownloadFinished();
+    void downloadAuthlibInjector(const QUrl downloadUrl);
     bool canAbort() const override { return false; }
 
-   private:
-    std::unique_ptr<UseLock> lock;
-    BaseAccountPtr m_account;
+private:
+    AuthSessionPtr m_session;
+    MinecraftInstancePtr m_instance;
+    std::shared_ptr<QByteArray> m_response = std::make_shared<QByteArray>();
+    Net::Download::Ptr m_request;
+    NetJob::Ptr m_task;
 };

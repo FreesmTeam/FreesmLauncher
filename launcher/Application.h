@@ -159,6 +159,7 @@ class Application : public QApplication {
     QString getJarPath(QString jarFile);
 
     QString getMSAClientID();
+    QString getElybyClientID();
     QString getFlameAPIKey();
     QString getModrinthAPIToken();
     QString getUserAgent();
@@ -214,7 +215,7 @@ class Application : public QApplication {
                 bool online = true,
                 bool demo = false,
                 MinecraftTarget::Ptr targetToJoin = nullptr,
-                MinecraftAccountPtr accountToUse = nullptr);
+                BaseAccountPtr accountToUse = nullptr);
     bool kill(InstancePtr instance);
     void closeCurrentWindow();
 

@@ -88,7 +88,7 @@ struct MinecraftProfile {
     Validity validity = Validity::None;
 };
 
-enum class AccountType { MSA, Offline };
+enum class AccountType { MSA, Offline, Elyby };
 
 enum class AccountState { Unchecked, Offline, Working, Online, Disabled, Errored, Expired, Gone };
 
@@ -109,7 +109,8 @@ struct AccountData {
 
     AccountType type = AccountType::MSA;
 
-    QString msaClientID;
+    //! Used both for MSA and Elyby
+    QString clientID;
     Token msaToken;
     Token userToken;
     Token xboxApiToken;
@@ -124,4 +125,5 @@ struct AccountData {
     QString internalId;
     QString errorString;
     AccountState accountState = AccountState::Unchecked;
+    QString accountLogin;
 };
