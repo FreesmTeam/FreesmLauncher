@@ -45,6 +45,7 @@
 #include <QDebug>
 
 #include "ui/dialogs/CustomMessageBox.h"
+#include "ui/dialogs/ElybyLoginDialog.h"
 #include "ui/dialogs/MSALoginDialog.h"
 #include "ui/dialogs/OfflineLoginDialog.h"
 
@@ -151,9 +152,19 @@ void AccountListPage::on_actionAddOffline_triggered()
     }
     */
 
-    MinecraftAccountPtr account =
-        OfflineLoginDialog::newAccount(this, tr("Please enter your desired username to add your offline account."));
+    BaseAccountPtr account = OfflineLoginDialog::newAccount(this, tr("Please enter your desired username to add your offline account."));
 
+    if (account) {
+        m_accounts->addAccount(account);
+        if (m_accounts->count() == 1) {
+            m_accounts->setDefaultAccount(account);
+        }
+    }
+}
+
+void AccountListPage::on_actionAddElyby_triggered()
+{
+    BaseAccountPtr account = ElybyLoginDialog::newAccount(this, tr("Please enter your username and password of Elyby account."));
     if (account) {
         m_accounts->addAccount(account);
         if (m_accounts->count() == 1) {
@@ -182,7 +193,7 @@ void AccountListPage::on_actionRefresh_triggered()
     QModelIndexList selection = ui->listView->selectionModel()->selectedIndexes();
     if (selection.size() > 0) {
         QModelIndex selected = selection.first();
-        MinecraftAccountPtr account = selected.data(AccountList::PointerRole).value<MinecraftAccountPtr>();
+        BaseAccountPtr account = selected.data(AccountList::PointerRole).value<BaseAccountPtr>();
         m_accounts->requestRefresh(account->internalId());
     }
 }
@@ -192,7 +203,7 @@ void AccountListPage::on_actionSetDefault_triggered()
     QModelIndexList selection = ui->listView->selectionModel()->selectedIndexes();
     if (selection.size() > 0) {
         QModelIndex selected = selection.first();
-        MinecraftAccountPtr account = selected.data(AccountList::PointerRole).value<MinecraftAccountPtr>();
+        BaseAccountPtr account = selected.data(AccountList::PointerRole).value<BaseAccountPtr>();
         m_accounts->setDefaultAccount(account);
     }
 }
@@ -209,15 +220,17 @@ void AccountListPage::updateButtonStates()
     bool hasSelection = !selection.empty();
     bool accountIsReady = false;
     bool accountIsOnline = false;
+    AccountType accountType = AccountType::Offline;
     if (hasSelection) {
         QModelIndex selected = selection.first();
-        MinecraftAccountPtr account = selected.data(AccountList::PointerRole).value<MinecraftAccountPtr>();
+        BaseAccountPtr account = selected.data(AccountList::PointerRole).value<BaseAccountPtr>();
         accountIsReady = !account->isActive();
         accountIsOnline = account->accountType() != AccountType::Offline;
+        accountType = account->accountType();
     }
     ui->actionRemove->setEnabled(accountIsReady);
     ui->actionSetDefault->setEnabled(accountIsReady);
-    ui->actionManageSkins->setEnabled(accountIsReady && accountIsOnline);
+    ui->actionManageSkins->setEnabled(accountIsReady && accountIsOnline && accountType != AccountType::Elyby);
     ui->actionRefresh->setEnabled(accountIsReady && accountIsOnline);
 
     if (m_accounts->defaultAccount().get() == nullptr) {
@@ -235,7 +248,7 @@ void AccountListPage::on_actionManageSkins_triggered()
     QModelIndexList selection = ui->listView->selectionModel()->selectedIndexes();
     if (selection.size() > 0) {
         QModelIndex selected = selection.first();
-        MinecraftAccountPtr account = selected.data(AccountList::PointerRole).value<MinecraftAccountPtr>();
+        BaseAccountPtr account = selected.data(AccountList::PointerRole).value<BaseAccountPtr>();
         SkinManageDialog dialog(this, account);
         dialog.exec();
     }

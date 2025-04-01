@@ -20,7 +20,7 @@
 #include <QtWidgets/QDialog>
 
 #include "minecraft/auth/AuthFlow.h"
-#include "minecraft/auth/MinecraftAccount.h"
+#include "minecraft/auth/msa/MSAAccount.h"
 
 namespace Ui {
 class MSALoginDialog;
@@ -32,7 +32,7 @@ class MSALoginDialog : public QDialog {
    public:
     ~MSALoginDialog();
 
-    static MinecraftAccountPtr newAccount(QWidget* parent);
+    static MSAAccountPtr newAccount(QWidget* parent);
     int exec() override;
 
    private:
@@ -47,7 +47,7 @@ class MSALoginDialog : public QDialog {
 
    private:
     Ui::MSALoginDialog* ui;
-    MinecraftAccountPtr m_account;
+    MSAAccountPtr m_account;
     shared_qobject_ptr<AuthFlow> m_devicecode_task;
     shared_qobject_ptr<AuthFlow> m_authflow_task;
 

@@ -54,6 +54,7 @@
    </attribute>
    <addaction name="actionAddMicrosoft"/>
    <addaction name="actionAddOffline"/>
+   <addaction name="actionAddElyby"/>
    <addaction name="actionRefresh"/>
    <addaction name="actionRemove"/>
    <addaction name="actionSetDefault"/>
@@ -103,6 +104,14 @@
   <action name="actionRemove">
    <property name="text">
     <string>Remo&amp;ve</string>
+   </property>
+  </action>
+  <action name="actionAddElyby">
+   <property name="text">
+    <string>Add Elyby</string>
+   </property>
+   <property name="toolTip">
+    <string>Add Elyby</string>
    </property>
   </action>
  </widget>

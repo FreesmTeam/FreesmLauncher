@@ -432,7 +432,7 @@ void MainWindow::retranslateUi()
 
     ui->retranslateUi(this);
 
-    MinecraftAccountPtr defaultAccount = APPLICATION->accounts()->defaultAccount();
+    BaseAccountPtr defaultAccount = APPLICATION->accounts()->defaultAccount();
     if (defaultAccount) {
         auto profileLabel = profileInUseFilter(defaultAccount->profileName(), defaultAccount->isInUse());
         ui->actionAccountsButton->setText(profileLabel);
@@ -628,7 +628,7 @@ void MainWindow::repopulateAccountsMenu()
     }
 
     auto accounts = APPLICATION->accounts();
-    MinecraftAccountPtr defaultAccount = accounts->defaultAccount();
+    BaseAccountPtr defaultAccount = accounts->defaultAccount();
 
     QString active_profileId = "";
     if (defaultAccount) {
@@ -647,7 +647,7 @@ void MainWindow::repopulateAccountsMenu()
     } else {
         // TODO: Nicer way to iterate?
         for (int i = 0; i < accounts->count(); i++) {
-            MinecraftAccountPtr account = accounts->at(i);
+            BaseAccountPtr account = accounts->at(i);
             auto profileLabel = profileInUseFilter(account->profileName(), account->isInUse());
             QAction* action = new QAction(profileLabel, this);
             action->setData(i);
@@ -724,7 +724,7 @@ void MainWindow::defaultAccountChanged()
 {
     repopulateAccountsMenu();
 
-    MinecraftAccountPtr account = APPLICATION->accounts()->defaultAccount();
+    BaseAccountPtr account = APPLICATION->accounts()->defaultAccount();
 
     // FIXME: this needs adjustment for MSA
     if (account && account->profileName() != "") {

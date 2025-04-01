@@ -43,7 +43,7 @@ ProfileSelectDialog::ProfileSelectDialog(const QString& message, int flags, QWid
     }
     QList<QTreeWidgetItem*> items;
     for (int i = 0; i < m_accounts->count(); i++) {
-        MinecraftAccountPtr account = m_accounts->at(i);
+        BaseAccountPtr account = m_accounts->at(i);
         QString profileLabel;
         if (account->isInUse()) {
             profileLabel = tr("%1 (in use)").arg(account->profileName());
@@ -81,7 +81,7 @@ ProfileSelectDialog::~ProfileSelectDialog()
     delete ui;
 }
 
-MinecraftAccountPtr ProfileSelectDialog::selectedAccount() const
+BaseAccountPtr ProfileSelectDialog::selectedAccount() const
 {
     return m_selected;
 }
@@ -101,7 +101,7 @@ void ProfileSelectDialog::on_buttonBox_accepted()
     QModelIndexList selection = ui->listView->selectionModel()->selectedIndexes();
     if (selection.size() > 0) {
         QModelIndex selected = selection.first();
-        m_selected = selected.data(AccountList::PointerRole).value<MinecraftAccountPtr>();
+        m_selected = selected.data(AccountList::PointerRole).value<BaseAccountPtr>();
     }
     close();
 }

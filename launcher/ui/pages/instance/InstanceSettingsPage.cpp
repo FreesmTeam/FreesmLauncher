@@ -527,14 +527,14 @@ void InstanceSettingsPage::updateAccountsMenu()
     int accountIndex = accounts->findAccountByProfileId(m_settings->get("InstanceAccountId").toString());
 
     for (int i = 0; i < accounts->count(); i++) {
-        MinecraftAccountPtr account = accounts->at(i);
+        BaseAccountPtr account = accounts->at(i);
         ui->instanceAccountSelector->addItem(getFaceForAccount(account), account->profileName(), i);
         if (i == accountIndex)
             ui->instanceAccountSelector->setCurrentIndex(i);
     }
 }
 
-QIcon InstanceSettingsPage::getFaceForAccount(MinecraftAccountPtr account)
+QIcon InstanceSettingsPage::getFaceForAccount(BaseAccountPtr account)
 {
     if (auto face = account->getFace(); !face.isNull()) {
         return face;

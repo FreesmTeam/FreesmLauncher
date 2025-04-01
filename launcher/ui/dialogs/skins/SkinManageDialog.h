@@ -22,7 +22,7 @@
 #include <QItemSelection>
 #include <QPixmap>
 
-#include "minecraft/auth/MinecraftAccount.h"
+#include "minecraft/auth/BaseAccount.h"
 #include "minecraft/skins/SkinList.h"
 
 namespace Ui {
@@ -32,7 +32,7 @@ class SkinManageDialog;
 class SkinManageDialog : public QDialog {
     Q_OBJECT
    public:
-    explicit SkinManageDialog(QWidget* parent, MinecraftAccountPtr acct);
+    explicit SkinManageDialog(QWidget* parent, BaseAccountPtr acct);
     virtual ~SkinManageDialog();
     void resizeEvent(QResizeEvent* event) override;
 
@@ -56,7 +56,7 @@ class SkinManageDialog : public QDialog {
    private:
     void setupCapes();
 
-    MinecraftAccountPtr m_acct;
+    BaseAccountPtr m_acct;
     Ui::SkinManageDialog* ui;
     SkinList m_list;
     QString m_selected_skin;

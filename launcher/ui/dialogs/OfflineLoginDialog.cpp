@@ -28,7 +28,7 @@ void OfflineLoginDialog::accept()
     ui->progressBar->setVisible(true);
 
     // Setup the login task and start it
-    m_account = MinecraftAccount::createOffline(ui->userTextBox->text());
+    m_account = OfflineAccount::createOffline(ui->userTextBox->text());
     m_loginTask = m_account->login();
     connect(m_loginTask.get(), &Task::failed, this, &OfflineLoginDialog::onTaskFailed);
     connect(m_loginTask.get(), &Task::succeeded, this, &OfflineLoginDialog::onTaskSucceeded);
@@ -94,7 +94,7 @@ void OfflineLoginDialog::onTaskProgress(qint64 current, qint64 total)
 }
 
 // Public interface
-MinecraftAccountPtr OfflineLoginDialog::newAccount(QWidget* parent, QString msg)
+BaseAccountPtr OfflineLoginDialog::newAccount(QWidget* parent, QString msg)
 {
     OfflineLoginDialog dlg(parent);
     dlg.ui->label->setText(msg);

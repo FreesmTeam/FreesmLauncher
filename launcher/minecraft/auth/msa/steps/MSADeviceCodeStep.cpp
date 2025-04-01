@@ -267,7 +267,7 @@ void MSADeviceCodeStep::authenticationFinished()
     }
 
     m_expiration_timer.stop();
-    m_data->msaClientID = m_clientId;
+    m_data->clientID = m_clientId;
     m_data->msaToken.issueInstant = QDateTime::currentDateTimeUtc();
     m_data->msaToken.notAfter = QDateTime::currentDateTime().addSecs(rsp.expires_in);
     m_data->msaToken.extra = rsp.extra;

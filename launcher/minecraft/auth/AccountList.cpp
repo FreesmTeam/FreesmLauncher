@@ -69,7 +69,7 @@ AccountList::~AccountList() noexcept {}
 int AccountList::findAccountByProfileId(const QString& profileId) const
 {
     for (int i = 0; i < count(); i++) {
-        MinecraftAccountPtr account = at(i);
+        BaseAccountPtr account = at(i);
         if (account->profileId() == profileId) {
             return i;
         }
@@ -77,10 +77,10 @@ int AccountList::findAccountByProfileId(const QString& profileId) const
     return -1;
 }
 
-MinecraftAccountPtr AccountList::getAccountByProfileName(const QString& profileName) const
+BaseAccountPtr AccountList::getAccountByProfileName(const QString& profileName) const
 {
     for (int i = 0; i < count(); i++) {
-        MinecraftAccountPtr account = at(i);
+        BaseAccountPtr account = at(i);
         if (account->profileName() == profileName) {
             return account;
         }
@@ -88,9 +88,9 @@ MinecraftAccountPtr AccountList::getAccountByProfileName(const QString& profileN
     return nullptr;
 }
 
-const MinecraftAccountPtr AccountList::at(int i) const
+const BaseAccountPtr AccountList::at(int i) const
 {
-    return MinecraftAccountPtr(m_accounts.at(i));
+    return BaseAccountPtr(m_accounts.at(i));
 }
 
 QStringList AccountList::profileNames() const
@@ -106,7 +106,7 @@ QStringList AccountList::profileNames() const
     return out;
 }
 
-void AccountList::addAccount(const MinecraftAccountPtr account)
+void AccountList::addAccount(const BaseAccountPtr account)
 {
     // NOTE: Do not allow adding something that's already there. We shouldn't let it continue
     // because of the signal / slot connections after this.
@@ -116,8 +116,8 @@ void AccountList::addAccount(const MinecraftAccountPtr account)
     }
 
     // hook up notifications for changes in the account
-    connect(account.get(), &MinecraftAccount::changed, this, &AccountList::accountChanged);
-    connect(account.get(), &MinecraftAccount::activityChanged, this, &AccountList::accountActivityChanged);
+    connect(account.get(), &BaseAccount::changed, this, &AccountList::accountChanged);
+    connect(account.get(), &BaseAccount::activityChanged, this, &AccountList::accountActivityChanged);
 
     // override/replace existing account with the same profileId
     auto profileId = account->profileId();
@@ -126,7 +126,7 @@ void AccountList::addAccount(const MinecraftAccountPtr account)
         if (existingAccount != -1) {
             qDebug() << "Replacing old account with a new one with the same profile ID!";
 
-            MinecraftAccountPtr existingAccountPtr = m_accounts[existingAccount];
+            BaseAccountPtr existingAccountPtr = m_accounts[existingAccount];
             m_accounts[existingAccount] = account;
             if (m_defaultAccount == existingAccountPtr) {
                 m_defaultAccount = account;
@@ -168,18 +168,18 @@ void AccountList::removeAccount(QModelIndex index)
     }
 }
 
-MinecraftAccountPtr AccountList::defaultAccount() const
+BaseAccountPtr AccountList::defaultAccount() const
 {
     return m_defaultAccount;
 }
 
-void AccountList::setDefaultAccount(MinecraftAccountPtr newAccount)
+void AccountList::setDefaultAccount(BaseAccountPtr newAccount)
 {
     if (!newAccount && m_defaultAccount) {
         int idx = 0;
         auto previousDefaultAccount = m_defaultAccount;
         m_defaultAccount = nullptr;
-        for (MinecraftAccountPtr account : m_accounts) {
+        for (BaseAccountPtr account : m_accounts) {
             if (account == previousDefaultAccount) {
                 emit dataChanged(index(idx), index(idx, columnCount(QModelIndex()) - 1));
             }
@@ -192,7 +192,7 @@ void AccountList::setDefaultAccount(MinecraftAccountPtr newAccount)
         auto newDefaultAccount = m_defaultAccount;
         int newDefaultAccountIdx = -1;
         int idx = 0;
-        for (MinecraftAccountPtr account : m_accounts) {
+        for (BaseAccountPtr account : m_accounts) {
             if (account == newAccount) {
                 newDefaultAccount = account;
                 newDefaultAccountIdx = idx;
@@ -219,7 +219,7 @@ void AccountList::accountChanged()
 
 void AccountList::accountActivityChanged(bool active)
 {
-    MinecraftAccount* account = qobject_cast<MinecraftAccount*>(sender());
+    BaseAccount* account = qobject_cast<BaseAccount*>(sender());
     bool found = false;
     for (int i = 0; i < count(); i++) {
         if (at(i).get() == account) {
@@ -268,7 +268,7 @@ QVariant AccountList::data(const QModelIndex& index, int role) const
     if (index.row() > count())
         return QVariant();
 
-    MinecraftAccountPtr account = at(index.row());
+    BaseAccountPtr account = at(index.row());
 
     switch (role) {
         case Qt::DisplayRole:
@@ -287,6 +287,9 @@ QVariant AccountList::data(const QModelIndex& index, int role) const
                         }
                         case AccountType::Offline: {
                             return tr("Offline", "Account type");
+                        }
+                        case AccountType::Elyby: {
+                            return tr("Elyby", "Account type");
                         }
                     }
                     return tr("Unknown", "Account type");
@@ -410,7 +413,7 @@ bool AccountList::setData(const QModelIndex& idx, const QVariant& value, int rol
 
     if (role == Qt::CheckStateRole) {
         if (value == Qt::Checked) {
-            MinecraftAccountPtr account = at(idx.row());
+            BaseAccountPtr account = at(idx.row());
             setDefaultAccount(account);
         } else if (m_defaultAccount == at(idx.row()))
             setDefaultAccount(nullptr);
@@ -481,7 +484,7 @@ bool AccountList::loadV3(QJsonObject& root)
     QJsonArray accounts = root.value("accounts").toArray();
     for (QJsonValue accountVal : accounts) {
         QJsonObject accountObj = accountVal.toObject();
-        MinecraftAccountPtr account = MinecraftAccount::loadFromJsonV3(accountObj);
+        BaseAccountPtr account = BaseAccount::loadFromJsonV3(accountObj);
         if (account.get() != nullptr) {
             auto profileId = account->profileId();
             if (profileId.size()) {
@@ -489,8 +492,8 @@ bool AccountList::loadV3(QJsonObject& root)
                     continue;
                 }
             }
-            connect(account.get(), &MinecraftAccount::changed, this, &AccountList::accountChanged);
-            connect(account.get(), &MinecraftAccount::activityChanged, this, &AccountList::accountActivityChanged);
+            connect(account.get(), &BaseAccount::changed, this, &AccountList::accountChanged);
+            connect(account.get(), &BaseAccount::activityChanged, this, &AccountList::accountActivityChanged);
             m_accounts.append(account);
             if (accountObj.value("active").toBool(false)) {
                 m_defaultAccount = account;
@@ -532,7 +535,7 @@ bool AccountList::saveList()
     // Build a list of accounts.
     qDebug() << "Building account array.";
     QJsonArray accounts;
-    for (MinecraftAccountPtr account : m_accounts) {
+    for (BaseAccountPtr account : m_accounts) {
         QJsonObject accountObj = account->saveToJson();
         if (m_defaultAccount == account) {
             accountObj["active"] = true;
