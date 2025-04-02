@@ -49,12 +49,9 @@
 #include "Application.h"
 #include "minecraft/PackProfile.h"
 
-unique_qobject_ptr<ModFilterWidget> ModFilterWidget::create(MinecraftInstance* instance,
-                                                            bool extended,
-                                                            ModPlatform::ResourceProvider provider,
-                                                            QWidget* parent)
+unique_qobject_ptr<ModFilterWidget> ModFilterWidget::create(MinecraftInstance* instance, bool extended, QWidget* parent)
 {
-    return unique_qobject_ptr<ModFilterWidget>(new ModFilterWidget(instance, extended, provider, parent));
+    return unique_qobject_ptr<ModFilterWidget>(new ModFilterWidget(instance, extended, parent));
 }
 
 class VersionBasicModel : public QIdentityProxyModel {
@@ -110,7 +107,7 @@ class AllVersionProxyModel : public QSortFilterProxyModel {
     }
 };
 
-ModFilterWidget::ModFilterWidget(MinecraftInstance* instance, bool extended, ModPlatform::ResourceProvider provider, QWidget* parent)
+ModFilterWidget::ModFilterWidget(MinecraftInstance* instance, bool extended, QWidget* parent)
     : QTabWidget(parent), ui(new Ui::ModFilterWidget), m_instance(instance), m_filter(new Filter())
 {
     ui->setupUi(this);
@@ -151,10 +148,10 @@ ModFilterWidget::ModFilterWidget(MinecraftInstance* instance, bool extended, Mod
     connect(ui->forge, &QCheckBox::stateChanged, this, &ModFilterWidget::onLoadersFilterChanged);
     connect(ui->fabric, &QCheckBox::stateChanged, this, &ModFilterWidget::onLoadersFilterChanged);
     connect(ui->quilt, &QCheckBox::stateChanged, this, &ModFilterWidget::onLoadersFilterChanged);
-    if (provider == ModPlatform::ResourceProvider::FLAME)
-        ui->liteLoader->setVisible(false);
-    else
+    if (extended)
         connect(ui->liteLoader, &QCheckBox::stateChanged, this, &ModFilterWidget::onLoadersFilterChanged);
+    else
+        ui->liteLoader->setVisible(false);
 
     if (extended) {
         connect(ui->clientSide, &QCheckBox::stateChanged, this, &ModFilterWidget::onSideFilterChanged);

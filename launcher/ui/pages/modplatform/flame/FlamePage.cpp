@@ -341,7 +341,7 @@ void FlamePage::setSearchTerm(QString term)
 
 void FlamePage::createFilterWidget()
 {
-    auto widget = ModFilterWidget::create(nullptr, false, ModPlatform::ResourceProvider::FLAME, this);
+    auto widget = ModFilterWidget::create(nullptr, false, this);
     m_filterWidget.swap(widget);
     auto old = ui->splitter->replaceWidget(0, m_filterWidget.get());
     // because we replaced the widget we also need to delete it
