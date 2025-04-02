@@ -49,9 +49,12 @@
 #include "Application.h"
 #include "minecraft/PackProfile.h"
 
-unique_qobject_ptr<ModFilterWidget> ModFilterWidget::create(MinecraftInstance* instance, bool extended, QWidget* parent)
+unique_qobject_ptr<ModFilterWidget> ModFilterWidget::create(MinecraftInstance* instance,
+                                                            bool extended,
+                                                            ModPlatform::ResourceProvider provider,
+                                                            QWidget* parent)
 {
-    return unique_qobject_ptr<ModFilterWidget>(new ModFilterWidget(instance, extended, parent));
+    return unique_qobject_ptr<ModFilterWidget>(new ModFilterWidget(instance, extended, provider, parent));
 }
 
 class VersionBasicModel : public QIdentityProxyModel {
@@ -107,7 +110,7 @@ class AllVersionProxyModel : public QSortFilterProxyModel {
     }
 };
 
-ModFilterWidget::ModFilterWidget(MinecraftInstance* instance, bool extended, QWidget* parent)
+ModFilterWidget::ModFilterWidget(MinecraftInstance* instance, bool extended, ModPlatform::ResourceProvider provider, QWidget* parent)
     : QTabWidget(parent), ui(new Ui::ModFilterWidget), m_instance(instance), m_filter(new Filter())
 {
     ui->setupUi(this);
@@ -148,11 +151,10 @@ ModFilterWidget::ModFilterWidget(MinecraftInstance* instance, bool extended, QWi
     connect(ui->forge, &QCheckBox::stateChanged, this, &ModFilterWidget::onLoadersFilterChanged);
     connect(ui->fabric, &QCheckBox::stateChanged, this, &ModFilterWidget::onLoadersFilterChanged);
     connect(ui->quilt, &QCheckBox::stateChanged, this, &ModFilterWidget::onLoadersFilterChanged);
-
-    connect(ui->neoForge, &QCheckBox::stateChanged, this, &ModFilterWidget::onLoadersFilterChanged);
-    connect(ui->forge, &QCheckBox::stateChanged, this, &ModFilterWidget::onLoadersFilterChanged);
-    connect(ui->fabric, &QCheckBox::stateChanged, this, &ModFilterWidget::onLoadersFilterChanged);
-    connect(ui->quilt, &QCheckBox::stateChanged, this, &ModFilterWidget::onLoadersFilterChanged);
+    if (provider == ModPlatform::ResourceProvider::FLAME)
+        ui->liteLoader->setEnabled(false);
+    else
+        connect(ui->liteLoader, &QCheckBox::stateChanged, this, &ModFilterWidget::onLoadersFilterChanged);
 
     if (extended) {
         connect(ui->clientSide, &QCheckBox::stateChanged, this, &ModFilterWidget::onSideFilterChanged);
@@ -224,6 +226,7 @@ void ModFilterWidget::prepareBasicFilter()
         ui->forge->setChecked(loaders & ModPlatform::Forge);
         ui->fabric->setChecked(loaders & ModPlatform::Fabric);
         ui->quilt->setChecked(loaders & ModPlatform::Quilt);
+        ui->liteLoader->setChecked(loaders & ModPlatform::LiteLoader);
         m_filter->loaders = loaders;
         auto def = m_instance->getPackProfile()->getComponentVersion("net.minecraft");
         m_filter->versions.emplace_front(def);
@@ -269,6 +272,8 @@ void ModFilterWidget::onLoadersFilterChanged()
         loaders |= ModPlatform::Fabric;
     if (ui->quilt->isChecked())
         loaders |= ModPlatform::Quilt;
+    if (ui->liteLoader->isChecked())
+        loaders |= ModPlatform::LiteLoader;
     m_filter_changed = loaders != m_filter->loaders;
     m_filter->loaders = loaders;
     if (m_filter_changed)
