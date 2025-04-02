@@ -47,9 +47,11 @@ jobs:
 
       - name: Setup Environment
         id: env_setup
+        env:
+          EVENT_PR_JSON: ${{ toJSON(github.event.pull_request) }}
         run: |
           # setup env for the rest of the workflow
-          PR_JSON=${PR_JSON:-'${{ toJSON(github.event.pull_request) }}'}
+          PR_JSON=${PR_JSON:-"$EVENT_PR_JSON"}
           {
             echo "REPO=$(jq -r '.base.repo.name' <<< "$PR_JSON")"
             echo "OWNER=$(jq -r '.base.repo.owner.login' <<< "$PR_JSON")"
