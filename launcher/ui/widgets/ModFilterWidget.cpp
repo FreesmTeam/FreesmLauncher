@@ -152,7 +152,7 @@ ModFilterWidget::ModFilterWidget(MinecraftInstance* instance, bool extended, Mod
     connect(ui->fabric, &QCheckBox::stateChanged, this, &ModFilterWidget::onLoadersFilterChanged);
     connect(ui->quilt, &QCheckBox::stateChanged, this, &ModFilterWidget::onLoadersFilterChanged);
     if (provider == ModPlatform::ResourceProvider::FLAME)
-        ui->liteLoader->setEnabled(false);
+        ui->liteLoader->setVisible(false);
     else
         connect(ui->liteLoader, &QCheckBox::stateChanged, this, &ModFilterWidget::onLoadersFilterChanged);
 
