@@ -23,6 +23,13 @@ struct AuthSession {
         GoneOrMigrated
     } status = Undetermined;
 
+    enum ElySkinsSetting {
+        Never = 0,
+        Always = 1,
+        WithElyAccount = 2,
+        WithoutElyAccount = 3
+    };
+
     // combined session ID
     QString session;
     // volatile auth token

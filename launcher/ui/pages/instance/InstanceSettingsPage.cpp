@@ -303,6 +303,14 @@ void InstanceSettingsPage::applySettings()
         m_settings->reset("OnlineFixes");
     }
 
+    bool overrideElyby = ui->elySettingsGroupBox->isChecked();
+    m_settings->set("OverrideElyby", overrideElyby);
+    if (overrideElyby) {
+        m_settings->set("UseElySkins", ui->useElyCheckBox->isChecked() ? 1 : 0);
+    } else {
+        m_settings->reset("UseElySkins");
+    }
+
     // FIXME: This should probably be called by a signal instead
     m_instance->updateRuntimeContext();
 }
@@ -429,6 +437,10 @@ void InstanceSettingsPage::loadSettings()
         ui->serverJoinAddress->setEnabled(true);
         ui->worldsCb->setEnabled(false);
     }
+
+    // Elyby
+    ui->elySettingsGroupBox->setChecked(m_settings->get("OverrideElyby").toBool());
+    ui->useElyCheckBox->setChecked(m_settings->get("UseElySkins").toBool());
 
     ui->instanceAccountGroupBox->setChecked(m_settings->get("UseAccountForInstance").toBool());
     updateAccountsMenu();

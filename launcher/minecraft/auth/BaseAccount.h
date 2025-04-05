@@ -108,7 +108,7 @@ class BaseAccount : public QObject, public Usable {
 
     bool shouldRefresh() const;
 
-    void fillSession(AuthSessionPtr session);
+    void fillSession(AuthSessionPtr session, AuthSession::ElySkinsSetting elySkinsSetting);
 
     QString lastError() const { return data.lastError(); }
 
