@@ -111,7 +111,7 @@ bool BaseAccount::shouldRefresh() const
     }
     return false;
 }
-void BaseAccount::fillSession(AuthSessionPtr session)
+void BaseAccount::fillSession(AuthSessionPtr session, AuthSession::ElySkinsSetting elySkinsSetting)
 {
     if (ownsMinecraft() && !hasProfile()) {
         session->status = AuthSession::RequiresProfileSetup;
@@ -122,8 +122,29 @@ void BaseAccount::fillSession(AuthSessionPtr session)
             session->status = AuthSession::PlayableOffline;
         }
     }
-    if (accountType() == AccountType::Elyby) {
-        session->wants_ely_patch = true;
+
+    switch (elySkinsSetting) {
+        case AuthSession::Never: {
+            session->wants_ely_patch = false;
+            break;
+        }
+        case AuthSession::Always: {
+            session->wants_ely_patch = true;
+            break;
+        }
+        case AuthSession::WithElyAccount: {
+            session->wants_ely_patch = accountType() == AccountType::Elyby;
+            break;
+        }
+        case AuthSession::WithoutElyAccount: {
+            session->wants_ely_patch = accountType() != AccountType::Elyby;
+            break;
+        }
+        default: {
+            qDebug() << "Unrecognized elySkinsSetting";
+            session->wants_ely_patch = false;
+            break;
+        }
     }
 
     // volatile auth token
