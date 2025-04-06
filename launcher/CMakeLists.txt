@@ -275,6 +275,8 @@ set(MINECRAFT_SOURCES
 
     minecraft/launch/ApplyLibraryOverrides.cpp
     minecraft/launch/ApplyLibraryOverrides.h
+        minecraft/launch/ApplyAuthlibInjector.cpp
+        minecraft/launch/ApplyAuthlibInjector.h
     minecraft/launch/ClaimAccount.cpp
     minecraft/launch/ClaimAccount.h
     minecraft/launch/CreateGameFolders.cpp

@@ -111,7 +111,7 @@ bool BaseAccount::shouldRefresh() const
     }
     return false;
 }
-void BaseAccount::fillSession(AuthSessionPtr session, AuthSession::ElySkinsSetting elySkinsSetting)
+void BaseAccount::fillSession(AuthSessionPtr session, SettingsObjectPtr instanceSettings)
 {
     if (ownsMinecraft() && !hasProfile()) {
         session->status = AuthSession::RequiresProfileSetup;
@@ -123,20 +123,22 @@ void BaseAccount::fillSession(AuthSessionPtr session, AuthSession::ElySkinsSetti
         }
     }
 
+    enum ElySkinsSetting { Never = 0, Always = 1, WithElyAccount = 2, WithoutElyAccount = 3 };
+    const auto elySkinsSetting = instanceSettings->get("UseElySkins").toInt();
     switch (elySkinsSetting) {
-        case AuthSession::Never: {
+        case Never: {
             session->wants_ely_patch = false;
             break;
         }
-        case AuthSession::Always: {
+        case Always: {
             session->wants_ely_patch = true;
             break;
         }
-        case AuthSession::WithElyAccount: {
+        case WithElyAccount: {
             session->wants_ely_patch = accountType() == AccountType::Elyby;
             break;
         }
-        case AuthSession::WithoutElyAccount: {
+        case WithoutElyAccount: {
             session->wants_ely_patch = accountType() != AccountType::Elyby;
             break;
         }
@@ -145,6 +147,11 @@ void BaseAccount::fillSession(AuthSessionPtr session, AuthSession::ElySkinsSetti
             session->wants_ely_patch = false;
             break;
         }
+    }
+
+    const auto useAuthlibInjector = instanceSettings->get("UseElyAuthlibInjector").toBool();
+    if (accountType() == AccountType::Elyby && useAuthlibInjector) {
+        session->wants_authlib_injector = true;
     }
 
     // volatile auth token

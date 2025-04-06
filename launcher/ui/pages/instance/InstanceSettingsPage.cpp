@@ -307,8 +307,10 @@ void InstanceSettingsPage::applySettings()
     m_settings->set("OverrideElyby", overrideElyby);
     if (overrideElyby) {
         m_settings->set("UseElySkins", ui->useElyCheckBox->isChecked() ? 1 : 0);
+        m_settings->set("UseElyAuthlibInjector", ui->useInjectorCheckBox->isChecked());
     } else {
         m_settings->reset("UseElySkins");
+        m_settings->reset("UseElyAuthlibInjector");
     }
 
     // FIXME: This should probably be called by a signal instead
@@ -441,6 +443,7 @@ void InstanceSettingsPage::loadSettings()
     // Elyby
     ui->elySettingsGroupBox->setChecked(m_settings->get("OverrideElyby").toBool());
     ui->useElyCheckBox->setChecked(m_settings->get("UseElySkins").toBool());
+    ui->useInjectorCheckBox->setChecked(m_settings->get("UseElyAuthlibInjector").toBool());
 
     ui->instanceAccountGroupBox->setChecked(m_settings->get("UseAccountForInstance").toBool());
     updateAccountsMenu();

@@ -182,45 +182,56 @@
          <property name="title">
           <string>Ely.by</string>
          </property>
-         <layout class="QHBoxLayout" name="horizontalLayout">
+         <layout class="QVBoxLayout" name="verticalLayout_7">
           <item>
-           <widget class="QLabel" name="label">
-            <property name="text">
-             <string>Use Ely.by skin system</string>
-            </property>
-           </widget>
+           <layout class="QHBoxLayout" name="horizontalLayout">
+            <item>
+             <widget class="QLabel" name="label">
+              <property name="text">
+               <string>Use Ely.by skin system</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QComboBox" name="elySkinSystemComboBox">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="currentIndex">
+               <number>0</number>
+              </property>
+              <item>
+               <property name="text">
+                <string>Never</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>Always</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>With Ely.by accounts</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>Without Ely.by accounts</string>
+               </property>
+              </item>
+             </widget>
+            </item>
+           </layout>
           </item>
           <item>
-           <widget class="QComboBox" name="elySkinSystemComboBox">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
+           <widget class="QCheckBox" name="useInjectorCheckBox">
+            <property name="text">
+             <string>Use Authlib Injector</string>
             </property>
-            <property name="currentIndex">
-             <number>0</number>
-            </property>
-            <item>
-             <property name="text">
-              <string>Never</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>Always</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>With Ely.by accounts</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>Without Ely.by accounts</string>
-             </property>
-            </item>
            </widget>
           </item>
          </layout>
