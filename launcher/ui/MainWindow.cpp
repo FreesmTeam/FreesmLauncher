@@ -1318,7 +1318,10 @@ void MainWindow::on_actionReportBug_triggered()
 
 void MainWindow::on_actionClearMetadata_triggered()
 {
-    APPLICATION->metacache()->evictAll();
+    if(!APPLICATION->metacache()->evictAll()){
+        CustomMessageBox::selectable(this, tr("Error"), tr("Metadata cache clear Failed!\n To clear the metadata cache manually, press Folders -> View Launcher Root Folder, and after closing the launcher delete the folder named \"meta\"\n"), QMessageBox::Warning)->show();
+    }
+
     APPLICATION->metacache()->SaveNow();
 }
 

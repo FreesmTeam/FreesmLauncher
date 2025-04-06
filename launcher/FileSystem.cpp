@@ -55,6 +55,7 @@
 #include "DesktopServices.h"
 #include "PSaveFile.h"
 #include "StringUtils.h"
+#include "ui/dialogs/CustomMessageBox.h"
 
 #if defined Q_OS_WIN32
 #define NOMINMAX
