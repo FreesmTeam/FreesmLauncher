@@ -20,6 +20,7 @@
 
 #include <QObject>
 
+#include <settings/SettingsObject.h>
 #include "AccountData.h"
 #include "AuthFlow.h"
 #include "AuthSession.h"
@@ -46,7 +47,6 @@ class BaseAccount : public QObject, public Usable {
     explicit BaseAccount(QObject* parent = nullptr);
 
    public: /* static methods */
-
     static BaseAccountPtr loadFromJsonV3(const QJsonObject& json);
 
     static QUuid uuidFromUsername(QString username);
@@ -108,7 +108,7 @@ class BaseAccount : public QObject, public Usable {
 
     bool shouldRefresh() const;
 
-    void fillSession(AuthSessionPtr session, AuthSession::ElySkinsSetting elySkinsSetting);
+    void fillSession(AuthSessionPtr session, SettingsObjectPtr instanceSettings);
 
     QString lastError() const { return data.lastError(); }
 

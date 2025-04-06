@@ -217,7 +217,7 @@ void LaunchController::login()
         m_session = std::make_shared<AuthSession>();
         m_session->wants_online = m_online;
         m_session->demo = m_demo;
-        m_accountToUse->fillSession(m_session, static_cast<AuthSession::ElySkinsSetting>(m_instance->settings()->get("UseElySkins").toInt()));
+        m_accountToUse->fillSession(m_session, m_instance->settings());
 
         // Launch immediately in true offline mode
         if (m_accountToUse->accountType() == AccountType::Offline) {

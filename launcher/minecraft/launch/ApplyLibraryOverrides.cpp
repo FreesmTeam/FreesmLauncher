@@ -6,7 +6,8 @@
 
 #include "Application.h"
 
-ApplyLibraryOverrides::ApplyLibraryOverrides(LaunchTask* parent, AuthSessionPtr session) : LaunchStep(parent), m_session(session), m_instance(m_parent->instance())
+ApplyLibraryOverrides::ApplyLibraryOverrides(LaunchTask* parent, AuthSessionPtr session)
+    : LaunchStep(parent), m_session(session), m_instance(m_parent->instance())
 {}
 
 void ApplyLibraryOverrides::executeTask()
@@ -16,7 +17,8 @@ void ApplyLibraryOverrides::executeTask()
 
 void ApplyLibraryOverrides::downloadLibraryOverrideList()
 {
-    const auto libraryOverrideListUrl = QUrl("https://raw.githubusercontent.com/ElyPrismLauncher/ElyPrismLauncher/refs/heads/develop/epl_metadata.json");
+    const auto libraryOverrideListUrl =
+        QUrl("https://raw.githubusercontent.com/ElyPrismLauncher/ElyPrismLauncher/refs/heads/develop/epl_metadata.json");
     m_request = Net::Download::makeByteArray(libraryOverrideListUrl, m_response);
 
     m_task.reset(new NetJob("Fetch EPL metadata", APPLICATION->network()));
@@ -78,25 +80,5 @@ void ApplyLibraryOverrides::onLibraryOverrideDownloadFinished()
         replacedAuthlib = replacedAuthlib || isAuthlib;
     }
 
-    m_session->ely_authlib_replaced = replacedAuthlib;
-
-    if (replacedAuthlib) {
-        emitSucceeded();
-        return;
-    }
-
-    downloadAuthlibInjector(root["extras"].toObject()["authlib-injector"].toString());
-}
-
-void ApplyLibraryOverrides::downloadAuthlibInjector(QUrl downloadUrl) {
-    m_request = Net::Download::makeFile(downloadUrl, "authlib-injector.jar");
-
-    m_task.reset(new NetJob("Download authlib-injector", APPLICATION->network()));
-    m_task->addNetAction(m_request);
-
-    connect(m_task.get(), &NetJob::succeeded, this, &ApplyLibraryOverrides::emitSucceeded);
-    connect(m_task.get(), &NetJob::failed, this, &ApplyLibraryOverrides::emitFailed);
-    connect(m_task.get(), &NetJob::aborted, this, [this] { emitFailed(tr("Aborted")); });
-
-    m_task->start();
+    emitSucceeded();
 }

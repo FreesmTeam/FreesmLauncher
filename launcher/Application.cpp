@@ -666,6 +666,7 @@ Application::Application(int& argc, char** argv) : QApplication(argc, argv)
 
         // Elyby settings
         m_settings->registerSetting("UseElySkins", 2);
+        m_settings->registerSetting("UseElyAuthlibInjector", true);
 
         // Legacy settings
         m_settings->registerSetting("OnlineFixes", false);
