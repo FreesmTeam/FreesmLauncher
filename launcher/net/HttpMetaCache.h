@@ -113,7 +113,7 @@ class HttpMetaCache : public QObject {
 
     // evict selected entry from cache
     auto evictEntry(MetaEntryPtr entry) -> bool;
-    bool evictAll();
+    auto evictAll() -> bool;
 
     void addBase(QString base, QString base_root);
 
