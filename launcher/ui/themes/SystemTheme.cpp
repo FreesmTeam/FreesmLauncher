@@ -40,20 +40,29 @@
 #include "HintOverrideProxyStyle.h"
 #include "ThemeManager.h"
 
-SystemTheme::SystemTheme(const QString& styleName, bool isDefaultTheme)
+// See https://github.com/MultiMC/Launcher/issues/1790
+// or https://github.com/PrismLauncher/PrismLauncher/issues/490
+static const QStringList S_NATIVE_STYLES{ "windows11", "windowsvista", "macos", "system", "windows" };
+
+SystemTheme::SystemTheme(const QString& styleName, const QPalette& defaultPalette, bool isDefaultTheme)
 {
     m_themeName = isDefaultTheme ? "system" : styleName;
     m_widgetTheme = styleName;
-    auto style = QStyleFactory::create(styleName);
-    m_colorPalette = style->standardPalette();
-    delete style;
+    // NOTE: SystemTheme is reconstructed on page refresh. We can't accurately determine the system palette here
+    // See also S_NATIVE_STYLES comment
+    if (S_NATIVE_STYLES.contains(m_themeName)) {
+        m_colorPalette = defaultPalette;
+    } else {
+        auto style = QStyleFactory::create(styleName);
+        m_colorPalette = style->standardPalette();
+        delete style;
+    }
 }
 
 void SystemTheme::apply(bool initial)
 {
-    // See https://github.com/MultiMC/Launcher/issues/1790
-    // or https://github.com/PrismLauncher/PrismLauncher/issues/490
-    if (initial && m_themeName == "system") {
+    // See S_NATIVE_STYLES comment
+    if (initial && S_NATIVE_STYLES.contains(m_themeName)) {
         QApplication::setStyle(new HintOverrideProxyStyle(QStyleFactory::create(qtTheme())));
         return;
     }
