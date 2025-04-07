@@ -5,18 +5,27 @@ on:
     tags:
       - "*"
     paths-ignore:
+      - ".github/**"
+      - "!.github/workflows/nix.yml"
+      - "flatpak/"
+      - "scripts/"
+
+      - ".git*"
+      - ".envrc"
       - "**.md"
-      - "**/LICENSE"
-      - ".github/ISSUE_TEMPLATE/**"
-      - ".markdownlint**"
-      - "flatpak/**"
+      - "!COPYING.md"
+      - "renovate.json"
   pull_request_target:
     paths-ignore:
+      - ".github/**"
+      - "flatpak/"
+      - "scripts/"
+
+      - ".git*"
+      - ".envrc"
       - "**.md"
-      - "**/LICENSE"
-      - ".github/ISSUE_TEMPLATE/**"
-      - ".markdownlint**"
-      - "flatpak/**"
+      - "!COPYING.md"
+      - "renovate.json"
   workflow_dispatch:
 
 permissions:
