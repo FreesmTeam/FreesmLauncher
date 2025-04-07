@@ -2,19 +2,30 @@ name: Nix
 
 on:
   push:
+    tags:
+      - "*"
     paths-ignore:
+      - ".github/**"
+      - "!.github/workflows/nix.yml"
+      - "flatpak/"
+      - "scripts/"
+
+      - ".git*"
+      - ".envrc"
       - "**.md"
-      - "**/LICENSE"
-      - ".github/ISSUE_TEMPLATE/**"
-      - ".markdownlint**"
-      - "flatpak/**"
+      - "!COPYING.md"
+      - "renovate.json"
   pull_request_target:
     paths-ignore:
+      - ".github/**"
+      - "flatpak/"
+      - "scripts/"
+
+      - ".git*"
+      - ".envrc"
       - "**.md"
-      - "**/LICENSE"
-      - ".github/ISSUE_TEMPLATE/**"
-      - ".markdownlint**"
-      - "flatpak/**"
+      - "!COPYING.md"
+      - "renovate.json"
   workflow_dispatch:
 
 permissions:
@@ -60,7 +71,7 @@ jobs:
 
         # For PRs
       - name: Setup Nix Magic Cache
-        if: ${{ env.USE_DETERMINATE }}
+        if: ${{ env.USE_DETERMINATE == 'true' }}
         uses: DeterminateSystems/flakehub-cache-action@v1
 
         # For in-tree builds
@@ -76,15 +87,18 @@ jobs:
           nix flake check --print-build-logs --show-trace
 
       - name: Build debug package
-        if: ${{ env.DEBUG }}
+        if: ${{ env.DEBUG == 'true' }}
         run: |
           nix build \
             --no-link --print-build-logs --print-out-paths \
             .#prismlauncher-debug >> "$GITHUB_STEP_SUMMARY"
 
       - name: Build release package
-        if: ${{ !env.DEBUG }}
+        if: ${{ env.DEBUG == 'false' }}
+        env:
+          TAG: ${{ github.ref_name }}
+          SYSTEM: ${{ matrix.system }}
         run: |
-          nix build \
-            --no-link --print-build-logs --print-out-paths \
-            .#prismlauncher >> "$GITHUB_STEP_SUMMARY"
+          nix build --no-link --print-out-paths .#prismlauncher \
+            | tee -a "$GITHUB_STEP_SUMMARY" \
+            | xargs cachix pin prismlauncher "$TAG"-"$SYSTEM"
