@@ -298,6 +298,10 @@ PrismUpdaterApp::PrismUpdaterApp(int& argc, char** argv) : QApplication(argc, ar
         auto version_parts = version.split('.');
         m_prismVersionMajor = version_parts.takeFirst().toInt();
         m_prismVersionMinor = version_parts.takeFirst().toInt();
+        if (!version_parts.isEmpty())
+            m_prismVersionPatch = version_parts.takeFirst().toInt();
+        else
+            m_prismVersionPatch = 0;
     }
 
     m_allowPreRelease = parser.isSet("pre-release");
@@ -556,6 +560,7 @@ void PrismUpdaterApp::run()
         m_prismVersion = BuildConfig.printableVersionString();
         m_prismVersionMajor = BuildConfig.VERSION_MAJOR;
         m_prismVersionMinor = BuildConfig.VERSION_MINOR;
+        m_prismVersionPatch = BuildConfig.VERSION_PATCH;
         m_prsimVersionChannel = BuildConfig.VERSION_CHANNEL;
         m_prismGitCommit = BuildConfig.GIT_COMMIT;
     }
@@ -564,6 +569,7 @@ void PrismUpdaterApp::run()
     qDebug() << "Executable reports as:" << m_prismBinaryName << "version:" << m_prismVersion;
     qDebug() << "Version major:" << m_prismVersionMajor;
     qDebug() << "Version minor:" << m_prismVersionMinor;
+    qDebug() << "Version minor:" << m_prismVersionPatch;
     qDebug() << "Version channel:" << m_prsimVersionChannel;
     qDebug() << "Git Commit:" << m_prismGitCommit;
 
@@ -1277,6 +1283,10 @@ bool PrismUpdaterApp::loadPrismVersionFromExe(const QString& exe_path)
         return false;
     m_prismVersionMajor = version_parts.takeFirst().toInt();
     m_prismVersionMinor = version_parts.takeFirst().toInt();
+    if (!version_parts.isEmpty())
+        m_prismVersionPatch = version_parts.takeFirst().toInt();
+    else
+        m_prismVersionPatch = 0;
     m_prismGitCommit = lines.takeFirst().simplified();
     return true;
 }
@@ -1400,7 +1410,7 @@ GitHubRelease PrismUpdaterApp::getLatestRelease()
 
 bool PrismUpdaterApp::needUpdate(const GitHubRelease& release)
 {
-    auto current_ver = Version(QString("%1.%2").arg(QString::number(m_prismVersionMajor)).arg(QString::number(m_prismVersionMinor)));
+    auto current_ver = Version(QString("%1.%2.%3").arg(m_prismVersionMajor).arg(m_prismVersionMinor).arg(m_prismVersionPatch));
     return current_ver < release.version;
 }
 
