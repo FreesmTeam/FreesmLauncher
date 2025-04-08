@@ -64,6 +64,8 @@
 #include "launch/steps/QuitAfterGameStop.h"
 #include "launch/steps/TextPrint.h"
 
+#include "launch/ApplyAuthlibInjector.h"
+#include "launch/ApplyLibraryOverrides.h"
 #include "minecraft/launch/ClaimAccount.h"
 #include "minecraft/launch/LauncherPartLaunch.h"
 #include "minecraft/launch/ModMinecraftJar.h"
@@ -181,6 +183,11 @@ void MinecraftInstance::loadSpecificSettings()
         auto miscellaneousOverride = m_settings->registerSetting("OverrideMiscellaneous", false);
         m_settings->registerOverride(global_settings->getSetting("CloseAfterLaunch"), miscellaneousOverride);
         m_settings->registerOverride(global_settings->getSetting("QuitAfterGameStop"), miscellaneousOverride);
+
+        // Elyby
+        auto elybyOverride = m_settings->registerSetting("OverrideElyby", false);
+        m_settings->registerOverride(global_settings->getSetting("UseElySkins"), elybyOverride);
+        m_settings->registerOverride(global_settings->getSetting("UseElyAuthlibInjector"), elybyOverride);
 
         // Legacy-related options
         auto legacySettings = m_settings->registerSetting("OverrideLegacySettings", false);
@@ -1108,6 +1115,10 @@ shared_qobject_ptr<LaunchTask> MinecraftInstance::createLaunchTask(AuthSessionPt
     if (session->status != AuthSession::PlayableOffline) {
         if (!session->demo) {
             process->appendStep(makeShared<ClaimAccount>(pptr, session));
+        }
+        process->appendStep(makeShared<ApplyLibraryOverrides>(pptr, session));
+        if (session->wants_authlib_injector) {
+            process->appendStep(makeShared<ApplyAuthlibInjector>(pptr, session));
         }
         for (auto t : createUpdateTask()) {
             process->appendStep(makeShared<TaskStepWrapper>(pptr, t));

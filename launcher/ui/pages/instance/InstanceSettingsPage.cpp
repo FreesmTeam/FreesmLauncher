@@ -303,6 +303,16 @@ void InstanceSettingsPage::applySettings()
         m_settings->reset("OnlineFixes");
     }
 
+    bool overrideElyby = ui->elySettingsGroupBox->isChecked();
+    m_settings->set("OverrideElyby", overrideElyby);
+    if (overrideElyby) {
+        m_settings->set("UseElySkins", ui->useElyCheckBox->isChecked() ? 1 : 0);
+        m_settings->set("UseElyAuthlibInjector", ui->useInjectorCheckBox->isChecked());
+    } else {
+        m_settings->reset("UseElySkins");
+        m_settings->reset("UseElyAuthlibInjector");
+    }
+
     // FIXME: This should probably be called by a signal instead
     m_instance->updateRuntimeContext();
 }
@@ -430,6 +440,11 @@ void InstanceSettingsPage::loadSettings()
         ui->worldsCb->setEnabled(false);
     }
 
+    // Elyby
+    ui->elySettingsGroupBox->setChecked(m_settings->get("OverrideElyby").toBool());
+    ui->useElyCheckBox->setChecked(m_settings->get("UseElySkins").toBool());
+    ui->useInjectorCheckBox->setChecked(m_settings->get("UseElyAuthlibInjector").toBool());
+
     ui->instanceAccountGroupBox->setChecked(m_settings->get("UseAccountForInstance").toBool());
     updateAccountsMenu();
 
@@ -527,14 +542,14 @@ void InstanceSettingsPage::updateAccountsMenu()
     int accountIndex = accounts->findAccountByProfileId(m_settings->get("InstanceAccountId").toString());
 
     for (int i = 0; i < accounts->count(); i++) {
-        MinecraftAccountPtr account = accounts->at(i);
+        BaseAccountPtr account = accounts->at(i);
         ui->instanceAccountSelector->addItem(getFaceForAccount(account), account->profileName(), i);
         if (i == accountIndex)
             ui->instanceAccountSelector->setCurrentIndex(i);
     }
 }
 
-QIcon InstanceSettingsPage::getFaceForAccount(MinecraftAccountPtr account)
+QIcon InstanceSettingsPage::getFaceForAccount(BaseAccountPtr account)
 {
     if (auto face = account->getFace(); !face.isNull()) {
         return face;

@@ -88,7 +88,7 @@ MSAStep::MSAStep(AccountData* data, bool silent) : AuthStep(data), m_silent(sile
     oauth2.setNetworkAccessManager(APPLICATION->network().get());
 
     connect(&oauth2, &QOAuth2AuthorizationCodeFlow::granted, this, [this] {
-        m_data->msaClientID = oauth2.clientIdentifier();
+        m_data->clientID = oauth2.clientIdentifier();
         m_data->msaToken.issueInstant = QDateTime::currentDateTimeUtc();
         m_data->msaToken.notAfter = oauth2.expirationAt();
         m_data->msaToken.extra = oauth2.extraTokens();
@@ -123,7 +123,7 @@ MSAStep::MSAStep(AccountData* data, bool silent) : AuthStep(data), m_silent(sile
             [this](const QVariantMap& tokens) { m_data->msaToken.extra = tokens; });
 
     connect(&oauth2, &QOAuth2AuthorizationCodeFlow::clientIdentifierChanged, this,
-            [this](const QString& clientIdentifier) { m_data->msaClientID = clientIdentifier; });
+            [this](const QString& clientIdentifier) { m_data->clientID = clientIdentifier; });
 }
 
 QString MSAStep::describe()
@@ -134,7 +134,7 @@ QString MSAStep::describe()
 void MSAStep::perform()
 {
     if (m_silent) {
-        if (m_data->msaClientID != m_clientId) {
+        if (m_data->clientID != m_clientId) {
             emit finished(AccountTaskState::STATE_DISABLED,
                           tr("Microsoft user authentication failed - client identification has changed."));
             return;
@@ -155,7 +155,7 @@ void MSAStep::perform()
 #endif
 
         *m_data = AccountData();
-        m_data->msaClientID = m_clientId;
+        m_data->clientID = m_clientId;
         oauth2.grant();
     }
 }

@@ -290,20 +290,29 @@ bool AccountData::resumeStateFromV3(QJsonObject data)
         type = AccountType::MSA;
     } else if (typeS == "Offline") {
         type = AccountType::Offline;
+    } else if (typeS == "Elyby") {
+        type = AccountType::Elyby;
     } else {
         qWarning() << "Failed to parse account data: type is not recognized.";
         return false;
     }
 
-    if (type == AccountType::MSA) {
-        auto clientIDV = data.value("msa-client-id");
-        if (clientIDV.isString()) {
-            msaClientID = clientIDV.toString();
-        }  // leave msaClientID empty if it doesn't exist or isn't a string
-        msaToken = tokenFromJSONV3(data, "msa");
-        userToken = tokenFromJSONV3(data, "utoken");
-        xboxApiToken = tokenFromJSONV3(data, "xrp-main");
-        mojangservicesToken = tokenFromJSONV3(data, "xrp-mc");
+    switch (type) {
+        case AccountType::MSA: {
+            auto clientIDV = data.value("msa-client-id");
+            if (clientIDV.isString()) {
+                clientID = clientIDV.toString();
+            }  // leave clientID empty if it doesn't exist or isn't a string
+            msaToken = tokenFromJSONV3(data, "msa");
+            userToken = tokenFromJSONV3(data, "utoken");
+            xboxApiToken = tokenFromJSONV3(data, "xrp-main");
+            mojangservicesToken = tokenFromJSONV3(data, "xrp-mc");
+        } break;
+        case AccountType::Offline:
+            break;
+        case AccountType::Elyby: {
+            clientID = data.value("elyby-client-id").toString();
+        }
     }
 
     yggdrasilToken = tokenFromJSONV3(data, "ygg");
@@ -327,15 +336,23 @@ bool AccountData::resumeStateFromV3(QJsonObject data)
 QJsonObject AccountData::saveState() const
 {
     QJsonObject output;
-    if (type == AccountType::MSA) {
-        output["type"] = "MSA";
-        output["msa-client-id"] = msaClientID;
-        tokenToJSONV3(output, msaToken, "msa");
-        tokenToJSONV3(output, userToken, "utoken");
-        tokenToJSONV3(output, xboxApiToken, "xrp-main");
-        tokenToJSONV3(output, mojangservicesToken, "xrp-mc");
-    } else if (type == AccountType::Offline) {
-        output["type"] = "Offline";
+
+    switch (type) {
+        case AccountType::MSA: {
+            output["type"] = "MSA";
+            output["msa-client-id"] = clientID;
+            tokenToJSONV3(output, msaToken, "msa");
+            tokenToJSONV3(output, userToken, "utoken");
+            tokenToJSONV3(output, xboxApiToken, "xrp-main");
+            tokenToJSONV3(output, mojangservicesToken, "xrp-mc");
+        } break;
+        case AccountType::Offline: {
+            output["type"] = "Offline";
+        } break;
+        case AccountType::Elyby: {
+            output["type"] = "Elyby";
+            output["elyby-client-id"] = clientID;
+        } break;
     }
 
     tokenToJSONV3(output, yggdrasilToken, "ygg");
@@ -374,6 +391,9 @@ QString AccountData::accountDisplayString() const
                 return xboxApiToken.extra["gtg"].toString();
             }
             return "Xbox profile missing";
+        }
+        case AccountType::Elyby: {
+        return "Elyby";
         }
         default: {
             return "Invalid Account";

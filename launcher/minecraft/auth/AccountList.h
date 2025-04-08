@@ -35,7 +35,7 @@
 
 #pragma once
 
-#include "MinecraftAccount.h"
+#include "minecraft/auth/BaseAccount.h"
 #include "minecraft/auth/AuthFlow.h"
 
 #include <QAbstractListModel>
@@ -65,7 +65,7 @@ class AccountList : public QAbstractListModel {
     explicit AccountList(QObject* parent = 0);
     virtual ~AccountList() noexcept;
 
-    const MinecraftAccountPtr at(int i) const;
+    const BaseAccountPtr at(int i) const;
     int count() const;
 
     //////// List Model Functions ////////
@@ -76,10 +76,10 @@ class AccountList : public QAbstractListModel {
     virtual Qt::ItemFlags flags(const QModelIndex& index) const override;
     virtual bool setData(const QModelIndex& index, const QVariant& value, int role) override;
 
-    void addAccount(MinecraftAccountPtr account);
+    void addAccount(BaseAccountPtr account);
     void removeAccount(QModelIndex index);
     int findAccountByProfileId(const QString& profileId) const;
-    MinecraftAccountPtr getAccountByProfileName(const QString& profileName) const;
+    BaseAccountPtr getAccountByProfileName(const QString& profileName) const;
     QStringList profileNames() const;
 
     // requesting a refresh pushes it to the front of the queue
@@ -100,8 +100,8 @@ class AccountList : public QAbstractListModel {
     bool loadV3(QJsonObject& root);
     bool saveList();
 
-    MinecraftAccountPtr defaultAccount() const;
-    void setDefaultAccount(MinecraftAccountPtr profileId);
+    BaseAccountPtr defaultAccount() const;
+    void setDefaultAccount(BaseAccountPtr profileId);
     bool anyAccountIsValid();
 
     bool isActive() const;
@@ -159,9 +159,9 @@ class AccountList : public QAbstractListModel {
      */
     void onDefaultAccountChanged();
 
-    QList<MinecraftAccountPtr> m_accounts;
+    QList<BaseAccountPtr> m_accounts;
 
-    MinecraftAccountPtr m_defaultAccount;
+    BaseAccountPtr m_defaultAccount;
 
     //! Path to the account list file. Empty string if there isn't one.
     QString m_listFilePath;

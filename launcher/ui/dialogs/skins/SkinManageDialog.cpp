@@ -51,7 +51,7 @@
 #include "ui/dialogs/ProgressDialog.h"
 #include "ui/instanceview/InstanceDelegate.h"
 
-SkinManageDialog::SkinManageDialog(QWidget* parent, MinecraftAccountPtr acct)
+SkinManageDialog::SkinManageDialog(QWidget* parent, BaseAccountPtr acct)
     : QDialog(parent), m_acct(acct), ui(new Ui::SkinManageDialog), m_list(this, APPLICATION->settings()->get("SkinsDir").toString(), acct)
 {
     ui->setupUi(this);

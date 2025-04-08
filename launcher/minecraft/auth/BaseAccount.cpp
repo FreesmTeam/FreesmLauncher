@@ -1,0 +1,199 @@
+// SPDX-License-Identifier: GPL-3.0-only
+/*
+ *  Freesm Launcher - Minecraft Launcher
+ *  Copyright (C) 2025 so5iso4ka <so5iso4ka@icloud.com>
+ *
+ *  This program is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, version 3.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
+#include <QPainter>
+
+#include "BaseAccount.h"
+#include "minecraft/auth/msa/MSAAccount.h"
+#include "minecraft/auth/offline/OfflineAccount.h"
+#include "msa/MSAAccount.h"
+
+BaseAccount::BaseAccount(QObject* parent) : QObject(parent)
+{
+    data.internalId = QUuid::createUuid().toString().remove(QRegularExpression("[{}-]"));
+}
+
+BaseAccountPtr BaseAccount::loadFromJsonV3(const QJsonObject& json)
+{
+    BaseAccountPtr account(new MSAAccount());
+    if (account->data.resumeStateFromV3(json)) {
+        return account;
+    }
+    return nullptr;
+}
+
+QUuid BaseAccount::uuidFromUsername(QString username)
+{
+    auto input = QString("OfflinePlayer:%1").arg(username).toUtf8();
+
+    // basically a reimplementation of Java's UUID#nameUUIDFromBytes
+    QByteArray digest = QCryptographicHash::hash(input, QCryptographicHash::Md5);
+
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
+    auto bOr = [](QByteArray& array, int index, char value) { array[index] = array.at(index) | value; };
+    auto bAnd = [](QByteArray& array, int index, char value) { array[index] = array.at(index) & value; };
+#else
+    auto bOr = [](QByteArray& array, qsizetype index, char value) { array[index] |= value; };
+    auto bAnd = [](QByteArray& array, qsizetype index, char value) { array[index] &= value; };
+#endif
+    bAnd(digest, 6, (char)0x0f);  // clear version
+    bOr(digest, 6, (char)0x30);   // set to version 3
+    bAnd(digest, 8, (char)0x3f);  // clear variant
+    bOr(digest, 8, (char)0x80);   // set to IETF variant
+
+    return QUuid::fromRfc4122(digest);
+}
+
+QPixmap BaseAccount::getFace() const
+{
+    QPixmap skinTexture;
+    if (!skinTexture.loadFromData(data.minecraftProfile.skin.data, "PNG")) {
+        return QPixmap();
+    }
+    QPixmap skin = QPixmap(8, 8);
+#if QT_VERSION >= QT_VERSION_CHECK(5, 14, 0)
+    skin.fill(QColorConstants::Transparent);
+#else
+    skin.fill(QColor(0, 0, 0, 0));
+#endif
+    QPainter painter(&skin);
+    painter.drawPixmap(0, 0, skinTexture.copy(8, 8, 8, 8));
+    painter.drawPixmap(0, 0, skinTexture.copy(40, 8, 8, 8));
+    return skin.scaled(64, 64, Qt::KeepAspectRatio);
+}
+
+bool BaseAccount::shouldRefresh() const
+{
+    /*
+     * Never refresh accounts that are being used by the game, it breaks the game session.
+     * Always refresh accounts that have not been refreshed yet during this session.
+     * Don't refresh broken accounts.
+     * Refresh accounts that would expire in the next 12 hours (fresh token validity is 24 hours).
+     */
+    if (isInUse()) {
+        return false;
+    }
+    switch (data.validity_) {
+        case Validity::Certain: {
+            break;
+        }
+        case Validity::None: {
+            return false;
+        }
+        case Validity::Assumed: {
+            return true;
+        }
+    }
+    auto now = QDateTime::currentDateTimeUtc();
+    auto issuedTimestamp = data.yggdrasilToken.issueInstant;
+    auto expiresTimestamp = data.yggdrasilToken.notAfter;
+
+    if (!expiresTimestamp.isValid()) {
+        expiresTimestamp = issuedTimestamp.addSecs(24 * 3600);
+    }
+    if (now.secsTo(expiresTimestamp) < (12 * 3600)) {
+        return true;
+    }
+    return false;
+}
+void BaseAccount::fillSession(AuthSessionPtr session, SettingsObjectPtr instanceSettings)
+{
+    if (ownsMinecraft() && !hasProfile()) {
+        session->status = AuthSession::RequiresProfileSetup;
+    } else {
+        if (session->wants_online) {
+            session->status = AuthSession::PlayableOnline;
+        } else {
+            session->status = AuthSession::PlayableOffline;
+        }
+    }
+
+    enum ElySkinsSetting { Never = 0, Always = 1, WithElyAccount = 2, WithoutElyAccount = 3 };
+    const auto elySkinsSetting = instanceSettings->get("UseElySkins").toInt();
+    switch (elySkinsSetting) {
+        case Never: {
+            session->wants_ely_patch = false;
+            break;
+        }
+        case Always: {
+            session->wants_ely_patch = true;
+            break;
+        }
+        case WithElyAccount: {
+            session->wants_ely_patch = accountType() == AccountType::Elyby;
+            break;
+        }
+        case WithoutElyAccount: {
+            session->wants_ely_patch = accountType() != AccountType::Elyby;
+            break;
+        }
+        default: {
+            qDebug() << "Unrecognized elySkinsSetting";
+            session->wants_ely_patch = false;
+            break;
+        }
+    }
+
+    const auto useAuthlibInjector = instanceSettings->get("UseElyAuthlibInjector").toBool();
+    if (accountType() == AccountType::Elyby && useAuthlibInjector) {
+        session->wants_authlib_injector = true;
+    }
+
+    // volatile auth token
+    session->access_token = data.accessToken();
+    // profile name
+    session->player_name = data.profileName();
+    // profile ID
+    session->uuid = data.profileId();
+    if (session->uuid.isEmpty())
+        session->uuid = uuidFromUsername(session->player_name).toString().remove(QRegularExpression("[{}-]"));
+    // 'legacy' or 'mojang', depending on account type
+    session->user_type = typeString();
+    if (!session->access_token.isEmpty()) {
+        session->session = "token:" + data.accessToken() + ":" + data.profileId();
+    } else {
+        session->session = "-";
+    }
+}
+
+void BaseAccount::incrementUses()
+{
+    bool wasInUse = isInUse();
+    Usable::incrementUses();
+    if (!wasInUse) {
+        emit changed();
+        // FIXME: we now need a better way to identify accounts...
+        qWarning() << "Profile" << data.profileId() << "is now in use.";
+    }
+}
+
+void BaseAccount::decrementUses()
+{
+    Usable::decrementUses();
+    if (!isInUse()) {
+        emit changed();
+        // FIXME: we now need a better way to identify accounts...
+        qWarning() << "Profile" << data.profileId() << "is no longer in use.";
+    }
+}
+void BaseAccount::authSucceeded()
+{
+    m_currentTask.reset();
+    emit changed();
+    emit activityChanged(false);
+}

@@ -5,7 +5,6 @@
 #include <memory>
 #include "QObjectPtr.h"
 
-class MinecraftAccount;
 class QNetworkAccessManager;
 
 struct AuthSession {
@@ -38,6 +37,12 @@ struct AuthSession {
     bool auth_server_online = false;
     // Did the user request online mode?
     bool wants_online = true;
+    // Did the user request ely session?
+    bool wants_ely_patch = false;
+    // Did the user request authlib injector?
+    bool wants_authlib_injector = false;
+    // Was the authlib injector downloaded?
+    bool authlib_injector_ready = false;
 
     // Is this a demo session?
     bool demo = false;

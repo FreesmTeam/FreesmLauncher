@@ -2,46 +2,67 @@
 #include <QNetworkAccessManager>
 #include <QNetworkReply>
 #include <QNetworkRequest>
+#include <utility>
 
 #include "minecraft/auth/AccountData.h"
-#include "minecraft/auth/steps/EntitlementsStep.h"
-#include "minecraft/auth/steps/GetSkinStep.h"
-#include "minecraft/auth/steps/LauncherLoginStep.h"
-#include "minecraft/auth/steps/MSADeviceCodeStep.h"
-#include "minecraft/auth/steps/MSAStep.h"
-#include "minecraft/auth/steps/MinecraftProfileStep.h"
-#include "minecraft/auth/steps/XboxAuthorizationStep.h"
-#include "minecraft/auth/steps/XboxProfileStep.h"
-#include "minecraft/auth/steps/XboxUserStep.h"
+
+// MSA
+#include "minecraft/auth/msa/steps/EntitlementsStep.h"
+#include "minecraft/auth/msa/steps/GetSkinStep.h"
+#include "minecraft/auth/msa/steps/LauncherLoginStep.h"
+#include "minecraft/auth/msa/steps/MSADeviceCodeStep.h"
+#include "minecraft/auth/msa/steps/MSAStep.h"
+#include "minecraft/auth/msa/steps/MinecraftProfileStep.h"
+#include "minecraft/auth/msa/steps/XboxAuthorizationStep.h"
+#include "minecraft/auth/msa/steps/XboxProfileStep.h"
+#include "minecraft/auth/msa/steps/XboxUserStep.h"
+
+// Elyby
+#include "elyby/steps/ElybyAuthStep.h"
+#include "elyby/steps/ElybyRefreshStep.h"
+
 #include "tasks/Task.h"
 
 #include "AuthFlow.h"
 
 #include <Application.h>
 
-AuthFlow::AuthFlow(AccountData* data, Action action) : Task(), m_data(data)
+AuthFlow::AuthFlow(AccountData* data, Action action, QString password) : Task(), m_data(data)
 {
-    if (data->type == AccountType::MSA) {
-        if (action == Action::DeviceCode) {
-            auto oauthStep = makeShared<MSADeviceCodeStep>(m_data);
-            connect(oauthStep.get(), &MSADeviceCodeStep::authorizeWithBrowser, this, &AuthFlow::authorizeWithBrowserWithExtra);
-            connect(this, &Task::aborted, oauthStep.get(), &MSADeviceCodeStep::abort);
-            m_steps.append(oauthStep);
-        } else {
-            auto oauthStep = makeShared<MSAStep>(m_data, action == Action::Refresh);
-            connect(oauthStep.get(), &MSAStep::authorizeWithBrowser, this, &AuthFlow::authorizeWithBrowser);
-            m_steps.append(oauthStep);
-        }
-        m_steps.append(makeShared<XboxUserStep>(m_data));
-        m_steps.append(makeShared<XboxAuthorizationStep>(m_data, &m_data->xboxApiToken, "http://xboxlive.com", "Xbox"));
-        m_steps.append(
-            makeShared<XboxAuthorizationStep>(m_data, &m_data->mojangservicesToken, "rp://api.minecraftservices.com/", "Mojang"));
-        m_steps.append(makeShared<LauncherLoginStep>(m_data));
-        m_steps.append(makeShared<XboxProfileStep>(m_data));
-        m_steps.append(makeShared<EntitlementsStep>(m_data));
-        m_steps.append(makeShared<MinecraftProfileStep>(m_data));
-        m_steps.append(makeShared<GetSkinStep>(m_data));
+    switch (data->type) {
+        case AccountType::MSA: {
+            if (action == Action::DeviceCode) {
+                auto oauthStep = makeShared<MSADeviceCodeStep>(m_data);
+                connect(oauthStep.get(), &MSADeviceCodeStep::authorizeWithBrowser, this, &AuthFlow::authorizeWithBrowserWithExtra);
+                connect(this, &Task::aborted, oauthStep.get(), &MSADeviceCodeStep::abort);
+                m_steps.append(oauthStep);
+            } else {
+                auto oauthStep = makeShared<MSAStep>(m_data, action == Action::Refresh);
+                connect(oauthStep.get(), &MSAStep::authorizeWithBrowser, this, &AuthFlow::authorizeWithBrowser);
+                m_steps.append(oauthStep);
+            }
+            m_steps.append(makeShared<XboxUserStep>(m_data));
+            m_steps.append(makeShared<XboxAuthorizationStep>(m_data, &m_data->xboxApiToken, "http://xboxlive.com", "Xbox"));
+            m_steps.append(
+                makeShared<XboxAuthorizationStep>(m_data, &m_data->mojangservicesToken, "rp://api.minecraftservices.com/", "Mojang"));
+            m_steps.append(makeShared<LauncherLoginStep>(m_data));
+            m_steps.append(makeShared<XboxProfileStep>(m_data));
+            m_steps.append(makeShared<EntitlementsStep>(m_data));
+            m_steps.append(makeShared<MinecraftProfileStep>(m_data));
+            m_steps.append(makeShared<GetSkinStep>(m_data));
+        } break;
+        case AccountType::Offline:
+            break;
+        case AccountType::Elyby: {
+            if (action == Action::Login) {
+                m_steps.append(makeShared<ElybyAuthStep>(m_data, password));
+            } else {
+                m_steps.append(makeShared<ElybyRefreshStep>(m_data));
+            }
+            m_steps.append(makeShared<GetSkinStep>(m_data));
+        } break;
     }
+
     changeState(AccountTaskState::STATE_CREATED);
 }
 

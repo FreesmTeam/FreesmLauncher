@@ -38,7 +38,7 @@
 #include <tools/BaseProfiler.h>
 #include <QObject>
 
-#include "minecraft/auth/MinecraftAccount.h"
+#include "minecraft/auth/BaseAccount.h"
 #include "minecraft/launch/MinecraftTarget.h"
 
 class InstanceWindow;
@@ -64,7 +64,7 @@ class LaunchController : public Task {
 
     void setTargetToJoin(MinecraftTarget::Ptr targetToJoin) { m_targetToJoin = std::move(targetToJoin); }
 
-    void setAccountToUse(MinecraftAccountPtr accountToUse) { m_accountToUse = std::move(accountToUse); }
+    void setAccountToUse(BaseAccountPtr accountToUse) { m_accountToUse = std::move(accountToUse); }
 
     QString id() { return m_instance->id(); }
 
@@ -91,7 +91,7 @@ class LaunchController : public Task {
     InstancePtr m_instance;
     QWidget* m_parentWidget = nullptr;
     InstanceWindow* m_console = nullptr;
-    MinecraftAccountPtr m_accountToUse = nullptr;
+    BaseAccountPtr m_accountToUse = nullptr;
     AuthSessionPtr m_session;
     shared_qobject_ptr<LaunchTask> m_launcher;
     MinecraftTarget::Ptr m_targetToJoin;

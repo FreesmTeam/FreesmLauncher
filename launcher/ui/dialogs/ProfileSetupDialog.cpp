@@ -49,7 +49,7 @@
 #include "minecraft/auth/Parsers.h"
 #include "net/Upload.h"
 
-ProfileSetupDialog::ProfileSetupDialog(MinecraftAccountPtr accountToSetup, QWidget* parent)
+ProfileSetupDialog::ProfileSetupDialog(BaseAccountPtr accountToSetup, QWidget* parent)
     : QDialog(parent), m_accountToSetup(accountToSetup), ui(new Ui::ProfileSetupDialog)
 {
     ui->setupUi(this);
