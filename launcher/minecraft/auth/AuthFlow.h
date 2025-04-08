@@ -17,7 +17,8 @@ class AuthFlow : public Task {
    public:
     enum class Action { Refresh, Login, DeviceCode };
 
-    explicit AuthFlow(AccountData* data, Action action = Action::Refresh);
+    explicit AuthFlow(AccountData* data, Action action = Action::Refresh, QString password = QString());
+
     virtual ~AuthFlow() = default;
 
     void executeTask() override;
@@ -45,4 +46,7 @@ class AuthFlow : public Task {
     QList<AuthStep::Ptr> m_steps;
     AuthStep::Ptr m_currentStep;
     AccountData* m_data = nullptr;
+
+    // for legacy auth
+    QString m_password;
 };

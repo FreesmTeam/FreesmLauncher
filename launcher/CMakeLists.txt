@@ -221,32 +221,45 @@ set(MINECRAFT_SOURCES
     minecraft/auth/AuthSession.cpp
     minecraft/auth/AuthSession.h
     minecraft/auth/AuthStep.h
-    minecraft/auth/MinecraftAccount.cpp
-    minecraft/auth/MinecraftAccount.h
+
+    minecraft/auth/msa/MSAAccount.cpp
+    minecraft/auth/msa/MSAAccount.h
+    minecraft/auth/BaseAccount.cpp
+    minecraft/auth/BaseAccount.h
+    minecraft/auth/offline/OfflineAccount.cpp
+    minecraft/auth/offline/OfflineAccount.h
+    minecraft/auth/elyby/ElybyAccount.cpp
+    minecraft/auth/elyby/ElybyAccount.h
+
     minecraft/auth/Parsers.cpp
     minecraft/auth/Parsers.h
 
     minecraft/auth/AuthFlow.cpp
     minecraft/auth/AuthFlow.h
 
-    minecraft/auth/steps/EntitlementsStep.cpp
-    minecraft/auth/steps/EntitlementsStep.h
-    minecraft/auth/steps/GetSkinStep.cpp
-    minecraft/auth/steps/GetSkinStep.h
-    minecraft/auth/steps/LauncherLoginStep.cpp
-    minecraft/auth/steps/LauncherLoginStep.h
-    minecraft/auth/steps/MinecraftProfileStep.cpp
-    minecraft/auth/steps/MinecraftProfileStep.h
-    minecraft/auth/steps/MSADeviceCodeStep.cpp
-    minecraft/auth/steps/MSADeviceCodeStep.h
-    minecraft/auth/steps/MSAStep.cpp
-    minecraft/auth/steps/MSAStep.h
-    minecraft/auth/steps/XboxAuthorizationStep.cpp
-    minecraft/auth/steps/XboxAuthorizationStep.h
-    minecraft/auth/steps/XboxProfileStep.cpp
-    minecraft/auth/steps/XboxProfileStep.h
-    minecraft/auth/steps/XboxUserStep.cpp
-    minecraft/auth/steps/XboxUserStep.h
+    minecraft/auth/msa/steps/EntitlementsStep.cpp
+    minecraft/auth/msa/steps/EntitlementsStep.h
+    minecraft/auth/msa/steps/GetSkinStep.cpp
+    minecraft/auth/msa/steps/GetSkinStep.h
+    minecraft/auth/msa/steps/LauncherLoginStep.cpp
+    minecraft/auth/msa/steps/LauncherLoginStep.h
+    minecraft/auth/msa/steps/MinecraftProfileStep.cpp
+    minecraft/auth/msa/steps/MinecraftProfileStep.h
+    minecraft/auth/msa/steps/MSADeviceCodeStep.cpp
+    minecraft/auth/msa/steps/MSADeviceCodeStep.h
+    minecraft/auth/msa/steps/MSAStep.cpp
+    minecraft/auth/msa/steps/MSAStep.h
+    minecraft/auth/msa/steps/XboxAuthorizationStep.cpp
+    minecraft/auth/msa/steps/XboxAuthorizationStep.h
+    minecraft/auth/msa/steps/XboxProfileStep.cpp
+    minecraft/auth/msa/steps/XboxProfileStep.h
+    minecraft/auth/msa/steps/XboxUserStep.cpp
+    minecraft/auth/msa/steps/XboxUserStep.h
+
+    minecraft/auth/elyby/steps/ElybyAuthStep.cpp
+    minecraft/auth/elyby/steps/ElybyAuthStep.h
+    minecraft/auth/elyby/steps/ElybyRefreshStep.cpp
+    minecraft/auth/elyby/steps/ElybyRefreshStep.h
 
     minecraft/gameoptions/GameOptions.h
     minecraft/gameoptions/GameOptions.cpp
@@ -260,6 +273,10 @@ set(MINECRAFT_SOURCES
     minecraft/update/LibrariesTask.cpp
     minecraft/update/LibrariesTask.h
 
+    minecraft/launch/ApplyLibraryOverrides.cpp
+    minecraft/launch/ApplyLibraryOverrides.h
+        minecraft/launch/ApplyAuthlibInjector.cpp
+        minecraft/launch/ApplyAuthlibInjector.h
     minecraft/launch/ClaimAccount.cpp
     minecraft/launch/ClaimAccount.h
     minecraft/launch/CreateGameFolders.cpp
@@ -1055,6 +1072,8 @@ SET(LAUNCHER_SOURCES
     ui/dialogs/MSALoginDialog.h
     ui/dialogs/OfflineLoginDialog.cpp
     ui/dialogs/OfflineLoginDialog.h
+    ui/dialogs/ElybyLoginDialog.cpp
+    ui/dialogs/ElybyLoginDialog.h
     ui/dialogs/NewComponentDialog.cpp
     ui/dialogs/NewComponentDialog.h
     ui/dialogs/NewInstanceDialog.cpp
@@ -1225,6 +1244,7 @@ qt_wrap_ui(LAUNCHER_UI
     ui/dialogs/ImportResourceDialog.ui
     ui/dialogs/MSALoginDialog.ui
     ui/dialogs/OfflineLoginDialog.ui
+    ui/dialogs/ElybyLoginDialog.ui
     ui/dialogs/AboutDialog.ui
     ui/dialogs/EditAccountDialog.ui
     ui/dialogs/ReviewMessageBox.ui

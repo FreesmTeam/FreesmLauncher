@@ -32,7 +32,7 @@
    <item>
     <widget class="QTabWidget" name="tabWidget">
      <property name="tabShape">
-      <enum>QTabWidget::Rounded</enum>
+      <enum>QTabWidget::TabShape::Rounded</enum>
      </property>
      <property name="currentIndex">
       <number>0</number>
@@ -178,14 +178,74 @@
         </widget>
        </item>
        <item>
-        <spacer name="verticalSpacerMinecraft">
+        <widget class="QGroupBox" name="ElybyGroupBox">
+         <property name="title">
+          <string>Ely.by</string>
+         </property>
+         <layout class="QVBoxLayout" name="verticalLayout_7">
+          <item>
+           <layout class="QHBoxLayout" name="horizontalLayout">
+            <item>
+             <widget class="QLabel" name="label">
+              <property name="text">
+               <string>Use Ely.by skin system</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QComboBox" name="elySkinSystemComboBox">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="currentIndex">
+               <number>0</number>
+              </property>
+              <item>
+               <property name="text">
+                <string>Never</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>Always</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>With Ely.by accounts</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>Without Ely.by accounts</string>
+               </property>
+              </item>
+             </widget>
+            </item>
+           </layout>
+          </item>
+          <item>
+           <widget class="QCheckBox" name="useInjectorCheckBox">
+            <property name="text">
+             <string>Use Authlib Injector</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <spacer name="verticalSpacer_2">
          <property name="orientation">
-          <enum>Qt::Vertical</enum>
+          <enum>Qt::Orientation::Vertical</enum>
          </property>
          <property name="sizeHint" stdset="0">
           <size>
-           <width>0</width>
-           <height>0</height>
+           <width>20</width>
+           <height>40</height>
           </size>
          </property>
         </spacer>
@@ -325,7 +385,7 @@
        <item>
         <spacer name="verticalSpacer">
          <property name="orientation">
-          <enum>Qt::Vertical</enum>
+          <enum>Qt::Orientation::Vertical</enum>
          </property>
          <property name="sizeHint" stdset="0">
           <size>

@@ -3,7 +3,7 @@
 #include <QtCore/QEventLoop>
 #include <QtWidgets/QDialog>
 
-#include "minecraft/auth/MinecraftAccount.h"
+#include "minecraft/auth/offline/OfflineAccount.h"
 #include "tasks/Task.h"
 
 namespace Ui {
@@ -16,7 +16,7 @@ class OfflineLoginDialog : public QDialog {
    public:
     ~OfflineLoginDialog();
 
-    static MinecraftAccountPtr newAccount(QWidget* parent, QString message);
+    static BaseAccountPtr newAccount(QWidget* parent, QString message);
 
    private:
     explicit OfflineLoginDialog(QWidget* parent = 0);
@@ -36,6 +36,6 @@ class OfflineLoginDialog : public QDialog {
 
    private:
     Ui::OfflineLoginDialog* ui;
-    MinecraftAccountPtr m_account;
+    OfflineAccountPtr m_account;
     Task::Ptr m_loginTask;
 };

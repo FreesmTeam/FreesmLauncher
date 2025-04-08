@@ -123,6 +123,10 @@ void MinecraftPage::applySettings()
 
     // Legacy settings
     s->set("OnlineFixes", ui->onlineFixes->isChecked());
+
+    // Elyby settings
+    s->set("UseElySkins", ui->elySkinSystemComboBox->currentIndex());
+    s->set("UseElyAuthlibInjector", ui->useInjectorCheckBox->isChecked());
 }
 
 void MinecraftPage::loadSettings()
@@ -177,6 +181,9 @@ void MinecraftPage::loadSettings()
     ui->quitAfterGameStopCheck->setChecked(s->get("QuitAfterGameStop").toBool());
 
     ui->onlineFixes->setChecked(s->get("OnlineFixes").toBool());
+
+    ui->elySkinSystemComboBox->setCurrentIndex(s->get("UseElySkins").toInt());
+    ui->useInjectorCheckBox->setChecked(s->get("UseElyAuthlibInjector").toBool());
 }
 
 void MinecraftPage::retranslate()

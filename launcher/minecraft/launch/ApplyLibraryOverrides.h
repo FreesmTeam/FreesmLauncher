@@ -17,18 +17,25 @@
 
 #include <launch/LaunchStep.h>
 #include <minecraft/auth/BaseAccount.h>
+#include "minecraft/MinecraftInstance.h"
+#include "net/Download.h"
+#include "net/NetJob.h"
 
-class ClaimAccount : public LaunchStep {
+class ApplyLibraryOverrides : public LaunchStep {
     Q_OBJECT
    public:
-    explicit ClaimAccount(LaunchTask* parent, AuthSessionPtr session);
-    virtual ~ClaimAccount() = default;
+    explicit ApplyLibraryOverrides(LaunchTask* parent, AuthSessionPtr session);
+    virtual ~ApplyLibraryOverrides() = default;
 
     void executeTask() override;
-    void finalize() override;
+    void downloadLibraryOverrideList();
+    void onLibraryOverrideDownloadFinished();
     bool canAbort() const override { return false; }
 
    private:
-    std::unique_ptr<UseLock> lock;
-    BaseAccountPtr m_account;
+    AuthSessionPtr m_session;
+    MinecraftInstancePtr m_instance;
+    std::shared_ptr<QByteArray> m_response = std::make_shared<QByteArray>();
+    Net::Download::Ptr m_request;
+    NetJob::Ptr m_task;
 };

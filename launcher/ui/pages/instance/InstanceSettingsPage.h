@@ -85,7 +85,7 @@ class InstanceSettingsPage : public QWidget, public BasePage {
     void globalSettingsButtonClicked(bool checked);
 
     void updateAccountsMenu();
-    QIcon getFaceForAccount(MinecraftAccountPtr account);
+    QIcon getFaceForAccount(BaseAccountPtr account);
     void changeInstanceAccount(int index);
 
    private:

@@ -20,7 +20,7 @@
 #include <QNetworkReply>
 #include <QTimer>
 
-#include <minecraft/auth/MinecraftAccount.h>
+#include <minecraft/auth/BaseAccount.h>
 #include <memory>
 #include "net/Download.h"
 #include "net/Upload.h"
@@ -32,7 +32,7 @@ class ProfileSetupDialog;
 class ProfileSetupDialog : public QDialog {
     Q_OBJECT
    public:
-    explicit ProfileSetupDialog(MinecraftAccountPtr accountToSetup, QWidget* parent = 0);
+    explicit ProfileSetupDialog(BaseAccountPtr accountToSetup, QWidget* parent = 0);
     ~ProfileSetupDialog();
 
     enum class NameStatus { NotSet, Pending, Available, Exists, Error } nameStatus = NameStatus::NotSet;
@@ -55,7 +55,7 @@ class ProfileSetupDialog : public QDialog {
     void setupProfile(const QString& profileName);
 
    private:
-    MinecraftAccountPtr m_accountToSetup;
+    BaseAccountPtr m_accountToSetup;
     Ui::ProfileSetupDialog* ui;
     QIcon goodIcon;
     QIcon yellowIcon;
