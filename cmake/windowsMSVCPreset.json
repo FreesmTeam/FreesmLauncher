@@ -1,0 +1,155 @@
+{
+	"$schema": "https://cmake.org/cmake/help/latest/_downloads/3e2d73bff478d88a7de0de736ba5e361/schema.json",
+	"version": 8,
+	"include": [
+		"commonPresets.json"
+	],
+	"configurePresets": [
+		{
+			"name": "windows_msvc_base",
+			"hidden": true,
+			"condition": {
+				"type": "equals",
+				"lhs": "${hostSystemName}",
+				"rhs": "Windows"
+			},
+			"cacheVariables": {
+				"Launcher_BUILD_ARTIFACT": "Windows-MSVC-Qt6"
+			}
+		},
+		{
+			"name": "windows_msvc_arm64_cross_base",
+			"hidden": true,
+			"inherits": [
+				"windows_msvc_base"
+			],
+			"architecture": "arm64",
+			"cacheVariables": {
+				"Launcher_BUILD_ARTIFACT": "Windows-MSVC-arm64-Qt6"
+			}
+		},
+		{
+			"name": "windows_msvc_debug",
+			"inherits": [
+				"base_debug",
+				"windows_msvc_base"
+			],
+			"displayName": "Windows MSVC (Debug)",
+			"generator": "Ninja"
+		},
+		{
+			"name": "windows_msvc_release",
+			"inherits": [
+				"base_release",
+				"windows_msvc_base"
+			],
+			"displayName": "Windows MSVC (Release)"
+		},
+		{
+			"name": "windows_msvc_arm64_cross_debug",
+			"inherits": [
+				"base_debug",
+				"windows_msvc_arm64_cross_base"
+			],
+			"displayName": "Windows MSVC (ARM64 cross, Debug)"
+		},
+		{
+			"name": "windows_msvc_arm64_cross_release",
+			"inherits": [
+				"base_release",
+				"windows_msvc_arm64_cross_base"
+			],
+			"displayName": "Windows MSVC (ARM64 cross, Release)"
+		}
+	],
+	"buildPresets": [
+		{
+			"name": "windows_msvc_base",
+			"hidden": true,
+			"condition": {
+				"type": "equals",
+				"lhs": "${hostSystemName}",
+				"rhs": "Windows"
+			}
+		},
+		{
+			"name": "windows_msvc_debug",
+			"inherits": [
+				"windows_msvc_base"
+			],
+			"displayName": "Windows MSVC (Debug)",
+			"configurePreset": "windows_msvc_debug",
+			"configuration": "Debug"
+		},
+		{
+			"name": "windows_msvc_release",
+			"inherits": [
+				"windows_msvc_base"
+			],
+			"displayName": "Windows MSVC (Release)",
+			"configurePreset": "windows_msvc_release",
+			"configuration": "Release",
+			"nativeToolOptions": [
+				"/p:UseMultiToolTask=true",
+				"/p:EnforceProcessCountAcrossBuilds=true"
+			]
+		},
+		{
+			"name": "windows_msvc_arm64_cross_debug",
+			"inherits": [
+				"windows_msvc_base"
+			],
+			"displayName": "Windows MSVC (ARM64 cross, Debug)",
+			"configurePreset": "windows_msvc_arm64_cross_debug",
+			"configuration": "Debug",
+			"nativeToolOptions": [
+				"/p:UseMultiToolTask=true",
+				"/p:EnforceProcessCountAcrossBuilds=true"
+			]
+		},
+		{
+			"name": "windows_msvc_arm64_cross_release",
+			"inherits": [
+				"windows_msvc_base"
+			],
+			"displayName": "Windows MSVC (ARM64 cross, Release)",
+			"configurePreset": "windows_msvc_arm64_cross_release",
+			"configuration": "Release",
+			"nativeToolOptions": [
+				"/p:UseMultiToolTask=true",
+				"/p:EnforceProcessCountAcrossBuilds=true"
+			]
+		}
+	],
+	"testPresets": [
+		{
+			"name": "windows_msvc_base",
+			"hidden": true,
+			"condition": {
+				"type": "equals",
+				"lhs": "${hostSystemName}",
+				"rhs": "Windows"
+			}
+		},
+		{
+			"name": "windows_msvc_debug",
+			"inherits": [
+				"base_debug",
+				"windows_msvc_base"
+			],
+			"displayName": "Windows MSVC (Debug)",
+			"configurePreset": "windows_msvc_debug",
+			"configuration": "Debug"
+		},
+		{
+			"name": "windows_msvc_release",
+			"inherits": [
+				"base_release",
+				"windows_msvc_base"
+			],
+			"displayName": "Windows MSVC (Release)",
+			"configurePreset": "windows_msvc_release",
+			"configuration": "Release"
+		}
+	]
+}

@@ -1,0 +1,99 @@
+{
+	"$schema": "https://cmake.org/cmake/help/latest/_downloads/3e2d73bff478d88a7de0de736ba5e361/schema.json",
+	"version": 8,
+	"include": [
+		"commonPresets.json"
+	],
+	"configurePresets": [
+		{
+			"name": "windows_mingw_base",
+			"hidden": true,
+			"condition": {
+				"type": "equals",
+				"lhs": "${hostSystemName}",
+				"rhs": "Windows"
+			},
+			"generator": "Ninja",
+			"cacheVariables": {
+				"Launcher_BUILD_ARTIFACT": "Windows-MinGW-w64-Qt6"
+			}
+		},
+		{
+			"name": "windows_mingw_debug",
+			"inherits": [
+				"base_debug",
+				"windows_mingw_base"
+			],
+			"displayName": "Windows MinGW (Debug)"
+		},
+		{
+			"name": "windows_mingw_release",
+			"inherits": [
+				"base_release",
+				"windows_mingw_base"
+			],
+			"displayName": "Windows MinGW (Release)"
+		}
+	],
+	"buildPresets": [
+		{
+			"name": "windows_mingw_base",
+			"hidden": true,
+			"condition": {
+				"type": "equals",
+				"lhs": "${hostSystemName}",
+				"rhs": "Windows"
+			}
+		},
+		{
+			"name": "windows_mingw_debug",
+			"inherits": [
+				"windows_mingw_base"
+			],
+			"displayName": "Windows MinGW (Debug)",
+			"configurePreset": "windows_mingw_debug"
+		},
+		{
+			"name": "windows_mingw_release",
+			"inherits": [
+				"windows_mingw_base"
+			],
+			"displayName": "Windows MinGW (Release)",
+			"configurePreset": "windows_mingw_release"
+		}
+	],
+	"testPresets": [
+		{
+			"name": "windows_mingw_base",
+			"hidden": true,
+			"condition": {
+				"type": "equals",
+				"lhs": "${hostSystemName}",
+				"rhs": "Windows"
+			},
+			"filter": {
+				"exclude": {
+					"name": "^example64|example$"
+				}
+			}
+		},
+		{
+			"name": "windows_mingw_debug",
+			"inherits": [
+				"base_debug",
+				"windows_mingw_base"
+			],
+			"displayName": "Windows MinGW (Debug)",
+			"configurePreset": "windows_mingw_debug"
+		},
+		{
+			"name": "windows_mingw_release",
+			"inherits": [
+				"base_release",
+				"windows_mingw_base"
+			],
+			"displayName": "Windows MinGW (Release)",
+			"configurePreset": "windows_mingw_release"
+		}
+	]
+}
