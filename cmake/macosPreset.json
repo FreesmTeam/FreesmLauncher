@@ -57,6 +57,17 @@
 				"macos_universal_base"
 			],
 			"displayName": "macOS (Universal Binary, Release)"
+		},
+		{
+			"name": "macos_ci",
+			"inherits": [
+				"base_ci",
+				"macos_universal_base"
+			],
+			"displayName": "macOS (CI)",
+			"cacheVariables": {
+				"Launcher_BUILD_ARTIFACT": "macOS-Qt6"
+			}
 		}
 	],
 	"buildPresets": [
@@ -100,6 +111,14 @@
 			],
 			"displayName": "macOS (Universal Binary, Release)",
 			"configurePreset": "macos_universal_release"
+		},
+		{
+			"name": "macos_ci",
+			"inherits": [
+				"macos_base"
+			],
+			"displayName": "macOS (CI)",
+			"configurePreset": "macos_ci"
 		}
 	],
 	"testPresets": [
@@ -147,6 +166,107 @@
 			],
 			"displayName": "macOS (Universal Binary, Release)",
 			"configurePreset": "macos_universal_release"
+		},
+		{
+			"name": "macos_ci",
+			"inherits": [
+				"base_release",
+				"macos_base"
+			],
+			"displayName": "macOS (CI)",
+			"configurePreset": "macos_ci"
+		}
+	],
+	"workflowPresets": [
+		{
+			"name": "macos_debug",
+			"displayName": "macOS (Debug)",
+			"steps": [
+				{
+					"type": "configure",
+					"name": "macos_debug"
+				},
+				{
+					"type": "build",
+					"name": "macos_debug"
+				},
+				{
+					"type": "test",
+					"name": "macos_debug"
+				}
+			]
+		},
+		{
+			"name": "macos",
+			"displayName": "macOS (Release)",
+			"steps": [
+				{
+					"type": "configure",
+					"name": "macos_release"
+				},
+				{
+					"type": "build",
+					"name": "macos_release"
+				},
+				{
+					"type": "test",
+					"name": "macos_release"
+				}
+			]
+		},
+		{
+			"name": "macos_universal_debug",
+			"displayName": "macOS (Universal Binary, Debug)",
+			"steps": [
+				{
+					"type": "configure",
+					"name": "macos_universal_debug"
+				},
+				{
+					"type": "build",
+					"name": "macos_universal_debug"
+				},
+				{
+					"type": "test",
+					"name": "macos_universal_debug"
+				}
+			]
+		},
+		{
+			"name": "macos_universal",
+			"displayName": "macOS (Universal Binary, Release)",
+			"steps": [
+				{
+					"type": "configure",
+					"name": "macos_universal_release"
+				},
+				{
+					"type": "build",
+					"name": "macos_universal_release"
+				},
+				{
+					"type": "test",
+					"name": "macos_universal_release"
+				}
+			]
+		},
+		{
+			"name": "macos_ci",
+			"displayName": "macOS (CI)",
+			"steps": [
+				{
+					"type": "configure",
+					"name": "macos_ci"
+				},
+				{
+					"type": "build",
+					"name": "macos_ci"
+				},
+				{
+					"type": "test",
+					"name": "macos_ci"
+				}
+			]
 		}
 	]
 }

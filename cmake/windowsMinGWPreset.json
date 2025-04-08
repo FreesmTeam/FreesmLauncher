@@ -33,6 +33,17 @@
 				"windows_mingw_base"
 			],
 			"displayName": "Windows MinGW (Release)"
+		},
+		{
+			"name": "windows_mingw_ci",
+			"inherits": [
+				"base_ci",
+				"windows_mingw_base"
+			],
+			"displayName": "Windows MinGW (CI)",
+			"cacheVariables": {
+				"Launcher_BUILD_ARTIFACT": "Windows-MinGW-w64-Qt6"
+			}
 		}
 	],
 	"buildPresets": [
@@ -60,6 +71,14 @@
 			],
 			"displayName": "Windows MinGW (Release)",
 			"configurePreset": "windows_mingw_release"
+		},
+		{
+			"name": "windows_mingw_ci",
+			"inherits": [
+				"windows_mingw_base"
+			],
+			"displayName": "Windows MinGW (CI)",
+			"configurePreset": "windows_mingw_ci"
 		}
 	],
 	"testPresets": [
@@ -94,6 +113,71 @@
 			],
 			"displayName": "Windows MinGW (Release)",
 			"configurePreset": "windows_mingw_release"
+		},
+		{
+			"name": "windows_mingw_ci",
+			"inherits": [
+				"base_release",
+				"windows_mingw_base"
+			],
+			"displayName": "Windows MinGW (CI)",
+			"configurePreset": "windows_mingw_ci"
+		}
+	],
+	"workflowPresets": [
+		{
+			"name": "windows_mingw_debug",
+			"displayName": "Windows MinGW (Debug)",
+			"steps": [
+				{
+					"type": "configure",
+					"name": "windows_mingw_debug"
+				},
+				{
+					"type": "build",
+					"name": "windows_mingw_debug"
+				},
+				{
+					"type": "test",
+					"name": "windows_mingw_debug"
+				}
+			]
+		},
+		{
+			"name": "windows_mingw",
+			"displayName": "Windows MinGW (Release)",
+			"steps": [
+				{
+					"type": "configure",
+					"name": "windows_mingw_release"
+				},
+				{
+					"type": "build",
+					"name": "windows_mingw_release"
+				},
+				{
+					"type": "test",
+					"name": "windows_mingw_release"
+				}
+			]
+		},
+		{
+			"name": "windows_mingw_ci",
+			"displayName": "Windows MinGW (CI)",
+			"steps": [
+				{
+					"type": "configure",
+					"name": "windows_mingw_ci"
+				},
+				{
+					"type": "build",
+					"name": "windows_mingw_ci"
+				},
+				{
+					"type": "test",
+					"name": "windows_mingw_ci"
+				}
+			]
 		}
 	]
 }

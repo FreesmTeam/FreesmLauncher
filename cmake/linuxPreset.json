@@ -34,6 +34,18 @@
 				"linux_base"
 			],
 			"displayName": "Linux (Release)"
+		},
+		{
+			"name": "linux_ci",
+			"inherits": [
+				"base_ci",
+				"linux_base"
+			],
+			"displayName": "Linux (CI)",
+			"cacheVariables": {
+				"Launcher_BUILD_ARTIFACT": "Linux-Qt6"
+			},
+			"installDir": "/usr"
 		}
 	],
 	"buildPresets": [
@@ -61,6 +73,14 @@
 			],
 			"displayName": "Linux (Release)",
 			"configurePreset": "linux_release"
+		},
+		{
+			"name": "linux_ci",
+			"inherits": [
+				"linux_base"
+			],
+			"displayName": "Linux (CI)",
+			"configurePreset": "linux_ci"
 		}
 	],
 	"testPresets": [
@@ -90,6 +110,71 @@
 			],
 			"displayName": "Linux (Release)",
 			"configurePreset": "linux_release"
+		},
+		{
+			"name": "linux_ci",
+			"inherits": [
+				"base_release",
+				"linux_base"
+			],
+			"displayName": "Linux (CI)",
+			"configurePreset": "linux_ci"
+		}
+	],
+	"workflowPresets": [
+		{
+			"name": "linux_debug",
+			"displayName": "Linux (Debug)",
+			"steps": [
+				{
+					"type": "configure",
+					"name": "linux_debug"
+				},
+				{
+					"type": "build",
+					"name": "linux_debug"
+				},
+				{
+					"type": "test",
+					"name": "linux_debug"
+				}
+			]
+		},
+		{
+			"name": "linux",
+			"displayName": "Linux (Release)",
+			"steps": [
+				{
+					"type": "configure",
+					"name": "linux_release"
+				},
+				{
+					"type": "build",
+					"name": "linux_release"
+				},
+				{
+					"type": "test",
+					"name": "linux_release"
+				}
+			]
+		},
+		{
+			"name": "linux_ci",
+			"displayName": "Linux (CI)",
+			"steps": [
+				{
+					"type": "configure",
+					"name": "linux_ci"
+				},
+				{
+					"type": "build",
+					"name": "linux_ci"
+				},
+				{
+					"type": "test",
+					"name": "linux_ci"
+				}
+			]
 		}
 	]
 }

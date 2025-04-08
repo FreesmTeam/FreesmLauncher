@@ -53,6 +53,7 @@ jobs:
       matrix:
         include:
           - os: ubuntu-22.04
+            cmake_preset: linux
             qt_ver: 6
             qt_host: linux
             qt_arch: ""
@@ -64,11 +65,13 @@ jobs:
 
           - os: windows-2022
             name: "Windows-MinGW-w64"
+            cmake_preset: windows_mingw
             msystem: clang64
             vcvars_arch: "amd64_x86"
 
           - os: windows-2022
             name: "Windows-MSVC"
+            cmake_preset: windows_msvc 
             msystem: ""
             architecture: "x64"
             vcvars_arch: "amd64"
@@ -82,6 +85,7 @@ jobs:
 
           - os: windows-2022
             name: "Windows-MSVC-arm64"
+            cmake_preset: windows_msvc_arm64_cross
             msystem: ""
             architecture: "arm64"
             vcvars_arch: "amd64_arm64"
@@ -95,6 +99,7 @@ jobs:
 
           - os: macos-14
             name: macOS
+            cmake_preset: ${{ inputs.build_type == 'Debug' && 'macos_universal' || 'macos' }}
             macosx_deployment_target: 11.0
             qt_ver: 6
             qt_host: mac
@@ -275,75 +280,30 @@ jobs:
         with:
           distribution: "temurin"
           java-version: "17"
+
       ##
-      # CONFIGURE
+      # SOURCE BUILD
       ##
 
-      - name: Configure CMake (macOS)
-        if: runner.os == 'macOS'
+      - name: Run CMake workflow
+        if: ${{ runner.os != 'Windows' || matrix.msystem == '' }}
+        shell: bash
+        env:
+          CMAKE_PRESET: ${{ matrix.cmake_preset }}
+          PRESET_TYPE: ${{ inputs.build_type == 'Debug' && 'debug' || 'ci' }}
         run: |
-          cmake -S . -B ${{ env.BUILD_DIR }} -DCMAKE_INSTALL_PREFIX=${{ env.INSTALL_DIR }} -DCMAKE_BUILD_TYPE=${{ inputs.build_type }} -DENABLE_LTO=ON -DLauncher_ENABLE_JAVA_DOWNLOADER=ON -DLauncher_BUILD_PLATFORM=official -DCMAKE_C_COMPILER_LAUNCHER=${{ env.CCACHE_VAR }} -DCMAKE_CXX_COMPILER_LAUNCHER=${{ env.CCACHE_VAR }} -DLauncher_QT_VERSION_MAJOR=${{ matrix.qt_ver }} -DCMAKE_OSX_ARCHITECTURES="x86_64;arm64" -G Ninja
+          cmake --workflow --preset "$CMAKE_PRESET"_"$PRESET_TYPE"
 
-      - name: Configure CMake (Windows MinGW-w64)
-        if: runner.os == 'Windows' && matrix.msystem != ''
+        # NOTE: Split due to the `shell` requirement for msys2
+        # TODO(@getchoo): Get ccache working!
+      - name: Run CMake workflow (Windows MinGW-w64)
+        if: ${{ runner.os == 'Windows' && matrix.msystem != '' }}
         shell: msys2 {0}
+        env:
+          CMAKE_PRESET: ${{ matrix.cmake_preset }}
+          PRESET_TYPE: ${{ inputs.build_type == 'Debug' && 'debug' || 'ci' }}
         run: |
-          cmake -S . -B ${{ env.BUILD_DIR }} -DCMAKE_INSTALL_PREFIX=${{ env.INSTALL_DIR }} -DCMAKE_BUILD_TYPE=${{ inputs.build_type }} -DENABLE_LTO=ON -DLauncher_ENABLE_JAVA_DOWNLOADER=ON -DLauncher_BUILD_PLATFORM=official -DCMAKE_C_COMPILER_LAUNCHER=${{ env.CCACHE_VAR }} -DCMAKE_CXX_COMPILER_LAUNCHER=${{ env.CCACHE_VAR }} -DLauncher_QT_VERSION_MAJOR=6 -DCMAKE_OBJDUMP=/mingw64/bin/objdump.exe -DLauncher_BUILD_ARTIFACT=${{ matrix.name }}-Qt${{ matrix.qt_ver }} -G Ninja
-
-      - name: Configure CMake (Windows MSVC)
-        if: runner.os == 'Windows' && matrix.msystem == '' && matrix.architecture != 'arm64'
-        run: |
-          cmake -S . -B ${{ env.BUILD_DIR }} -DCMAKE_INSTALL_PREFIX=${{ env.INSTALL_DIR }} -DCMAKE_BUILD_TYPE=${{ inputs.build_type }} -DENABLE_LTO=ON -DLauncher_ENABLE_JAVA_DOWNLOADER=ON -DLauncher_BUILD_PLATFORM=official -DLauncher_QT_VERSION_MAJOR=${{ matrix.qt_ver }} -DCMAKE_MSVC_RUNTIME_LIBRARY="MultiThreadedDLL" -DLauncher_FORCE_BUNDLED_LIBS=ON  -DLauncher_BUILD_ARTIFACT=${{ matrix.name }}-Qt${{ matrix.qt_ver }} -G Ninja
-
-      - name: Configure CMake (Windows MSVC arm64)
-        if: runner.os == 'Windows' && matrix.msystem == '' && matrix.architecture == 'arm64'
-        run: |
-          cmake -S . -B ${{ env.BUILD_DIR }} -DCMAKE_INSTALL_PREFIX=${{ env.INSTALL_DIR }} -DCMAKE_BUILD_TYPE=${{ inputs.build_type }} -DENABLE_LTO=ON -DLauncher_ENABLE_JAVA_DOWNLOADER=ON -DLauncher_BUILD_PLATFORM=official -DLauncher_QT_VERSION_MAJOR=${{ matrix.qt_ver }} -DCMAKE_MSVC_RUNTIME_LIBRARY="MultiThreadedDLL" -A${{ matrix.architecture}} -DLauncher_FORCE_BUNDLED_LIBS=ON  -DLauncher_BUILD_ARTIFACT=${{ matrix.name }}-Qt${{ matrix.qt_ver }}
-
-      - name: Configure CMake (Linux)
-        if: runner.os == 'Linux'
-        run: |
-          cmake -S . -B ${{ env.BUILD_DIR }} -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_BUILD_TYPE=${{ inputs.build_type }} -DENABLE_LTO=ON -DLauncher_ENABLE_JAVA_DOWNLOADER=ON -DLauncher_BUILD_PLATFORM=official -DCMAKE_C_COMPILER_LAUNCHER=${{ env.CCACHE_VAR }} -DCMAKE_CXX_COMPILER_LAUNCHER=${{ env.CCACHE_VAR }} -DLauncher_QT_VERSION_MAJOR=${{ matrix.qt_ver }} -DLauncher_BUILD_ARTIFACT=Linux-Qt${{ matrix.qt_ver }} -G Ninja
-
-      ##
-      # BUILD
-      ##
-
-      - name: Build
-        if: runner.os != 'Windows'
-        run: |
-          cmake --build ${{ env.BUILD_DIR }}
-
-      - name: Build (Windows MinGW-w64)
-        if: runner.os == 'Windows' && matrix.msystem != ''
-        shell: msys2 {0}
-        run: |
-          cmake --build ${{ env.BUILD_DIR }}
-
-      - name: Build (Windows MSVC)
-        if: runner.os == 'Windows' && matrix.msystem == ''
-        run: |
-          cmake --build ${{ env.BUILD_DIR }} --config ${{ inputs.build_type }}
-
-      ##
-      # TEST
-      ##
-
-      - name: Test
-        if: runner.os != 'Windows'
-        run: |
-          ctest -E "^example64|example$" --test-dir build --output-on-failure
-
-      - name: Test (Windows MinGW-w64)
-        if: runner.os == 'Windows' && matrix.msystem != ''
-        shell: msys2 {0}
-        run: |
-          ctest -E "^example64|example$" --test-dir build --output-on-failure
-
-      - name: Test (Windows MSVC)
-        if: runner.os == 'Windows' && matrix.msystem == '' && matrix.architecture != 'arm64'
-        run: |
-          ctest -E "^example64|example$" --test-dir build --output-on-failure -C ${{ inputs.build_type }}
+          cmake --workflow --preset "$CMAKE_PRESET"_"$PRESET_TYPE"
 
       ##
       # PACKAGE BUILDS
@@ -542,8 +502,11 @@ jobs:
 
       - name: Package (Linux, portable)
         if: runner.os == 'Linux'
+        env:
+          CMAKE_PRESET: ${{ matrix.cmake_preset }}
+          PRESET_TYPE: ${{ inputs.build_type == 'Debug' && 'debug' || 'ci' }}
         run: |
-          cmake -S . -B ${{ env.BUILD_DIR }} -DCMAKE_INSTALL_PREFIX=${{ env.INSTALL_PORTABLE_DIR }} -DCMAKE_BUILD_TYPE=${{ inputs.build_type }} -DENABLE_LTO=ON -DLauncher_BUILD_PLATFORM=official -DCMAKE_C_COMPILER_LAUNCHER=${{ env.CCACHE_VAR }} -DCMAKE_CXX_COMPILER_LAUNCHER=${{ env.CCACHE_VAR }} -DLauncher_QT_VERSION_MAJOR=${{ matrix.qt_ver }} -DLauncher_BUILD_ARTIFACT=Linux-Qt${{ matrix.qt_ver }} -DINSTALL_BUNDLE=full -G Ninja
+          cmake --preset "$CMAKE_PRESET"_"$PRESET_TYPE" -DCMAKE_INSTALL_PREFIX=${{ env.INSTALL_PORTABLE_DIR }} -DINSTALL_BUNDLE=full
           cmake --install ${{ env.BUILD_DIR }}
           cmake --install ${{ env.BUILD_DIR }} --component portable
 

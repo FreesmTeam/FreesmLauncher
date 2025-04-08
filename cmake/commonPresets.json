@@ -31,6 +31,17 @@
 				"CMAKE_BUILD_TYPE": "Release",
 				"ENABLE_LTO": "ON"
 			}
+		},
+		{
+			"name": "base_ci",
+			"hidden": true,
+			"inherits": [
+				"base_release"
+			],
+			"cacheVariables": {
+				"Launcher_BUILD_PLATFORM": "official",
+				"Launcher_FORCE_BUNDLED_LIBS": "ON"
+			}
 		}
 	],
 	"testPresets": [
