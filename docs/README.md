@@ -66,6 +66,11 @@
       <td style="padding: 10px; border: 1px solid #ddd;">Requires an account</td>
     </tr>
     <tr>
+      <td style="padding: 10px; border: 1px solid #ddd;">Ely.by support</td>
+      <td style="padding: 10px; border: 1px solid #ddd;">Yes</td>
+      <td style="padding: 10px; border: 1px solid #ddd;">No</td>
+    </tr>
+    <tr>
       <td style="padding: 10px; border: 1px solid #ddd;">Custom Themes & Icons</td>
       <td style="padding: 10px; border: 1px solid #ddd;">Yes</td>
       <td style="padding: 10px; border: 1px solid #ddd;">No</td>
@@ -114,7 +119,7 @@
 <p>Feel free to create a GitHub issue if you find a bug or want to suggest a new feature.</p>
 
 > [!CAUTION]
-> Do not mention Freesm Launcher on Prism Launcher Discord, Forum, GitHub, etc. Freesm is a standalone project, taking code base from Prism, and may (in the future) have its own site, Discord, etc.</p>
+> Do not mention Freesm Launcher on Prism Launcher Discord, Forum, GitHub, etc. Freesm is a standalone project, which is taking code base from the Prism.</p>
 
 <h2>Translations</h2>
 
@@ -130,7 +135,7 @@
   <li>We <strong>ARE NOT</strong> related to the <a href="https://prismlauncher.org">Prism Launcher</a> team.</li>
   <li>We <strong>ARE NOT</strong> collecting your information. Don't trust us? Check it yourself.</li>
   <li>We <strong>ARE</strong> providing <em>the</em> way to play Minecraft for free.</li>
-  <li>We <strong>ARE</strong> open to contributing our builds.</li>
+  <li>We <strong>ARE</strong> open to any contributions.</li>
 </ul>
 
 <h2>License</h2>
