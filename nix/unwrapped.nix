@@ -6,7 +6,6 @@
   apple-sdk_11,
   extra-cmake-modules,
   gamemode,
-  ghc_filesystem,
   jdk17,
   kdePackages,
   libnbtplusplus,
@@ -78,7 +77,6 @@ stdenv.mkDerivation {
   buildInputs =
     [
       cmark
-      ghc_filesystem
       kdePackages.qtbase
       kdePackages.qtnetworkauth
       kdePackages.quazip
