@@ -29,25 +29,41 @@ QByteArray SecurityBookmarkFileAccess::urlToSecurityScopedBookmark(const QUrl& u
 
     NSError* error = nil;
     NSURL* nsurl = [url.toNSURL() absoluteURL];
+    NSData* bookmark;
     if ([m_paths objectForKey:[nsurl path]]) {
-        return QByteArray::fromNSData(m_paths[[nsurl path]]);
+        bookmark = m_paths[[nsurl path]];
+    } else {
+        bookmark = [nsurl bookmarkDataWithOptions:NSURLBookmarkCreationWithSecurityScope |
+                                                  (m_readOnly ? NSURLBookmarkCreationSecurityScopeAllowOnlyReadAccess : 0)
+                   includingResourceValuesForKeys:nil
+                                    relativeToURL:nil
+                                            error:&error];
     }
-    [m_activeURLs addObject:nsurl];
-    NSData* bookmark = [nsurl bookmarkDataWithOptions:NSURLBookmarkCreationWithSecurityScope
-                       includingResourceValuesForKeys:nil
-                                        relativeToURL:nil
-                                                error:&error];
     if (error) {
         return {};
     }
+
+    // remove/reapply access to ensure that write access is immediately cut off for read-only bookmarks
+    // sometimes you need to call this twice to actually stop access (extra calls aren't harmful)
+    [nsurl stopAccessingSecurityScopedResource];
+    [nsurl stopAccessingSecurityScopedResource];
+    nsurl = [NSURL URLByResolvingBookmarkData:bookmark
+                                      options:NSURLBookmarkResolutionWithSecurityScope |
+                                              (m_readOnly ? NSURLBookmarkCreationSecurityScopeAllowOnlyReadAccess : 0)
+                                relativeToURL:nil
+                          bookmarkDataIsStale:nil
+                                        error:&error];
     m_paths[[nsurl path]] = bookmark;
     m_bookmarks[bookmark] = nsurl;
-    [m_activeURLs addObject:nsurl];
 
-    return QByteArray::fromNSData(bookmark);
+    QByteArray qBookmark = QByteArray::fromNSData(bookmark);
+    bool isStale = false;
+    startUsingSecurityScopedBookmark(qBookmark, isStale);
+
+    return qBookmark;
 }
 
-SecurityBookmarkFileAccess::SecurityBookmarkFileAccess()
+SecurityBookmarkFileAccess::SecurityBookmarkFileAccess(bool readOnly) : m_readOnly(readOnly)
 {
     m_bookmarks = [NSMutableDictionary new];
     m_paths = [NSMutableDictionary new];
@@ -59,9 +75,6 @@ SecurityBookmarkFileAccess::~SecurityBookmarkFileAccess()
     for (NSURL* url : m_activeURLs) {
         [url stopAccessingSecurityScopedResource];
     }
-    [m_bookmarks release];
-    [m_paths release];
-    [m_activeURLs release];
 }
 
 QByteArray SecurityBookmarkFileAccess::pathToSecurityScopedBookmark(const QString& path)
@@ -74,7 +87,8 @@ NSURL* SecurityBookmarkFileAccess::securityScopedBookmarkToNSURL(QByteArray& boo
     NSError* error = nil;
     BOOL localStale = NO;
     NSURL* nsurl = [NSURL URLByResolvingBookmarkData:bookmark.toNSData()
-                                             options:NSURLBookmarkResolutionWithSecurityScope
+                                             options:NSURLBookmarkResolutionWithSecurityScope |
+                                                     (m_readOnly ? NSURLBookmarkCreationSecurityScopeAllowOnlyReadAccess : 0)
                                        relativeToURL:nil
                                  bookmarkDataIsStale:&localStale
                                                error:&error];
@@ -83,17 +97,20 @@ NSURL* SecurityBookmarkFileAccess::securityScopedBookmarkToNSURL(QByteArray& boo
     }
     isStale = localStale;
     if (isStale) {
-        NSData* nsBookmark = [nsurl bookmarkDataWithOptions:NSURLBookmarkCreationWithSecurityScope
+        NSData* nsBookmark = [nsurl bookmarkDataWithOptions:NSURLBookmarkCreationWithSecurityScope |
+                                                            (m_readOnly ? NSURLBookmarkCreationSecurityScopeAllowOnlyReadAccess : 0)
                              includingResourceValuesForKeys:nil
                                               relativeToURL:nil
                                                       error:&error];
         if (error) {
             return nil;
         }
-        m_paths[[nsurl path]] = nsBookmark;
-        m_bookmarks[nsBookmark] = nsurl;
         bookmark = QByteArray::fromNSData(nsBookmark);
     }
+
+    NSData* nsBookmark = bookmark.toNSData();
+    m_paths[[nsurl path]] = nsBookmark;
+    m_bookmarks[nsBookmark] = nsurl;
 
     return nsurl;
 }
@@ -112,10 +129,12 @@ QUrl SecurityBookmarkFileAccess::securityScopedBookmarkToURL(QByteArray& bookmar
 
 bool SecurityBookmarkFileAccess::startUsingSecurityScopedBookmark(QByteArray& bookmark, bool& isStale)
 {
-    NSURL* url = [m_bookmarks objectForKey:bookmark.toNSData()] ? m_bookmarks[bookmark.toNSData()] : securityScopedBookmarkToNSURL(bookmark, isStale);
+    NSURL* url = [m_bookmarks objectForKey:bookmark.toNSData()] ? m_bookmarks[bookmark.toNSData()]
+                                                                : securityScopedBookmarkToNSURL(bookmark, isStale);
     if ([m_activeURLs containsObject:url])
         return false;
 
+    [url stopAccessingSecurityScopedResource];
     if ([url startAccessingSecurityScopedResource]) {
         [m_activeURLs addObject:url];
         return true;
@@ -131,8 +150,23 @@ void SecurityBookmarkFileAccess::stopUsingSecurityScopedBookmark(QByteArray& boo
 
     if ([m_activeURLs containsObject:url]) {
         [url stopAccessingSecurityScopedResource];
+        [url stopAccessingSecurityScopedResource];
+
         [m_activeURLs removeObject:url];
-        [m_bookmarks removeObjectForKey:bookmark.toNSData()];
         [m_paths removeObjectForKey:[url path]];
+        [m_bookmarks removeObjectForKey:bookmark.toNSData()];
     }
+}
+
+bool SecurityBookmarkFileAccess::isAccessingPath(const QString& path)
+{
+    NSData* bookmark = [m_paths objectForKey:path.toNSString()];
+    if (!bookmark && path.endsWith('/')) {
+        bookmark = [m_paths objectForKey:path.left(path.length() - 1).toNSString()];
+    }
+    if (!bookmark) {
+        return false;
+    }
+    NSURL* url = [m_bookmarks objectForKey:bookmark];
+    return [m_activeURLs containsObject:url];
 }

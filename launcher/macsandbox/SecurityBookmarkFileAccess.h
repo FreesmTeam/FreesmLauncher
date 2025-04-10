@@ -39,9 +39,12 @@ class SecurityBookmarkFileAccess {
     /// Contains URLs that are currently being accessed.
     NSMutableSet* m_activeURLs;
 
+    bool m_readOnly;
+
     NSURL* securityScopedBookmarkToNSURL(QByteArray& bookmark, bool& isStale);
 public:
-    SecurityBookmarkFileAccess();
+    /// \param readOnly A boolean indicating whether the bookmark should be read-only.
+    SecurityBookmarkFileAccess(bool readOnly = false);
     ~SecurityBookmarkFileAccess();
 
     /// Get a security scoped bookmark from a URL.
@@ -78,6 +81,9 @@ public:
     /// \return A boolean indicating whether the bookmark was successfully accessed.
     bool startUsingSecurityScopedBookmark(QByteArray& bookmark, bool& isStale);
     void stopUsingSecurityScopedBookmark(QByteArray& bookmark);
+
+    /// Returns true if access to the `path` is currently being maintained by this object.
+    bool isAccessingPath(const QString& path);
 };
 
 #endif //FILEACCESS_H
