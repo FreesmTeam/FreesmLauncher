@@ -52,18 +52,18 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - os: ubuntu-20.04
+          - os: ubuntu-22.04
             qt_ver: 5
             qt_host: linux
             qt_arch: ""
             qt_version: "5.15.2"
             qt_modules: "qtnetworkauth"
 
-          - os: ubuntu-20.04
+          - os: ubuntu-22.04
             qt_ver: 6
             qt_host: linux
             qt_arch: ""
-            qt_version: "6.5.3"
+            qt_version: "6.8.1"
             qt_modules: "qt5compat qtimageformats qtnetworkauth"
 
           - os: windows-2022
