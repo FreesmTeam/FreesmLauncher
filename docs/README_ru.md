@@ -66,6 +66,11 @@
       <td style="padding: 10px; border: 1px solid #ddd;">Требуется аккаунт</td>
     </tr>
     <tr>
+      <td style="padding: 10px; border: 1px solid #ddd;">Поддержка Ely.by</td>
+      <td style="padding: 10px; border: 1px solid #ddd;">Да</td>
+      <td style="padding: 10px; border: 1px solid #ddd;">Нет</td>
+    </tr>
+    <tr>
       <td style="padding: 10px; border: 1px solid #ddd;">Кастомные темы и иконки</td>
       <td style="padding: 10px; border: 1px solid #ddd;">Да</td>
       <td style="padding: 10px; border: 1px solid #ddd;">Нет</td>
@@ -114,7 +119,7 @@
 <p>Не стесняйтесь создавать GitHub issue, если найдете ошибку или хотите предложить новую функцию.</p>
 
 > [!IMPORTANT]
-> Не упоминайте Freesm Launcher на Discord, форуме или GitHub Prism Launcher. Freesm — это самостоятельный проект, основанный на кодовой базе Prism, и в будущем может (или не может) иметь собственный канал Discord и прочее.
+> Не упоминайте Freesm Launcher на Discord, форуме или GitHub Prism Launcher. Freesm — это самостоятельный проект, основанный на кодовой базе Prism.
 
 <h2>Переводы</h2>
 
