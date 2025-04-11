@@ -397,7 +397,7 @@ void MinecraftSettingsWidget::saveSettings()
                 int accountIndex = m_ui->instanceAccountSelector->currentIndex();
 
                 if (accountIndex != -1) {
-                    const MinecraftAccountPtr account = APPLICATION->accounts()->at(accountIndex);
+                    const BaseAccountPtr account = APPLICATION->accounts()->at(accountIndex);
                     if (account != nullptr)
                         settings->set("InstanceAccountId", account->profileId());
                 }
@@ -441,7 +441,7 @@ void MinecraftSettingsWidget::updateAccountsMenu(const SettingsObject& settings)
     int accountIndex = accounts->findAccountByProfileId(settings.get("InstanceAccountId").toString());
 
     for (int i = 0; i < accounts->count(); i++) {
-        MinecraftAccountPtr account = accounts->at(i);
+        BaseAccountPtr account = accounts->at(i);
 
         QIcon face = account->getFace();
 
