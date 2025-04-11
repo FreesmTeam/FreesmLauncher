@@ -126,6 +126,9 @@ class BaseInstance : public QObject, public std::enable_shared_from_this<BaseIns
     QString name() const;
     void setName(QString val);
 
+    /// Sync name and rename instance dir accordingly; returns true if successful
+    bool syncInstanceDirName(const QString& newRoot) const;
+
     /// Value used for instance window titles
     QString windowTitle() const;
 
@@ -268,6 +271,8 @@ class BaseInstance : public QObject, public std::enable_shared_from_this<BaseIns
     void addLinkedInstanceId(const QString& id);
     bool removeLinkedInstanceId(const QString& id);
     bool isLinkedToInstanceId(const QString& id) const;
+
+    bool isLegacy();
 
    protected:
     void changeStatus(Status newStatus);

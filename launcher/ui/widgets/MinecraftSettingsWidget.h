@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: GPL-3.0-only
 /*
  *  Prism Launcher - Minecraft Launcher
- *  Copyright (c) 2022 flowln <flowlnlnln@gmail.com>
- *  Copyright (C) 2022 Sefa Eyeoglu <contact@scrumplex.net>
+ *  Copyright (c) 2022 Jamie Mansfield <jmansfield@cadixdev.org>
+ *  Copyright (C) 2024 TheKodeToad <TheKodeToad@proton.me>
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -36,46 +36,29 @@
 
 #pragma once
 
-#include <QDir>
-#include <QMap>
-#include <QObject>
-#include <QRunnable>
-#include <memory>
-#include "minecraft/mod/Mod.h"
-#include "tasks/Task.h"
+#include <QWidget>
+#include "JavaSettingsWidget.h"
+#include "minecraft/MinecraftInstance.h"
 
-class ModFolderLoadTask : public Task {
-    Q_OBJECT
+namespace Ui {
+class MinecraftSettingsWidget;
+}
+
+class MinecraftSettingsWidget : public QWidget {
    public:
-    struct Result {
-        QMap<QString, Mod::Ptr> mods;
-    };
-    using ResultPtr = std::shared_ptr<Result>;
-    ResultPtr result() const { return m_result; }
+    MinecraftSettingsWidget(MinecraftInstancePtr instance, QWidget* parent = nullptr);
+    ~MinecraftSettingsWidget() override;
 
-   public:
-    ModFolderLoadTask(QDir mods_dir, QDir index_dir, bool is_indexed, bool clean_orphan = false);
-
-    [[nodiscard]] bool canAbort() const override { return true; }
-    bool abort() override
-    {
-        m_aborted.store(true);
-        return true;
-    }
-
-    void executeTask() override;
+    void loadSettings();
+    void saveSettings();
 
    private:
-    void getFromMetadata();
+    void openGlobalSettings();
+    void updateAccountsMenu(const SettingsObject& settings);
+    bool isQuickPlaySupported();
 
-   private:
-    QDir m_mods_dir, m_index_dir;
-    bool m_is_indexed;
-    bool m_clean_orphan;
-    ResultPtr m_result;
-
-    std::atomic<bool> m_aborted = false;
-
-    /** This is the thread in which we should put new mod objects */
-    QThread* m_thread_to_spawn_into;
+    MinecraftInstancePtr m_instance;
+    Ui::MinecraftSettingsWidget* m_ui;
+    JavaSettingsWidget* m_javaSettings = nullptr;
+    bool m_quickPlaySingleplayer = false;
 };

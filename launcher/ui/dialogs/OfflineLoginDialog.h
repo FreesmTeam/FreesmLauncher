@@ -1,6 +1,5 @@
 #pragma once
 
-#include <QtCore/QEventLoop>
 #include <QtWidgets/QDialog>
 
 #include "minecraft/auth/offline/OfflineAccount.h"
