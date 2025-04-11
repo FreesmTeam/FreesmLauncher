@@ -219,16 +219,16 @@ void LaunchController::login()
         m_session->demo = m_demo;
         m_accountToUse->fillSession(m_session, m_instance->settings());
 
-        MinecraftAccountPtr accountToCheck;
+        BaseAccountPtr accountToCheck;
 
         if (m_accountToUse->ownsMinecraft())
             accountToCheck = m_accountToUse;
-        else if (const MinecraftAccountPtr defaultAccount = APPLICATION->accounts()->defaultAccount();
+        else if (const BaseAccountPtr defaultAccount = APPLICATION->accounts()->defaultAccount();
                  defaultAccount != nullptr && defaultAccount->ownsMinecraft()) {
             accountToCheck = defaultAccount;
         } else {
             for (int i = 0; i < APPLICATION->accounts()->count(); i++) {
-                MinecraftAccountPtr account = APPLICATION->accounts()->at(i);
+                BaseAccountPtr account = APPLICATION->accounts()->at(i);
                 if (account->ownsMinecraft())
                     accountToCheck = account;
             }
@@ -331,7 +331,7 @@ void LaunchController::login()
     emitFailed(tr("Failed to launch."));
 }
 
-bool LaunchController::reauthenticateAccount(MinecraftAccountPtr account)
+bool LaunchController::reauthenticateAccount(BaseAccountPtr account)
 {
     auto button = QMessageBox::warning(
         m_parentWidget, tr("Account refresh failed"),
