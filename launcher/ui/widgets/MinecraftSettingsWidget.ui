@@ -264,6 +264,66 @@
             </widget>
            </item>
            <item>
+            <widget class="QGroupBox"     name="ElybyGroupBox">
+             <property name="title">
+              <string>Ely.by</string>
+             </property>
+             <layout class="QVBoxLayout"     name="verticalLayout_7">
+              <item>
+               <layout class="QHBoxLayout"     name="horizontalLayout">
+                <item>
+                 <widget class="QLabel" name="label">
+                  <property name="text">
+                   <string>Use Ely.by skin system</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QComboBox"     name="elySkinSystemComboBox">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Preferred"     vsizetype="Fixed">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                  <property name="currentIndex">
+                   <number>0</number>
+                  </property>
+                  <item>
+                   <property name="text">
+                    <string>Never</string>
+                   </property>
+                  </item>
+                  <item>
+                   <property name="text">
+                    <string>Always</string>
+                   </property>
+                  </item>
+                  <item>
+                   <property name="text">
+                    <string>With Ely.by accounts</string>
+                   </property>
+                  </item>
+                  <item>
+                   <property name="text">
+                    <string>Without Ely.by accounts</string>
+                   </property>
+                  </item>
+                 </widget>
+                </item>
+               </layout>
+              </item>
+              <item>
+               <widget class="QCheckBox" name="useInjectorCheckBox">
+                <property name="text">
+                 <string>Use Authlib Injector</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </widget>
+           </item>
+           <item>
             <spacer name="verticalSpacer_2">
              <property name="orientation">
               <enum>Qt::Vertical</enum>
@@ -548,6 +608,41 @@
                  <widget class="QComboBox" name="instanceAccountSelector"/>
                 </item>
                </layout>
+              </item>
+             </layout>
+            </widget>
+           </item>
+           <item>
+            <widget class="QGroupBox" name="elySettingsGroupBox">
+             <property name="title">
+              <string>Override Ely.by settings</string>
+             </property>
+             <property name="checkable">
+              <bool>true</bool>
+             </property>
+             <property name="checked">
+              <bool>false</bool>
+             </property>
+             <layout class="QVBoxLayout" name="verticalLayout_7">
+              <item>
+               <widget class="QCheckBox" name="useElyCheckBox">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="text">
+                 <string>Use Ely.by skin system</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QCheckBox" name="useInjectorCheckBox">
+                <property name="text">
+                 <string>Use Authlib Injector</string>
+                </property>
+               </widget>
               </item>
              </layout>
             </widget>
