@@ -84,8 +84,10 @@ void ResourcePackPage::downloadResourcePacks()
     if (m_instance->typeName() != "Minecraft")
         return;  // this is a null instance or a legacy instance
 
-    ResourceDownload::ResourcePackDownloadDialog mdownload(this, m_model, m_instance);
-    if (mdownload.exec()) {
+    auto mdownload = new ResourceDownload::ResourcePackDownloadDialog(this, m_model, m_instance);
+    mdownload->setAttribute(Qt::WA_DeleteOnClose);
+    connect(this, &QObject::destroyed, mdownload, &QDialog::close);
+    if (mdownload->exec()) {
         auto tasks = new ConcurrentTask("Download Resource Pack", APPLICATION->settings()->get("NumberOfConcurrentDownloads").toInt());
         connect(tasks, &Task::failed, [this, tasks](QString reason) {
             CustomMessageBox::selectable(this, tr("Error"), reason, QMessageBox::Critical)->show();
@@ -103,7 +105,7 @@ void ResourcePackPage::downloadResourcePacks()
             tasks->deleteLater();
         });
 
-        for (auto& task : mdownload.getTasks()) {
+        for (auto& task : mdownload->getTasks()) {
             tasks->addTask(task);
         }
 
@@ -235,9 +237,11 @@ void ResourcePackPage::changeResourcePackVersion()
     if (resource.metadata() == nullptr)
         return;
 
-    ResourceDownload::ResourcePackDownloadDialog mdownload(this, m_model, m_instance);
-    mdownload.setResourceMetadata(resource.metadata());
-    if (mdownload.exec()) {
+    auto mdownload = new ResourceDownload::ResourcePackDownloadDialog(this, m_model, m_instance);
+    mdownload->setAttribute(Qt::WA_DeleteOnClose);
+    connect(this, &QObject::destroyed, mdownload, &QDialog::close);
+    mdownload->setResourceMetadata(resource.metadata());
+    if (mdownload->exec()) {
         auto tasks = new ConcurrentTask("Download Resource Packs", APPLICATION->settings()->get("NumberOfConcurrentDownloads").toInt());
         connect(tasks, &Task::failed, [this, tasks](QString reason) {
             CustomMessageBox::selectable(this, tr("Error"), reason, QMessageBox::Critical)->show();
@@ -255,7 +259,7 @@ void ResourcePackPage::changeResourcePackVersion()
             tasks->deleteLater();
         });
 
-        for (auto& task : mdownload.getTasks()) {
+        for (auto& task : mdownload->getTasks()) {
             tasks->addTask(task);
         }
 

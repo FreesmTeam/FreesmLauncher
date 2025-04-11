@@ -90,8 +90,10 @@ void TexturePackPage::downloadTexturePacks()
     if (m_instance->typeName() != "Minecraft")
         return;  // this is a null instance or a legacy instance
 
-    ResourceDownload::TexturePackDownloadDialog mdownload(this, m_model, m_instance);
-    if (mdownload.exec()) {
+    auto mdownload = new ResourceDownload::TexturePackDownloadDialog(this, m_model, m_instance);
+    mdownload->setAttribute(Qt::WA_DeleteOnClose);
+    connect(this, &QObject::destroyed, mdownload, &QDialog::close);
+    if (mdownload->exec()) {
         auto tasks = new ConcurrentTask("Download Texture Packs", APPLICATION->settings()->get("NumberOfConcurrentDownloads").toInt());
         connect(tasks, &Task::failed, [this, tasks](QString reason) {
             CustomMessageBox::selectable(this, tr("Error"), reason, QMessageBox::Critical)->show();
@@ -109,7 +111,7 @@ void TexturePackPage::downloadTexturePacks()
             tasks->deleteLater();
         });
 
-        for (auto& task : mdownload.getTasks()) {
+        for (auto& task : mdownload->getTasks()) {
             tasks->addTask(task);
         }
 
@@ -241,9 +243,11 @@ void TexturePackPage::changeTexturePackVersion()
     if (resource.metadata() == nullptr)
         return;
 
-    ResourceDownload::TexturePackDownloadDialog mdownload(this, m_model, m_instance);
-    mdownload.setResourceMetadata(resource.metadata());
-    if (mdownload.exec()) {
+    auto mdownload = new ResourceDownload::TexturePackDownloadDialog(this, m_model, m_instance);
+    mdownload->setAttribute(Qt::WA_DeleteOnClose);
+    connect(this, &QObject::destroyed, mdownload, &QDialog::close);
+    mdownload->setResourceMetadata(resource.metadata());
+    if (mdownload->exec()) {
         auto tasks = new ConcurrentTask("Download Texture Packs", APPLICATION->settings()->get("NumberOfConcurrentDownloads").toInt());
         connect(tasks, &Task::failed, [this, tasks](QString reason) {
             CustomMessageBox::selectable(this, tr("Error"), reason, QMessageBox::Critical)->show();
@@ -261,7 +265,7 @@ void TexturePackPage::changeTexturePackVersion()
             tasks->deleteLater();
         });
 
-        for (auto& task : mdownload.getTasks()) {
+        for (auto& task : mdownload->getTasks()) {
             tasks->addTask(task);
         }
 
