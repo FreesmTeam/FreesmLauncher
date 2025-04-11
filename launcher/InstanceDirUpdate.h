@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-only
 /*
  *  Prism Launcher - Minecraft Launcher
- *  Copyright (c) 2022 Jamie Mansfield <jmansfield@cadixdev.org>
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -35,29 +34,10 @@
 
 #pragma once
 
-#include <QDialog>
-#include <memory>
+#include "BaseInstance.h"
 
-#include <Application.h>
-#include "ui/pages/BasePage.h"
-#include "ui/widgets/CustomCommands.h"
+/// Update instanceRoot to make it sync with name/id; return newRoot if a directory rename happened
+QString askToUpdateInstanceDirName(InstancePtr instance, const QString& oldName, const QString& newName, QWidget* parent);
 
-class CustomCommandsPage : public QWidget, public BasePage {
-    Q_OBJECT
-
-   public:
-    explicit CustomCommandsPage(QWidget* parent = 0);
-    ~CustomCommandsPage();
-
-    QString displayName() const override { return tr("Custom Commands"); }
-    QIcon icon() const override { return APPLICATION->getThemedIcon("custom-commands"); }
-    QString id() const override { return "custom-commands"; }
-    QString helpPage() const override { return "Custom-commands"; }
-    bool apply() override;
-    void retranslate() override;
-
-   private:
-    void applySettings();
-    void loadSettings();
-    CustomCommands* commands;
-};
+/// Check if there are linked instances, and display a warning; return true if the operation should proceed
+bool checkLinkedInstances(const QString& id, QWidget* parent, const QString& verb);

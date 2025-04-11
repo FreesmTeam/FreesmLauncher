@@ -61,8 +61,6 @@
 #include "ui/pages/BasePageProvider.h"
 #include "ui/pages/global/APIPage.h"
 #include "ui/pages/global/AccountListPage.h"
-#include "ui/pages/global/CustomCommandsPage.h"
-#include "ui/pages/global/EnvironmentVariablesPage.h"
 #include "ui/pages/global/ExternalToolsPage.h"
 #include "ui/pages/global/JavaPage.h"
 #include "ui/pages/global/LanguagePage.h"
@@ -159,6 +157,7 @@
 
 #if defined Q_OS_WIN32
 #include <windows.h>
+#include <QStyleHints>
 #include "WindowsConsole.h"
 #endif
 
@@ -229,8 +228,8 @@ Application::Application(int& argc, char** argv) : QApplication(argc, argv)
     setApplicationName(BuildConfig.LAUNCHER_NAME);
     setApplicationDisplayName(QString("%1 %2").arg(BuildConfig.LAUNCHER_DISPLAYNAME, BuildConfig.printableVersionString()));
     setApplicationVersion(BuildConfig.printableVersionString() + "\n" + BuildConfig.GIT_COMMIT);
-    setDesktopFileName(BuildConfig.LAUNCHER_DESKTOPFILENAME);
-    startTime = QDateTime::currentDateTime();
+    setDesktopFileName(BuildConfig.LAUNCHER_APPID);
+    m_startTime = QDateTime::currentDateTime();
 
     // Don't quit on hiding the last window
     this->setQuitOnLastWindowClosed(false);
@@ -615,6 +614,7 @@ Application::Application(int& argc, char** argv) : QApplication(argc, argv)
         m_settings->registerSetting("IconsDir", "icons");
         m_settings->registerSetting("DownloadsDir", QStandardPaths::writableLocation(QStandardPaths::DownloadLocation));
         m_settings->registerSetting("DownloadsDirWatchRecursive", false);
+        m_settings->registerSetting("MoveModsFromDownloadsDir", false);
         m_settings->registerSetting("SkinsDir", "skins");
         m_settings->registerSetting("JavaDir", "java");
 
@@ -712,7 +712,9 @@ Application::Application(int& argc, char** argv) : QApplication(argc, argv)
 
         m_settings->registerSetting("ToolbarsLocked", false);
 
+        // Instance
         m_settings->registerSetting("InstSortMode", "Name");
+        m_settings->registerSetting("InstRenamingMode", "AskEverytime");
         m_settings->registerSetting("SelectedInstance", QString());
 
         // Window state and geometry
@@ -804,8 +806,6 @@ Application::Application(int& argc, char** argv) : QApplication(argc, argv)
             m_globalSettingsProvider->addPage<MinecraftPage>();
             m_globalSettingsProvider->addPage<JavaPage>();
             m_globalSettingsProvider->addPage<LanguagePage>();
-            m_globalSettingsProvider->addPage<CustomCommandsPage>();
-            m_globalSettingsProvider->addPage<EnvironmentVariablesPage>();
             m_globalSettingsProvider->addPage<ProxyPage>();
             m_globalSettingsProvider->addPage<ExternalToolsPage>();
             m_globalSettingsProvider->addPage<AccountListPage>();
@@ -849,7 +849,7 @@ Application::Application(int& argc, char** argv) : QApplication(argc, argv)
                                     ":/icons/multimc/128x128/instances/", ":/icons/multimc/scalable/instances/" };
         m_icons.reset(new IconList(instFolders, setting->get().toString()));
         connect(setting.get(), &Setting::SettingChanged,
-                [&](const Setting&, QVariant value) { m_icons->directoryChanged(value.toString()); });
+                [this](const Setting&, QVariant value) { m_icons->directoryChanged(value.toString()); });
         qDebug() << "<> Instance icons initialized.";
     }
 
@@ -1084,11 +1084,11 @@ Application::Application(int& argc, char** argv) : QApplication(argc, argv)
 
 bool Application::createSetupWizard()
 {
-    bool javaRequired = [&]() {
-        if (BuildConfig.JAVA_DOWNLOADER_ENABLED && m_settings->get("AutomaticJavaDownload").toBool()) {
+    bool javaRequired = [this]() {
+        if (BuildConfig.JAVA_DOWNLOADER_ENABLED && settings()->get("AutomaticJavaDownload").toBool()) {
             return false;
         }
-        bool ignoreJavaWizard = m_settings->get("IgnoreJavaWizard").toBool();
+        bool ignoreJavaWizard = settings()->get("IgnoreJavaWizard").toBool();
         if (ignoreJavaWizard) {
             return false;
         }
@@ -1102,8 +1102,8 @@ bool Application::createSetupWizard()
         QString actualPath = FS::ResolveExecutable(currentJavaPath);
         return actualPath.isNull();
     }();
-    bool askjava = BuildConfig.JAVA_DOWNLOADER_ENABLED && !javaRequired && !m_settings->get("AutomaticJavaDownload").toBool() &&
-                   !m_settings->get("AutomaticJavaSwitch").toBool() && !m_settings->get("UserAskedAboutAutomaticJavaDownload").toBool();
+    bool askjava = BuildConfig.JAVA_DOWNLOADER_ENABLED && !javaRequired && !settings()->get("AutomaticJavaDownload").toBool() &&
+                   !settings()->get("AutomaticJavaSwitch").toBool() && !settings()->get("UserAskedAboutAutomaticJavaDownload").toBool();
     bool languageRequired = settings()->get("Language").toString().isEmpty();
     bool pasteInterventionRequired = settings()->get("PastebinURL") != "";
     bool validWidgets = m_themeManager->isValidApplicationTheme(settings()->get("ApplicationTheme").toString());
@@ -1115,8 +1115,16 @@ bool Application::createSetupWizard()
         // set default theme after going into theme wizard
         if (!validIcons)
             settings()->set("IconTheme", QString("fluent_dark"));
-        if (!validWidgets)
-            settings()->set("ApplicationTheme", QString("freesm"));
+        if (!validWidgets) {
+#if defined(Q_OS_WIN32) && QT_VERSION >= QT_VERSION_CHECK(6, 5, 0)
+            const QString style =
+                QGuiApplication::styleHints()->colorScheme() == Qt::ColorScheme::Dark ? QStringLiteral("freesm") : QStringLiteral("freesm-light");
+#else
+            const QString style = QStringLiteral("freesm");
+#endif
+
+            settings()->set("ApplicationTheme", style);
+        }
 
         m_themeManager->applyCurrentlySelectedTheme(true);
 
@@ -1183,6 +1191,9 @@ bool Application::event(QEvent* event)
 #endif
 
     if (event->type() == QEvent::FileOpen) {
+        if (!m_mainWindow) {
+            showMainWindow(false);
+        }
         auto ev = static_cast<QFileOpenEvent*>(event);
         m_mainWindow->processURLs({ ev->url() });
     }
@@ -1315,6 +1326,9 @@ void Application::messageReceived(const QByteArray& message)
         if (url.isEmpty()) {
             qWarning() << "Received" << command << "message without a zip path/URL.";
             return;
+        }
+        if (!m_mainWindow) {
+            showMainWindow(false);
         }
         m_mainWindow->processURLs({ normalizeImportUrl(url) });
     } else if (command == "launch") {

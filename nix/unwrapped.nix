@@ -19,10 +19,12 @@
   extra-cmake-modules,
 
   msaClientID ? null,
-  gamemodeSupport ? stdenv.hostPlatform.isLinux,
+  gamemodeSupport ? stdenv.isLinux,
+  version,
+  libnbtplusplus,
 }:
 assert lib.assertMsg (
-  gamemodeSupport -> stdenv.hostPlatform.isLinux
+  gamemodeSupport -> stdenv.isLinux
 ) "gamemodeSupport is only available on Linux.";
 
 stdenv.mkDerivation {

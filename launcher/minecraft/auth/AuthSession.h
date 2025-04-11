@@ -1,9 +1,7 @@
 #pragma once
 
-#include <QMultiMap>
 #include <QString>
 #include <memory>
-#include "QObjectPtr.h"
 
 class QNetworkAccessManager;
 

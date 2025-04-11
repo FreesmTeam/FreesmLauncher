@@ -1,6 +1,10 @@
 <!DOCTYPE RCC>
 <RCC version="1.0">
     <qresource prefix="/">
+<<<<<<<< HEAD:program_info/freesmlauncher.qrc
         <file>org.freesmTeam.freesmlauncher.svg</file>
+========
+        <file>@Launcher_AppID@.svg</file>
+>>>>>>>> prism/develop:program_info/prismlauncher.qrc.in
     </qresource>
 </RCC>
