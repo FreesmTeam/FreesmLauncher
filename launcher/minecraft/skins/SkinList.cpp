@@ -20,6 +20,7 @@
 
 #include <QFileInfo>
 #include <QMimeData>
+#include <QPixmap>
 
 #include "FileSystem.h"
 #include "Json.h"
