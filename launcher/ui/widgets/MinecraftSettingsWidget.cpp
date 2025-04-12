@@ -78,6 +78,7 @@ MinecraftSettingsWidget::MinecraftSettingsWidget(MinecraftInstancePtr instance, 
         m_ui->perfomanceGroupBox->setCheckable(true);
         m_ui->gameTimeGroupBox->setCheckable(true);
         m_ui->legacySettingsGroupBox->setCheckable(true);
+        m_ui->elybyGroupBox->setCheckable(true);
 
         m_quickPlaySingleplayer = m_instance->traits().contains("feature:is_quick_play_singleplayer");
         if (m_quickPlaySingleplayer) {
@@ -202,6 +203,10 @@ void MinecraftSettingsWidget::loadSettings()
     m_ui->enableMangoHud->setChecked(settings->get("EnableMangoHud").toBool());
     m_ui->useDiscreteGpuCheck->setChecked(settings->get("UseDiscreteGpu").toBool());
     m_ui->useZink->setChecked(settings->get("UseZink").toBool());
+
+    // Elyby
+    m_ui->elySkinSystemComboBox->setCurrentIndex(settings->get("UseElySkins").toInt());
+    m_ui->useInjectorCheckBox->setChecked(settings->get("UseElyAuthlibInjector").toBool());
 
     m_ui->serverJoinGroupBox->setChecked(settings->get("JoinServerOnLaunch").toBool());
 
@@ -352,6 +357,16 @@ void MinecraftSettingsWidget::saveSettings()
             settings->reset("EnableMangoHud");
             settings->reset("UseDiscreteGpu");
             settings->reset("UseZink");
+        }
+        // Elyby
+        bool elyby = m_instance == nullptr || m_ui->elybyGroupBox->isChecked();
+
+        if (elyby) {
+            settings->set("UseElySkins", m_ui->elySkinSystemComboBox->currentIndex());
+            settings->set("UseElyAuthlibInjector", m_ui->useInjectorCheckBox->isChecked());
+        } else {
+            settings->reset("UseElySkins");
+            settings->reset("UseElyAuthlibInjector");
         }
 
         // Game time

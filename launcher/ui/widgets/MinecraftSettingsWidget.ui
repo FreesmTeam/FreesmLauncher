@@ -52,7 +52,7 @@
           </sizepolicy>
          </property>
          <property name="horizontalScrollBarPolicy">
-          <enum>Qt::ScrollBarAlwaysOff</enum>
+          <enum>Qt::ScrollBarPolicy::ScrollBarAlwaysOff</enum>
          </property>
          <property name="widgetResizable">
           <bool>true</bool>
@@ -61,9 +61,9 @@
           <property name="geometry">
            <rect>
             <x>0</x>
-            <y>-253</y>
-            <width>610</width>
-            <height>550</height>
+            <y>0</y>
+            <width>568</width>
+            <height>593</height>
            </rect>
           </property>
           <layout class="QVBoxLayout" name="verticalLayout_5">
@@ -264,13 +264,13 @@
             </widget>
            </item>
            <item>
-            <widget class="QGroupBox"     name="ElybyGroupBox">
+            <widget class="QGroupBox" name="elybyGroupBox">
              <property name="title">
               <string>Ely.by</string>
              </property>
-             <layout class="QVBoxLayout"     name="verticalLayout_7">
+             <layout class="QVBoxLayout" name="verticalLayout_7">
               <item>
-               <layout class="QHBoxLayout"     name="horizontalLayout">
+               <layout class="QHBoxLayout" name="horizontalLayout">
                 <item>
                  <widget class="QLabel" name="label">
                   <property name="text">
@@ -279,9 +279,9 @@
                  </widget>
                 </item>
                 <item>
-                 <widget class="QComboBox"     name="elySkinSystemComboBox">
+                 <widget class="QComboBox" name="elySkinSystemComboBox">
                   <property name="sizePolicy">
-                   <sizepolicy hsizetype="Preferred"     vsizetype="Fixed">
+                   <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
                     <horstretch>0</horstretch>
                     <verstretch>0</verstretch>
                    </sizepolicy>
@@ -326,7 +326,7 @@
            <item>
             <spacer name="verticalSpacer_2">
              <property name="orientation">
-              <enum>Qt::Vertical</enum>
+              <enum>Qt::Orientation::Vertical</enum>
              </property>
              <property name="sizeHint" stdset="0">
               <size>
@@ -357,8 +357,8 @@
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>624</width>
-            <height>297</height>
+            <width>568</width>
+            <height>580</height>
            </rect>
           </property>
          </widget>
@@ -374,7 +374,7 @@
        <item>
         <widget class="QScrollArea" name="scrollArea_2">
          <property name="horizontalScrollBarPolicy">
-          <enum>Qt::ScrollBarAlwaysOff</enum>
+          <enum>Qt::ScrollBarPolicy::ScrollBarAlwaysOff</enum>
          </property>
          <property name="widgetResizable">
           <bool>true</bool>
@@ -383,9 +383,9 @@
           <property name="geometry">
            <rect>
             <x>0</x>
-            <y>-101</y>
-            <width>610</width>
-            <height>398</height>
+            <y>0</y>
+            <width>568</width>
+            <height>580</height>
            </rect>
           </property>
           <layout class="QVBoxLayout" name="verticalLayout_7">
@@ -541,7 +541,7 @@
            <item>
             <spacer name="verticalSpacer">
              <property name="orientation">
-              <enum>Qt::Vertical</enum>
+              <enum>Qt::Orientation::Vertical</enum>
              </property>
              <property name="sizeHint" stdset="0">
               <size>
@@ -572,8 +572,8 @@
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>624</width>
-            <height>297</height>
+            <width>568</width>
+            <height>580</height>
            </rect>
           </property>
           <layout class="QVBoxLayout" name="verticalLayout_14">
@@ -608,41 +608,6 @@
                  <widget class="QComboBox" name="instanceAccountSelector"/>
                 </item>
                </layout>
-              </item>
-             </layout>
-            </widget>
-           </item>
-           <item>
-            <widget class="QGroupBox" name="elySettingsGroupBox">
-             <property name="title">
-              <string>Override Ely.by settings</string>
-             </property>
-             <property name="checkable">
-              <bool>true</bool>
-             </property>
-             <property name="checked">
-              <bool>false</bool>
-             </property>
-             <layout class="QVBoxLayout" name="verticalLayout_7">
-              <item>
-               <widget class="QCheckBox" name="useElyCheckBox">
-                <property name="sizePolicy">
-                 <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-                  <horstretch>0</horstretch>
-                  <verstretch>0</verstretch>
-                 </sizepolicy>
-                </property>
-                <property name="text">
-                 <string>Use Ely.by skin system</string>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="QCheckBox" name="useInjectorCheckBox">
-                <property name="text">
-                 <string>Use Authlib Injector</string>
-                </property>
-               </widget>
               </item>
              </layout>
             </widget>
@@ -685,7 +650,7 @@
            <item>
             <spacer name="verticalSpacer_3">
              <property name="orientation">
-              <enum>Qt::Vertical</enum>
+              <enum>Qt::Orientation::Vertical</enum>
              </property>
              <property name="sizeHint" stdset="0">
               <size>
