@@ -361,11 +361,13 @@ jobs:
 
           if [ -n '${{ secrets.APPLE_CODESIGN_ID }}' ]; then
             APPLE_CODESIGN_ID='${{ secrets.APPLE_CODESIGN_ID }}'
+            ENTITLEMENTS_FILE='../program_info/App.entitlements'
           else
             APPLE_CODESIGN_ID='-'
+            ENTITLEMENTS_FILE='../program_info/AdhocSignedApp.entitlements'
           fi
 
-          sudo codesign --sign "$APPLE_CODESIGN_ID" --deep --force --entitlements "../program_info/App.entitlements" --options runtime "FreesmLauncher.app/Contents/MacOS/freesmlauncher"
+          sudo codesign --sign "$APPLE_CODESIGN_ID" --deep --force --entitlements "$ENTITLEMENTS_FILE" --options runtime "FreesmLauncher.app/Contents/MacOS/freesmlauncher"
           mv "FreesmLauncher.app" "Freesm Launcher.app"
 
       - name: Notarize (macOS)
