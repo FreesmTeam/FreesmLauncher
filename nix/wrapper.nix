@@ -28,9 +28,8 @@
   udev,
   vulkan-loader,
   xrandr,
-
-  additionalLibs ? [ ],
-  additionalPrograms ? [ ],
+  additionalLibs ? [],
+  additionalPrograms ? [],
   controllerSupport ? stdenv.hostPlatform.isLinux,
   gamemodeSupport ? stdenv.hostPlatform.isLinux,
   jdks ? [
@@ -44,41 +43,37 @@
 assert lib.assertMsg (
   controllerSupport -> stdenv.hostPlatform.isLinux
 ) "controllerSupport only has an effect on Linux.";
-
 assert lib.assertMsg (
   textToSpeechSupport -> stdenv.hostPlatform.isLinux
-) "textToSpeechSupport only has an effect on Linux.";
-
-let
-  freesmlauncher' = freesmlauncher-unwrapped.override { inherit msaClientID gamemodeSupport; };
+) "textToSpeechSupport only has an effect on Linux."; let
+  freesmlauncher' = freesmlauncher-unwrapped.override {inherit msaClientID gamemodeSupport;};
 in
+  symlinkJoin {
+    name = "freesmlauncher-${freesmlauncher'.version}";
 
-symlinkJoin {
-  name = "freesmlauncher-${freesmlauncher'.version}";
+    paths = [
+      freesmlauncher'
+    ];
 
-  paths = [
-    freesmlauncher'
-  ];
+    nativeBuildInputs = [
+      kdePackages.wrapQtAppsHook
+    ];
 
-  nativeBuildInputs = [
-    kdePackages.wrapQtAppsHook
-  ];
+    buildInputs =
+      [
+        kdePackages.qtbase
+        kdePackages.qtsvg
+      ]
+      ++ lib.optional (
+        lib.versionAtLeast kdePackages.qtbase.version "6" && stdenv.hostPlatform.isLinux
+      )
+      kdePackages.qtwayland;
 
-  buildInputs =
-    [
-      kdePackages.qtbase
-      kdePackages.qtsvg
-    ]
-    ++ lib.optional (
-      lib.versionAtLeast kdePackages.qtbase.version "6" && stdenv.hostPlatform.isLinux
-    ) kdePackages.qtwayland;
+    postBuild = ''
+      wrapQtAppsHook
+    '';
 
-  postBuild = ''
-    wrapQtAppsHook
-  '';
-
-  qtWrapperArgs =
-    let
+    qtWrapperArgs = let
       runtimeLibs =
         [
           stdenv.cc.cc.lib
@@ -109,31 +104,33 @@ symlinkJoin {
         ++ lib.optional controllerSupport libusb1
         ++ additionalLibs;
 
-      runtimePrograms = [
-        mesa-demos
-        pciutils # need lspci
-        xrandr # needed for LWJGL [2.9.2, 3)
-      ] ++ additionalPrograms;
-
+      runtimePrograms =
+        [
+          mesa-demos
+          pciutils # need lspci
+          xrandr # needed for LWJGL [2.9.2, 3)
+        ]
+        ++ additionalPrograms;
     in
-    [
-      "--prefix PRISMLAUNCHER_JAVA_PATHS : ${lib.makeSearchPath "bin/java" jdks}"
-    ]
-    ++ lib.optionals stdenv.hostPlatform.isLinux [
-      "--set LD_LIBRARY_PATH ${addDriverRunpath.driverLink}/lib:${lib.makeLibraryPath runtimeLibs}"
-      "--prefix PATH : ${lib.makeBinPath runtimePrograms}"
-    ];
+      [
+        "--prefix PRISMLAUNCHER_JAVA_PATHS : ${lib.makeSearchPath "bin/java" jdks}"
+      ]
+      ++ lib.optionals stdenv.hostPlatform.isLinux [
+        "--set LD_LIBRARY_PATH ${addDriverRunpath.driverLink}/lib:${lib.makeLibraryPath runtimeLibs}"
+        "--prefix PATH : ${lib.makeBinPath runtimePrograms}"
+      ];
 
-  meta = {
-    inherit (freesmlauncher'.meta)
-      description
-      longDescription
-      homepage
-      changelog
-      license
-      maintainers
-      mainProgram
-      platforms
-      ;
-  };
-}
+    meta = {
+      inherit
+        (freesmlauncher'.meta)
+        description
+        longDescription
+        homepage
+        changelog
+        license
+        maintainers
+        mainProgram
+        platforms
+        ;
+    };
+  }
