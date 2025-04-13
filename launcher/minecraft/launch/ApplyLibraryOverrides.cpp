@@ -57,8 +57,8 @@ void ApplyLibraryOverrides::onLibraryOverrideDownloadFinished()
             continue;
         }
 
-        auto versionRef = artifactRef.toObject()[library->version()];
-        if (!versionRef.isObject()) {
+        auto version = artifactRef.toObject().value(library->version());
+        if (!version.isObject()) {
             continue;
         }
 
@@ -67,7 +67,7 @@ void ApplyLibraryOverrides::onLibraryOverrideDownloadFinished()
             continue;
         }
 
-        auto override = versionRef.toObject();
+        auto override = version.toObject();
         auto newDownloadInfo = std::make_shared<MojangDownloadInfo>();
         newDownloadInfo->url = override["url"].toString();
         newDownloadInfo->sha1 = override["sha1"].toString();
