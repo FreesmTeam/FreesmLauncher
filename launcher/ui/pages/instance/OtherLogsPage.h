@@ -72,6 +72,10 @@ class OtherLogsPage : public QWidget, public BasePage {
     void on_btnCopy_clicked();
     void on_btnDelete_clicked();
     void on_btnClean_clicked();
+    void on_btnBottom_clicked();
+
+    void on_wrapCheckbox_clicked(bool checked);
+    void on_colorCheckbox_clicked(bool checked);
 
     void on_findButton_clicked();
     void findActivated();

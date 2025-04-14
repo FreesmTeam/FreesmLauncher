@@ -203,6 +203,8 @@ void OtherLogsPage::on_btnReload_clicked()
         // Try to determine a level for each line
         if (content.back() == '\n')
             content = content.removeLast();
+        ui->text->clear();
+        m_model->clear();
         for (auto& line : content.split('\n')) {
             MessageLevel::Enum level = MessageLevel::Unknown;
 
@@ -230,6 +232,11 @@ void OtherLogsPage::on_btnPaste_clicked()
 void OtherLogsPage::on_btnCopy_clicked()
 {
     GuiUtil::setClipboardText(ui->text->toPlainText());
+}
+
+void OtherLogsPage::on_btnBottom_clicked()
+{
+    ui->text->scrollToBottom();
 }
 
 void OtherLogsPage::on_btnDelete_clicked()
@@ -306,6 +313,24 @@ void OtherLogsPage::on_btnClean_clicked()
         messageBoxFailure->setTextInteractionFlags(Qt::TextBrowserInteraction);
         messageBoxFailure->exec();
     }
+}
+
+void OtherLogsPage::on_wrapCheckbox_clicked(bool checked)
+{
+    ui->text->setWordWrap(checked);
+    if (!m_model)
+        return;
+    m_model->setLineWrap(checked);
+    ui->text->scrollToBottom();
+}
+
+void OtherLogsPage::on_colorCheckbox_clicked(bool checked)
+{
+    ui->text->setColorLines(checked);
+    if (!m_model)
+        return;
+    m_model->setColorLines(checked);
+    ui->text->scrollToBottom();
 }
 
 void OtherLogsPage::setControlsEnabled(const bool enabled)
