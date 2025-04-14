@@ -44,15 +44,24 @@
         </widget>
        </item>
        <item row="1" column="0" colspan="4">
-        <widget class="QPlainTextEdit" name="text">
+        <widget class="LogView" name="text">
          <property name="enabled">
+          <bool>false</bool>
+         </property>
+         <property name="undoRedoEnabled">
           <bool>false</bool>
          </property>
          <property name="readOnly">
           <bool>true</bool>
          </property>
+         <property name="plainText">
+          <string notr="true"/>
+         </property>
          <property name="textInteractionFlags">
           <set>Qt::LinksAccessibleByKeyboard|Qt::LinksAccessibleByMouse|Qt::TextBrowserInteraction|Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse</set>
+         </property>
+         <property name="centerOnScroll">
+          <bool>false</bool>
          </property>
         </widget>
        </item>
@@ -130,6 +139,13 @@
    </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>LogView</class>
+   <extends>QPlainTextEdit</extends>
+   <header>ui/widgets/LogView.h</header>
+  </customwidget>
+ </customwidgets>
  <tabstops>
   <tabstop>tabWidget</tabstop>
   <tabstop>selectLogBox</tabstop>

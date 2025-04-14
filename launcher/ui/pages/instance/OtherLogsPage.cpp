@@ -46,11 +46,37 @@
 #include <QShortcut>
 #include "RecursiveFileSystemWatcher.h"
 
-OtherLogsPage::OtherLogsPage(QString path, IPathMatcher::Ptr fileFilter, QWidget* parent)
-    : QWidget(parent), ui(new Ui::OtherLogsPage), m_path(path), m_fileFilter(fileFilter), m_watcher(new RecursiveFileSystemWatcher(this))
+OtherLogsPage::OtherLogsPage(InstancePtr instance, IPathMatcher::Ptr fileFilter, QWidget* parent)
+    : QWidget(parent)
+    , ui(new Ui::OtherLogsPage)
+    , m_instance(instance)
+    , m_path(instance->getLogFileRoot())
+    , m_fileFilter(fileFilter)
+    , m_watcher(new RecursiveFileSystemWatcher(this))
+    , m_model(new LogModel())
 {
     ui->setupUi(this);
     ui->tabWidget->tabBar()->hide();
+
+    m_proxy = new LogFormatProxyModel(this);
+
+    // set up fonts in the log proxy
+    {
+        QString fontFamily = APPLICATION->settings()->get("ConsoleFont").toString();
+        bool conversionOk = false;
+        int fontSize = APPLICATION->settings()->get("ConsoleFontSize").toInt(&conversionOk);
+        if (!conversionOk) {
+            fontSize = 11;
+        }
+        m_proxy->setFont(QFont(fontFamily, fontSize));
+    }
+
+    ui->text->setModel(m_proxy);
+
+    m_model->setMaxLines(m_instance->getConsoleMaxLines());
+    m_model->setStopOnOverflow(m_instance->shouldStopOnConsoleOverflow());
+    m_model->setOverflowMessage(tr("Cannot display this log since the log length surpassed %1 lines.").arg(m_model->getMaxLines()));
+    m_proxy->setSourceModel(m_model.get());
 
     m_watcher->setMatcher(fileFilter);
     m_watcher->setRootDir(QDir::current().absoluteFilePath(m_path));
@@ -139,14 +165,8 @@ void OtherLogsPage::on_btnReload_clicked()
         QMessageBox::critical(this, tr("Error"), tr("Unable to open %1 for reading: %2").arg(m_currentFile, file.errorString()));
     } else {
         auto setPlainText = [this](const QString& text) {
-            QString fontFamily = APPLICATION->settings()->get("ConsoleFont").toString();
-            bool conversionOk = false;
-            int fontSize = APPLICATION->settings()->get("ConsoleFontSize").toInt(&conversionOk);
-            if (!conversionOk) {
-                fontSize = 11;
-            }
             QTextDocument* doc = ui->text->document();
-            doc->setDefaultFont(QFont(fontFamily, fontSize));
+            doc->setDefaultFont(m_proxy->getFont());
             ui->text->setPlainText(text);
         };
         auto showTooBig = [setPlainText, &file]() {
@@ -173,7 +193,32 @@ void OtherLogsPage::on_btnReload_clicked()
             showTooBig();
             return;
         }
-        setPlainText(content);
+
+        // If the file is not too big for display, but too slow for syntax highlighting, just show content as plain text
+        if (content.size() >= 10000000ll || content.isEmpty()) {
+            setPlainText(content);
+            return;
+        }
+
+        // Try to determine a level for each line
+        if (content.back() == '\n')
+            content = content.removeLast();
+        for (auto& line : content.split('\n')) {
+            MessageLevel::Enum level = MessageLevel::Unknown;
+
+            // if the launcher part set a log level, use it
+            auto innerLevel = MessageLevel::fromLine(line);
+            if (innerLevel != MessageLevel::Unknown) {
+                level = innerLevel;
+            }
+
+            // If the level is still undetermined, guess level
+            if (level == MessageLevel::StdErr || level == MessageLevel::StdOut || level == MessageLevel::Unknown) {
+                level = m_instance->guessLevel(line, level);
+            }
+
+            m_model->append(level, line);
+        }
     }
 }
 
@@ -273,27 +318,21 @@ void OtherLogsPage::setControlsEnabled(const bool enabled)
     ui->btnClean->setEnabled(enabled);
 }
 
-// FIXME: HACK, use LogView instead?
-static void findNext(QPlainTextEdit* _this, const QString& what, bool reverse)
-{
-    _this->find(what, reverse ? QTextDocument::FindFlag::FindBackward : QTextDocument::FindFlag(0));
-}
-
 void OtherLogsPage::on_findButton_clicked()
 {
     auto modifiers = QApplication::keyboardModifiers();
     bool reverse = modifiers & Qt::ShiftModifier;
-    findNext(ui->text, ui->searchBar->text(), reverse);
+    ui->text->findNext(ui->searchBar->text(), reverse);
 }
 
 void OtherLogsPage::findNextActivated()
 {
-    findNext(ui->text, ui->searchBar->text(), false);
+    ui->text->findNext(ui->searchBar->text(), false);
 }
 
 void OtherLogsPage::findPreviousActivated()
 {
-    findNext(ui->text, ui->searchBar->text(), true);
+    ui->text->findNext(ui->searchBar->text(), true);
 }
 
 void OtherLogsPage::findActivated()
