@@ -202,7 +202,7 @@ void OtherLogsPage::on_btnReload_clicked()
 
         // Try to determine a level for each line
         if (content.back() == '\n')
-            content = content.removeLast();
+            content = content.remove(content.size() - 1, 1);
         ui->text->clear();
         m_model->clear();
         for (auto& line : content.split('\n')) {
