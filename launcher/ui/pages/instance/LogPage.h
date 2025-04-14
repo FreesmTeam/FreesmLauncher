@@ -82,6 +82,7 @@ class LogPage : public QWidget, public BasePage {
 
     void on_trackLogCheckbox_clicked(bool checked);
     void on_wrapCheckbox_clicked(bool checked);
+    void on_colorCheckbox_clicked(bool checked);
 
     void on_findButton_clicked();
     void findActivated();

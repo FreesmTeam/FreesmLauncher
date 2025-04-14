@@ -180,6 +180,13 @@ void LogPage::modelStateToUI()
         ui->text->setWordWrap(false);
         ui->wrapCheckbox->setCheckState(Qt::Unchecked);
     }
+    if (m_model->colorLines()) {
+        ui->text->setColorLines(true);
+        ui->colorCheckbox->setCheckState(Qt::Checked);
+    } else {
+        ui->text->setColorLines(false);
+        ui->colorCheckbox->setCheckState(Qt::Unchecked);
+    }
     if (m_model->suspended()) {
         ui->trackLogCheckbox->setCheckState(Qt::Unchecked);
     } else {
@@ -193,6 +200,7 @@ void LogPage::UIToModelState()
         return;
     }
     m_model->setLineWrap(ui->wrapCheckbox->checkState() == Qt::Checked);
+    m_model->setColorLines(ui->colorCheckbox->checkState() == Qt::Checked);
     m_model->suspend(ui->trackLogCheckbox->checkState() != Qt::Checked);
 }
 
@@ -280,6 +288,14 @@ void LogPage::on_wrapCheckbox_clicked(bool checked)
     if (!m_model)
         return;
     m_model->setLineWrap(checked);
+}
+
+void LogPage::on_colorCheckbox_clicked(bool checked)
+{
+    ui->text->setColorLines(checked);
+    if (!m_model)
+        return;
+    m_model->setColorLines(checked);
 }
 
 void LogPage::on_findButton_clicked()

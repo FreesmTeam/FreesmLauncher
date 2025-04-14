@@ -27,6 +27,8 @@ class LogModel : public QAbstractListModel {
 
     void setLineWrap(bool state);
     bool wrapLines() const;
+    void setColorLines(bool state);
+    bool colorLines() const;
 
     enum Roles { LevelRole = Qt::UserRole };
 
@@ -47,6 +49,7 @@ class LogModel : public QAbstractListModel {
     QString m_overflowMessage = "OVERFLOW";
     bool m_suspended = false;
     bool m_lineWrap = true;
+    bool m_colorLines = true;
 
    private:
     Q_DISABLE_COPY(LogModel)
