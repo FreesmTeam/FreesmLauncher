@@ -3,6 +3,9 @@
 
   <div>
     <img align="center" alt="DRM Free" src="https://img.shields.io/badge/drm-free-brightgreen?style=for-the-badge">
+    <br />
+    <br />
+    <img alt="built with garnix" src="https://img.shields.io/endpoint.svg?url=https%3A%2F%2Fgarnix.io%2Fapi%2Fbadges%2FFreesmTeam%2FFreesmLauncher"></a>
   </div>
 
   <br />
