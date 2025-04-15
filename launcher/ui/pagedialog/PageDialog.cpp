@@ -56,13 +56,26 @@ PageDialog::PageDialog(BasePageProvider* pageProvider, QString defaultId, QWidge
     restoreGeometry(QByteArray::fromBase64(APPLICATION->settings()->get("PagedGeometry").toByteArray()));
 }
 
-void PageDialog::closeEvent([[maybe_unused]] QCloseEvent* event)
+void PageDialog::accept()
+{
+    if (handleClose())
+        QDialog::accept();
+}
+
+void PageDialog::closeEvent(QCloseEvent* event)
+{
+    if (handleClose())
+        QDialog::closeEvent(event);
+}
+
+bool PageDialog::handleClose() const
 {
     qDebug() << "Paged dialog close requested";
-    if (m_container->prepareToClose()) {
-        qDebug() << "Paged dialog close approved";
-        APPLICATION->settings()->set("PagedGeometry", saveGeometry().toBase64());
-        qDebug() << "Paged dialog geometry saved";
-        QDialog::closeEvent(event);
-    }
+    if (!m_container->prepareToClose())
+        return false;
+
+    qDebug() << "Paged dialog close approved";
+    APPLICATION->settings()->set("PagedGeometry", saveGeometry().toBase64());
+    qDebug() << "Paged dialog geometry saved";
+    return true;
 }
