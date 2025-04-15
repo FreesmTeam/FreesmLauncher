@@ -107,13 +107,6 @@
              <widget class="QLineEdit" name="mceditPathEdit"/>
             </item>
             <item>
-             <widget class="QPushButton" name="mceditCheckBtn">
-              <property name="text">
-               <string>Check</string>
-              </property>
-             </widget>
-            </item>
-            <item>
              <widget class="QPushButton" name="mceditPathBtn">
               <property name="text">
                <string>Browse</string>
@@ -121,6 +114,19 @@
              </widget>
             </item>
            </layout>
+          </item>
+          <item>
+           <widget class="QPushButton" name="mceditCheckBtn">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="text">
+             <string>Check</string>
+            </property>
+           </widget>
           </item>
           <item>
            <widget class="QLabel" name="mceditLink">
@@ -180,13 +186,6 @@
              <widget class="QLineEdit" name="jprofilerPathEdit"/>
             </item>
             <item>
-             <widget class="QPushButton" name="jprofilerCheckBtn">
-              <property name="text">
-               <string>Check</string>
-              </property>
-             </widget>
-            </item>
-            <item>
              <widget class="QPushButton" name="jprofilerPathBtn">
               <property name="text">
                <string>Browse</string>
@@ -194,6 +193,19 @@
              </widget>
             </item>
            </layout>
+          </item>
+          <item>
+           <widget class="QPushButton" name="jprofilerCheckBtn">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="text">
+             <string>Check</string>
+            </property>
+           </widget>
           </item>
           <item>
            <widget class="QLabel" name="jprofilerLink">
@@ -234,13 +246,6 @@
              <widget class="QLineEdit" name="jvisualvmPathEdit"/>
             </item>
             <item>
-             <widget class="QPushButton" name="jvisualvmCheckBtn">
-              <property name="text">
-               <string>Check</string>
-              </property>
-             </widget>
-            </item>
-            <item>
              <widget class="QPushButton" name="jvisualvmPathBtn">
               <property name="text">
                <string>Browse</string>
@@ -248,6 +253,19 @@
              </widget>
             </item>
            </layout>
+          </item>
+          <item>
+           <widget class="QPushButton" name="jvisualvmCheckBtn">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="text">
+             <string>Check</string>
+            </property>
+           </widget>
           </item>
           <item>
            <widget class="QLabel" name="jvisualvmLink">
