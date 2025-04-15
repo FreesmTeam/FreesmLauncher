@@ -41,7 +41,7 @@
       <property name="geometry">
        <rect>
         <x>0</x>
-        <y>-356</y>
+        <y>-300</y>
         <width>742</width>
         <height>1148</height>
        </rect>
@@ -208,6 +208,12 @@
               <property name="orientation">
                <enum>Qt::Horizontal</enum>
               </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>0</width>
+                <height>0</height>
+               </size>
+              </property>
              </spacer>
             </item>
            </layout>
@@ -241,7 +247,7 @@
           <item row="3" column="0">
            <widget class="QLabel" name="labelJavaDir">
             <property name="text">
-             <string>&amp;Java</string>
+             <string>&amp;Java:</string>
             </property>
             <property name="buddy">
              <cstring>javaDirTextBox</cstring>
@@ -258,7 +264,7 @@
           <item row="4" column="0">
            <widget class="QLabel" name="labelSkinsDir">
             <property name="text">
-             <string>&amp;Skins</string>
+             <string>&amp;Skins:</string>
             </property>
             <property name="buddy">
              <cstring>skinsDirTextBox</cstring>
@@ -268,7 +274,7 @@
           <item row="1" column="0">
            <widget class="QLabel" name="labelModsDir">
             <property name="text">
-             <string>&amp;Mods</string>
+             <string>&amp;Mods:</string>
             </property>
             <property name="buddy">
              <cstring>modsDirTextBox</cstring>
@@ -285,7 +291,7 @@
           <item row="5" column="0">
            <widget class="QLabel" name="labelDownloadsDir">
             <property name="text">
-             <string>&amp;Downloads</string>
+             <string>&amp;Downloads:</string>
             </property>
             <property name="buddy">
              <cstring>downloadsDirTextBox</cstring>
@@ -301,7 +307,7 @@
           <item row="0" column="0">
            <widget class="QLabel" name="labelInstDir">
             <property name="text">
-             <string>I&amp;nstances</string>
+             <string>I&amp;nstances:</string>
             </property>
             <property name="buddy">
              <cstring>instDirTextBox</cstring>
@@ -341,7 +347,7 @@
           <item row="2" column="0">
            <widget class="QLabel" name="labelIconsDir">
             <property name="text">
-             <string>&amp;Icons</string>
+             <string>&amp;Icons:</string>
             </property>
             <property name="buddy">
              <cstring>iconsDirTextBox</cstring>
@@ -438,7 +444,7 @@
              </sizepolicy>
             </property>
             <property name="text">
-             <string>Log History &amp;Limit</string>
+             <string>Log History &amp;Limit:</string>
             </property>
             <property name="buddy">
              <cstring>lineLimitSpinBox</cstring>
@@ -546,14 +552,14 @@
           <item row="2" column="0">
            <widget class="QLabel" name="numberOfManualRetriesLabel">
             <property name="text">
-             <string>Retry Limit</string>
+             <string>Retry Limit:</string>
             </property>
            </widget>
           </item>
           <item row="1" column="0">
            <widget class="QLabel" name="numberOfConcurrentDownloadsLabel">
             <property name="text">
-             <string>Concurrent Download Limit</string>
+             <string>Concurrent Download Limit:</string>
             </property>
            </widget>
           </item>
@@ -563,7 +569,7 @@
              <string>Seconds to wait until the requests are terminated</string>
             </property>
             <property name="text">
-             <string>HTTP Timeout</string>
+             <string>HTTP Timeout:</string>
             </property>
            </widget>
           </item>
@@ -589,7 +595,7 @@
           <item row="0" column="0">
            <widget class="QLabel" name="numberOfConcurrentTasksLabel">
             <property name="text">
-             <string>Concurrent Task Limit</string>
+             <string>Concurrent Task Limit:</string>
             </property>
            </widget>
           </item>
@@ -597,6 +603,12 @@
            <spacer name="horizontalSpacer_2">
             <property name="orientation">
              <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>0</width>
+              <height>0</height>
+             </size>
             </property>
            </spacer>
           </item>

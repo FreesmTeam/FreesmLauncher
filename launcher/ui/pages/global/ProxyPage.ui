@@ -157,7 +157,7 @@
       <item row="0" column="0">
        <widget class="QLabel" name="proxyUsernameLabel">
         <property name="text">
-         <string>&amp;Username</string>
+         <string>&amp;Username:</string>
         </property>
         <property name="buddy">
          <cstring>proxyUserEdit</cstring>
@@ -170,7 +170,7 @@
       <item row="1" column="0">
        <widget class="QLabel" name="proxyPasswordLabel">
         <property name="text">
-         <string>&amp;Password</string>
+         <string>&amp;Password:</string>
         </property>
         <property name="buddy">
          <cstring>proxyPassEdit</cstring>

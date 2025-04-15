@@ -176,7 +176,7 @@
               <item row="2" column="0">
                <widget class="QLabel" name="labelWindowWidth">
                 <property name="text">
-                 <string>&amp;Window Size</string>
+                 <string>&amp;Window Size:</string>
                 </property>
                 <property name="buddy">
                  <cstring>windowWidthSpinBox</cstring>
@@ -313,7 +313,7 @@
               <item>
                <widget class="QLabel" name="instanceAccountNameLabel">
                 <property name="text">
-                 <string>Account</string>
+                 <string>Account:</string>
                 </property>
                </widget>
               </item>
@@ -368,14 +368,14 @@
               <item row="1" column="0">
                <widget class="QRadioButton" name="worldJoinButton">
                 <property name="text">
-                 <string>Singleplayer world</string>
+                 <string>Singleplayer world:</string>
                 </property>
                </widget>
               </item>
               <item row="0" column="0">
                <widget class="QRadioButton" name="serverJoinAddressButton">
                 <property name="text">
-                 <string>Server address</string>
+                 <string>Server address:</string>
                 </property>
                </widget>
               </item>
@@ -508,7 +508,7 @@
               <item row="2" column="0">
                <widget class="QLabel" name="labelGLFWPath">
                 <property name="text">
-                 <string>&amp;GLFW library path</string>
+                 <string>&amp;GLFW library path:</string>
                 </property>
                 <property name="buddy">
                  <cstring>lineEditGLFWPath</cstring>
@@ -534,7 +534,7 @@
               <item row="6" column="0">
                <widget class="QLabel" name="labelOpenALPath">
                 <property name="text">
-                 <string>&amp;OpenAL library path</string>
+                 <string>&amp;OpenAL library path:</string>
                 </property>
                 <property name="buddy">
                  <cstring>lineEditOpenALPath</cstring>

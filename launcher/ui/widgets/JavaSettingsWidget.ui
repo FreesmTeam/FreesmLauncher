@@ -299,7 +299,7 @@
       <item row="2" column="0">
        <widget class="QLabel" name="label_11">
         <property name="text">
-         <string>&amp;PermGen Size</string>
+         <string>&amp;PermGen Size:</string>
         </property>
         <property name="buddy">
          <cstring>permGenSpinBox</cstring>
@@ -316,7 +316,7 @@
       <item row="1" column="0">
        <widget class="QLabel" name="labelMaxMem">
         <property name="text">
-         <string>Ma&amp;ximum Memory</string>
+         <string>Ma&amp;ximum Memory Usage:</string>
         </property>
         <property name="buddy">
          <cstring>maxMemSpinBox</cstring>
@@ -326,7 +326,7 @@
       <item row="0" column="0">
        <widget class="QLabel" name="labelMinMem">
         <property name="text">
-         <string>M&amp;inimum Memory</string>
+         <string>M&amp;inimum Memory Usage:</string>
         </property>
         <property name="buddy">
          <cstring>minMemSpinBox</cstring>
