@@ -36,7 +36,6 @@
  */
 
 #include "MinecraftInstance.h"
-#include <qregularexpression.h>
 #include "Application.h"
 #include "BuildConfig.h"
 #include "QObjectPtr.h"
