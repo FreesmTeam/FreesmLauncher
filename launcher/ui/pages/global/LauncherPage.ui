@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>600</width>
-    <height>700</height>
+    <width>767</width>
+    <height>796</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -41,9 +41,9 @@
       <property name="geometry">
        <rect>
         <x>0</x>
-        <y>-672</y>
-        <width>575</width>
-        <height>1368</height>
+        <y>-356</y>
+        <width>742</width>
+        <height>1148</height>
        </rect>
       </property>
       <layout class="QVBoxLayout" name="verticalLayout_8">
@@ -55,7 +55,7 @@
          <property name="title">
           <string>User Interface</string>
          </property>
-         <layout class="QVBoxLayout" name="verticalLayout_3">
+         <layout class="QVBoxLayout" name="verticalLayout_2">
           <item>
            <widget class="QLabel" name="instanceSortingLabel">
             <property name="text">
@@ -102,7 +102,7 @@
           <item>
            <widget class="QLabel" name="renamingBehaviorLabel">
             <property name="text">
-             <string>When Renaming Instances...</string>
+             <string>Instance Renaming</string>
             </property>
            </widget>
           </item>
@@ -165,62 +165,57 @@
          <property name="title">
           <string>Updater</string>
          </property>
-         <layout class="QVBoxLayout" name="verticalLayout_7">
-          <item>
+         <layout class="QGridLayout" name="gridLayout_2">
+          <item row="1" column="0">
+           <layout class="QHBoxLayout" name="horizontalLayout_2">
+            <item>
+             <widget class="QLabel" name="updateIntervalLabel">
+              <property name="text">
+               <string>How Often?</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QSpinBox" name="updateIntervalSpinBox">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="toolTip">
+               <string>Set to 0 to only check on launch</string>
+              </property>
+              <property name="specialValueText">
+               <string>On Launch</string>
+              </property>
+              <property name="suffix">
+               <string> hours</string>
+              </property>
+              <property name="prefix">
+               <string>Every </string>
+              </property>
+              <property name="minimum">
+               <number>0</number>
+              </property>
+              <property name="maximum">
+               <number>168</number>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <spacer name="horizontalSpacer">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+             </spacer>
+            </item>
+           </layout>
+          </item>
+          <item row="0" column="0" colspan="2">
            <widget class="QCheckBox" name="autoUpdateCheckBox">
             <property name="text">
              <string>Check for updates automatically</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <spacer name="verticalSpacer_7">
-            <property name="orientation">
-             <enum>Qt::Vertical</enum>
-            </property>
-            <property name="sizeType">
-             <enum>QSizePolicy::Fixed</enum>
-            </property>
-            <property name="sizeHint" stdset="0">
-             <size>
-              <width>0</width>
-              <height>6</height>
-             </size>
-            </property>
-           </spacer>
-          </item>
-          <item>
-           <widget class="QLabel" name="updateIntervalLabel">
-            <property name="text">
-             <string>How Often?</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QSpinBox" name="updateIntervalSpinBox">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="toolTip">
-             <string>Set to 0 to only check on launch</string>
-            </property>
-            <property name="specialValueText">
-             <string>On Launch</string>
-            </property>
-            <property name="suffix">
-             <string> hours</string>
-            </property>
-            <property name="prefix">
-             <string>Every </string>
-            </property>
-            <property name="minimum">
-             <number>0</number>
-            </property>
-            <property name="maximum">
-             <number>168</number>
             </property>
            </widget>
           </item>
@@ -232,24 +227,14 @@
          <property name="title">
           <string>Folders</string>
          </property>
-         <layout class="QGridLayout" name="foldersBoxLayout">
-          <item row="2" column="0">
-           <widget class="QLabel" name="labelIconsDir">
-            <property name="text">
-             <string>&amp;Icons</string>
-            </property>
-            <property name="buddy">
-             <cstring>iconsDirTextBox</cstring>
-            </property>
-           </widget>
+         <layout class="QGridLayout" name="gridLayout">
+          <item row="4" column="1">
+           <widget class="QLineEdit" name="skinsDirTextBox"/>
           </item>
-          <item row="8" column="0">
-           <widget class="QLabel" name="labelDownloadsDir">
+          <item row="4" column="2">
+           <widget class="QPushButton" name="skinsDirBrowseBtn">
             <property name="text">
-             <string>&amp;Downloads</string>
-            </property>
-            <property name="buddy">
-             <cstring>downloadsDirTextBox</cstring>
+             <string>Browse</string>
             </property>
            </widget>
           </item>
@@ -263,39 +248,6 @@
             </property>
            </widget>
           </item>
-          <item row="4" column="0">
-           <widget class="QLabel" name="labelSkinsDir">
-            <property name="text">
-             <string>&amp;Skins</string>
-            </property>
-            <property name="buddy">
-             <cstring>skinsDirTextBox</cstring>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="0">
-           <widget class="QLabel" name="labelInstDir">
-            <property name="text">
-             <string>I&amp;nstances</string>
-            </property>
-            <property name="buddy">
-             <cstring>instDirTextBox</cstring>
-            </property>
-           </widget>
-          </item>
-          <item row="3" column="1">
-           <widget class="QLineEdit" name="javaDirTextBox"/>
-          </item>
-          <item row="4" column="2">
-           <widget class="QPushButton" name="skinsDirBrowseBtn">
-            <property name="text">
-             <string>Browse</string>
-            </property>
-           </widget>
-          </item>
-          <item row="8" column="1">
-           <widget class="QLineEdit" name="downloadsDirTextBox"/>
-          </item>
           <item row="2" column="2">
            <widget class="QPushButton" name="iconsDirBrowseBtn">
             <property name="text">
@@ -303,40 +255,13 @@
             </property>
            </widget>
           </item>
-          <item row="4" column="1">
-           <widget class="QLineEdit" name="skinsDirTextBox"/>
-          </item>
-          <item row="0" column="1">
-           <widget class="QLineEdit" name="instDirTextBox"/>
-          </item>
-          <item row="2" column="1">
-           <widget class="QLineEdit" name="iconsDirTextBox"/>
-          </item>
-          <item row="0" column="2">
-           <widget class="QPushButton" name="instDirBrowseBtn">
+          <item row="4" column="0">
+           <widget class="QLabel" name="labelSkinsDir">
             <property name="text">
-             <string>Browse</string>
+             <string>&amp;Skins</string>
             </property>
-           </widget>
-          </item>
-          <item row="1" column="2">
-           <widget class="QPushButton" name="modsDirBrowseBtn">
-            <property name="text">
-             <string>Browse</string>
-            </property>
-           </widget>
-          </item>
-          <item row="8" column="2">
-           <widget class="QPushButton" name="downloadsDirBrowseBtn">
-            <property name="text">
-             <string>Browse</string>
-            </property>
-           </widget>
-          </item>
-          <item row="3" column="2">
-           <widget class="QPushButton" name="javaDirBrowseBtn">
-            <property name="text">
-             <string>Browse</string>
+            <property name="buddy">
+             <cstring>skinsDirTextBox</cstring>
             </property>
            </widget>
           </item>
@@ -350,8 +275,78 @@
             </property>
            </widget>
           </item>
+          <item row="3" column="2">
+           <widget class="QPushButton" name="javaDirBrowseBtn">
+            <property name="text">
+             <string>Browse</string>
+            </property>
+           </widget>
+          </item>
+          <item row="5" column="0">
+           <widget class="QLabel" name="labelDownloadsDir">
+            <property name="text">
+             <string>&amp;Downloads</string>
+            </property>
+            <property name="buddy">
+             <cstring>downloadsDirTextBox</cstring>
+            </property>
+           </widget>
+          </item>
+          <item row="5" column="1">
+           <widget class="QLineEdit" name="downloadsDirTextBox"/>
+          </item>
           <item row="1" column="1">
            <widget class="QLineEdit" name="modsDirTextBox"/>
+          </item>
+          <item row="0" column="0">
+           <widget class="QLabel" name="labelInstDir">
+            <property name="text">
+             <string>I&amp;nstances</string>
+            </property>
+            <property name="buddy">
+             <cstring>instDirTextBox</cstring>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="2">
+           <widget class="QPushButton" name="instDirBrowseBtn">
+            <property name="text">
+             <string>Browse</string>
+            </property>
+           </widget>
+          </item>
+          <item row="5" column="2">
+           <widget class="QPushButton" name="downloadsDirBrowseBtn">
+            <property name="text">
+             <string>Browse</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1">
+           <widget class="QLineEdit" name="instDirTextBox"/>
+          </item>
+          <item row="1" column="2">
+           <widget class="QPushButton" name="modsDirBrowseBtn">
+            <property name="text">
+             <string>Browse</string>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="1">
+           <widget class="QLineEdit" name="javaDirTextBox"/>
+          </item>
+          <item row="2" column="1">
+           <widget class="QLineEdit" name="iconsDirTextBox"/>
+          </item>
+          <item row="2" column="0">
+           <widget class="QLabel" name="labelIconsDir">
+            <property name="text">
+             <string>&amp;Icons</string>
+            </property>
+            <property name="buddy">
+             <cstring>iconsDirTextBox</cstring>
+            </property>
+           </widget>
           </item>
          </layout>
         </widget>
@@ -430,9 +425,18 @@
          <property name="title">
           <string>Console</string>
          </property>
-         <layout class="QVBoxLayout" name="verticalLayout_2">
-          <item>
+         <layout class="QFormLayout" name="formLayout">
+          <property name="labelAlignment">
+           <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+          </property>
+          <item row="0" column="0">
            <widget class="QLabel" name="lineLimitLabel">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
             <property name="text">
              <string>Log History &amp;Limit</string>
             </property>
@@ -441,7 +445,7 @@
             </property>
            </widget>
           </item>
-          <item>
+          <item row="0" column="1">
            <widget class="QSpinBox" name="lineLimitSpinBox">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
@@ -466,23 +470,7 @@
             </property>
            </widget>
           </item>
-          <item>
-           <spacer name="verticalSpacer_6">
-            <property name="orientation">
-             <enum>Qt::Vertical</enum>
-            </property>
-            <property name="sizeType">
-             <enum>QSizePolicy::Fixed</enum>
-            </property>
-            <property name="sizeHint" stdset="0">
-             <size>
-              <width>0</width>
-              <height>6</height>
-             </size>
-            </property>
-           </spacer>
-          </item>
-          <item>
+          <item row="1" column="0" colspan="2">
            <widget class="QCheckBox" name="checkStopLogging">
             <property name="text">
              <string>&amp;Stop logging when log overflows</string>
@@ -497,99 +485,8 @@
          <property name="title">
           <string>Tasks</string>
          </property>
-         <layout class="QVBoxLayout" name="verticalLayout_10">
-          <item>
-           <widget class="QLabel" name="numberOfConcurrentTasksLabel">
-            <property name="text">
-             <string>Number of concurrent tasks</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QSpinBox" name="numberOfConcurrentTasksSpinBox">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="minimumSize">
-             <size>
-              <width>60</width>
-              <height>0</height>
-             </size>
-            </property>
-            <property name="minimum">
-             <number>1</number>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <spacer name="verticalSpacer_3">
-            <property name="orientation">
-             <enum>Qt::Vertical</enum>
-            </property>
-            <property name="sizeType">
-             <enum>QSizePolicy::Fixed</enum>
-            </property>
-            <property name="sizeHint" stdset="0">
-             <size>
-              <width>0</width>
-              <height>6</height>
-             </size>
-            </property>
-           </spacer>
-          </item>
-          <item>
-           <widget class="QLabel" name="numberOfConcurrentDownloadsLabel">
-            <property name="text">
-             <string>Number of concurrent downloads</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QSpinBox" name="numberOfConcurrentDownloadsSpinBox">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="minimumSize">
-             <size>
-              <width>60</width>
-              <height>0</height>
-             </size>
-            </property>
-            <property name="minimum">
-             <number>1</number>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <spacer name="verticalSpacer_4">
-            <property name="orientation">
-             <enum>Qt::Vertical</enum>
-            </property>
-            <property name="sizeType">
-             <enum>QSizePolicy::Fixed</enum>
-            </property>
-            <property name="sizeHint" stdset="0">
-             <size>
-              <width>0</width>
-              <height>6</height>
-             </size>
-            </property>
-           </spacer>
-          </item>
-          <item>
-           <widget class="QLabel" name="numberOfManualRetriesLabel">
-            <property name="text">
-             <string>Number of manual retries</string>
-            </property>
-           </widget>
-          </item>
-          <item>
+         <layout class="QGridLayout" name="gridLayout_3">
+          <item row="2" column="1">
            <widget class="QSpinBox" name="numberOfManualRetriesSpinBox">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
@@ -608,33 +505,26 @@
             </property>
            </widget>
           </item>
-          <item>
-           <spacer name="verticalSpacer_5">
-            <property name="orientation">
-             <enum>Qt::Vertical</enum>
+          <item row="1" column="1">
+           <widget class="QSpinBox" name="numberOfConcurrentDownloadsSpinBox">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
             </property>
-            <property name="sizeType">
-             <enum>QSizePolicy::Fixed</enum>
-            </property>
-            <property name="sizeHint" stdset="0">
+            <property name="minimumSize">
              <size>
-              <width>0</width>
-              <height>6</height>
+              <width>60</width>
+              <height>0</height>
              </size>
             </property>
-           </spacer>
-          </item>
-          <item>
-           <widget class="QLabel" name="timeoutSecondsLabel">
-            <property name="toolTip">
-             <string>Seconds to wait until the requests are terminated</string>
-            </property>
-            <property name="text">
-             <string>Timeout for HTTP requests</string>
+            <property name="minimum">
+             <number>1</number>
             </property>
            </widget>
           </item>
-          <item>
+          <item row="3" column="1">
            <widget class="QSpinBox" name="timeoutSecondsSpinBox">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
@@ -652,6 +542,63 @@
              <string>s</string>
             </property>
            </widget>
+          </item>
+          <item row="2" column="0">
+           <widget class="QLabel" name="numberOfManualRetriesLabel">
+            <property name="text">
+             <string>Retry Limit</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="0">
+           <widget class="QLabel" name="numberOfConcurrentDownloadsLabel">
+            <property name="text">
+             <string>Concurrent Download Limit</string>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="0">
+           <widget class="QLabel" name="timeoutSecondsLabel">
+            <property name="toolTip">
+             <string>Seconds to wait until the requests are terminated</string>
+            </property>
+            <property name="text">
+             <string>HTTP Timeout</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1">
+           <widget class="QSpinBox" name="numberOfConcurrentTasksSpinBox">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="minimumSize">
+             <size>
+              <width>60</width>
+              <height>0</height>
+             </size>
+            </property>
+            <property name="minimum">
+             <number>1</number>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="0">
+           <widget class="QLabel" name="numberOfConcurrentTasksLabel">
+            <property name="text">
+             <string>Concurrent Task Limit</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="2">
+           <spacer name="horizontalSpacer_2">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+           </spacer>
           </item>
          </layout>
         </widget>
@@ -678,21 +625,8 @@
  <tabstops>
   <tabstop>scrollArea</tabstop>
   <tabstop>autoUpdateCheckBox</tabstop>
-  <tabstop>instDirTextBox</tabstop>
-  <tabstop>instDirBrowseBtn</tabstop>
-  <tabstop>modsDirTextBox</tabstop>
-  <tabstop>modsDirBrowseBtn</tabstop>
-  <tabstop>iconsDirTextBox</tabstop>
-  <tabstop>iconsDirBrowseBtn</tabstop>
-  <tabstop>javaDirTextBox</tabstop>
-  <tabstop>javaDirBrowseBtn</tabstop>
-  <tabstop>skinsDirTextBox</tabstop>
-  <tabstop>skinsDirBrowseBtn</tabstop>
-  <tabstop>downloadsDirTextBox</tabstop>
-  <tabstop>downloadsDirBrowseBtn</tabstop>
   <tabstop>metadataEnableBtn</tabstop>
   <tabstop>dependenciesEnableBtn</tabstop>
-  <tabstop>sortByNameBtn</tabstop>
  </tabstops>
  <resources/>
  <connections/>

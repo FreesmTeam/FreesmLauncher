@@ -32,7 +32,7 @@
       <property name="geometry">
        <rect>
         <x>0</x>
-        <y>0</y>
+        <y>-216</y>
         <width>816</width>
         <height>832</height>
        </rect>
@@ -55,7 +55,14 @@
            </widget>
           </item>
           <item>
-           <widget class="QComboBox" name="pasteTypeComboBox"/>
+           <widget class="QComboBox" name="pasteTypeComboBox">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+           </widget>
           </item>
           <item>
            <widget class="QLabel" name="baseURLLabel">

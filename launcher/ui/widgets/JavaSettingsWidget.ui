@@ -7,13 +7,13 @@
     <x>0</x>
     <y>0</y>
     <width>500</width>
-    <height>1123</height>
+    <height>1000</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Form</string>
   </property>
-  <layout class="QVBoxLayout" name="verticalLayout">
+  <layout class="QVBoxLayout" name="verticalLayout" stretch="0,0,1">
    <item>
     <widget class="QGroupBox" name="javaInstallationGroupBox">
      <property name="enabled">
@@ -190,126 +190,22 @@
      <property name="checked">
       <bool>false</bool>
      </property>
-     <layout class="QVBoxLayout" name="verticalLayout_2">
-      <item>
-       <widget class="QLabel" name="labelMinMem">
+     <layout class="QGridLayout" name="gridLayout">
+      <item row="3" column="0">
+       <widget class="QLabel" name="labelMaxMemNotice">
         <property name="text">
-         <string>M&amp;inimum Memory Usage (-Xms)</string>
-        </property>
-        <property name="buddy">
-         <cstring>minMemSpinBox</cstring>
+         <string>Memory Notice</string>
         </property>
        </widget>
       </item>
-      <item>
-       <widget class="QSpinBox" name="minMemSpinBox">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="toolTip">
-         <string>The amount of memory Minecraft is started with.</string>
-        </property>
-        <property name="suffix">
-         <string notr="true"> MiB</string>
-        </property>
-        <property name="minimum">
-         <number>8</number>
-        </property>
-        <property name="maximum">
-         <number>1048576</number>
-        </property>
-        <property name="singleStep">
-         <number>128</number>
-        </property>
-        <property name="value">
-         <number>256</number>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <spacer name="verticalSpacer_3">
-        <property name="orientation">
-         <enum>Qt::Vertical</enum>
-        </property>
-        <property name="sizeType">
-         <enum>QSizePolicy::Fixed</enum>
-        </property>
-        <property name="sizeHint" stdset="0">
-         <size>
-          <width>0</width>
-          <height>6</height>
-         </size>
-        </property>
-       </spacer>
-      </item>
-      <item>
-       <widget class="QLabel" name="labelMaxMem">
+      <item row="2" column="2">
+       <widget class="QLabel" name="label_3">
         <property name="text">
-         <string>Ma&amp;ximum Memory Usage (-Xmx)</string>
-        </property>
-        <property name="buddy">
-         <cstring>maxMemSpinBox</cstring>
+         <string>(-XX:PermSize)</string>
         </property>
        </widget>
       </item>
-      <item>
-       <widget class="QSpinBox" name="maxMemSpinBox">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="toolTip">
-         <string>The maximum amount of memory Minecraft is allowed to use.</string>
-        </property>
-        <property name="suffix">
-         <string notr="true"> MiB</string>
-        </property>
-        <property name="minimum">
-         <number>8</number>
-        </property>
-        <property name="maximum">
-         <number>1048576</number>
-        </property>
-        <property name="singleStep">
-         <number>128</number>
-        </property>
-        <property name="value">
-         <number>1024</number>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <spacer name="verticalSpacer_2">
-        <property name="orientation">
-         <enum>Qt::Vertical</enum>
-        </property>
-        <property name="sizeType">
-         <enum>QSizePolicy::Fixed</enum>
-        </property>
-        <property name="sizeHint" stdset="0">
-         <size>
-          <width>0</width>
-          <height>6</height>
-         </size>
-        </property>
-       </spacer>
-      </item>
-      <item>
-       <widget class="QLabel" name="label_11">
-        <property name="text">
-         <string>&amp;PermGen Size (-XX:PermSize)</string>
-        </property>
-        <property name="buddy">
-         <cstring>permGenSpinBox</cstring>
-        </property>
-       </widget>
-      </item>
-      <item>
+      <item row="2" column="1">
        <widget class="QSpinBox" name="permGenSpinBox">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
@@ -337,28 +233,118 @@
         </property>
        </widget>
       </item>
-      <item>
-       <spacer name="verticalSpacer">
-        <property name="orientation">
-         <enum>Qt::Vertical</enum>
+      <item row="1" column="1">
+       <widget class="QSpinBox" name="maxMemSpinBox">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
         </property>
-        <property name="sizeType">
-         <enum>QSizePolicy::Fixed</enum>
+        <property name="toolTip">
+         <string>The maximum amount of memory Minecraft is allowed to use.</string>
+        </property>
+        <property name="suffix">
+         <string notr="true"> MiB</string>
+        </property>
+        <property name="minimum">
+         <number>8</number>
+        </property>
+        <property name="maximum">
+         <number>1048576</number>
+        </property>
+        <property name="singleStep">
+         <number>128</number>
+        </property>
+        <property name="value">
+         <number>1024</number>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="2">
+       <widget class="QLabel" name="label_2">
+        <property name="text">
+         <string>(-Xmx)</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="1">
+       <widget class="QSpinBox" name="minMemSpinBox">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="toolTip">
+         <string>The amount of memory Minecraft is started with.</string>
+        </property>
+        <property name="suffix">
+         <string notr="true"> MiB</string>
+        </property>
+        <property name="minimum">
+         <number>8</number>
+        </property>
+        <property name="maximum">
+         <number>1048576</number>
+        </property>
+        <property name="singleStep">
+         <number>128</number>
+        </property>
+        <property name="value">
+         <number>256</number>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="0">
+       <widget class="QLabel" name="label_11">
+        <property name="text">
+         <string>&amp;PermGen Size</string>
+        </property>
+        <property name="buddy">
+         <cstring>permGenSpinBox</cstring>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="2">
+       <widget class="QLabel" name="label">
+        <property name="text">
+         <string>(-Xms)</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="0">
+       <widget class="QLabel" name="labelMaxMem">
+        <property name="text">
+         <string>Ma&amp;ximum Memory</string>
+        </property>
+        <property name="buddy">
+         <cstring>maxMemSpinBox</cstring>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="0">
+       <widget class="QLabel" name="labelMinMem">
+        <property name="text">
+         <string>M&amp;inimum Memory</string>
+        </property>
+        <property name="buddy">
+         <cstring>minMemSpinBox</cstring>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="3">
+       <spacer name="horizontalSpacer_2">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
         </property>
         <property name="sizeHint" stdset="0">
          <size>
           <width>0</width>
-          <height>6</height>
+          <height>0</height>
          </size>
         </property>
        </spacer>
-      </item>
-      <item>
-       <widget class="QLabel" name="labelMaxMemNotice">
-        <property name="text">
-         <string>Memory Notice</string>
-        </property>
-       </widget>
       </item>
      </layout>
     </widget>
@@ -393,9 +379,6 @@
   <tabstop>skipWizardCheckBox</tabstop>
   <tabstop>autodetectJavaCheckBox</tabstop>
   <tabstop>autodownloadJavaCheckBox</tabstop>
-  <tabstop>minMemSpinBox</tabstop>
-  <tabstop>maxMemSpinBox</tabstop>
-  <tabstop>permGenSpinBox</tabstop>
   <tabstop>jvmArgsTextBox</tabstop>
  </tabstops>
  <resources/>

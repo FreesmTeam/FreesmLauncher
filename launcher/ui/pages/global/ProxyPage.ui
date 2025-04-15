@@ -51,7 +51,7 @@
          <string>Uses your system's default proxy settings.</string>
         </property>
         <property name="text">
-         <string>S&amp;ystem Settings</string>
+         <string>Use S&amp;ystem Settings</string>
         </property>
         <attribute name="buttonGroup">
          <string notr="true">proxyGroup</string>
@@ -99,6 +99,18 @@
      <layout class="QHBoxLayout" name="horizontalLayout_2">
       <item>
        <widget class="QLineEdit" name="proxyAddrEdit">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>300</width>
+          <height>0</height>
+         </size>
+        </property>
         <property name="placeholderText">
          <string notr="true">127.0.0.1</string>
         </property>
@@ -120,6 +132,19 @@
         </property>
        </widget>
       </item>
+      <item>
+       <spacer name="horizontalSpacer">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>40</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
      </layout>
     </widget>
    </item>
@@ -128,27 +153,27 @@
      <property name="title">
       <string>Authentication</string>
      </property>
-     <layout class="QGridLayout" name="gridLayout_5">
-      <item row="0" column="1">
-       <widget class="QLineEdit" name="proxyUserEdit"/>
-      </item>
-      <item row="2" column="0" colspan="2">
-       <widget class="QLabel" name="proxyPlainTextWarningLabel">
-        <property name="text">
-         <string>Note: Proxy username and password are stored in plain text inside the launcher's configuration file!</string>
-        </property>
-        <property name="wordWrap">
-         <bool>true</bool>
-        </property>
-       </widget>
-      </item>
+     <layout class="QGridLayout" name="gridLayout">
       <item row="0" column="0">
        <widget class="QLabel" name="proxyUsernameLabel">
         <property name="text">
-         <string>&amp;Username:</string>
+         <string>&amp;Username</string>
         </property>
         <property name="buddy">
          <cstring>proxyUserEdit</cstring>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="1">
+       <widget class="QLineEdit" name="proxyUserEdit"/>
+      </item>
+      <item row="1" column="0">
+       <widget class="QLabel" name="proxyPasswordLabel">
+        <property name="text">
+         <string>&amp;Password</string>
+        </property>
+        <property name="buddy">
+         <cstring>proxyPassEdit</cstring>
         </property>
        </widget>
       </item>
@@ -159,13 +184,13 @@
         </property>
        </widget>
       </item>
-      <item row="1" column="0">
-       <widget class="QLabel" name="proxyPasswordLabel">
+      <item row="2" column="0" colspan="2">
+       <widget class="QLabel" name="proxyPlainTextWarningLabel">
         <property name="text">
-         <string>&amp;Password:</string>
+         <string>Note: Proxy username and password are stored in plain text inside the launcher's configuration file!</string>
         </property>
-        <property name="buddy">
-         <cstring>proxyPassEdit</cstring>
+        <property name="wordWrap">
+         <bool>true</bool>
         </property>
        </widget>
       </item>
