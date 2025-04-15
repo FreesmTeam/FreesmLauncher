@@ -17,6 +17,18 @@
    </sizepolicy>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
+   <property name="leftMargin">
+    <number>0</number>
+   </property>
+   <property name="topMargin">
+    <number>0</number>
+   </property>
+   <property name="rightMargin">
+    <number>0</number>
+   </property>
+   <property name="bottomMargin">
+    <number>0</number>
+   </property>
    <item>
     <widget class="QScrollArea" name="scrollArea">
      <property name="horizontalScrollBarPolicy">
@@ -29,9 +41,9 @@
       <property name="geometry">
        <rect>
         <x>0</x>
-        <y>-616</y>
-        <width>566</width>
-        <height>1296</height>
+        <y>0</y>
+        <width>575</width>
+        <height>1294</height>
        </rect>
       </property>
       <layout class="QVBoxLayout" name="verticalLayout_8">

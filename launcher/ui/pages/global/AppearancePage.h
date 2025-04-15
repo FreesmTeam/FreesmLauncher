@@ -36,13 +36,12 @@
 #pragma once
 
 #include <QDialog>
-#include <memory>
-
-#include <Application.h>
-#include <translations/TranslationsModel.h>
-#include <ui/widgets/AppearanceWidget.h>
+#include <QLayout>
+#include "Application.h"
 #include "java/JavaChecker.h"
+#include "translations/TranslationsModel.h"
 #include "ui/pages/BasePage.h"
+#include "ui/widgets/AppearanceWidget.h"
 
 class QTextCharFormat;
 class SettingsObject;
@@ -51,7 +50,7 @@ class AppearancePage : public AppearanceWidget, public BasePage {
     Q_OBJECT
 
    public:
-    explicit AppearancePage(QWidget *parent = nullptr) : AppearanceWidget(false, parent) {}
+    explicit AppearancePage(QWidget* parent = nullptr) : AppearanceWidget(false, parent) { layout()->setContentsMargins(0, 0, 6, 0); }
 
     QString displayName() const override { return tr("Appearance"); }
     QIcon icon() const override { return APPLICATION->getThemedIcon("appearance"); }
