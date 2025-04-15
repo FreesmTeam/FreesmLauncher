@@ -14,6 +14,7 @@
  */
 
 #include "PageDialog.h"
+#include <qevent.h>
 
 #include <QDialogButtonBox>
 #include <QKeyEvent>
@@ -53,22 +54,16 @@ PageDialog::PageDialog(BasePageProvider* pageProvider, QString defaultId, QWidge
     connect(buttons->button(QDialogButtonBox::Cancel), &QPushButton::clicked, this, &PageDialog::reject);
     connect(buttons->button(QDialogButtonBox::Help), &QPushButton::clicked, m_container, &PageContainer::help);
 
-    connect(this, &QDialog::accepted, this, &PageDialog::onAccepted);
-    connect(this, &QDialog::rejected, this, &PageDialog::storeGeometry);
-
     restoreGeometry(QByteArray::fromBase64(APPLICATION->settings()->get("PagedGeometry").toByteArray()));
 }
-void PageDialog::onAccepted()
+
+void PageDialog::closeEvent([[maybe_unused]] QCloseEvent* event)
 {
-    qDebug() << "Paged dialog accepted";
+    qDebug() << "Paged dialog close requested";
     if (m_container->prepareToClose()) {
         qDebug() << "Paged dialog close approved";
-        emit applied();
+        APPLICATION->settings()->set("PagedGeometry", saveGeometry().toBase64());
+        qDebug() << "Paged dialog geometry saved";
+        QDialog::closeEvent(event);
     }
-}
-
-void PageDialog::storeGeometry()
-{
-    APPLICATION->settings()->set("PagedGeometry", saveGeometry().toBase64());
-    qDebug() << "Paged dialog geometry saved";
 }
