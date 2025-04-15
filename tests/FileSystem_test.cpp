@@ -2,30 +2,15 @@
 #include <QStandardPaths>
 #include <QTemporaryDir>
 #include <QTest>
+#include <memory>
 
 #include <tasks/Task.h>
 
 #include <FileSystem.h>
 #include <StringUtils.h>
 
-// Snippet from https://github.com/gulrak/filesystem#using-it-as-single-file-header
-
-#ifdef __APPLE__
-#include <Availability.h>  // for deployment target to support pre-catalina targets without std::fs
-#endif                     // __APPLE__
-
-#if ((defined(_MSVC_LANG) && _MSVC_LANG >= 201703L) || (defined(__cplusplus) && __cplusplus >= 201703L)) && defined(__has_include)
-#if __has_include(<filesystem>) && (!defined(__MAC_OS_X_VERSION_MIN_REQUIRED) || __MAC_OS_X_VERSION_MIN_REQUIRED >= 101500)
-#define GHC_USE_STD_FS
 #include <filesystem>
 namespace fs = std::filesystem;
-#endif  // MacOS min version check
-#endif  // Other OSes version check
-
-#ifndef GHC_USE_STD_FS
-#include <ghc/filesystem.hpp>
-namespace fs = ghc::filesystem;
-#endif
 
 #include <pathmatcher/RegexpMatcher.h>
 
@@ -42,7 +27,7 @@ class LinkTask : public Task {
 
     ~LinkTask() { delete m_lnk; }
 
-    void matcher(const IPathMatcher* filter) { m_lnk->matcher(filter); }
+    void matcher(IPathMatcher::Ptr filter) { m_lnk->matcher(filter); }
 
     void linkRecursively(bool recursive)
     {
@@ -203,8 +188,8 @@ class FileSystemTest : public QObject {
             qDebug() << tempDir.path();
             qDebug() << target_dir.path();
             FS::copy c(folder, target_dir.path());
-            RegexpMatcher re("[.]?mcmeta");
-            c.matcher(&re);
+            RegexpMatcher::Ptr re = std::make_shared<RegexpMatcher>("[.]?mcmeta");
+            c.matcher(re);
             c();
 
             for (auto entry : target_dir.entryList()) {
@@ -236,8 +221,8 @@ class FileSystemTest : public QObject {
             qDebug() << tempDir.path();
             qDebug() << target_dir.path();
             FS::copy c(folder, target_dir.path());
-            RegexpMatcher re("[.]?mcmeta");
-            c.matcher(&re);
+            RegexpMatcher::Ptr re = std::make_shared<RegexpMatcher>("[.]?mcmeta");
+            c.matcher(re);
             c.whitelist(true);
             c();
 
@@ -429,8 +414,8 @@ class FileSystemTest : public QObject {
             qDebug() << target_dir.path();
 
             LinkTask lnk_tsk(folder, target_dir.path());
-            RegexpMatcher re("[.]?mcmeta");
-            lnk_tsk.matcher(&re);
+            RegexpMatcher::Ptr re = std::make_shared<RegexpMatcher>("[.]?mcmeta");
+            lnk_tsk.matcher(re);
             lnk_tsk.linkRecursively(true);
             QObject::connect(&lnk_tsk, &Task::finished, [&lnk_tsk] {
                 QVERIFY2(lnk_tsk.wasSuccessful(), "Task finished but was not successful when it should have been.");
@@ -476,8 +461,8 @@ class FileSystemTest : public QObject {
             qDebug() << target_dir.path();
 
             LinkTask lnk_tsk(folder, target_dir.path());
-            RegexpMatcher re("[.]?mcmeta");
-            lnk_tsk.matcher(&re);
+            RegexpMatcher::Ptr re = std::make_shared<RegexpMatcher>("[.]?mcmeta");
+            lnk_tsk.matcher(re);
             lnk_tsk.linkRecursively(true);
             lnk_tsk.whitelist(true);
             QObject::connect(&lnk_tsk, &Task::finished, [&lnk_tsk] {

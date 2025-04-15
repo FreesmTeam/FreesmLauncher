@@ -376,19 +376,20 @@ Application::Application(int& argc, char** argv) : QApplication(argc, argv)
         m_peerInstance = new LocalPeer(this, appID);
         connect(m_peerInstance, &LocalPeer::messageReceived, this, &Application::messageReceived);
         if (m_peerInstance->isClient()) {
+            bool sentMessage = false;
             int timeout = 2000;
 
             if (m_instanceIdToLaunch.isEmpty()) {
                 ApplicationMessage activate;
                 activate.command = "activate";
-                m_peerInstance->sendMessage(activate.serialize(), timeout);
+                sentMessage = m_peerInstance->sendMessage(activate.serialize(), timeout);
 
                 if (!m_urlsToImport.isEmpty()) {
                     for (auto url : m_urlsToImport) {
                         ApplicationMessage import;
                         import.command = "import";
                         import.args.insert("url", url.toString());
-                        m_peerInstance->sendMessage(import.serialize(), timeout);
+                        sentMessage = m_peerInstance->sendMessage(import.serialize(), timeout);
                     }
                 }
             } else {
@@ -408,10 +409,16 @@ Application::Application(int& argc, char** argv) : QApplication(argc, argv)
                     launch.args["offline_enabled"] = "true";
                     launch.args["offline_name"] = m_offlineName;
                 }
-                m_peerInstance->sendMessage(launch.serialize(), timeout);
+                sentMessage = m_peerInstance->sendMessage(launch.serialize(), timeout);
             }
-            m_status = Application::Succeeded;
-            return;
+            if (sentMessage) {
+                m_status = Application::Succeeded;
+                return;
+            } else {
+                std::cerr << "Unable to redirect command to already running instance\n";
+                // C function not Qt function - event loop not started yet
+                ::exit(1);
+            }
         }
     }
 
@@ -710,7 +717,9 @@ Application::Application(int& argc, char** argv) : QApplication(argc, argv)
 
         m_settings->registerSetting("ToolbarsLocked", false);
 
+        // Instance
         m_settings->registerSetting("InstSortMode", "Name");
+        m_settings->registerSetting("InstRenamingMode", "AskEverytime");
         m_settings->registerSetting("SelectedInstance", QString());
 
         // Window state and geometry

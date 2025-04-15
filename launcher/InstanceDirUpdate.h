@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-only
 /*
  *  Prism Launcher - Minecraft Launcher
- *  Copyright (c) 2022 flowln <flowlnlnln@gmail.com>
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -35,30 +34,10 @@
 
 #pragma once
 
-#include "PSaveFile.h"
-#include "Sink.h"
+#include "BaseInstance.h"
 
-namespace Net {
-class FileSink : public Sink {
-   public:
-    FileSink(QString filename) : m_filename(filename) {};
-    virtual ~FileSink() = default;
+/// Update instanceRoot to make it sync with name/id; return newRoot if a directory rename happened
+QString askToUpdateInstanceDirName(InstancePtr instance, const QString& oldName, const QString& newName, QWidget* parent);
 
-   public:
-    auto init(QNetworkRequest& request) -> Task::State override;
-    auto write(QByteArray& data) -> Task::State override;
-    auto abort() -> Task::State override;
-    auto finalize(QNetworkReply& reply) -> Task::State override;
-
-    auto hasLocalData() -> bool override;
-
-   protected:
-    virtual auto initCache(QNetworkRequest&) -> Task::State;
-    virtual auto finalizeCache(QNetworkReply& reply) -> Task::State;
-
-   protected:
-    QString m_filename;
-    bool m_wroteAnyData = false;
-    std::unique_ptr<PSaveFile> m_output_file;
-};
-}  // namespace Net
+/// Check if there are linked instances, and display a warning; return true if the operation should proceed
+bool checkLinkedInstances(const QString& id, QWidget* parent, const QString& verb);
