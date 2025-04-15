@@ -136,9 +136,12 @@
             <property name="orientation">
              <enum>Qt::Vertical</enum>
             </property>
+            <property name="sizeType">
+             <enum>QSizePolicy::Fixed</enum>
+            </property>
             <property name="sizeHint" stdset="0">
              <size>
-              <width>20</width>
+              <width>0</width>
               <height>6</height>
              </size>
             </property>
