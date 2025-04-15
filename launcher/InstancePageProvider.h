@@ -46,7 +46,7 @@ class InstancePageProvider : protected QObject, public BasePageProvider {
         values.append(new InstanceSettingsPage(onesix));
         auto logMatcher = inst->getLogFileMatcher();
         if (logMatcher) {
-            values.append(new OtherLogsPage(inst->getLogFileRoot(), logMatcher));
+            values.append(new OtherLogsPage(inst, logMatcher));
         }
         return values;
     }

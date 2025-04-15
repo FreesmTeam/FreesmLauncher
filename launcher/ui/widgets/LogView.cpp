@@ -60,6 +60,14 @@ void LogView::setWordWrap(bool wrapping)
     }
 }
 
+void LogView::setColorLines(bool colorLines)
+{
+    if (m_colorLines == colorLines)
+        return;
+    m_colorLines = colorLines;
+    repopulate();
+}
+
 void LogView::setModel(QAbstractItemModel* model)
 {
     if (m_model) {
@@ -130,11 +138,11 @@ void LogView::rowsInserted(const QModelIndex& parent, int first, int last)
             format.setFont(font.value<QFont>());
         }
         auto fg = m_model->data(idx, Qt::ForegroundRole);
-        if (fg.isValid()) {
+        if (fg.isValid() && m_colorLines) {
             format.setForeground(fg.value<QColor>());
         }
         auto bg = m_model->data(idx, Qt::BackgroundRole);
-        if (bg.isValid()) {
+        if (bg.isValid() && m_colorLines) {
             format.setBackground(bg.value<QColor>());
         }
         cursor.movePosition(QTextCursor::End);
