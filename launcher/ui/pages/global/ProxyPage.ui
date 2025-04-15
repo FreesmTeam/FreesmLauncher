@@ -212,6 +212,16 @@
    </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>proxyDefaultBtn</tabstop>
+  <tabstop>proxyNoneBtn</tabstop>
+  <tabstop>proxySOCKS5Btn</tabstop>
+  <tabstop>proxyHTTPBtn</tabstop>
+  <tabstop>proxyAddrEdit</tabstop>
+  <tabstop>proxyPortEdit</tabstop>
+  <tabstop>proxyUserEdit</tabstop>
+  <tabstop>proxyPassEdit</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
  <buttongroups>

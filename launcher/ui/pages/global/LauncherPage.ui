@@ -41,7 +41,7 @@
       <property name="geometry">
        <rect>
         <x>0</x>
-        <y>-300</y>
+        <y>-356</y>
         <width>742</width>
         <height>1148</height>
        </rect>
@@ -636,9 +636,35 @@
  </widget>
  <tabstops>
   <tabstop>scrollArea</tabstop>
+  <tabstop>sortByNameBtn</tabstop>
+  <tabstop>sortLastLaunchedBtn</tabstop>
+  <tabstop>renamingBehaviorComboBox</tabstop>
+  <tabstop>preferMenuBarCheckBox</tabstop>
   <tabstop>autoUpdateCheckBox</tabstop>
+  <tabstop>updateIntervalSpinBox</tabstop>
+  <tabstop>instDirTextBox</tabstop>
+  <tabstop>instDirBrowseBtn</tabstop>
+  <tabstop>modsDirTextBox</tabstop>
+  <tabstop>modsDirBrowseBtn</tabstop>
+  <tabstop>iconsDirTextBox</tabstop>
+  <tabstop>iconsDirBrowseBtn</tabstop>
+  <tabstop>javaDirTextBox</tabstop>
+  <tabstop>javaDirBrowseBtn</tabstop>
+  <tabstop>skinsDirTextBox</tabstop>
+  <tabstop>skinsDirBrowseBtn</tabstop>
+  <tabstop>downloadsDirTextBox</tabstop>
+  <tabstop>downloadsDirBrowseBtn</tabstop>
+  <tabstop>downloadsDirWatchRecursiveCheckBox</tabstop>
+  <tabstop>downloadsDirMoveCheckBox</tabstop>
   <tabstop>metadataEnableBtn</tabstop>
   <tabstop>dependenciesEnableBtn</tabstop>
+  <tabstop>modpackUpdatePromptBtn</tabstop>
+  <tabstop>lineLimitSpinBox</tabstop>
+  <tabstop>checkStopLogging</tabstop>
+  <tabstop>numberOfConcurrentTasksSpinBox</tabstop>
+  <tabstop>numberOfConcurrentDownloadsSpinBox</tabstop>
+  <tabstop>numberOfManualRetriesSpinBox</tabstop>
+  <tabstop>timeoutSecondsSpinBox</tabstop>
  </tabstops>
  <resources/>
  <connections/>

@@ -584,7 +584,10 @@
   <tabstop>catPackComboBox</tabstop>
   <tabstop>catPackFolder</tabstop>
   <tabstop>reloadThemesButton</tabstop>
+  <tabstop>consoleFont</tabstop>
+  <tabstop>fontSizeBox</tabstop>
   <tabstop>catOpacitySlider</tabstop>
+  <tabstop>consolePreview</tabstop>
  </tabstops>
  <resources/>
  <connections/>
