@@ -41,7 +41,7 @@
       <property name="geometry">
        <rect>
         <x>0</x>
-        <y>-312</y>
+        <y>0</y>
         <width>575</width>
         <height>1368</height>
        </rect>
@@ -102,7 +102,7 @@
           <item>
            <widget class="QLabel" name="renamingBehaviorLabel">
             <property name="text">
-             <string>When renaming instances...</string>
+             <string>When Renaming Instances...</string>
             </property>
            </widget>
           </item>
