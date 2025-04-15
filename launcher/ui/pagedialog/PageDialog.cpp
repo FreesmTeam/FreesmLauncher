@@ -14,7 +14,6 @@
  */
 
 #include "PageDialog.h"
-#include <qevent.h>
 
 #include <QDialogButtonBox>
 #include <QKeyEvent>
