@@ -53,7 +53,7 @@ OtherLogsPage::OtherLogsPage(InstancePtr instance, IPathMatcher::Ptr fileFilter,
     , m_path(instance->getLogFileRoot())
     , m_fileFilter(fileFilter)
     , m_watcher(new RecursiveFileSystemWatcher(this))
-    , m_model(new LogModel())
+    , m_model(new LogModel(this))
 {
     ui->setupUi(this);
     ui->tabWidget->tabBar()->hide();
