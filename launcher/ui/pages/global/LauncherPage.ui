@@ -126,7 +126,7 @@
             </item>
             <item>
              <property name="text">
-              <string>Never rename the folder - only the displayed name</string>
+              <string>Never rename the folder—only the displayed name</string>
              </property>
             </item>
            </widget>
