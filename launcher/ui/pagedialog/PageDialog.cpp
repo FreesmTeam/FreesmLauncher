@@ -21,9 +21,7 @@
 #include <QVBoxLayout>
 
 #include "Application.h"
-#include "settings/SettingsObject.h"
 
-#include "ui/widgets/IconLabel.h"
 #include "ui/widgets/PageContainer.h"
 
 PageDialog::PageDialog(BasePageProvider* pageProvider, QString defaultId, QWidget* parent) : QDialog(parent)
@@ -31,14 +29,22 @@ PageDialog::PageDialog(BasePageProvider* pageProvider, QString defaultId, QWidge
     setWindowTitle(pageProvider->dialogTitle());
     m_container = new PageContainer(pageProvider, std::move(defaultId), this);
 
-    QVBoxLayout* mainLayout = new QVBoxLayout(this);
+    auto* mainLayout = new QVBoxLayout(this);
+
+    auto* focusStealer = new QPushButton(this);
+    mainLayout->addWidget(focusStealer);
+    focusStealer->setDefault(true);
+    focusStealer->hide();
+
     mainLayout->addWidget(m_container);
     mainLayout->setSpacing(0);
     mainLayout->setContentsMargins(0, 0, 0, 0);
+
     setLayout(mainLayout);
 
-    QDialogButtonBox* buttons = new QDialogButtonBox(QDialogButtonBox::Help | QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
-    buttons->button(QDialogButtonBox::Ok)->setDefault(true);
+    auto* buttons = new QDialogButtonBox(QDialogButtonBox::Help | QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
+    buttons->button(QDialogButtonBox::Ok)->setText(tr("&OK"));
+    buttons->button(QDialogButtonBox::Cancel)->setText(tr("&Cancel"));
     buttons->button(QDialogButtonBox::Help)->setText(tr("Help"));
     buttons->setContentsMargins(6, 0, 6, 0);
     m_container->addButtons(buttons);
