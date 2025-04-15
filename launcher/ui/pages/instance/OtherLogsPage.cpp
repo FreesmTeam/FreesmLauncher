@@ -204,6 +204,7 @@ void OtherLogsPage::on_btnReload_clicked()
         if (content.back() == '\n')
             content = content.remove(content.size() - 1, 1);
         ui->text->clear();
+        ui->text->setModel(nullptr);
         m_model->clear();
         for (auto& line : content.split('\n')) {
             MessageLevel::Enum level = MessageLevel::Unknown;
@@ -221,6 +222,8 @@ void OtherLogsPage::on_btnReload_clicked()
 
             m_model->append(level, line);
         }
+        ui->text->setModel(m_proxy);
+        ui->text->scrollToBottom();
     }
 }
 

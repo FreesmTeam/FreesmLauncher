@@ -91,15 +91,25 @@
        </item>
        <item row="0" column="0" colspan="5">
         <layout class="QGridLayout" name="gridLayout">
-         <item row="2" column="0" colspan="5">
+         <item row="0" column="0" colspan="5">
           <layout class="QHBoxLayout" name="horizontalLayout">
+           <item>
+            <widget class="QComboBox" name="selectLogBox">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+            </widget>
+           </item>
            <item>
             <widget class="QPushButton" name="btnDelete">
              <property name="toolTip">
               <string>Delete the selected log</string>
              </property>
              <property name="text">
-              <string>&amp;Delete This</string>
+              <string>&amp;Delete Selected</string>
              </property>
             </widget>
            </item>
@@ -115,7 +125,7 @@
            </item>
           </layout>
          </item>
-         <item row="3" column="0" colspan="5">
+         <item row="1" column="0" colspan="5">
           <layout class="QHBoxLayout" name="horizontalLayout">
            <item>
             <widget class="QCheckBox" name="wrapCheckbox">
@@ -166,7 +176,7 @@
               <string>Upload the log to the paste service configured in preferences</string>
              </property>
              <property name="text">
-              <string>Upload</string>
+              <string>&amp;Upload</string>
              </property>
             </widget>
            </item>
@@ -181,16 +191,6 @@
             </widget>
            </item>
           </layout>
-         </item>
-         <item row="0" column="0" colspan="5">
-          <widget class="QComboBox" name="selectLogBox">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-          </widget>
          </item>
         </layout>
        </item>
