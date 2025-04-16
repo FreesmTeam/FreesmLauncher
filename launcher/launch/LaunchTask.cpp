@@ -41,7 +41,6 @@
 #include <QCoreApplication>
 #include <QDebug>
 #include <QDir>
-#include <QRegularExpression>
 #include <QStandardPaths>
 #include <variant>
 #include "MessageLevel.h"

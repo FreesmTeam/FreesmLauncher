@@ -69,7 +69,8 @@ PackInstallTask::PackInstallTask(UserInteractionSupport* support, QString packNa
 {
     m_support = support;
     m_pack_name = packName;
-    m_pack_safe_name = packName.replace(QRegularExpression("[^A-Za-z0-9]"), "");
+    static const QRegularExpression s_regex("[^A-Za-z0-9]");
+    m_pack_safe_name = packName.replace(s_regex, "");
     m_version_name = version;
     m_install_mode = installMode;
 }
@@ -938,7 +939,8 @@ bool PackInstallTask::extractMods(const QMap<QString, VersionMod>& toExtract,
         QString folderToExtract = "";
         if (mod.type == ModType::Extract) {
             folderToExtract = mod.extractFolder;
-            folderToExtract.remove(QRegularExpression("^/"));
+            static const QRegularExpression s_regex("^/");
+            folderToExtract.remove(s_regex);
         }
 
         qDebug() << "Extracting " + mod.file + " to " + extractToDir;

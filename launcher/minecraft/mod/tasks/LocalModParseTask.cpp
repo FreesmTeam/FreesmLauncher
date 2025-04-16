@@ -16,7 +16,7 @@
 #include "minecraft/mod/ModDetails.h"
 #include "settings/INIFile.h"
 
-static QRegularExpression newlineRegex("\r\n|\n|\r");
+static const QRegularExpression s_newlineRegex("\r\n|\n|\r");
 
 namespace ModUtils {
 
@@ -494,7 +494,7 @@ bool processZIP(Mod& mod, [[maybe_unused]] ProcessingLevel level)
                 }
 
                 // quick and dirty line-by-line parser
-                auto manifestLines = QString(file.readAll()).split(newlineRegex);
+                auto manifestLines = QString(file.readAll()).split(s_newlineRegex);
                 QString manifestVersion = "";
                 for (auto& line : manifestLines) {
                     if (line.startsWith("Implementation-Version: ", Qt::CaseInsensitive)) {

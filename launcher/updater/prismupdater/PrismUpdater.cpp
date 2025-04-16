@@ -721,8 +721,8 @@ QList<GitHubReleaseAsset> PrismUpdaterApp::validReleaseArtifacts(const GitHubRel
             for_platform = false;
         }
 
-        auto qt_pattern = QRegularExpression("-qt(\\d+)");
-        auto qt_match = qt_pattern.match(asset_name);
+        static const QRegularExpression s_qtPattern("-qt(\\d+)");
+        auto qt_match = s_qtPattern.match(asset_name);
         if (for_platform && qt_match.hasMatch()) {
             if (platform_qt_ver.isEmpty() || platform_qt_ver.toInt() != qt_match.captured(1).toInt()) {
                 qDebug() << "Rejecting" << asset.name << "because it is not for the correct qt version" << platform_qt_ver.toInt() << "vs"
@@ -1018,12 +1018,11 @@ void PrismUpdaterApp::backupAppDir()
         logUpdate("manifest.txt empty or missing. making best guess at files to back up.");
     }
     logUpdate(tr("Backing up:\n  %1").arg(file_list.join(",\n  ")));
+    static const QRegularExpression s_replaceRegex("[" + QRegularExpression::escape("\\/:*?\"<>|") + "]");
     auto app_dir = QDir(m_rootPath);
-    auto backup_dir = FS::PathCombine(
-        app_dir.absolutePath(),
-        QStringLiteral("backup_") +
-            QString(m_prismVersion).replace(QRegularExpression("[" + QRegularExpression::escape("\\/:*?\"<>|") + "]"), QString("_")) + "-" +
-            m_prismGitCommit);
+    auto backup_dir =
+        FS::PathCombine(app_dir.absolutePath(),
+                        QStringLiteral("backup_") + QString(m_prismVersion).replace(s_replaceRegex, QString("_")) + "-" + m_prismGitCommit);
     FS::ensureFolderPathExists(backup_dir);
     auto backup_marker_path = FS::PathCombine(m_dataPath, ".prism_launcher_update_backup_path.txt");
     FS::write(backup_marker_path, backup_dir.toUtf8());
