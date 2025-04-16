@@ -126,7 +126,7 @@
           </layout>
          </item>
          <item row="1" column="0" colspan="5">
-          <layout class="QHBoxLayout" name="horizontalLayout">
+          <layout class="QHBoxLayout" name="horizontalLayout1">
            <item>
             <widget class="QCheckBox" name="wrapCheckbox">
              <property name="text">
