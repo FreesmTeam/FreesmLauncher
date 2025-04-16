@@ -145,9 +145,10 @@ void ModFolderPage::downloadMods()
         QMessageBox::critical(this, tr("Error"), tr("Please install a mod loader first!"));
         return;
     }
-
-    ResourceDownload::ModDownloadDialog mdownload(this, m_model, m_instance);
-    if (mdownload.exec()) {
+    auto mdownload = new ResourceDownload::ModDownloadDialog(this, m_model, m_instance);
+    mdownload->setAttribute(Qt::WA_DeleteOnClose);
+    connect(this, &QObject::destroyed, mdownload, &QDialog::close);
+    if (mdownload->exec()) {
         auto tasks = new ConcurrentTask(tr("Download Mods"), APPLICATION->settings()->get("NumberOfConcurrentDownloads").toInt());
         connect(tasks, &Task::failed, [this, tasks](QString reason) {
             CustomMessageBox::selectable(this, tr("Error"), reason, QMessageBox::Critical)->show();
@@ -165,7 +166,7 @@ void ModFolderPage::downloadMods()
             tasks->deleteLater();
         });
 
-        for (auto& task : mdownload.getTasks()) {
+        for (auto& task : mdownload->getTasks()) {
             tasks->addTask(task);
         }
 
@@ -300,9 +301,11 @@ void ModFolderPage::changeModVersion()
     if (mods_list.length() != 1 || mods_list[0]->metadata() == nullptr)
         return;
 
-    ResourceDownload::ModDownloadDialog mdownload(this, m_model, m_instance);
-    mdownload.setResourceMetadata((*mods_list.begin())->metadata());
-    if (mdownload.exec()) {
+    auto mdownload = new ResourceDownload::ModDownloadDialog(this, m_model, m_instance);
+    mdownload->setAttribute(Qt::WA_DeleteOnClose);
+    connect(this, &QObject::destroyed, mdownload, &QDialog::close);
+    mdownload->setResourceMetadata((*mods_list.begin())->metadata());
+    if (mdownload->exec()) {
         auto tasks = new ConcurrentTask("Download Mods", APPLICATION->settings()->get("NumberOfConcurrentDownloads").toInt());
         connect(tasks, &Task::failed, [this, tasks](QString reason) {
             CustomMessageBox::selectable(this, tr("Error"), reason, QMessageBox::Critical)->show();
@@ -320,7 +323,7 @@ void ModFolderPage::changeModVersion()
             tasks->deleteLater();
         });
 
-        for (auto& task : mdownload.getTasks()) {
+        for (auto& task : mdownload->getTasks()) {
             tasks->addTask(task);
         }
 

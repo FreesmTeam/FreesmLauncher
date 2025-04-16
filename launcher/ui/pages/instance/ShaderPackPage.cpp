@@ -81,8 +81,10 @@ void ShaderPackPage::downloadShaderPack()
     if (m_instance->typeName() != "Minecraft")
         return;  // this is a null instance or a legacy instance
 
-    ResourceDownload::ShaderPackDownloadDialog mdownload(this, m_model, m_instance);
-    if (mdownload.exec()) {
+    auto mdownload = new ResourceDownload::ShaderPackDownloadDialog(this, m_model, m_instance);
+    mdownload->setAttribute(Qt::WA_DeleteOnClose);
+    connect(this, &QObject::destroyed, mdownload, &QDialog::close);
+    if (mdownload->exec()) {
         auto tasks = new ConcurrentTask("Download Shader Packs", APPLICATION->settings()->get("NumberOfConcurrentDownloads").toInt());
         connect(tasks, &Task::failed, [this, tasks](QString reason) {
             CustomMessageBox::selectable(this, tr("Error"), reason, QMessageBox::Critical)->show();
@@ -100,7 +102,7 @@ void ShaderPackPage::downloadShaderPack()
             tasks->deleteLater();
         });
 
-        for (auto& task : mdownload.getTasks()) {
+        for (auto& task : mdownload->getTasks()) {
             tasks->addTask(task);
         }
 
@@ -232,9 +234,11 @@ void ShaderPackPage::changeShaderPackVersion()
     if (resource.metadata() == nullptr)
         return;
 
-    ResourceDownload::ShaderPackDownloadDialog mdownload(this, m_model, m_instance);
-    mdownload.setResourceMetadata(resource.metadata());
-    if (mdownload.exec()) {
+    auto mdownload = new ResourceDownload::ShaderPackDownloadDialog(this, m_model, m_instance);
+    mdownload->setAttribute(Qt::WA_DeleteOnClose);
+    connect(this, &QObject::destroyed, mdownload, &QDialog::close);
+    mdownload->setResourceMetadata(resource.metadata());
+    if (mdownload->exec()) {
         auto tasks = new ConcurrentTask("Download Shader Packs", APPLICATION->settings()->get("NumberOfConcurrentDownloads").toInt());
         connect(tasks, &Task::failed, [this, tasks](QString reason) {
             CustomMessageBox::selectable(this, tr("Error"), reason, QMessageBox::Critical)->show();
@@ -252,7 +256,7 @@ void ShaderPackPage::changeShaderPackVersion()
             tasks->deleteLater();
         });
 
-        for (auto& task : mdownload.getTasks()) {
+        for (auto& task : mdownload->getTasks()) {
             tasks->addTask(task);
         }
 
