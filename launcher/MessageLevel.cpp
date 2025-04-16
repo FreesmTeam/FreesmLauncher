@@ -4,6 +4,8 @@ MessageLevel::Enum MessageLevel::getLevel(const QString& levelName)
 {
     if (levelName == "Launcher")
         return MessageLevel::Launcher;
+    else if (levelName == "Trace")
+        return MessageLevel::Trace;
     else if (levelName == "Debug")
         return MessageLevel::Debug;
     else if (levelName == "Info")
