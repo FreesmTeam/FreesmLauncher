@@ -19,6 +19,7 @@
 #ifndef WIN32_LEAN_AND_MEAN
 #define WIN32_LEAN_AND_MEAN
 #endif
+#include "WindowsConsole.h"
 #include <fcntl.h>
 #include <io.h>
 #include <stdio.h>
@@ -126,3 +127,5 @@ bool AttachWindowsConsole()
 
     return false;
 }
+
+std::error_code

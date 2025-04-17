@@ -155,7 +155,7 @@
 #if defined Q_OS_WIN32
 #include <windows.h>
 #include <QStyleHints>
-#include "WindowsConsole.h"
+#include "console/WindowsConsole.h"
 #endif
 
 #define STRINGIFY(x) #x

@@ -589,8 +589,8 @@ set(ATLAUNCHER_SOURCES
 )
 
 set(LINKEXE_SOURCES
-    WindowsConsole.cpp
-    WindowsConsole.h
+    console/WindowsConsole.cpp
+    console/WindowsConsole.h
 
     filelink/FileLink.h
     filelink/FileLink.cpp
@@ -1164,8 +1164,8 @@ endif()
 
 if(WIN32)
     set(LAUNCHER_SOURCES
-        WindowsConsole.cpp
-        WindowsConsole.h
+        console/WindowsConsole.cpp
+        console/WindowsConsole.h
         ${LAUNCHER_SOURCES}
     )
 endif()
