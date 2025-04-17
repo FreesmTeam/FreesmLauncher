@@ -37,13 +37,14 @@
 
 #include <FileSystem.h>
 #include <QDebug>
+#include <QDirIterator>
 #include <QFileSystemWatcher>
 #include <QMimeData>
 #include <QString>
+#include <QThreadPool>
 #include <QUrl>
 #include <QUuid>
 #include <Qt>
-#include "Application.h"
 
 WorldList::WorldList(const QString& dir, BaseInstance* instance) : QAbstractListModel(), m_instance(instance), m_dir(dir)
 {
@@ -103,6 +104,7 @@ bool WorldList::update()
     beginResetModel();
     m_worlds.swap(newWorlds);
     endResetModel();
+    loadWorldsAsync();
     return true;
 }
 
@@ -414,6 +416,46 @@ bool WorldList::dropMimeData(const QMimeData* data,
         return true;
     }
     return false;
+}
+
+int64_t calculateWorldSize(const QFileInfo& file)
+{
+    if (file.isFile() && file.suffix() == "zip") {
+        return file.size();
+    } else if (file.isDir()) {
+        QDirIterator it(file.absoluteFilePath(), QDir::Files, QDirIterator::Subdirectories);
+        int64_t total = 0;
+        while (it.hasNext()) {
+            it.next();
+            total += it.fileInfo().size();
+        }
+        return total;
+    }
+    return -1;
+}
+
+void WorldList::loadWorldsAsync()
+{
+    for (int i = 0; i < m_worlds.size(); ++i) {
+        auto file = m_worlds.at(i).container();
+        int row = i;
+        QThreadPool::globalInstance()->start([this, file, row]() mutable {
+            auto size = calculateWorldSize(file);
+
+            QMetaObject::invokeMethod(
+                this,
+                [this, size, row, file]() {
+                    if (row < m_worlds.size() && m_worlds[row].container() == file) {
+                        m_worlds[row].setSize(size);
+
+                        // Notify views
+                        QModelIndex modelIndex = index(row);
+                        emit dataChanged(modelIndex, modelIndex, { SizeRole });
+                    }
+                },
+                Qt::QueuedConnection);
+        });
+    }
 }
 
 #include "WorldList.moc"

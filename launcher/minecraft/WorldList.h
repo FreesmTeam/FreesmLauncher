@@ -86,6 +86,7 @@ class WorldList : public QAbstractListModel {
 
    private slots:
     void directoryChanged(QString path);
+    void loadWorldsAsync();
 
    signals:
     void changed();

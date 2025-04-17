@@ -198,22 +198,6 @@ bool putLevelDatDataToFS(const QFileInfo& file, QByteArray& data)
     return f.commit();
 }
 
-int64_t calculateWorldSize(const QFileInfo& file)
-{
-    if (file.isFile() && file.suffix() == "zip") {
-        return file.size();
-    } else if (file.isDir()) {
-        QDirIterator it(file.absoluteFilePath(), QDir::Files, QDirIterator::Subdirectories);
-        int64_t total = 0;
-        while (it.hasNext()) {
-            it.next();
-            total += it.fileInfo().size();
-        }
-        return total;
-    }
-    return -1;
-}
-
 World::World(const QFileInfo& file)
 {
     repath(file);
@@ -223,7 +207,6 @@ void World::repath(const QFileInfo& file)
 {
     m_containerFile = file;
     m_folderName = file.fileName();
-    m_size = calculateWorldSize(file);
     if (file.isFile() && file.suffix() == "zip") {
         m_iconFile = QString();
         readFromZip(file);
@@ -530,4 +513,9 @@ bool World::isMoreThanOneHardLink() const
         return FS::hardLinkCount(QDir(m_containerFile.absoluteFilePath()).filePath("level.dat")) > 1;
     }
     return FS::hardLinkCount(m_containerFile.absoluteFilePath()) > 1;
+}
+
+void World::setSize(int64_t size)
+{
+    m_size = size;
 }

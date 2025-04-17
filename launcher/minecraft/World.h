@@ -54,6 +54,8 @@ class World {
     bool rename(const QString& to);
     bool install(const QString& to, const QString& name = QString());
 
+    void setSize(int64_t size);
+
     // WEAK compare operator - used for replacing worlds
     bool operator==(const World& other) const;
 
