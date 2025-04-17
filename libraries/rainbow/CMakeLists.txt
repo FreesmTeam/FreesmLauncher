@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.9.4)
+cmake_minimum_required(VERSION 3.15)
 project(rainbow)
 
 if(QT_VERSION_MAJOR EQUAL 5)

@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.9.4)
+cmake_minimum_required(VERSION 3.15)
 project(qdcss)
 
 if(QT_VERSION_MAJOR EQUAL 5)
