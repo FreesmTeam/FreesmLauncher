@@ -252,41 +252,41 @@ void World::readFromFS(const QFileInfo& file)
 {
     auto bytes = getLevelDatDataFromFS(file);
     if (bytes.isEmpty()) {
-        is_valid = false;
+        m_isValid = false;
         return;
     }
     loadFromLevelDat(bytes);
-    levelDatTime = file.lastModified();
+    m_levelDatTime = file.lastModified();
 }
 
 void World::readFromZip(const QFileInfo& file)
 {
     QuaZip zip(file.absoluteFilePath());
-    is_valid = zip.open(QuaZip::mdUnzip);
-    if (!is_valid) {
+    m_isValid = zip.open(QuaZip::mdUnzip);
+    if (!m_isValid) {
         return;
     }
     auto location = MMCZip::findFolderOfFileInZip(&zip, "level.dat");
-    is_valid = !location.isEmpty();
-    if (!is_valid) {
+    m_isValid = !location.isEmpty();
+    if (!m_isValid) {
         return;
     }
     m_containerOffsetPath = location;
     QuaZipFile zippedFile(&zip);
     // read the install profile
-    is_valid = zip.setCurrentFile(location + "level.dat");
-    if (!is_valid) {
+    m_isValid = zip.setCurrentFile(location + "level.dat");
+    if (!m_isValid) {
         return;
     }
-    is_valid = zippedFile.open(QIODevice::ReadOnly);
+    m_isValid = zippedFile.open(QIODevice::ReadOnly);
     QuaZipFileInfo64 levelDatInfo;
     zippedFile.getFileInfo(&levelDatInfo);
     auto modTime = levelDatInfo.getNTFSmTime();
     if (!modTime.isValid()) {
         modTime = levelDatInfo.dateTime;
     }
-    levelDatTime = modTime;
-    if (!is_valid) {
+    m_levelDatTime = modTime;
+    if (!m_isValid) {
         return;
     }
     loadFromLevelDat(zippedFile.readAll());
@@ -430,7 +430,7 @@ void World::loadFromLevelDat(QByteArray data)
 {
     auto levelData = parseLevelDat(data);
     if (!levelData) {
-        is_valid = false;
+        m_isValid = false;
         return;
     }
 
@@ -439,20 +439,20 @@ void World::loadFromLevelDat(QByteArray data)
         valPtr = &levelData->at("Data");
     } catch (const std::out_of_range& e) {
         qWarning() << "Unable to read NBT tags from " << m_folderName << ":" << e.what();
-        is_valid = false;
+        m_isValid = false;
         return;
     }
     nbt::value& val = *valPtr;
 
-    is_valid = val.get_type() == nbt::tag_type::Compound;
-    if (!is_valid)
+    m_isValid = val.get_type() == nbt::tag_type::Compound;
+    if (!m_isValid)
         return;
 
     auto name = read_string(val, "LevelName");
     m_actualName = name ? *name : m_folderName;
 
     auto timestamp = read_long(val, "LastPlayed");
-    m_lastPlayed = timestamp ? QDateTime::fromMSecsSinceEpoch(*timestamp) : levelDatTime;
+    m_lastPlayed = timestamp ? QDateTime::fromMSecsSinceEpoch(*timestamp) : m_levelDatTime;
 
     m_gameType = read_gametype(val, "GameType");
 
@@ -490,7 +490,7 @@ bool World::replace(World& with)
 
 bool World::destroy()
 {
-    if (!is_valid)
+    if (!m_isValid)
         return false;
 
     if (FS::trash(m_containerFile.filePath()))
@@ -508,7 +508,7 @@ bool World::destroy()
 
 bool World::operator==(const World& other) const
 {
-    return is_valid == other.is_valid && folderName() == other.folderName();
+    return m_isValid == other.m_isValid && folderName() == other.folderName();
 }
 
 bool World::isSymLinkUnder(const QString& instPath) const

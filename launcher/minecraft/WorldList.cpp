@@ -51,18 +51,18 @@ WorldList::WorldList(const QString& dir, BaseInstance* instance) : QAbstractList
     m_dir.setFilter(QDir::Readable | QDir::NoDotAndDotDot | QDir::Files | QDir::Dirs);
     m_dir.setSorting(QDir::Name | QDir::IgnoreCase | QDir::LocaleAware);
     m_watcher = new QFileSystemWatcher(this);
-    is_watching = false;
+    m_isWatching = false;
     connect(m_watcher, &QFileSystemWatcher::directoryChanged, this, &WorldList::directoryChanged);
 }
 
 void WorldList::startWatching()
 {
-    if (is_watching) {
+    if (m_isWatching) {
         return;
     }
     update();
-    is_watching = m_watcher->addPath(m_dir.absolutePath());
-    if (is_watching) {
+    m_isWatching = m_watcher->addPath(m_dir.absolutePath());
+    if (m_isWatching) {
         qDebug() << "Started watching " << m_dir.absolutePath();
     } else {
         qDebug() << "Failed to start watching " << m_dir.absolutePath();
@@ -71,11 +71,11 @@ void WorldList::startWatching()
 
 void WorldList::stopWatching()
 {
-    if (!is_watching) {
+    if (!m_isWatching) {
         return;
     }
-    is_watching = !m_watcher->removePath(m_dir.absolutePath());
-    if (!is_watching) {
+    m_isWatching = !m_watcher->removePath(m_dir.absolutePath());
+    if (!m_isWatching) {
         qDebug() << "Stopped watching " << m_dir.absolutePath();
     } else {
         qDebug() << "Failed to stop watching " << m_dir.absolutePath();
@@ -101,12 +101,12 @@ bool WorldList::update()
         }
     }
     beginResetModel();
-    worlds.swap(newWorlds);
+    m_worlds.swap(newWorlds);
     endResetModel();
     return true;
 }
 
-void WorldList::directoryChanged(QString path)
+void WorldList::directoryChanged(QString)
 {
     update();
 }
@@ -123,12 +123,12 @@ QString WorldList::instDirPath() const
 
 bool WorldList::deleteWorld(int index)
 {
-    if (index >= worlds.size() || index < 0)
+    if (index >= m_worlds.size() || index < 0)
         return false;
-    World& m = worlds[index];
+    World& m = m_worlds[index];
     if (m.destroy()) {
         beginRemoveRows(QModelIndex(), index, index);
-        worlds.removeAt(index);
+        m_worlds.removeAt(index);
         endRemoveRows();
         emit changed();
         return true;
@@ -139,11 +139,11 @@ bool WorldList::deleteWorld(int index)
 bool WorldList::deleteWorlds(int first, int last)
 {
     for (int i = first; i <= last; i++) {
-        World& m = worlds[i];
+        World& m = m_worlds[i];
         m.destroy();
     }
     beginRemoveRows(QModelIndex(), first, last);
-    worlds.erase(worlds.begin() + first, worlds.begin() + last + 1);
+    m_worlds.erase(m_worlds.begin() + first, m_worlds.begin() + last + 1);
     endRemoveRows();
     emit changed();
     return true;
@@ -151,9 +151,9 @@ bool WorldList::deleteWorlds(int first, int last)
 
 bool WorldList::resetIcon(int row)
 {
-    if (row >= worlds.size() || row < 0)
+    if (row >= m_worlds.size() || row < 0)
         return false;
-    World& m = worlds[row];
+    World& m = m_worlds[row];
     if (m.resetIcon()) {
         emit dataChanged(index(row), index(row), { WorldList::IconFileRole });
         return true;
@@ -174,12 +174,12 @@ QVariant WorldList::data(const QModelIndex& index, int role) const
     int row = index.row();
     int column = index.column();
 
-    if (row < 0 || row >= worlds.size())
+    if (row < 0 || row >= m_worlds.size())
         return QVariant();
 
     QLocale locale;
 
-    auto& world = worlds[row];
+    auto& world = m_worlds[row];
     switch (role) {
         case Qt::DisplayRole:
             switch (column) {
@@ -339,9 +339,9 @@ QMimeData* WorldList::mimeData(const QModelIndexList& indexes) const
         if (idx.column() != 0)
             continue;
         int row = idx.row();
-        if (row < 0 || row >= this->worlds.size())
+        if (row < 0 || row >= this->m_worlds.size())
             continue;
-        worlds_.append(this->worlds[row]);
+        worlds_.append(this->m_worlds[row]);
     }
     if (!worlds_.size()) {
         return new QMimeData();
@@ -393,7 +393,7 @@ bool WorldList::dropMimeData(const QMimeData* data,
         return false;
     // files dropped from outside?
     if (data->hasUrls()) {
-        bool was_watching = is_watching;
+        bool was_watching = m_isWatching;
         if (was_watching)
             stopWatching();
         auto urls = data->urls();
