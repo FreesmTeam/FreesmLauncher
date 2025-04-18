@@ -99,7 +99,7 @@ set(CORE_SOURCES
     MTPixmapCache.h
 )
 if (UNIX AND NOT CYGWIN AND NOT APPLE)
-set(CORE_SOURCES
+    set(CORE_SOURCES
     ${CORE_SOURCES}
 
     # MangoHud
@@ -589,8 +589,8 @@ set(ATLAUNCHER_SOURCES
 )
 
 set(LINKEXE_SOURCES
-    console/WindowsConsole.cpp
     console/WindowsConsole.h
+    console/WindowsConsole.cpp
 
     filelink/FileLink.h
     filelink/FileLink.cpp
@@ -658,6 +658,14 @@ set(PRISMUPDATER_SOURCES
     ui/widgets/SubTaskProgressBar.cpp
 
 )
+
+if(WIN32)
+    set(PRISMUPDATER_SOURCES
+        console/WindowsConsole.h
+        console/WindowsConsole.cpp
+        ${PRISMUPDATER_SOURCES}
+    )
+endif()
 
 ######## Logging categories ########
 
@@ -785,6 +793,9 @@ SET(LAUNCHER_SOURCES
     ApplicationMessage.cpp
     SysInfo.h
     SysInfo.cpp
+
+    # console utils
+    console/Console.h
 
     # GUI - general utilities
     DesktopServices.h
@@ -926,7 +937,7 @@ SET(LAUNCHER_SOURCES
     ui/pages/instance/McResolver.h
     ui/pages/instance/ServerPingTask.cpp
     ui/pages/instance/ServerPingTask.h
-    
+
     # GUI - global settings pages
     ui/pages/global/AccountListPage.cpp
     ui/pages/global/AccountListPage.h
@@ -1154,7 +1165,7 @@ SET(LAUNCHER_SOURCES
 )
 
 if (NOT Apple)
-set(LAUNCHER_SOURCES
+    set(LAUNCHER_SOURCES
     ${LAUNCHER_SOURCES}
 
     ui/dialogs/UpdateAvailableDialog.h
@@ -1164,8 +1175,8 @@ endif()
 
 if(WIN32)
     set(LAUNCHER_SOURCES
-        console/WindowsConsole.cpp
         console/WindowsConsole.h
+        console/WindowsConsole.cpp
         ${LAUNCHER_SOURCES}
     )
 endif()
@@ -1324,11 +1335,11 @@ if(APPLE)
     set(CMAKE_INSTALL_RPATH "@loader_path/../Frameworks/")
 
     if(Launcher_ENABLE_UPDATER)
-      file(DOWNLOAD ${MACOSX_SPARKLE_DOWNLOAD_URL} ${CMAKE_BINARY_DIR}/Sparkle.tar.xz EXPECTED_HASH SHA256=${MACOSX_SPARKLE_SHA256})
-      file(ARCHIVE_EXTRACT INPUT ${CMAKE_BINARY_DIR}/Sparkle.tar.xz DESTINATION ${CMAKE_BINARY_DIR}/frameworks/Sparkle)
+        file(DOWNLOAD ${MACOSX_SPARKLE_DOWNLOAD_URL} ${CMAKE_BINARY_DIR}/Sparkle.tar.xz EXPECTED_HASH SHA256=${MACOSX_SPARKLE_SHA256})
+        file(ARCHIVE_EXTRACT INPUT ${CMAKE_BINARY_DIR}/Sparkle.tar.xz DESTINATION ${CMAKE_BINARY_DIR}/frameworks/Sparkle)
 
-      find_library(SPARKLE_FRAMEWORK Sparkle "${CMAKE_BINARY_DIR}/frameworks/Sparkle")
-      add_compile_definitions(SPARKLE_ENABLED)
+        find_library(SPARKLE_FRAMEWORK Sparkle "${CMAKE_BINARY_DIR}/frameworks/Sparkle")
+        add_compile_definitions(SPARKLE_ENABLED)
     endif()
 
     target_link_libraries(Launcher_logic
@@ -1338,7 +1349,7 @@ if(APPLE)
         "-framework ApplicationServices"
     )
     if(Launcher_ENABLE_UPDATER)
-      target_link_libraries(Launcher_logic ${SPARKLE_FRAMEWORK})
+        target_link_libraries(Launcher_logic ${SPARKLE_FRAMEWORK})
     endif()
 endif()
 

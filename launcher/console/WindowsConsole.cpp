@@ -16,14 +16,18 @@
  *
  */
 
+#include "WindowsConsole.h"
+#include <system_error>
+
 #ifndef WIN32_LEAN_AND_MEAN
 #define WIN32_LEAN_AND_MEAN
 #endif
-#include "WindowsConsole.h"
+#include <windows.h>
+
 #include <fcntl.h>
 #include <io.h>
 #include <stdio.h>
-#include <windows.h>
+#include <cstddef>
 #include <iostream>
 
 void RedirectHandle(DWORD handle, FILE* stream, const char* mode)
@@ -128,4 +132,28 @@ bool AttachWindowsConsole()
     return false;
 }
 
-std::error_code
+std::error_code EnableAnsiSupport()
+{
+    // ref: https://docs.microsoft.com/en-us/windows/win32/api/fileapi/nf-fileapi-createfilew
+    // Using `CreateFileW("CONOUT$", ...)` to retrieve the console handle works correctly even if STDOUT and/or STDERR are redirected
+    HANDLE console_handle = CreateFileW(L"CONOUT$", FILE_GENERIC_READ | FILE_GENERIC_WRITE, FILE_SHARE_WRITE, NULL, OPEN_EXISTING, 0, 0);
+    if (console_handle == INVALID_HANDLE_VALUE) {
+        return std::error_code(GetLastError(), std::system_category());
+    }
+
+    // ref: https://docs.microsoft.com/en-us/windows/console/getconsolemode
+    DWORD console_mode;
+    if (0 == GetConsoleMode(console_handle, &console_mode)) {
+        return std::error_code(GetLastError(), std::system_category());
+    }
+
+    // VT processing not already enabled?
+    if ((console_mode & ENABLE_VIRTUAL_TERMINAL_PROCESSING) == 0) {
+        // https://docs.microsoft.com/en-us/windows/console/setconsolemode
+        if (0 == SetConsoleMode(console_handle, console_mode | ENABLE_VIRTUAL_TERMINAL_PROCESSING)) {
+            return std::error_code(GetLastError(), std::system_category());
+        }
+    }
+
+    return {};
+}
