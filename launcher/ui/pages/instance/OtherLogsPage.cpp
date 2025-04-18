@@ -43,11 +43,11 @@
 
 #include <FileSystem.h>
 #include <GZip.h>
-#include <qdir.h>
 #include <qdiriterator.h>
-#include <qfilesystemwatcher.h>
-#include <qurl.h>
+#include <QDir>
+#include <QFileSystemWatcher>
 #include <QShortcut>
+#include <QUrl>
 
 OtherLogsPage::OtherLogsPage(InstancePtr instance, QWidget* parent)
     : QWidget(parent)
@@ -144,7 +144,6 @@ void OtherLogsPage::populateSelectLogBox()
         if (index != -1) {
             ui->selectLogBox->setCurrentIndex(index);
             setControlsEnabled(true);
-            return;
         } else {
             setControlsEnabled(false);
         }
