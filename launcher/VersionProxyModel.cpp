@@ -295,13 +295,11 @@ void VersionProxyModel::sourceDataChanged(const QModelIndex& source_top_left, co
 void VersionProxyModel::setSourceModel(QAbstractItemModel* replacingRaw)
 {
     auto replacing = dynamic_cast<BaseVersionList*>(replacingRaw);
-    beginResetModel();
 
     m_columns.clear();
     if (!replacing) {
         roles.clear();
         filterModel->setSourceModel(replacing);
-        endResetModel();
         return;
     }
 
@@ -343,8 +341,6 @@ void VersionProxyModel::setSourceModel(QAbstractItemModel* replacingRaw)
         hasLatest = true;
     }
     filterModel->setSourceModel(replacing);
-
-    endResetModel();
 }
 
 QModelIndex VersionProxyModel::getRecommended() const
