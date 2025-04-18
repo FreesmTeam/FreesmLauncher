@@ -36,6 +36,8 @@
 #include "GZip.h"
 #include <zlib.h>
 #include <QByteArray>
+#include <QDebug>
+#include <QFile>
 
 bool GZip::unzip(const QByteArray& compressedBytes, QByteArray& uncompressedBytes)
 {
@@ -134,5 +136,67 @@ bool GZip::zip(const QByteArray& uncompressedBytes, QByteArray& compressedBytes)
     if (ret != Z_STREAM_END) {
         return false;
     }
+    return true;
+}
+
+GZipStream::GZipStream(const QString& filePath) : GZipStream(new QFile(filePath)) {}
+
+GZipStream::GZipStream(QFile* file) : m_file(file) {}
+
+bool GZipStream::initStream()
+{
+    memset(&m_strm, 0, sizeof(m_strm));
+    return (inflateInit2(&m_strm, 16 + MAX_WBITS) == Z_OK);
+}
+
+bool GZipStream::unzipBlockByBlock(QByteArray& uncompressedBytes)
+{
+    uncompressedBytes.clear();
+    if (!m_file->isOpen()) {
+        if (!m_file->open(QIODevice::ReadOnly)) {
+            qWarning() << "Failed to open file:" << (m_file->fileName());
+            return false;
+        }
+    }
+
+    if (!m_strm.state && !initStream()) {
+        return false;
+    }
+
+    QByteArray compressedBlock;
+    unsigned int blockSize = 4096;
+
+    compressedBlock = m_file->read(blockSize);
+    if (compressedBlock.isEmpty()) {
+        return true;  // End of file reached
+    }
+
+    bool done = processBlock(compressedBlock, uncompressedBytes);
+    if (inflateEnd(&m_strm) != Z_OK || !done) {
+        return false;
+    }
+    return done;
+}
+
+bool GZipStream::processBlock(const QByteArray& compressedBlock, QByteArray& uncompressedBytes)
+{
+    m_strm.next_in = (Bytef*)compressedBlock.data();
+    m_strm.avail_in = compressedBlock.size();
+
+    unsigned int uncompLength = uncompressedBytes.size();
+    if (m_strm.total_out >= uncompLength) {
+        uncompressedBytes.resize(uncompLength * 2);
+        uncompLength *= 2;
+    }
+
+    m_strm.next_out = reinterpret_cast<Bytef*>(uncompressedBytes.data() + m_strm.total_out);
+    m_strm.avail_out = uncompLength - m_strm.total_out;
+
+    int err = inflate(&m_strm, Z_NO_FLUSH);
+    if (err != Z_OK && err != Z_STREAM_END) {
+        qWarning() << "Decompression failed with error code" << err;
+        return false;
+    }
+
     return true;
 }

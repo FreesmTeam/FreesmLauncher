@@ -42,6 +42,7 @@ LogView::LogView(QWidget* parent) : QPlainTextEdit(parent)
 {
     setWordWrapMode(QTextOption::WrapAtWordBoundaryOrAnywhere);
     m_defaultFormat = new QTextCharFormat(currentCharFormat());
+    setUndoRedoEnabled(false);
 }
 
 LogView::~LogView()
@@ -129,6 +130,8 @@ void LogView::rowsInserted(const QModelIndex& parent, int first, int last)
     QTextDocument document;
     QTextCursor cursor(&document);
 
+    cursor.movePosition(QTextCursor::End);
+    cursor.beginEditBlock();
     for (int i = first; i <= last; i++) {
         auto idx = m_model->index(i, 0, parent);
         auto text = m_model->data(idx, Qt::DisplayRole).toString();
@@ -145,10 +148,10 @@ void LogView::rowsInserted(const QModelIndex& parent, int first, int last)
         if (bg.isValid() && m_colorLines) {
             format.setBackground(bg.value<QColor>());
         }
-        cursor.movePosition(QTextCursor::End);
         cursor.insertText(text, format);
         cursor.insertBlock();
     }
+    cursor.endEditBlock();
 
     QTextDocumentFragment fragment(&document);
     QTextCursor workCursor = textCursor();

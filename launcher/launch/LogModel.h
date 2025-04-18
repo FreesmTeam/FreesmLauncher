@@ -24,6 +24,7 @@ class LogModel : public QAbstractListModel {
     void setMaxLines(int maxLines);
     void setStopOnOverflow(bool stop);
     void setOverflowMessage(const QString& overflowMessage);
+    bool isOverFlow();
 
     void setLineWrap(bool state);
     bool wrapLines() const;
