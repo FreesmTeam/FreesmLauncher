@@ -132,20 +132,25 @@ void OtherLogsPage::closedImpl()
 
 void OtherLogsPage::populateSelectLogBox()
 {
-    QString prevCurrentFile = m_currentFile;
+    const QString prevCurrentFile = m_currentFile;
 
+    ui->selectLogBox->blockSignals(true);
     ui->selectLogBox->clear();
     ui->selectLogBox->addItems(getPaths());
+    ui->selectLogBox->blockSignals(false);
 
     if (!prevCurrentFile.isEmpty()) {
         const int index = ui->selectLogBox->findText(prevCurrentFile);
         if (index != -1) {
             ui->selectLogBox->setCurrentIndex(index);
             setControlsEnabled(true);
+            return;
         } else {
             setControlsEnabled(false);
         }
     }
+
+    on_selectLogBox_currentIndexChanged(ui->selectLogBox->currentIndex());
 }
 
 void OtherLogsPage::on_selectLogBox_currentIndexChanged(const int index)
