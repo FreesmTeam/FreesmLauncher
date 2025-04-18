@@ -125,9 +125,9 @@
 #include <FileSystem.h>
 #include <LocalPeer.h>
 
+#include <QStringLiteral>
 #include <stdlib.h>
 #include <sys.h>
-#include <QStringLiteral>
 #include "SysInfo.h"
 
 #ifdef Q_OS_LINUX
