@@ -12,7 +12,7 @@ jobs:
 
     # a pr that was a `blocking:<id>` label was merged.
     # find the open pr's it was blocked by and trigger a refresh of their state
-    if: github.event.pull_request.merged == true && contains( join( github.event.pull_request.labels.*.name, ',' ), 'blocking' )
+    if: github.event.pull_request.merged == true && contains(github.event.pull_request.labels.*.name, 'blocking')
 
     steps:
       - name: Generate token
