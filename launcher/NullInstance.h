@@ -35,7 +35,6 @@
  */
 
 #pragma once
-#include <qglobal.h>
 #include "BaseInstance.h"
 #include "launch/LaunchTask.h"
 

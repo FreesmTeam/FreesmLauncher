@@ -39,8 +39,7 @@
 
 #include <Application.h>
 #include <pathmatcher/IPathMatcher.h>
-#include <qfilesystemwatcher.h>
-#include <qglobal.h>
+#include <QFileSystemWatcher>
 #include "LogPage.h"
 #include "ui/pages/BasePage.h"
 
