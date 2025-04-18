@@ -22,9 +22,12 @@
 assert lib.assertMsg (
   gamemodeSupport -> stdenv.hostPlatform.isLinux
 ) "gamemodeSupport is only available on Linux.";
+  let
+    version = self.shortRev or self.dirtyShortRev or "_git";
+  in
   stdenv.mkDerivation {
     pname = "freesmlauncher-unwrapped";
-    version = self.shortRev or self.dirtyShortRev or "_git";
+    inherit version
 
     src = nix-filter.lib {
       root = self;
