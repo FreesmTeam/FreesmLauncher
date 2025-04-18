@@ -19,6 +19,9 @@
 
 #include "LogParser.h"
 
+#include <QRegularExpression>
+#include "MessageLevel.h"
+
 void LogParser::appendLine(QAnyStringView data)
 {
     if (!m_partialData.isEmpty()) {
@@ -202,7 +205,7 @@ std::optional<LogParser::ParsedItem> LogParser::parseNext()
     }
 }
 
-std::optional<QList<LogParser::ParsedItem>> LogParser::parseAvailable()
+QList<LogParser::ParsedItem> LogParser::parseAvailable()
 {
     QList<LogParser::ParsedItem> items;
     bool doNext = true;
@@ -319,4 +322,49 @@ std::optional<LogParser::ParsedItem> LogParser::parseLog4J()
     }
 
     throw std::runtime_error("unreachable: already verified this was a complete log4j:Event");
+}
+
+MessageLevel::Enum LogParser::guessLevel(const QString& line, MessageLevel::Enum level)
+{
+    static const QRegularExpression LINE_WITH_LEVEL("^\\[(?<timestamp>[0-9:]+)\\] \\[[^/]+/(?<level>[^\\]]+)\\]");
+    auto match = LINE_WITH_LEVEL.match(line);
+    if (match.hasMatch()) {
+        // New style logs from log4j
+        QString timestamp = match.captured("timestamp");
+        QString levelStr = match.captured("level");
+        if (levelStr == "INFO")
+            level = MessageLevel::Info;
+        if (levelStr == "WARN")
+            level = MessageLevel::Warning;
+        if (levelStr == "ERROR")
+            level = MessageLevel::Error;
+        if (levelStr == "FATAL")
+            level = MessageLevel::Fatal;
+        if (levelStr == "TRACE" || levelStr == "DEBUG")
+            level = MessageLevel::Debug;
+    } else {
+        // Old style forge logs
+        if (line.contains("[INFO]") || line.contains("[CONFIG]") || line.contains("[FINE]") || line.contains("[FINER]") ||
+            line.contains("[FINEST]"))
+            level = MessageLevel::Info;
+        if (line.contains("[SEVERE]") || line.contains("[STDERR]"))
+            level = MessageLevel::Error;
+        if (line.contains("[WARNING]"))
+            level = MessageLevel::Warning;
+        if (line.contains("[DEBUG]"))
+            level = MessageLevel::Debug;
+    }
+    if (level != MessageLevel::Unknown)
+        return level;
+
+    if (line.contains("overwriting existing"))
+        return MessageLevel::Fatal;
+
+    // NOTE: this diverges from the real regexp. no unicode, the first section is + instead of *
+    // static const QRegularExpression JAVA_EXCEPTION(
+    //     R"(Exception in thread|...\d more$|(\s+at |Caused by: )([a-zA-Z_$][a-zA-Z\d_$]*\.)+[a-zA-Z_$][a-zA-Z\d_$]*)|([a-zA-Z_$][a-zA-Z\d_$]*\.)+[a-zA-Z_$][a-zA-Z\d_$]*(Exception|Error|Throwable)");
+    //
+    // if (line.contains(JAVA_EXCEPTION))
+    //     return MessageLevel::Error;
+    return MessageLevel::Info;
 }

@@ -55,8 +55,11 @@ class LogParser {
 
     void appendLine(QAnyStringView data);
     std::optional<ParsedItem> parseNext();
-    std::optional<QList<ParsedItem>> parseAvailable();
+    QList<ParsedItem> parseAvailable();
     std::optional<Error> getError();
+
+    /// guess log level from a line of game log
+    static MessageLevel::Enum guessLevel(const QString& line, MessageLevel::Enum level);
 
    protected:
     MessageLevel::Enum parseLogLevel(const QString& level);
