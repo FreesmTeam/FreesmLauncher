@@ -218,7 +218,14 @@ void ModFilterWidget::prepareBasicFilter()
     if (m_instance) {
         m_filter->hideInstalled = false;
         m_filter->side = "";  // or "both"
-        auto loaders = m_instance->getPackProfile()->getSupportedModLoaders().value();
+        ModPlatform::ModLoaderTypes loaders;
+        if (m_instance->settings()->get("OverrideModDownloadLoaders").toBool()) {
+            for (auto loader : m_instance->settings()->get("ModDownloadLoaders").toStringList()) {
+                loaders |= ModPlatform::getModLoaderFromString(loader);
+            }
+        } else {
+            loaders = m_instance->getPackProfile()->getSupportedModLoaders().value();
+        }
         ui->neoForge->setChecked(loaders & ModPlatform::NeoForge);
         ui->forge->setChecked(loaders & ModPlatform::Forge);
         ui->fabric->setChecked(loaders & ModPlatform::Fabric);

@@ -58,9 +58,9 @@
           <property name="geometry">
            <rect>
             <x>0</x>
-            <y>-207</y>
-            <width>603</width>
-            <height>694</height>
+            <y>-537</y>
+            <width>623</width>
+            <height>1007</height>
            </rect>
           </property>
           <layout class="QVBoxLayout" name="verticalLayout_5">
@@ -394,7 +394,63 @@
                 <property name="orientation">
                  <enum>Qt::Horizontal</enum>
                 </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>0</width>
+                  <height>0</height>
+                 </size>
+                </property>
                </spacer>
+              </item>
+             </layout>
+            </widget>
+           </item>
+           <item>
+            <widget class="QGroupBox" name="loaderGroup">
+             <property name="title">
+              <string>Override Mod Download &amp;Loaders</string>
+             </property>
+             <property name="checkable">
+              <bool>true</bool>
+             </property>
+             <property name="checked">
+              <bool>false</bool>
+             </property>
+             <layout class="QVBoxLayout" name="verticalLayout_4">
+              <item>
+               <widget class="QCheckBox" name="neoForge">
+                <property name="text">
+                 <string>NeoForge</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QCheckBox" name="forge">
+                <property name="text">
+                 <string>Forge</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QCheckBox" name="fabric">
+                <property name="text">
+                 <string>Fabric</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QCheckBox" name="quilt">
+                <property name="text">
+                 <string>Quilt</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QCheckBox" name="liteLoader">
+                <property name="text">
+                 <string>LiteLoader</string>
+                </property>
+               </widget>
               </item>
              </layout>
             </widget>
@@ -433,8 +489,8 @@
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>624</width>
-            <height>487</height>
+            <width>98</width>
+            <height>28</height>
            </rect>
           </property>
          </widget>
@@ -457,8 +513,8 @@
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>624</width>
-            <height>487</height>
+            <width>299</width>
+            <height>499</height>
            </rect>
           </property>
           <layout class="QVBoxLayout" name="verticalLayout_7">
