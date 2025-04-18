@@ -4,6 +4,12 @@ on:
   pull_request_target:
     types:
       - closed
+  workflow_dispatch:
+    inputs:
+      pr_id:
+        description: Local Pull Request number to work on
+        required: true
+        type: number
 
 jobs:
   update-blocked-status:
@@ -12,7 +18,7 @@ jobs:
 
     # a pr that was a `blocking:<id>` label was merged.
     # find the open pr's it was blocked by and trigger a refresh of their state
-    if: github.event.pull_request.merged == true && contains(github.event.pull_request.labels.*.name, 'blocking')
+    if: ${{ github.event_name == 'workflow_dispatch' || github.event.pull_request.merged == true && contains(github.event.pull_request.labels.*.name, 'blocking') }}
 
     steps:
       - name: Generate token
@@ -26,11 +32,11 @@ jobs:
         id: gather_deps
         env:
           GH_TOKEN: ${{ steps.generate-token.outputs.token }}
-          PR_NUMBER: ${{ github.event.pull_request.number }}
+          PR_NUMBER: ${{ inputs.pr_id || github.event.pull_request.number }}
         run: |
           blocked_prs=$(
           gh -R ${{ github.repository }} pr list --label 'blocked' --json 'number,body' \
-            | jq -c --argjson pr "${{ github.event.pull_request.number }}" '
+            | jq -c --argjson pr "$PR_NUMBER" '
                 reduce ( .[] | select(
                   .body |  
                     scan("(?:blocked (?:by|on)|stacked on):? #([0-9]+)") |
