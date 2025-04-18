@@ -76,8 +76,8 @@ void SkinOpenGLWindow::mousePressEvent(QMouseEvent* e)
 void SkinOpenGLWindow::mouseMoveEvent(QMouseEvent* event)
 {
     if (m_isMousePressed) {
-        int dx = event->x() - m_mousePosition.x();
-        int dy = event->y() - m_mousePosition.y();
+        int dx = event->position().x() - m_mousePosition.x();
+        int dy = event->position().y() - m_mousePosition.y();
 
         m_yaw += dx * 0.5f;
         m_pitch += dy * 0.5f;
