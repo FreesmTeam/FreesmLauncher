@@ -151,6 +151,48 @@ void OtherLogsPage::on_selectLogBox_currentIndexChanged(const int index)
     }
 }
 
+class ReadLineAbstract {
+   public:
+    ReadLineAbstract(QFile* file) : m_file(file)
+    {
+        if (file->fileName().endsWith(".gz"))
+            m_gz = new GZipStream(file);
+    }
+    ~ReadLineAbstract() { delete m_gz; }
+
+    QString readLine()
+    {
+        if (!m_gz)
+            return QString::fromUtf8(m_file->readLine());
+        QString line;
+        for (;;) {
+            if (!m_decodedData.isEmpty()) {
+                int newlineIndex = m_decodedData.indexOf('\n');
+                if (newlineIndex != -1) {
+                    line += QString::fromUtf8(m_decodedData).left(newlineIndex);
+                    m_decodedData.remove(0, newlineIndex + 1);
+                    return line;
+                }
+
+                line += QString::fromUtf8(m_decodedData);
+                m_decodedData.clear();
+            }
+
+            if (!m_gz->unzipBlockByBlock(m_decodedData)) {  // If error occurs during unzipping
+                m_decodedData.clear();
+                return QObject::tr("The content of the file(%1) could not be decoded.").arg(m_file->fileName());
+            }
+        }
+    }
+
+    bool done() { return m_gz ? m_decodedData.isEmpty() : m_file->atEnd(); }
+
+   private:
+    QFile* m_file;
+    GZipStream* m_gz = nullptr;
+    QByteArray m_decodedData;
+};
+
 void OtherLogsPage::on_btnReload_clicked()
 {
     if (m_currentFile.isEmpty()) {
@@ -178,35 +220,17 @@ void OtherLogsPage::on_btnReload_clicked()
             showTooBig();
             return;
         }
-        QString content;
-        if (file.fileName().endsWith(".gz")) {
-            QByteArray temp;
-            if (!GZip::unzip(file.readAll(), temp)) {
-                setPlainText(tr("The file (%1) is not readable.").arg(file.fileName()));
-                return;
-            }
-            content = QString::fromUtf8(temp);
-        } else {
-            content = QString::fromUtf8(file.readAll());
-        }
-        if (content.size() >= 50000000ll) {
-            showTooBig();
-            return;
-        }
 
-        // If the file is not too big for display, but too slow for syntax highlighting, just show content as plain text
-        if (content.size() >= 10000000ll || content.isEmpty()) {
-            setPlainText(content);
-            return;
-        }
+        ReadLineAbstract stream(&file);
 
         // Try to determine a level for each line
-        if (content.back() == '\n')
-            content = content.remove(content.size() - 1, 1);
         ui->text->clear();
         ui->text->setModel(nullptr);
         m_model->clear();
-        for (auto& line : content.split('\n')) {
+        auto line = stream.readLine();
+        while (!stream.done()) {  // just read until the model is full or the file ended
+            if (line.back() == '\n')
+                line = line.remove(line.size() - 1, 1);
             MessageLevel::Enum level = MessageLevel::Unknown;
 
             // if the launcher part set a log level, use it
@@ -221,6 +245,10 @@ void OtherLogsPage::on_btnReload_clicked()
             }
 
             m_model->append(level, line);
+            if (m_model->isOverFlow())
+                break;
+
+            line = stream.readLine();
         }
         ui->text->setModel(m_proxy);
         ui->text->scrollToBottom();

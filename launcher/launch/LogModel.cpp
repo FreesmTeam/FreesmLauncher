@@ -161,3 +161,8 @@ bool LogModel::colorLines() const
 {
     return m_colorLines;
 }
+
+bool LogModel::isOverFlow()
+{
+    return m_numLines >= m_maxLines && m_stopOnOverflow;
+}
