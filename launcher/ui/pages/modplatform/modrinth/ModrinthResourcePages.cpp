@@ -142,9 +142,9 @@ auto ModrinthShaderPackPage::shouldDisplay() const -> bool
     return true;
 }
 
-unique_qobject_ptr<ModFilterWidget> ModrinthModPage::createFilterWidget()
+ModFilterWidget* ModrinthModPage::createFilterWidget()
 {
-    return ModFilterWidget::create(&static_cast<MinecraftInstance&>(m_baseInstance), true, this);
+    return new ModFilterWidget(&static_cast<MinecraftInstance&>(m_baseInstance), true, this);
 }
 
 void ModrinthModPage::prepareProviderCategories()
