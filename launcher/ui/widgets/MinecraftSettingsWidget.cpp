@@ -205,6 +205,7 @@ void MinecraftSettingsWidget::loadSettings()
     m_ui->useZink->setChecked(settings->get("UseZink").toBool());
 
     // Elyby
+    m_ui->elybyGroupBox->setChecked(m_instance == nullptr || settings->get("OverrideElyby").toBool());
     m_ui->elySkinSystemComboBox->setCurrentIndex(settings->get("UseElySkins").toInt());
     m_ui->useInjectorCheckBox->setChecked(settings->get("UseElyAuthlibInjector").toBool());
 
@@ -360,6 +361,9 @@ void MinecraftSettingsWidget::saveSettings()
         }
         // Elyby
         bool elyby = m_instance == nullptr || m_ui->elybyGroupBox->isChecked();
+
+        if (m_instance != nullptr)
+            settings->set("OverrideElyby", elyby);
 
         if (elyby) {
             settings->set("UseElySkins", m_ui->elySkinSystemComboBox->currentIndex());
