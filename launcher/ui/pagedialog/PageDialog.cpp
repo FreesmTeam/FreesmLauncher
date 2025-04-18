@@ -68,7 +68,7 @@ void PageDialog::closeEvent(QCloseEvent* event)
         QDialog::closeEvent(event);
 }
 
-bool PageDialog::handleClose() const
+bool PageDialog::handleClose()
 {
     qDebug() << "Paged dialog close requested";
     if (!m_container->prepareToClose())

@@ -31,7 +31,7 @@ class PageDialog : public QDialog {
    private:
     void accept() override;
     void closeEvent(QCloseEvent* event) override;
-    bool handleClose() const;
+    bool handleClose();
 
    private:
     PageContainer* m_container;
