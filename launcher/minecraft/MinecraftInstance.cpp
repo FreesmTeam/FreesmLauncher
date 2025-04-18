@@ -1019,7 +1019,7 @@ MessageLevel::Enum MinecraftInstance::guessLevel(const QString& line, MessageLev
 
     // NOTE: this diverges from the real regexp. no unicode, the first section is + instead of *
     static const QRegularExpression JAVA_EXCEPTION(
-        R"(Exception in thread|...\d more$|(\s+at |Caused by: )([a-zA-Z_$][a-zA-Z\\d_$]*\.)+[a-zA-Z_$][a-zA-Z\\d_$]*)");
+        R"(Exception in thread|...\d more$|(\s+at |Caused by: )([a-zA-Z_$][a-zA-Z\d_$]*\.)+[a-zA-Z_$][a-zA-Z\d_$]*)|([a-zA-Z_$][a-zA-Z\d_$]*\.)+[a-zA-Z_$][a-zA-Z\d_$]*(Exception|Error|Throwable)");
 
     if (line.contains(JAVA_EXCEPTION))
         return MessageLevel::Error;
