@@ -194,7 +194,7 @@ set(Launcher_FMLLIBS_BASE_URL "https://files.prismlauncher.org/fmllibs/" CACHE S
 
 ######## Set version numbers ########
 set(Launcher_VERSION_MAJOR 1)
-set(Launcher_VERSION_MINOR 2)
+set(Launcher_VERSION_MINOR 3)
 set(Launcher_VERSION_PATCH 0)
 set(Launcher_VERSION_CODENAME "Sequoia")
 
