@@ -404,13 +404,17 @@ QStringList OtherLogsPage::getPaths()
     for (QString searchPath : m_logSearchPaths) {
         QDirIterator iterator(searchPath, QDir::Files | QDir::Readable);
 
+        const bool isRoot = searchPath == m_basePath;
+
         while (iterator.hasNext()) {
             const QString name = iterator.next();
 
-            if (!name.endsWith(".log") && !name.endsWith(".log.gz"))
+            QString relativePath = baseDir.relativeFilePath(name);
+
+            if (!(name.endsWith(".log") || name.endsWith(".log.gz") || (!isRoot && name.endsWith(".txt"))))
                 continue;
 
-            result.append(baseDir.relativeFilePath(name));
+            result.append(relativePath);
         }
     }
 
