@@ -14,7 +14,6 @@
   cmark,
   gamemode,
   nix-filter,
-  libnbtplusplus,
   extra-cmake-modules,
   msaClientID ? null,
   gamemodeSupport ? stdenv.isLinux,
