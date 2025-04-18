@@ -1014,8 +1014,18 @@ QMap<QString, QString> MinecraftInstance::createCensorFilterFromSession(AuthSess
 
 MessageLevel::Enum MinecraftInstance::guessLevel(const QString& line, MessageLevel::Enum level)
 {
-    QRegularExpression re("\\[(?<timestamp>[0-9:]+)\\] \\[[^/]+/(?<level>[^\\]]+)\\]");
-    auto match = re.match(line);
+    if (line.contains("overwriting existing"))
+        return MessageLevel::Fatal;
+
+    // NOTE: this diverges from the real regexp. no unicode, the first section is + instead of *
+    static const QRegularExpression JAVA_EXCEPTION(
+        R"(Exception in thread|...\d more$|(\s+at |Caused by: )([a-zA-Z_$][a-zA-Z\d_$]*\.)+[a-zA-Z_$][a-zA-Z\d_$]*)|([a-zA-Z_$][a-zA-Z\d_$]*\.)+[a-zA-Z_$][a-zA-Z\d_$]*(Exception|Error|Throwable)");
+
+    if (line.contains(JAVA_EXCEPTION))
+        return MessageLevel::Error;
+
+    static const QRegularExpression LINE_WITH_LEVEL("\\[(?<timestamp>[0-9:]+)\\] \\[[^/]+/(?<level>[^\\]]+)\\]");
+    auto match = LINE_WITH_LEVEL.match(line);
     if (match.hasMatch()) {
         // New style logs from log4j
         QString timestamp = match.captured("timestamp");
@@ -1042,15 +1052,6 @@ MessageLevel::Enum MinecraftInstance::guessLevel(const QString& line, MessageLev
         if (line.contains("[DEBUG]"))
             level = MessageLevel::Debug;
     }
-    if (line.contains("overwriting existing"))
-        return MessageLevel::Fatal;
-    // NOTE: this diverges from the real regexp. no unicode, the first section is + instead of *
-    static const QString javaSymbol = "([a-zA-Z_$][a-zA-Z\\d_$]*\\.)+[a-zA-Z_$][a-zA-Z\\d_$]*";
-    if (line.contains("Exception in thread") || line.contains(QRegularExpression("\\s+at " + javaSymbol)) ||
-        line.contains(QRegularExpression("Caused by: " + javaSymbol)) ||
-        line.contains(QRegularExpression("([a-zA-Z_$][a-zA-Z\\d_$]*\\.)+[a-zA-Z_$]?[a-zA-Z\\d_$]*(Exception|Error|Throwable)")) ||
-        line.contains(QRegularExpression("... \\d+ more$")))
-        return MessageLevel::Error;
     return level;
 }
 
