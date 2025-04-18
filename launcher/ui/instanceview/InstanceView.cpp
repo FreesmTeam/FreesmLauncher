@@ -418,7 +418,7 @@ void InstanceView::mouseDoubleClickEvent(QMouseEvent* event)
 
     QModelIndex index = indexAt(event->pos());
     if (!index.isValid() || !(index.flags() & Qt::ItemIsEnabled) || (m_pressedIndex != index)) {
-        QMouseEvent me(QEvent::MouseButtonPress, event->localPos(), event->windowPos(), event->screenPos(), event->button(),
+        QMouseEvent me(QEvent::MouseButtonPress, event->position(), event->scenePosition(), event->globalPosition(), event->button(),
                        event->buttons(), event->modifiers());
         mousePressEvent(&me);
         return;
@@ -598,7 +598,7 @@ void InstanceView::dragEnterEvent(QDragEnterEvent* event)
     if (!isDragEventAccepted(event)) {
         return;
     }
-    m_lastDragPosition = event->pos() + offset();
+    m_lastDragPosition = event->position().toPoint() + offset();
     viewport()->update();
     event->accept();
 }
@@ -610,7 +610,7 @@ void InstanceView::dragMoveEvent(QDragMoveEvent* event)
     if (!isDragEventAccepted(event)) {
         return;
     }
-    m_lastDragPosition = event->pos() + offset();
+    m_lastDragPosition = event->position().toPoint() + offset();
     viewport()->update();
     event->accept();
 }
@@ -636,7 +636,7 @@ void InstanceView::dropEvent(QDropEvent* event)
 
     if (event->source() == this) {
         if (event->possibleActions() & Qt::MoveAction) {
-            std::pair<VisualGroup*, VisualGroup::HitResults> dropPos = rowDropPos(event->pos());
+            std::pair<VisualGroup*, VisualGroup::HitResults> dropPos = rowDropPos(event->position().toPoint());
             const VisualGroup* group = dropPos.first;
             auto hitResult = dropPos.second;
 

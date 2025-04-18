@@ -160,7 +160,7 @@ void PackInstallTask::install()
         // we only care about the libs
         QJsonArray libs = doc.object().value("libraries").toArray();
 
-        foreach (const QJsonValue& value, libs) {
+        for (const auto& value : libs) {
             QString nameValue = value.toObject().value("name").toString();
             if (!nameValue.startsWith("net.minecraftforge")) {
                 continue;
