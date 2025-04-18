@@ -125,9 +125,9 @@
 #include <FileSystem.h>
 #include <LocalPeer.h>
 
-#include <QStringLiteral>
 #include <stdlib.h>
 #include <sys.h>
+#include <QStringLiteral>
 #include "SysInfo.h"
 
 #ifdef Q_OS_LINUX
@@ -176,23 +176,20 @@ static bool isANSIColorConsole;
 static QString defaultLogFormat = QStringLiteral(
     "%{time process}"
     " "
-    "%{if-debug}D%{endif}"
-    "%{if-info}I%{endif}"
-    "%{if-warning}W%{endif}"
-    "%{if-critical}C%{endif}"
-    "%{if-fatal}F%{endif}"
+    "%{if-debug}Debug:%{endif}"
+    "%{if-info}Info:%{endif}"
+    "%{if-warning}Warning:%{endif}"
+    "%{if-critical}Critical:%{endif}"
+    "%{if-fatal}Fatal:%{endif}"
     " "
-    "|"
+    "%{if-category}[%{category}] %{endif}"
+    "%{message}"
     " "
-    "%{function}:%{line}"
-    " "
-    "|"
-    " "
-    "%{if-category}[%{category}]: %{endif}"
-    "%{message}");
+    "(%{function}:%{line})");
 
 #define ansi_reset "\x1b[0m"
 #define ansi_bold "\x1b[1m"
+#define ansi_reset_bold "\x1b[22m"
 #define ansi_faint "\x1b[2m"
 #define ansi_italic "\x1b[3m"
 #define ansi_red_fg "\x1b[31m"
@@ -200,30 +197,26 @@ static QString defaultLogFormat = QStringLiteral(
 #define ansi_yellow_fg "\x1b[33m"
 #define ansi_blue_fg "\x1b[34m"
 #define ansi_purple_fg "\x1b[35m"
+#define ansi_inverse "\x1b[7m"
 
+// clang-format off
 static QString ansiLogFormat = QStringLiteral(
-    "%{time process}"
+    ansi_faint "%{time process}" ansi_reset
     " "
-    "%{if-debug}" ansi_bold ansi_blue_fg "D" ansi_reset
-    "%{endif}"
-    "%{if-info}" ansi_bold ansi_green_fg "I" ansi_reset
-    "%{endif}"
-    "%{if-warning}" ansi_bold ansi_yellow_fg "W" ansi_reset
-    "%{endif}"
-    "%{if-critical}" ansi_bold ansi_red_fg "C" ansi_reset
-    "%{endif}"
-    "%{if-fatal}" ansi_bold ansi_red_fg "F" ansi_reset
-    "%{endif}"
+    "%{if-debug}" ansi_bold ansi_green_fg "D:" ansi_reset "%{endif}"
+    "%{if-info}" ansi_bold ansi_blue_fg "I:" ansi_reset "%{endif}"
+    "%{if-warning}" ansi_bold ansi_yellow_fg "W:" ansi_reset_bold "%{endif}"
+    "%{if-critical}" ansi_bold ansi_red_fg "C:" ansi_reset_bold "%{endif}"
+    "%{if-fatal}" ansi_bold ansi_inverse ansi_red_fg "F:" ansi_reset_bold "%{endif}"
     " "
-    "|"
-    " " ansi_faint ansi_italic "%{function}:%{line}" ansi_reset
+    "%{if-category}" ansi_bold "[%{category}]" ansi_reset_bold " %{endif}"
+    "%{message}"
     " "
-    "|"
-    " "
-    "%{if-category}[" ansi_bold ansi_purple_fg "%{category}" ansi_reset
-    "]: %{endif}"
-    "%{message}");
+    ansi_reset ansi_faint "(%{function}:%{line})" ansi_reset
+);
+// clang-format on
 
+#undef ansi_inverse
 #undef ansi_purple_fg
 #undef ansi_blue_fg
 #undef ansi_yellow_fg
@@ -232,6 +225,7 @@ static QString ansiLogFormat = QStringLiteral(
 #undef ansi_italic
 #undef ansi_faint
 #undef ansi_bold
+#undef ansi_reset_bold
 #undef ansi_reset
 
 namespace {
