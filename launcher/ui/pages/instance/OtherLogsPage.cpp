@@ -142,8 +142,11 @@ void OtherLogsPage::populateSelectLogBox()
     if (!prevCurrentFile.isEmpty()) {
         const int index = ui->selectLogBox->findText(prevCurrentFile);
         if (index != -1) {
+            ui->selectLogBox->blockSignals(true);
             ui->selectLogBox->setCurrentIndex(index);
+            ui->selectLogBox->blockSignals(false);
             setControlsEnabled(true);
+            return;
         } else {
             setControlsEnabled(false);
         }
