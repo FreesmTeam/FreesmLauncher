@@ -14,13 +14,14 @@
   cmark,
   gamemode,
   nix-filter,
-  libnbtplusplus,
   extra-cmake-modules,
   msaClientID ? null,
-  gamemodeSupport ? stdenv.hostPlatform.isLinux,
+  gamemodeSupport ? stdenv.isLinux,
+  version,
+  libnbtplusplus,
 }:
 assert lib.assertMsg (
-  gamemodeSupport -> stdenv.hostPlatform.isLinux
+  gamemodeSupport -> stdenv.isLinux
 ) "gamemodeSupport is only available on Linux.";
   let
     version = self.shortRev or self.dirtyShortRev or "_git";

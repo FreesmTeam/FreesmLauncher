@@ -15,7 +15,7 @@
 DataMigrationTask::DataMigrationTask(const QString& sourcePath, const QString& targetPath, const IPathMatcher::Ptr pathMatcher)
     : Task(), m_sourcePath(sourcePath), m_targetPath(targetPath), m_pathMatcher(pathMatcher), m_copy(sourcePath, targetPath)
 {
-    m_copy.matcher(m_pathMatcher.get()).whitelist(true);
+    m_copy.matcher(m_pathMatcher).whitelist(true);
 }
 
 void DataMigrationTask::executeTask()
@@ -24,7 +24,7 @@ void DataMigrationTask::executeTask()
 
     // 1. Scan
     // Check how many files we gotta copy
-    m_copyFuture = QtConcurrent::run(QThreadPool::globalInstance(), [&] {
+    m_copyFuture = QtConcurrent::run(QThreadPool::globalInstance(), [this] {
         return m_copy(true);  // dry run to collect amount of files
     });
     connect(&m_copyFutureWatcher, &QFutureWatcher<bool>::finished, this, &DataMigrationTask::dryRunFinished);
@@ -57,7 +57,7 @@ void DataMigrationTask::dryRunFinished()
         setProgress(m_copy.totalCopied(), m_toCopy);
         setStatus(tr("Copying %1…").arg(shortenedName));
     });
-    m_copyFuture = QtConcurrent::run(QThreadPool::globalInstance(), [&] {
+    m_copyFuture = QtConcurrent::run(QThreadPool::globalInstance(), [this] {
         return m_copy(false);  // actually copy now
     });
     connect(&m_copyFutureWatcher, &QFutureWatcher<bool>::finished, this, &DataMigrationTask::copyFinished);
