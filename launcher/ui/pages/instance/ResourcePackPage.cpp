@@ -84,10 +84,16 @@ void ResourcePackPage::downloadResourcePacks()
     if (m_instance->typeName() != "Minecraft")
         return;  // this is a null instance or a legacy instance
 
-    auto mdownload = new ResourceDownload::ResourcePackDownloadDialog(this, m_model, m_instance);
-    mdownload->setAttribute(Qt::WA_DeleteOnClose);
-    connect(this, &QObject::destroyed, mdownload, &QDialog::close);
-    if (mdownload->exec()) {
+    m_downloadDialog = new ResourceDownload::ResourcePackDownloadDialog(this, m_model, m_instance);
+    m_downloadDialog->setAttribute(Qt::WA_DeleteOnClose);
+    connect(this, &QObject::destroyed, m_downloadDialog, &QDialog::close);
+    connect(m_downloadDialog, &QDialog::finished, this, &ResourcePackPage::downloadDialogFinished);
+    m_downloadDialog->open();
+}
+
+void ResourcePackPage::downloadDialogFinished(int result)
+{
+    if (result) {
         auto tasks = new ConcurrentTask("Download Resource Pack", APPLICATION->settings()->get("NumberOfConcurrentDownloads").toInt());
         connect(tasks, &Task::failed, [this, tasks](QString reason) {
             CustomMessageBox::selectable(this, tr("Error"), reason, QMessageBox::Critical)->show();
@@ -105,8 +111,12 @@ void ResourcePackPage::downloadResourcePacks()
             tasks->deleteLater();
         });
 
-        for (auto& task : mdownload->getTasks()) {
-            tasks->addTask(task);
+        if (m_downloadDialog) {
+            for (auto& task : m_downloadDialog->getTasks()) {
+                tasks->addTask(task);
+            }
+        } else {
+            qWarning() << "ResourceDownloadDialog vanished before we could collect tasks!";
         }
 
         ProgressDialog loadDialog(this);

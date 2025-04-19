@@ -90,10 +90,14 @@ void TexturePackPage::downloadTexturePacks()
     if (m_instance->typeName() != "Minecraft")
         return;  // this is a null instance or a legacy instance
 
-    auto mdownload = new ResourceDownload::TexturePackDownloadDialog(this, m_model, m_instance);
-    mdownload->setAttribute(Qt::WA_DeleteOnClose);
-    connect(this, &QObject::destroyed, mdownload, &QDialog::close);
-    if (mdownload->exec()) {
+    auto m_downloadDialog = new ResourceDownload::TexturePackDownloadDialog(this, m_model, m_instance);
+    m_downloadDialog->setAttribute(Qt::WA_DeleteOnClose);
+    connect(this, &QObject::destroyed, m_downloadDialog, &QDialog::close);
+}
+
+void TexturePackPage::downloadDialogFinished(int result)
+{
+    if (result) {
         auto tasks = new ConcurrentTask("Download Texture Packs", APPLICATION->settings()->get("NumberOfConcurrentDownloads").toInt());
         connect(tasks, &Task::failed, [this, tasks](QString reason) {
             CustomMessageBox::selectable(this, tr("Error"), reason, QMessageBox::Critical)->show();
@@ -111,8 +115,12 @@ void TexturePackPage::downloadTexturePacks()
             tasks->deleteLater();
         });
 
-        for (auto& task : mdownload->getTasks()) {
-            tasks->addTask(task);
+        if (m_downloadDialog) {
+            for (auto& task : m_downloadDialog->getTasks()) {
+                tasks->addTask(task);
+            }
+        } else {
+            qWarning() << "ResourceDownloadDialog vanished before we could collect tasks!";
         }
 
         ProgressDialog loadDialog(this);

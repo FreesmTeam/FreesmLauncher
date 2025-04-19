@@ -48,6 +48,7 @@
 #include <QMessageBox>
 #include <QSortFilterProxyModel>
 #include <algorithm>
+#include <memory>
 
 #include "Application.h"
 
@@ -145,10 +146,17 @@ void ModFolderPage::downloadMods()
         QMessageBox::critical(this, tr("Error"), tr("Please install a mod loader first!"));
         return;
     }
-    auto mdownload = new ResourceDownload::ModDownloadDialog(this, m_model, m_instance);
-    mdownload->setAttribute(Qt::WA_DeleteOnClose);
-    connect(this, &QObject::destroyed, mdownload, &QDialog::close);
-    if (mdownload->exec()) {
+    
+    m_downloadDialog = new ResourceDownload::ModDownloadDialog(this, m_model, m_instance);
+    m_downloadDialog->setAttribute(Qt::WA_DeleteOnClose);
+    connect(this, &QObject::destroyed, m_downloadDialog, &QDialog::close);
+    connect(m_downloadDialog, &QDialog::finished, this, &ModFolderPage::downloadDialogFinished);
+    m_downloadDialog->open();
+}
+
+void ModFolderPage::downloadDialogFinished(int result)
+{
+    if (result) {
         auto tasks = new ConcurrentTask(tr("Download Mods"), APPLICATION->settings()->get("NumberOfConcurrentDownloads").toInt());
         connect(tasks, &Task::failed, [this, tasks](QString reason) {
             CustomMessageBox::selectable(this, tr("Error"), reason, QMessageBox::Critical)->show();
@@ -166,8 +174,12 @@ void ModFolderPage::downloadMods()
             tasks->deleteLater();
         });
 
-        for (auto& task : mdownload->getTasks()) {
-            tasks->addTask(task);
+        if (m_downloadDialog) {
+            for (auto& task : m_downloadDialog->getTasks()) {
+                tasks->addTask(task);
+            }
+        } else {
+            qWarning() << "ResourceDownloadDialog vanished before we could collect tasks!";
         }
 
         ProgressDialog loadDialog(this);
