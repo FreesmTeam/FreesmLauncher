@@ -428,7 +428,7 @@ static QMap<InstanceId, InstanceLocator> getIdMapping(const QList<InstancePtr>& 
 
 QList<InstanceId> InstanceList::discoverInstances()
 {
-    qDebug() << "Discovering instances in" << m_instDir;
+    qInfo() << "Discovering instances in" << m_instDir;
     QList<InstanceId> out;
     QDirIterator iter(m_instDir, QDir::Dirs | QDir::NoDot | QDir::NoDotDot | QDir::Readable | QDir::Hidden, QDirIterator::FollowSymlinks);
     while (iter.hasNext()) {
@@ -447,7 +447,7 @@ QList<InstanceId> InstanceList::discoverInstances()
         }
         auto id = dirInfo.fileName();
         out.append(id);
-        qDebug() << "Found instance ID" << id;
+        qInfo() << "Found instance ID" << id;
     }
     instanceSet = QSet<QString>(out.begin(), out.end());
     m_instancesProbed = true;
@@ -464,7 +464,7 @@ InstanceList::InstListError InstanceList::loadList()
         if (existingIds.contains(id)) {
             auto instPair = existingIds[id];
             existingIds.remove(id);
-            qDebug() << "Should keep and soft-reload" << id;
+            qInfo() << "Should keep and soft-reload" << id;
         } else {
             InstancePtr instPtr = loadInstance(id);
             if (instPtr) {
