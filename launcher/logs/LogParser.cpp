@@ -22,6 +22,8 @@
 #include <QRegularExpression>
 #include "MessageLevel.h"
 
+using namespace Qt::Literals::StringLiterals;
+
 void LogParser::appendLine(QAnyStringView data)
 {
     if (!m_partialData.isEmpty()) {
@@ -70,18 +72,18 @@ std::optional<LogParser::LogEntry> LogParser::parseAttributes()
     for (const auto& attr : attributes) {
         auto name = attr.name();
         auto value = attr.value();
-        if (name == "logger") {
+        if (name == "logger"_L1) {
             entry.logger = value.trimmed().toString();
-        } else if (name == "timestamp") {
+        } else if (name == "timestamp"_L1) {
             if (value.trimmed().isEmpty()) {
                 m_parser.raiseError("log4j:Event Missing required attribute: timestamp");
                 return {};
             }
             entry.timestamp = QDateTime::fromSecsSinceEpoch(value.trimmed().toLongLong());
-        } else if (name == "level") {
+        } else if (name == "level"_L1) {
             entry.levelText = value.trimmed().toString();
             entry.level = parseLogLevel(entry.levelText);
-        } else if (name == "thread") {
+        } else if (name == "thread"_L1) {
             entry.thread = value.trimmed().toString();
         }
     }
@@ -135,7 +137,7 @@ std::optional<LogParser::ParsedItem> LogParser::parseNext()
     m_parser.setNamespaceProcessing(false);
     m_parser.addData(m_buffer);
     if (m_parser.readNextStartElement()) {
-        if (m_parser.qualifiedName() == "log4j:Event") {
+        if (m_parser.qualifiedName() == "log4j:Event"_L1) {
             int depth = 1;
             bool eod = false;
             while (depth > 0 && !eod) {
@@ -235,7 +237,7 @@ std::optional<LogParser::ParsedItem> LogParser::parseLog4J()
     m_parser.addData(m_buffer);
 
     m_parser.readNextStartElement();
-    if (m_parser.qualifiedName() == "log4j:Event") {
+    if (m_parser.qualifiedName() == "log4j:Event"_L1) {
         auto entry_ = parseAttributes();
         if (!entry_.has_value()) {
             setError();
@@ -251,7 +253,7 @@ std::optional<LogParser::ParsedItem> LogParser::parseLog4J()
             switch (tok) {
                 case QXmlStreamReader::TokenType::StartElement: {
                     depth += 1;
-                    if (m_parser.qualifiedName() == "log4j:Message") {
+                    if (m_parser.qualifiedName() == "log4j:Message"_L1) {
                         QString message;
                         bool messageComplete = false;
 
@@ -263,7 +265,7 @@ std::optional<LogParser::ParsedItem> LogParser::parseLog4J()
                                     message.append(m_parser.text());
                                 } break;
                                 case QXmlStreamReader::TokenType::EndElement: {
-                                    if (m_parser.qualifiedName() == "log4j:Message") {
+                                    if (m_parser.qualifiedName() == "log4j:Message"_L1) {
                                         messageComplete = true;
                                     }
                                 } break;
@@ -287,7 +289,7 @@ std::optional<LogParser::ParsedItem> LogParser::parseLog4J()
                     break;
                     case QXmlStreamReader::TokenType::EndElement: {
                         depth -= 1;
-                        if (depth == 0 && m_parser.qualifiedName() == "log4j:Event") {
+                        if (depth == 0 && m_parser.qualifiedName() == "log4j:Event"_L1) {
                             if (foundMessage) {
                                 auto consumed = m_parser.characterOffset();
                                 if (consumed > 0 && consumed <= m_buffer.length()) {
@@ -362,7 +364,8 @@ MessageLevel::Enum LogParser::guessLevel(const QString& line, MessageLevel::Enum
 
     // NOTE: this diverges from the real regexp. no unicode, the first section is + instead of *
     // static const QRegularExpression JAVA_EXCEPTION(
-    //     R"(Exception in thread|...\d more$|(\s+at |Caused by: )([a-zA-Z_$][a-zA-Z\d_$]*\.)+[a-zA-Z_$][a-zA-Z\d_$]*)|([a-zA-Z_$][a-zA-Z\d_$]*\.)+[a-zA-Z_$][a-zA-Z\d_$]*(Exception|Error|Throwable)");
+    //     R"(Exception in thread|...\d more$|(\s+at |Caused by:
+    //     )([a-zA-Z_$][a-zA-Z\d_$]*\.)+[a-zA-Z_$][a-zA-Z\d_$]*)|([a-zA-Z_$][a-zA-Z\d_$]*\.)+[a-zA-Z_$][a-zA-Z\d_$]*(Exception|Error|Throwable)");
     //
     // if (line.contains(JAVA_EXCEPTION))
     //     return MessageLevel::Error;
