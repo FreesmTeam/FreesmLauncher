@@ -1,28 +1,11 @@
 #pragma once
-#include <zlib.h>
 #include <QByteArray>
 #include <QFile>
 
-class GZip {
-   public:
-    static bool unzip(const QByteArray& compressedBytes, QByteArray& uncompressedBytes);
-    static bool zip(const QByteArray& uncompressedBytes, QByteArray& compressedBytes);
-};
+namespace GZip {
 
-class GZipStream {
-   public:
-    explicit GZipStream(const QString& filePath);
-    explicit GZipStream(QFile* file);
+bool unzip(const QByteArray& compressedBytes, QByteArray& uncompressedBytes);
+bool zip(const QByteArray& uncompressedBytes, QByteArray& compressedBytes);
+QString readGzFileByBlocks(QFile* source, std::function<bool(const QByteArray&)> handleBlock);
 
-    // Decompress the next block and return the decompressed data
-    bool unzipBlockByBlock(QByteArray& uncompressedBytes);
-
-   private:
-    bool initStream();
-
-    bool processBlock(const QByteArray& compressedBlock, QByteArray& uncompressedBytes);
-
-   private:
-    QFile* m_file;
-    z_stream m_strm;
-};
+}  // namespace GZip
