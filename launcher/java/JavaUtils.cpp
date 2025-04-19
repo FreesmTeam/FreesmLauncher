@@ -405,7 +405,7 @@ QList<QString> JavaUtils::FindJavaPaths()
 {
     QList<QString> javas;
     javas.append(this->GetDefaultJava()->path);
-    auto scanJavaDir = [&](
+    auto scanJavaDir = [&javas](
                            const QString& dirPath,
                            const std::function<bool(const QFileInfo&)>& filter = [](const QFileInfo&) { return true; }) {
         QDir dir(dirPath);
@@ -424,7 +424,7 @@ QList<QString> JavaUtils::FindJavaPaths()
     };
     // java installed in a snap is installed in the standard directory, but underneath $SNAP
     auto snap = qEnvironmentVariable("SNAP");
-    auto scanJavaDirs = [&](const QString& dirPath) {
+    auto scanJavaDirs = [scanJavaDir, snap](const QString& dirPath) {
         scanJavaDir(dirPath);
         if (!snap.isNull()) {
             scanJavaDir(snap + dirPath);
@@ -442,9 +442,15 @@ QList<QString> JavaUtils::FindJavaPaths()
         QString fileName = info.fileName();
         return fileName.startsWith("openjdk-") || fileName.startsWith("openj9-");
     };
+    // AOSC OS's locations for openjdk
+    auto aoscFilter = [](const QFileInfo& info) {
+        QString fileName = info.fileName();
+        return fileName == "java" || fileName.startsWith("java-");
+    };
     scanJavaDir("/usr/lib64", gentooFilter);
     scanJavaDir("/usr/lib", gentooFilter);
     scanJavaDir("/opt", gentooFilter);
+    scanJavaDir("/usr/lib", aoscFilter);
     // javas stored in Prism Launcher's folder
     scanJavaDirs("java");
     // manually installed JDKs in /opt
@@ -546,12 +552,12 @@ QStringList getPrismJavaBundle()
 {
     QList<QString> javas;
 
-    auto scanDir = [&](QString prefix) {
+    auto scanDir = [&javas](QString prefix) {
         javas.append(FS::PathCombine(prefix, "jre", "bin", JavaUtils::javaExecutable));
         javas.append(FS::PathCombine(prefix, "bin", JavaUtils::javaExecutable));
         javas.append(FS::PathCombine(prefix, JavaUtils::javaExecutable));
     };
-    auto scanJavaDir = [&](const QString& dirPath) {
+    auto scanJavaDir = [scanDir](const QString& dirPath) {
         QDir dir(dirPath);
         if (!dir.exists())
             return;

@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-only
 /*
  *  Prism Launcher - Minecraft Launcher
- *  Copyright (c) 2022 Jamie Mansfield <jmansfield@cadixdev.org>
+ *  Copyright (c) 2022 flowln <flowlnlnln@gmail.com>
  *  Copyright (C) 2022 Sefa Eyeoglu <contact@scrumplex.net>
  *
  *  This program is free software: you can redistribute it and/or modify
@@ -34,51 +34,53 @@
  *      limitations under the License.
  */
 
-#include "CustomCommandsPage.h"
-#include <QTabBar>
-#include <QTabWidget>
-#include <QVBoxLayout>
+#pragma once
 
-CustomCommandsPage::CustomCommandsPage(QWidget* parent) : QWidget(parent)
-{
-    auto verticalLayout = new QVBoxLayout(this);
-    verticalLayout->setObjectName(QStringLiteral("verticalLayout"));
-    verticalLayout->setContentsMargins(0, 0, 0, 0);
+#include <QDir>
+#include <QMap>
+#include <QObject>
+#include <QRunnable>
+#include <memory>
+#include "minecraft/mod/Mod.h"
+#include "tasks/Task.h"
 
-    auto tabWidget = new QTabWidget(this);
-    tabWidget->setObjectName(QStringLiteral("tabWidget"));
-    commands = new CustomCommands(this);
-    commands->setContentsMargins(6, 6, 6, 6);
-    tabWidget->addTab(commands, "Foo");
-    tabWidget->tabBar()->hide();
-    verticalLayout->addWidget(tabWidget);
-    loadSettings();
-}
+class ResourceFolderLoadTask : public Task {
+    Q_OBJECT
+   public:
+    struct Result {
+        QMap<QString, Resource::Ptr> resources;
+    };
+    using ResultPtr = std::shared_ptr<Result>;
+    ResultPtr result() const { return m_result; }
 
-CustomCommandsPage::~CustomCommandsPage() {}
+   public:
+    ResourceFolderLoadTask(const QDir& resource_dir,
+                           const QDir& index_dir,
+                           bool is_indexed,
+                           bool clean_orphan,
+                           std::function<Resource*(const QFileInfo&)> create_function);
 
-bool CustomCommandsPage::apply()
-{
-    applySettings();
-    return true;
-}
+    [[nodiscard]] bool canAbort() const override { return true; }
+    bool abort() override
+    {
+        m_aborted.store(true);
+        return true;
+    }
 
-void CustomCommandsPage::applySettings()
-{
-    auto s = APPLICATION->settings();
-    s->set("PreLaunchCommand", commands->prelaunchCommand());
-    s->set("WrapperCommand", commands->wrapperCommand());
-    s->set("PostExitCommand", commands->postexitCommand());
-}
+    void executeTask() override;
 
-void CustomCommandsPage::loadSettings()
-{
-    auto s = APPLICATION->settings();
-    commands->initialize(false, true, s->get("PreLaunchCommand").toString(), s->get("WrapperCommand").toString(),
-                         s->get("PostExitCommand").toString());
-}
+   private:
+    void getFromMetadata();
 
-void CustomCommandsPage::retranslate()
-{
-    commands->retranslate();
-}
+   private:
+    QDir m_resource_dir, m_index_dir;
+    bool m_is_indexed;
+    bool m_clean_orphan;
+    std::function<Resource*(QFileInfo const&)> m_create_func;
+    ResultPtr m_result;
+
+    std::atomic<bool> m_aborted = false;
+
+    /** This is the thread in which we should put new mod objects */
+    QThread* m_thread_to_spawn_into;
+};

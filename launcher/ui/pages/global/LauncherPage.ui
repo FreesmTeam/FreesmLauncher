@@ -35,7 +35,7 @@
       <string notr="true"/>
      </property>
      <property name="tabShape">
-      <enum>QTabWidget::TabShape::Rounded</enum>
+      <enum>QTabWidget::Rounded</enum>
      </property>
      <property name="currentIndex">
       <number>0</number>
@@ -48,7 +48,7 @@
        <item>
         <widget class="QScrollArea" name="scrollArea">
          <property name="horizontalScrollBarPolicy">
-          <enum>Qt::ScrollBarPolicy::ScrollBarAlwaysOff</enum>
+          <enum>Qt::ScrollBarAsNeeded</enum>
          </property>
          <property name="widgetResizable">
           <bool>true</bool>
@@ -58,8 +58,8 @@
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>448</width>
-            <height>685</height>
+            <width>473</width>
+            <height>770</height>
            </rect>
           </property>
           <layout class="QVBoxLayout" name="verticalLayout_8">
@@ -112,112 +112,6 @@
               <string>Folders</string>
              </property>
              <layout class="QGridLayout" name="foldersBoxLayout">
-              <item row="8" column="0">
-               <widget class="QLabel" name="labelDownloadsDir">
-                <property name="text">
-                 <string>&amp;Downloads:</string>
-                </property>
-                <property name="buddy">
-                 <cstring>downloadsDirTextBox</cstring>
-                </property>
-               </widget>
-              </item>
-              <item row="8" column="2">
-               <widget class="QToolButton" name="downloadsDirBrowseBtn">
-                <property name="text">
-                 <string>Browse</string>
-                </property>
-               </widget>
-              </item>
-              <item row="2" column="1">
-               <widget class="QLineEdit" name="iconsDirTextBox"/>
-              </item>
-              <item row="3" column="1">
-               <widget class="QLineEdit" name="javaDirTextBox"/>
-              </item>
-              <item row="4" column="0">
-               <widget class="QLabel" name="labelSkinsDir">
-                <property name="text">
-                 <string>&amp;Skins:</string>
-                </property>
-                <property name="buddy">
-                 <cstring>skinsDirTextBox</cstring>
-                </property>
-               </widget>
-              </item>
-              <item row="2" column="0">
-               <widget class="QLabel" name="labelIconsDir">
-                <property name="text">
-                 <string>&amp;Icons:</string>
-                </property>
-                <property name="buddy">
-                 <cstring>iconsDirTextBox</cstring>
-                </property>
-               </widget>
-              </item>
-              <item row="9" column="1" colspan="2">
-               <widget class="QCheckBox" name="downloadsDirWatchRecursiveCheckBox">
-                <property name="toolTip">
-                 <string>When enabled, in addition to the downloads folder, its sub folders will also be searched when looking for resources (e.g. when looking for blocked mods on CurseForge).</string>
-                </property>
-                <property name="text">
-                 <string>Check downloads folder recursively</string>
-                </property>
-               </widget>
-              </item>
-              <item row="8" column="1">
-               <widget class="QLineEdit" name="downloadsDirTextBox"/>
-              </item>
-              <item row="3" column="0">
-               <widget class="QLabel" name="labelJavaDir">
-                <property name="text">
-                 <string>&amp;Java:</string>
-                </property>
-                <property name="buddy">
-                 <cstring>javaDirTextBox</cstring>
-                </property>
-               </widget>
-              </item>
-              <item row="1" column="0">
-               <widget class="QLabel" name="labelModsDir">
-                <property name="text">
-                 <string>&amp;Mods:</string>
-                </property>
-                <property name="buddy">
-                 <cstring>modsDirTextBox</cstring>
-                </property>
-               </widget>
-              </item>
-              <item row="4" column="1">
-               <widget class="QLineEdit" name="skinsDirTextBox"/>
-              </item>
-              <item row="1" column="1">
-               <widget class="QLineEdit" name="modsDirTextBox"/>
-              </item>
-              <item row="0" column="1">
-               <widget class="QLineEdit" name="instDirTextBox"/>
-              </item>
-              <item row="1" column="2">
-               <widget class="QToolButton" name="modsDirBrowseBtn">
-                <property name="text">
-                 <string>Browse</string>
-                </property>
-               </widget>
-              </item>
-              <item row="0" column="2">
-               <widget class="QToolButton" name="instDirBrowseBtn">
-                <property name="text">
-                 <string>Browse</string>
-                </property>
-               </widget>
-              </item>
-              <item row="2" column="2">
-               <widget class="QToolButton" name="iconsDirBrowseBtn">
-                <property name="text">
-                 <string>Browse</string>
-                </property>
-               </widget>
-              </item>
               <item row="0" column="0">
                <widget class="QLabel" name="labelInstDir">
                 <property name="text">
@@ -228,19 +122,172 @@
                 </property>
                </widget>
               </item>
-              <item row="3" column="2">
+              <item row="0" column="1" colspan="2">
+               <widget class="QLineEdit" name="instDirTextBox"/>
+              </item>
+              <item row="0" column="3">
+               <widget class="QToolButton" name="instDirBrowseBtn">
+                <property name="text">
+                 <string>Browse</string>
+                </property>
+               </widget>
+              </item>
+
+              <item row="1" column="1">
+               <widget class="QLabel" name="labelRenamingBehavior">
+                <property name="text">
+                 <string>Rename instance folders</string>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="2">
+               <widget class="QComboBox" name="renamingBehaviorComboBox">
+                <item>
+                 <property name="text">
+                  <string>Never</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>Ask</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>Always</string>
+                 </property>
+                </item>
+               </widget>
+              </item>
+
+              <item row="2" column="0">
+               <widget class="QLabel" name="labelModsDir">
+                <property name="text">
+                 <string>&amp;Mods:</string>
+                </property>
+                <property name="buddy">
+                 <cstring>modsDirTextBox</cstring>
+                </property>
+               </widget>
+              </item>
+              <item row="2" column="1" colspan="2">
+               <widget class="QLineEdit" name="modsDirTextBox"/>
+              </item>
+              <item row="2" column="3">
+               <widget class="QToolButton" name="modsDirBrowseBtn">
+                <property name="text">
+                 <string>Browse</string>
+                </property>
+               </widget>
+              </item>
+
+              <item row="3" column="0">
+               <widget class="QLabel" name="labelIconsDir">
+                <property name="text">
+                 <string>&amp;Icons:</string>
+                </property>
+                <property name="buddy">
+                 <cstring>iconsDirTextBox</cstring>
+                </property>
+               </widget>
+              </item>
+              <item row="3" column="1" colspan="2">
+               <widget class="QLineEdit" name="iconsDirTextBox"/>
+              </item>
+              <item row="3" column="3">
+               <widget class="QToolButton" name="iconsDirBrowseBtn">
+                <property name="text">
+                 <string>Browse</string>
+                </property>
+               </widget>
+              </item>
+
+              <item row="4" column="0">
+               <widget class="QLabel" name="labelJavaDir">
+                <property name="text">
+                 <string>&amp;Java:</string>
+                </property>
+                <property name="buddy">
+                 <cstring>javaDirTextBox</cstring>
+                </property>
+               </widget>
+              </item>
+              <item row="4" column="1" colspan="2">
+               <widget class="QLineEdit" name="javaDirTextBox"/>
+              </item>
+              <item row="4" column="3">
                <widget class="QToolButton" name="javaDirBrowseBtn">
                 <property name="text">
                  <string>Browse</string>
                 </property>
                </widget>
               </item>
-              <item row="4" column="2">
+
+              <item row="5" column="0">
+               <widget class="QLabel" name="labelSkinsDir">
+                <property name="text">
+                 <string>&amp;Skins:</string>
+                </property>
+                <property name="buddy">
+                 <cstring>skinsDirTextBox</cstring>
+                </property>
+               </widget>
+              </item>
+              <item row="5" column="1" colspan="2">
+               <widget class="QLineEdit" name="skinsDirTextBox"/>
+              </item>
+              <item row="5" column="3">
                <widget class="QToolButton" name="skinsDirBrowseBtn">
                 <property name="text">
                  <string>Browse</string>
                 </property>
                </widget>
+              </item>
+
+              <item row="6" column="0">
+               <widget class="QLabel" name="labelDownloadsDir">
+                <property name="text">
+                 <string>&amp;Downloads:</string>
+                </property>
+                <property name="buddy">
+                 <cstring>downloadsDirTextBox</cstring>
+                </property>
+               </widget>
+              </item>
+              <item row="6" column="1" colspan="2">
+               <widget class="QLineEdit" name="downloadsDirTextBox"/>
+              </item>
+              <item row="6" column="3">
+               <widget class="QToolButton" name="downloadsDirBrowseBtn">
+                <property name="text">
+                 <string>Browse</string>
+                </property>
+               </widget>
+              </item>
+
+              <item row="7" column="1" colspan="3">
+               <layout class="QHBoxLayout" name="downloadModsCheckLayout">
+                <item>
+                 <widget class="QCheckBox" name="downloadsDirWatchRecursiveCheckBox">
+                  <property name="toolTip">
+                   <string>When enabled, in addition to the downloads folder, its sub folders will also be searched when looking for resources (e.g. when looking for blocked mods on CurseForge).</string>
+                  </property>
+                  <property name="text">
+                   <string>Check downloads folder recursively</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QCheckBox" name="downloadsDirMoveCheckBox">
+                  <property name="toolTip">
+                   <string>When enabled, it will move blocked resources instead of copying them.</string>
+                  </property>
+                  <property name="text">
+                   <string>Move blocked resources</string>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
               </item>
              </layout>
             </widget>
@@ -365,7 +412,7 @@
            <item>
             <spacer name="verticalSpacer_FeaturesTab">
              <property name="orientation">
-              <enum>Qt::Orientation::Vertical</enum>
+              <enum>Qt::Vertical</enum>
              </property>
              <property name="sizeHint" stdset="0">
               <size>
@@ -465,7 +512,7 @@
           <item row="0" column="1">
            <spacer name="horizontalSpacer">
             <property name="orientation">
-             <enum>Qt::Orientation::Horizontal</enum>
+             <enum>Qt::Horizontal</enum>
             </property>
             <property name="sizeHint" stdset="0">
              <size>
@@ -513,7 +560,7 @@
        <item>
         <spacer name="verticalSpacer_UserInterfaceTab">
          <property name="orientation">
-          <enum>Qt::Orientation::Vertical</enum>
+          <enum>Qt::Vertical</enum>
          </property>
          <property name="sizeHint" stdset="0">
           <size>
@@ -530,36 +577,6 @@
        <string>Console</string>
       </attribute>
       <layout class="QVBoxLayout" name="verticalLayout_2">
-       <item>
-        <widget class="QGroupBox" name="consoleSettingsBox">
-         <property name="title">
-          <string>Console Settings</string>
-         </property>
-         <layout class="QVBoxLayout" name="verticalLayout_3">
-          <item>
-           <widget class="QCheckBox" name="showConsoleCheck">
-            <property name="text">
-             <string>Show console while the game is &amp;running</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QCheckBox" name="autoCloseConsoleCheck">
-            <property name="text">
-             <string>&amp;Automatically close console when the game quits</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QCheckBox" name="showConsoleErrorCheck">
-            <property name="text">
-             <string>Show console when the game &amp;crashes</string>
-            </property>
-           </widget>
-          </item>
-         </layout>
-        </widget>
-       </item>
        <item>
         <widget class="QGroupBox" name="groupBox_4">
          <property name="title">
@@ -622,13 +639,13 @@
              </sizepolicy>
             </property>
             <property name="horizontalScrollBarPolicy">
-             <enum>Qt::ScrollBarPolicy::ScrollBarAlwaysOff</enum>
+             <enum>Qt::ScrollBarAsNeeded</enum>
             </property>
             <property name="undoRedoEnabled">
              <bool>false</bool>
             </property>
             <property name="textInteractionFlags">
-             <set>Qt::TextInteractionFlag::TextSelectableByKeyboard|Qt::TextInteractionFlag::TextSelectableByMouse</set>
+             <set>Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse</set>
             </property>
            </widget>
           </item>
@@ -701,9 +718,6 @@
   <tabstop>sortByNameBtn</tabstop>
   <tabstop>catOpacitySpinBox</tabstop>
   <tabstop>preferMenuBarCheckBox</tabstop>
-  <tabstop>showConsoleCheck</tabstop>
-  <tabstop>autoCloseConsoleCheck</tabstop>
-  <tabstop>showConsoleErrorCheck</tabstop>
   <tabstop>lineLimitSpinBox</tabstop>
   <tabstop>checkStopLogging</tabstop>
   <tabstop>consoleFont</tabstop>
