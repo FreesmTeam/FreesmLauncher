@@ -62,7 +62,6 @@ class LogParser {
     static MessageLevel::Enum guessLevel(const QString& line, MessageLevel::Enum level);
 
    protected:
-    MessageLevel::Enum parseLogLevel(const QString& level);
     std::optional<LogEntry> parseAttributes();
     void setError();
     void clearError();

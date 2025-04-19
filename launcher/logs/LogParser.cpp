@@ -29,36 +29,14 @@ void LogParser::appendLine(QAnyStringView data)
     if (!m_partialData.isEmpty()) {
         m_buffer = QString(m_partialData);
         m_buffer.append("\n");
-        m_buffer.append(data.toString());
         m_partialData.clear();
-    } else {
-        m_buffer.append(data.toString());
     }
+    m_buffer.append(data.toString());
 }
 
 std::optional<LogParser::Error> LogParser::getError()
 {
     return m_error;
-}
-
-MessageLevel::Enum LogParser::parseLogLevel(const QString& level)
-{
-    auto test = level.trimmed().toUpper();
-    if (test == "TRACE") {
-        return MessageLevel::Trace;
-    } else if (test == "DEBUG") {
-        return MessageLevel::Debug;
-    } else if (test == "INFO") {
-        return MessageLevel::Info;
-    } else if (test == "WARN") {
-        return MessageLevel::Warning;
-    } else if (test == "ERROR") {
-        return MessageLevel::Error;
-    } else if (test == "FATAL") {
-        return MessageLevel::Fatal;
-    } else {
-        return MessageLevel::Unknown;
-    }
 }
 
 std::optional<LogParser::LogEntry> LogParser::parseAttributes()
@@ -82,7 +60,7 @@ std::optional<LogParser::LogEntry> LogParser::parseAttributes()
             entry.timestamp = QDateTime::fromSecsSinceEpoch(value.trimmed().toLongLong());
         } else if (name == "level"_L1) {
             entry.levelText = value.trimmed().toString();
-            entry.level = parseLogLevel(entry.levelText);
+            entry.level = MessageLevel::getLevel(entry.levelText);
         } else if (name == "thread"_L1) {
             entry.thread = value.trimmed().toString();
         }
@@ -137,7 +115,7 @@ std::optional<LogParser::ParsedItem> LogParser::parseNext()
     m_parser.setNamespaceProcessing(false);
     m_parser.addData(m_buffer);
     if (m_parser.readNextStartElement()) {
-        if (m_parser.qualifiedName() == "log4j:Event"_L1) {
+        if (m_parser.qualifiedName().compare("log4j:Event"_L1, Qt::CaseInsensitive) == 0) {
             int depth = 1;
             bool eod = false;
             while (depth > 0 && !eod) {
@@ -237,7 +215,7 @@ std::optional<LogParser::ParsedItem> LogParser::parseLog4J()
     m_parser.addData(m_buffer);
 
     m_parser.readNextStartElement();
-    if (m_parser.qualifiedName() == "log4j:Event"_L1) {
+    if (m_parser.qualifiedName().compare("log4j:Event"_L1, Qt::CaseInsensitive) == 0) {
         auto entry_ = parseAttributes();
         if (!entry_.has_value()) {
             setError();
@@ -248,72 +226,95 @@ std::optional<LogParser::ParsedItem> LogParser::parseLog4J()
         bool foundMessage = false;
         int depth = 1;
 
+        enum parseOp { noOp, entryReady, parseError };
+
+        auto foundStart = [&]() -> parseOp {
+            depth += 1;
+            if (m_parser.qualifiedName().compare("log4j:Message"_L1, Qt::CaseInsensitive) == 0) {
+                QString message;
+                bool messageComplete = false;
+
+                while (!messageComplete) {
+                    auto tok = m_parser.readNext();
+
+                    switch (tok) {
+                        case QXmlStreamReader::TokenType::Characters: {
+                            message.append(m_parser.text());
+                        } break;
+                        case QXmlStreamReader::TokenType::EndElement: {
+                            if (m_parser.qualifiedName().compare("log4j:Message"_L1, Qt::CaseInsensitive) == 0) {
+                                messageComplete = true;
+                            }
+                        } break;
+                        case QXmlStreamReader::TokenType::EndDocument: {
+                            return parseError;  // parse fail
+                        } break;
+                        default: {
+                            // no op
+                        }
+                    }
+
+                    if (m_parser.hasError()) {
+                        return parseError;
+                    }
+                }
+
+                entry.message = message;
+                foundMessage = true;
+                depth -= 1;
+            }
+            return noOp;
+        };
+
+        auto foundEnd = [&]() -> parseOp {
+            depth -= 1;
+            if (depth == 0 && m_parser.qualifiedName().compare("log4j:Event"_L1, Qt::CaseInsensitive) == 0) {
+                if (foundMessage) {
+                    auto consumed = m_parser.characterOffset();
+                    if (consumed > 0 && consumed <= m_buffer.length()) {
+                        m_buffer = m_buffer.right(m_buffer.length() - consumed);
+
+                        if (!m_buffer.isEmpty() && m_buffer.trimmed().isEmpty()) {
+                            // only whitespace, dump it
+                            m_buffer.clear();
+                        }
+                    }
+                    clearError();
+                    return entryReady;
+                }
+                m_parser.raiseError("log4j:Event Missing required attribute: message");
+                setError();
+                return parseError;
+            }
+            return noOp;
+        };
+
         while (!m_parser.atEnd()) {
             auto tok = m_parser.readNext();
+            parseOp op = noOp;
             switch (tok) {
                 case QXmlStreamReader::TokenType::StartElement: {
-                    depth += 1;
-                    if (m_parser.qualifiedName() == "log4j:Message"_L1) {
-                        QString message;
-                        bool messageComplete = false;
+                    op = foundStart();
+                } break;
+                case QXmlStreamReader::TokenType::EndElement: {
+                    op = foundEnd();
+                } break;
+                case QXmlStreamReader::TokenType::EndDocument: {
+                    return {};
+                } break;
+                default: {
+                    // no op
+                }
+            }
 
-                        while (!messageComplete) {
-                            auto tok = m_parser.readNext();
-
-                            switch (tok) {
-                                case QXmlStreamReader::TokenType::Characters: {
-                                    message.append(m_parser.text());
-                                } break;
-                                case QXmlStreamReader::TokenType::EndElement: {
-                                    if (m_parser.qualifiedName() == "log4j:Message"_L1) {
-                                        messageComplete = true;
-                                    }
-                                } break;
-                                case QXmlStreamReader::TokenType::EndDocument: {
-                                    return {};  // parse fail
-                                } break;
-                                default: {
-                                    // no op
-                                }
-                            }
-
-                            if (m_parser.hasError()) {
-                                return {};
-                            }
-                        }
-
-                        entry.message = message;
-                        foundMessage = true;
-                        depth -= 1;
-                    }
-                    break;
-                    case QXmlStreamReader::TokenType::EndElement: {
-                        depth -= 1;
-                        if (depth == 0 && m_parser.qualifiedName() == "log4j:Event"_L1) {
-                            if (foundMessage) {
-                                auto consumed = m_parser.characterOffset();
-                                if (consumed > 0 && consumed <= m_buffer.length()) {
-                                    m_buffer = m_buffer.right(m_buffer.length() - consumed);
-
-                                    if (!m_buffer.isEmpty() && m_buffer.trimmed().isEmpty()) {
-                                        // only whitespace, dump it
-                                        m_buffer.clear();
-                                    }
-                                }
-                                clearError();
-                                return entry;
-                            }
-                            m_parser.raiseError("log4j:Event Missing required attribute: message");
-                            setError();
-                            return {};
-                        }
-                    } break;
-                    case QXmlStreamReader::TokenType::EndDocument: {
-                        return {};
-                    } break;
-                    default: {
-                        // no op
-                    }
+            switch (op) {
+                case parseError:
+                    return {};  // parse fail or error
+                case entryReady:
+                    return entry;
+                case noOp:
+                default: {
+                    // no op
                 }
             }
 
@@ -334,16 +335,7 @@ MessageLevel::Enum LogParser::guessLevel(const QString& line, MessageLevel::Enum
         // New style logs from log4j
         QString timestamp = match.captured("timestamp");
         QString levelStr = match.captured("level");
-        if (levelStr == "INFO")
-            level = MessageLevel::Info;
-        if (levelStr == "WARN")
-            level = MessageLevel::Warning;
-        if (levelStr == "ERROR")
-            level = MessageLevel::Error;
-        if (levelStr == "FATAL")
-            level = MessageLevel::Fatal;
-        if (levelStr == "TRACE" || levelStr == "DEBUG")
-            level = MessageLevel::Debug;
+        level = MessageLevel::getLevel(levelStr);
     } else {
         // Old style forge logs
         if (line.contains("[INFO]") || line.contains("[CONFIG]") || line.contains("[FINE]") || line.contains("[FINER]") ||
