@@ -1302,7 +1302,7 @@ target_link_libraries(Launcher_logic
     qdcss
     BuildConfig
     Qt${QT_VERSION_MAJOR}::Widgets
-    qrcode
+    qrcodegenerator
 )
 
 if (UNIX AND NOT CYGWIN AND NOT APPLE)

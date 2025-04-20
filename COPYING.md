@@ -404,7 +404,7 @@
     You should have received a copy of the GNU Lesser General Public
     License along with this library. If not, see <http://www.gnu.org/licenses/>.
 
-## qt-qrcodegenerator (`libraries/qt-qrcodegenerator`)
+## QR-Code-generator (`libraries/qrcodegenerator`)
 
     Copyright © 2024 Project Nayuki. (MIT License)
     https://www.nayuki.io/page/qr-code-generator-library

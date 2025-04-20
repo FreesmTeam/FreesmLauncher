@@ -32,7 +32,7 @@
         "type": "github"
       }
     },
-    "qt-qrcodegenerator": {
+    "qrcodegenerator": {
       "flake": false,
       "locked": {
         "lastModified": 1737616857,
@@ -52,7 +52,7 @@
       "inputs": {
         "libnbtplusplus": "libnbtplusplus",
         "nixpkgs": "nixpkgs",
-        "qt-qrcodegenerator": "qt-qrcodegenerator"
+        "qrcodegenerator": "qrcodegenerator"
       }
     }
   },
