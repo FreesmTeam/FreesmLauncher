@@ -61,8 +61,17 @@ jobs:
       id-token: write
 
     steps:
+      - name: Get merge commit
+        if: ${{ github.event_name == 'pull_request_target' }}
+        id: merge-commit
+        uses: ./.github/actions/get-merge-commit.yml
+        with:
+          pull-request-id: ${{ github.event.pull_request.id }}
+    
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          ref: ${{ steps.merge-commit.outputs.merge-commit-sha || github.sha }}
 
       - name: Install Nix
         uses: DeterminateSystems/nix-installer-action@v16
