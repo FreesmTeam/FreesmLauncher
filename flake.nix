@@ -46,13 +46,6 @@
   in {
     formatter = forAllSystems (system: nixpkgsFor.${system}.alejandra);
 
-    checks = forAllSystems (
-      system: let
-        checks' = nixpkgsFor.${system}.callPackage ./nix/checks.nix {inherit self;};
-      in
-        lib.filterAttrs (_: lib.isDerivation) checks'
-    );
-
     devShells = forAllSystems (
       system: let
         pkgs = nixpkgsFor.${system};

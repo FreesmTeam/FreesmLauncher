@@ -14,21 +14,17 @@
   cmark,
   gamemode,
   nix-filter,
+  libnbtplusplus,
   extra-cmake-modules,
   msaClientID ? null,
-  gamemodeSupport ? stdenv.isLinux,
-  version,
-  libnbtplusplus,
+  gamemodeSupport ? stdenv.hostPlatform.isLinux,
 }:
 assert lib.assertMsg (
-  gamemodeSupport -> stdenv.isLinux
+  gamemodeSupport -> stdenv.hostPlatform.isLinux
 ) "gamemodeSupport is only available on Linux.";
-  let
-    version = self.shortRev or self.dirtyShortRev or "_git";
-  in
   stdenv.mkDerivation {
     pname = "freesmlauncher-unwrapped";
-    inherit version
+    version = self.shortRev or self.dirtyShortRev or "_git";
 
     src = nix-filter.lib {
       root = self;
