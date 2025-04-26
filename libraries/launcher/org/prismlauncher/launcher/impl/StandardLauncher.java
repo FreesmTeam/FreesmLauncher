@@ -107,6 +107,7 @@ public final class StandardLauncher extends AbstractLauncher {
 
         // pass the real main class and game arguments in so mods can access them
         System.setProperty("org.prismlauncher.launch.mainclass", mainClassName);
+        // unit separator ('\u001F') delimited list of game args
         System.setProperty("org.prismlauncher.launch.gameargs", joinedGameArgs.toString());
 
         // find and invoke the main method
