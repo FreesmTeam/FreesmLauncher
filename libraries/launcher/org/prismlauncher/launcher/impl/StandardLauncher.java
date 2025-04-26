@@ -100,7 +100,7 @@ public final class StandardLauncher extends AbstractLauncher {
         StringBuilder joinedGameArgs = new StringBuilder();
         for (String gameArg : gameArgs) {
             if (joinedGameArgs.length() > 0) {
-                joinedGameArgs.append(" ");
+                joinedGameArgs.append('\u001F'); // unit separator, designed for this purpose
             }
             joinedGameArgs.append(gameArg);
         }
