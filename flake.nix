@@ -138,6 +138,8 @@
 
         {
           default = pkgs.mkShell {
+            name = "prism-launcher";
+
             inputsFrom = [ packages'.prismlauncher-unwrapped ];
 
             packages = with pkgs; [
