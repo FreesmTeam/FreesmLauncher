@@ -70,7 +70,7 @@ jobs:
       - name: Get merge commit
         if: ${{ github.event_name == 'pull_request_target' }}
         id: merge-commit
-        uses: ./.github/actions/get-merge-commit.yml
+        uses: PrismLauncher/PrismLauncher/.github/actions/get-merge-commit@develop
         with:
           pull-request-id: ${{ github.event.pull_request.id }}
     
