@@ -77,7 +77,7 @@ void Flame::loadIndexedInfo(IndexedPack& pack, QJsonObject& obj)
 
 void Flame::loadIndexedPackVersions(Flame::IndexedPack& pack, QJsonArray& arr)
 {
-    QVector<Flame::IndexedVersion> unsortedVersions;
+    QList<Flame::IndexedVersion> unsortedVersions;
     for (auto versionIter : arr) {
         auto version = Json::requireObject(versionIter);
         Flame::IndexedVersion file;

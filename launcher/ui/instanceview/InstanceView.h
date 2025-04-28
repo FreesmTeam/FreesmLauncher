@@ -83,7 +83,7 @@ class InstanceView : public QAbstractItemView {
     virtual void updateGeometries() override;
 
    protected slots:
-    virtual void dataChanged(const QModelIndex& topLeft, const QModelIndex& bottomRight, const QVector<int>& roles) override;
+    virtual void dataChanged(const QModelIndex& topLeft, const QModelIndex& bottomRight, const QList<int>& roles) override;
     virtual void rowsInserted(const QModelIndex& parent, int start, int end) override;
     virtual void rowsAboutToBeRemoved(const QModelIndex& parent, int start, int end) override;
     void modelReset();

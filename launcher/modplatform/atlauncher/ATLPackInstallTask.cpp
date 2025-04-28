@@ -689,7 +689,7 @@ void PackInstallTask::downloadMods()
 {
     qDebug() << "PackInstallTask::installMods: " << QThread::currentThreadId();
 
-    QVector<ATLauncher::VersionMod> optionalMods;
+    QList<ATLauncher::VersionMod> optionalMods;
     for (const auto& mod : m_version.mods) {
         if (mod.optional) {
             optionalMods.push_back(mod);
@@ -697,7 +697,7 @@ void PackInstallTask::downloadMods()
     }
 
     // Select optional mods, if pack contains any
-    QVector<QString> selectedMods;
+    QList<QString> selectedMods;
     if (!optionalMods.isEmpty()) {
         setStatus(tr("Selecting optional mods..."));
         auto mods = m_support->chooseOptionalMods(m_version, optionalMods);

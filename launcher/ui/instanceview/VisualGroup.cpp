@@ -55,7 +55,7 @@ void VisualGroup::update()
     auto itemsPerRow = view->itemsPerRow();
 
     int numRows = qMax(1, qCeil((qreal)temp_items.size() / (qreal)itemsPerRow));
-    rows = QVector<VisualRow>(numRows);
+    rows = QList<VisualRow>(numRows);
 
     int maxRowHeight = 0;
     int positionInRow = 0;

@@ -188,10 +188,10 @@ T ensureIsType(const QJsonObject& parent, const QString& key, const T default_ =
 }
 
 template <typename T>
-QVector<T> requireIsArrayOf(const QJsonDocument& doc)
+QList<T> requireIsArrayOf(const QJsonDocument& doc)
 {
     const QJsonArray array = requireArray(doc);
-    QVector<T> out;
+    QList<T> out;
     for (const QJsonValue val : array) {
         out.append(requireIsType<T>(val, "Document"));
     }
@@ -199,10 +199,10 @@ QVector<T> requireIsArrayOf(const QJsonDocument& doc)
 }
 
 template <typename T>
-QVector<T> ensureIsArrayOf(const QJsonValue& value, const QString& what = "Value")
+QList<T> ensureIsArrayOf(const QJsonValue& value, const QString& what = "Value")
 {
     const QJsonArray array = ensureIsType<QJsonArray>(value, QJsonArray(), what);
-    QVector<T> out;
+    QList<T> out;
     for (const QJsonValue val : array) {
         out.append(requireIsType<T>(val, what));
     }
@@ -210,7 +210,7 @@ QVector<T> ensureIsArrayOf(const QJsonValue& value, const QString& what = "Value
 }
 
 template <typename T>
-QVector<T> ensureIsArrayOf(const QJsonValue& value, const QVector<T> default_, const QString& what = "Value")
+QList<T> ensureIsArrayOf(const QJsonValue& value, const QList<T> default_, const QString& what = "Value")
 {
     if (value.isUndefined()) {
         return default_;
@@ -220,7 +220,7 @@ QVector<T> ensureIsArrayOf(const QJsonValue& value, const QVector<T> default_, c
 
 /// @throw JsonException
 template <typename T>
-QVector<T> requireIsArrayOf(const QJsonObject& parent, const QString& key, const QString& what = "__placeholder__")
+QList<T> requireIsArrayOf(const QJsonObject& parent, const QString& key, const QString& what = "__placeholder__")
 {
     const QString localWhat = QString(what).replace("__placeholder__", '\'' + key + '\'');
     if (!parent.contains(key)) {
@@ -230,10 +230,10 @@ QVector<T> requireIsArrayOf(const QJsonObject& parent, const QString& key, const
 }
 
 template <typename T>
-QVector<T> ensureIsArrayOf(const QJsonObject& parent,
-                           const QString& key,
-                           const QVector<T>& default_ = QVector<T>(),
-                           const QString& what = "__placeholder__")
+QList<T> ensureIsArrayOf(const QJsonObject& parent,
+                         const QString& key,
+                         const QList<T>& default_ = QList<T>(),
+                         const QString& what = "__placeholder__")
 {
     const QString localWhat = QString(what).replace("__placeholder__", '\'' + key + '\'');
     if (!parent.contains(key)) {

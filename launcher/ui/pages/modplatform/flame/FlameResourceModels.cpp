@@ -95,7 +95,7 @@ void FlameTexturePackModel::loadIndexedPackVersions(ModPlatform::IndexedPack& m,
 {
     FlameMod::loadIndexedPackVersions(m, arr);
 
-    QVector<ModPlatform::IndexedVersion> filtered_versions(m.versions.size());
+    QList<ModPlatform::IndexedVersion> filtered_versions(m.versions.size());
 
     // FIXME: Client-side version filtering. This won't take into account any user-selected filtering.
     for (auto const& version : m.versions) {

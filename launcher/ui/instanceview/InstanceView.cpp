@@ -89,7 +89,7 @@ void InstanceView::setModel(QAbstractItemModel* model)
 
 void InstanceView::dataChanged([[maybe_unused]] const QModelIndex& topLeft,
                                [[maybe_unused]] const QModelIndex& bottomRight,
-                               [[maybe_unused]] const QVector<int>& roles)
+                               [[maybe_unused]] const QList<int>& roles)
 {
     scheduleDelayedItemsLayout();
 }

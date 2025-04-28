@@ -99,7 +99,7 @@ void loadIndexedInfo(Modpack& pack, QJsonObject& obj)
 
 void loadIndexedVersions(Modpack& pack, QJsonDocument& doc)
 {
-    QVector<ModpackVersion> unsortedVersions;
+    QList<ModpackVersion> unsortedVersions;
 
     auto arr = Json::requireArray(doc);
 

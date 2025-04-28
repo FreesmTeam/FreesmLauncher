@@ -42,7 +42,7 @@ class LogModel : public QAbstractListModel {
     };
 
    private: /* data */
-    QVector<entry> m_content;
+    QList<entry> m_content;
     int m_maxLines = 1000;
     // first line in the circular buffer
     int m_firstLine = 0;

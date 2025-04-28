@@ -153,7 +153,7 @@ struct TranslationsModel::Private {
     QDir m_dir;
 
     // initial state is just english
-    QVector<Language> m_languages = { Language(defaultLangCode) };
+    QList<Language> m_languages = { Language(defaultLangCode) };
 
     QString m_selectedLanguage = defaultLangCode;
     std::unique_ptr<QTranslator> m_qt_translator;
@@ -417,7 +417,7 @@ int TranslationsModel::columnCount([[maybe_unused]] const QModelIndex& parent) c
     return 2;
 }
 
-QVector<Language>::Iterator TranslationsModel::findLanguage(const QString& key)
+QList<Language>::Iterator TranslationsModel::findLanguage(const QString& key)
 {
     return std::find_if(d->m_languages.begin(), d->m_languages.end(), [key](Language& lang) { return lang.key == key; });
 }
