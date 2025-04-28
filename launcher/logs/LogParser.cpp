@@ -105,8 +105,9 @@ std::optional<LogParser::ParsedItem> LogParser::parseNext()
     }
 
     if (m_buffer.trimmed().isEmpty()) {
+        auto text = QString(m_buffer);
         m_buffer.clear();
-        return {};
+        return LogParser::PlainText { text };
     }
 
     // check if we have a full xml log4j event
@@ -177,11 +178,7 @@ std::optional<LogParser::ParsedItem> LogParser::parseNext()
         // no log4j found, all plain text
         auto text = QString(m_buffer);
         m_buffer.clear();
-        if (text.trimmed().isEmpty()) {
-            return {};
-        } else {
-            return LogParser::PlainText{ text };
-        }
+        return LogParser::PlainText{ text };
     }
 }
 
@@ -273,11 +270,7 @@ std::optional<LogParser::ParsedItem> LogParser::parseLog4J()
                     auto consumed = m_parser.characterOffset();
                     if (consumed > 0 && consumed <= m_buffer.length()) {
                         m_buffer = m_buffer.right(m_buffer.length() - consumed);
-
-                        if (!m_buffer.isEmpty() && m_buffer.trimmed().isEmpty()) {
-                            // only whitespace, dump it
-                            m_buffer.clear();
-                        }
+                        // potential whitespace preserved for next item
                     }
                     clearError();
                     return entryReady;
