@@ -37,7 +37,10 @@
 
 #pragma once
 
+#include <QPointer>
+
 #include "ExternalResourcesPage.h"
+#include "ui/dialogs/ResourceDownloadDialog.h"
 #include "ui_ExternalResourcesPage.h"
 
 #include "minecraft/mod/ResourcePackFolderModel.h"
@@ -62,10 +65,12 @@ class ResourcePackPage : public ExternalResourcesPage {
 
    private slots:
     void downloadResourcePacks();
+    void downloadDialogFinished(int result);
     void updateResourcePacks();
     void deleteResourcePackMetadata();
     void changeResourcePackVersion();
 
    protected:
     std::shared_ptr<ResourcePackFolderModel> m_model;
+    QPointer<ResourceDownload::ResourceDownloadDialog> m_downloadDialog;
 };

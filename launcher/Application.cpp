@@ -96,6 +96,7 @@
 #include <QList>
 #include <QNetworkAccessManager>
 #include <QStringList>
+#include <QStringLiteral>
 #include <QStyleFactory>
 #include <QTranslator>
 #include <QWindow>
@@ -125,7 +126,6 @@
 #include <FileSystem.h>
 #include <LocalPeer.h>
 
-#include <QStringLiteral>
 #include <stdlib.h>
 #include <sys.h>
 #include "SysInfo.h"

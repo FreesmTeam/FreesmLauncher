@@ -38,7 +38,9 @@
 
 #pragma once
 
+#include <QPointer>
 #include "ExternalResourcesPage.h"
+#include "ui/dialogs/ResourceDownloadDialog.h"
 
 class ModFolderPage : public ExternalResourcesPage {
     Q_OBJECT
@@ -63,6 +65,7 @@ class ModFolderPage : public ExternalResourcesPage {
     void removeItems(const QItemSelection& selection) override;
 
     void downloadMods();
+    void downloadDialogFinished(int result);
     void updateMods(bool includeDeps = false);
     void deleteModMetadata();
     void exportModMetadata();
@@ -70,6 +73,7 @@ class ModFolderPage : public ExternalResourcesPage {
 
    protected:
     std::shared_ptr<ModFolderModel> m_model;
+    QPointer<ResourceDownload::ModDownloadDialog> m_downloadDialog;
 };
 
 class CoreModFolderPage : public ModFolderPage {
