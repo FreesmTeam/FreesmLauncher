@@ -174,48 +174,6 @@ void OtherLogsPage::on_selectLogBox_currentIndexChanged(const int index)
     }
 }
 
-class ReadLineAbstract {
-   public:
-    ReadLineAbstract(QFile* file) : m_file(file)
-    {
-        if (file->fileName().endsWith(".gz"))
-            m_gz = new GZipStream(file);
-    }
-    ~ReadLineAbstract() { delete m_gz; }
-
-    QString readLine()
-    {
-        if (!m_gz)
-            return QString::fromUtf8(m_file->readLine());
-        QString line;
-        for (;;) {
-            if (!m_decodedData.isEmpty()) {
-                int newlineIndex = m_decodedData.indexOf('\n');
-                if (newlineIndex != -1) {
-                    line += QString::fromUtf8(m_decodedData).left(newlineIndex);
-                    m_decodedData.remove(0, newlineIndex + 1);
-                    return line;
-                }
-
-                line += QString::fromUtf8(m_decodedData);
-                m_decodedData.clear();
-            }
-
-            if (!m_gz->unzipBlockByBlock(m_decodedData)) {  // If error occurs during unzipping
-                m_decodedData.clear();
-                return QObject::tr("The content of the file(%1) could not be decoded.").arg(m_file->fileName());
-            }
-        }
-    }
-
-    bool done() { return m_gz ? m_decodedData.isEmpty() : m_file->atEnd(); }
-
-   private:
-    QFile* m_file;
-    GZipStream* m_gz = nullptr;
-    QByteArray m_decodedData;
-};
-
 void OtherLogsPage::on_btnReload_clicked()
 {
     if (m_currentFile.isEmpty()) {
@@ -243,15 +201,9 @@ void OtherLogsPage::on_btnReload_clicked()
             showTooBig();
             return;
         }
-
-        ReadLineAbstract stream(&file);
-
-        // Try to determine a level for each line
-        ui->text->clear();
-        ui->text->setModel(nullptr);
-        m_model->clear();
-        auto line = stream.readLine();
-        while (!stream.done()) {  // just read until the model is full or the file ended
+        auto handleLine = [this](QString line) {
+            if (line.isEmpty())
+                return false;
             if (line.back() == '\n')
                 line = line.remove(line.size() - 1, 1);
             MessageLevel::Enum level = MessageLevel::Unknown;
@@ -268,10 +220,40 @@ void OtherLogsPage::on_btnReload_clicked()
             }
 
             m_model->append(level, line);
-            if (m_model->isOverFlow())
-                break;
+            return m_model->isOverFlow();
+        };
 
-            line = stream.readLine();
+        // Try to determine a level for each line
+        ui->text->clear();
+        ui->text->setModel(nullptr);
+        m_model->clear();
+        if (file.fileName().endsWith(".gz")) {
+            QString line;
+            auto error = GZip::readGzFileByBlocks(&file, [&line, handleLine](const QByteArray& d) {
+                auto block = d;
+                int newlineIndex = block.indexOf('\n');
+                while (newlineIndex != -1) {
+                    line += QString::fromUtf8(block).left(newlineIndex);
+                    block.remove(0, newlineIndex + 1);
+                    if (handleLine(line)) {
+                        line.clear();
+                        return false;
+                    }
+                    line.clear();
+                    newlineIndex = block.indexOf('\n');
+                }
+                line += QString::fromUtf8(block);
+                return true;
+            });
+            if (!error.isEmpty()) {
+                setPlainText(tr("The file (%1) encountered an error when reading: %2.").arg(file.fileName(), error));
+                return;
+            } else if (!line.isEmpty()) {
+                handleLine(line);
+            }
+        } else {
+            while (!file.atEnd() && !handleLine(QString::fromUtf8(file.readLine()))) {
+            }
         }
         ui->text->setModel(m_proxy);
         ui->text->scrollToBottom();

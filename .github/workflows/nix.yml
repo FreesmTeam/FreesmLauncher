@@ -4,28 +4,34 @@ on:
   push:
     tags:
       - "*"
-    paths-ignore:
-      - ".github/**"
-      - "!.github/workflows/nix.yml"
-      - "flatpak/"
-      - "scripts/"
+    # NOTE: `!` doesn't work with `paths-ignore` :(
+    # So we a catch-all glob instead
+    # https://github.com/orgs/community/discussions/25369#discussioncomment-3247674
+    paths:
+      - "**"
+      - "!.github/**"
+      - ".github/workflows/nix.yml"
+      - "!flatpak/"
+      - "!scripts/"
 
-      - ".git*"
-      - ".envrc"
-      - "**.md"
-      - "!COPYING.md"
-      - "renovate.json"
+      - "!.git*"
+      - "!.envrc"
+      - "!**.md"
+      - "COPYING.md"
+      - "!renovate.json"
   pull_request_target:
-    paths-ignore:
-      - ".github/**"
-      - "flatpak/"
-      - "scripts/"
+    paths:
+      - "**"
+      - "!.github/**"
+      - ".github/workflows/nix.yml"
+      - "!flatpak/"
+      - "!scripts/"
 
-      - ".git*"
-      - ".envrc"
-      - "**.md"
-      - "!COPYING.md"
-      - "renovate.json"
+      - "!.git*"
+      - "!.envrc"
+      - "!**.md"
+      - "COPYING.md"
+      - "!renovate.json"
   workflow_dispatch:
 
 permissions:
@@ -61,11 +67,20 @@ jobs:
       id-token: write
 
     steps:
+      - name: Get merge commit
+        if: ${{ github.event_name == 'pull_request_target' }}
+        id: merge-commit
+        uses: PrismLauncher/PrismLauncher/.github/actions/get-merge-commit@develop
+        with:
+          pull-request-id: ${{ github.event.pull_request.id }}
+    
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          ref: ${{ steps.merge-commit.outputs.merge-commit-sha || github.sha }}
 
       - name: Install Nix
-        uses: DeterminateSystems/nix-installer-action@v16
+        uses: DeterminateSystems/nix-installer-action@v17
         with:
           determinate: ${{ env.USE_DETERMINATE }}
 

@@ -79,7 +79,7 @@ void PackFetchTask::fetchPrivate(const QStringList& toFetch)
         QObject::connect(job, &NetJob::succeeded, this, [this, job, data, packCode] {
             ModpackList packs;
             parseAndAddPacks(*data, PackType::Private, packs);
-            foreach (Modpack currentPack, packs) {
+            for (auto& currentPack : packs) {
                 currentPack.packCode = packCode;
                 emit privateFileDownloadFinished(currentPack);
             }

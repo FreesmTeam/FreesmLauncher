@@ -37,7 +37,10 @@
 #include <sys.h>
 
 #if defined Q_OS_WIN32
-#include "WindowsConsole.h"
+#ifndef WIN32_LEAN_AND_MEAN
+#define WIN32_LEAN_AND_MEAN
+#endif
+#include "console/WindowsConsole.h"
 #endif
 
 #include <filesystem>

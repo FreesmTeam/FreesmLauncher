@@ -108,7 +108,7 @@
 
     Information on third party licenses used in MinGW-w64 can be found in its COPYING.MinGW-w64-runtime.txt.
 
-## Qt 5/6
+## Qt 6
 
     Copyright (C) 2022 The Qt Company Ltd and other contributors.
     Contact: https://www.qt.io/licensing

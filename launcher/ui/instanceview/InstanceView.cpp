@@ -400,12 +400,8 @@ void InstanceView::mouseReleaseEvent(QMouseEvent* event)
         if (event->button() == Qt::LeftButton) {
             emit clicked(index);
         }
-#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
         QStyleOptionViewItem option;
         initViewItemOption(&option);
-#else
-        QStyleOptionViewItem option = viewOptions();
-#endif
         if (m_pressedAlreadySelected) {
             option.state |= QStyle::State_Selected;
         }
@@ -422,7 +418,7 @@ void InstanceView::mouseDoubleClickEvent(QMouseEvent* event)
 
     QModelIndex index = indexAt(event->pos());
     if (!index.isValid() || !(index.flags() & Qt::ItemIsEnabled) || (m_pressedIndex != index)) {
-        QMouseEvent me(QEvent::MouseButtonPress, event->localPos(), event->windowPos(), event->screenPos(), event->button(),
+        QMouseEvent me(QEvent::MouseButtonPress, event->position(), event->scenePosition(), event->globalPosition(), event->button(),
                        event->buttons(), event->modifiers());
         mousePressEvent(&me);
         return;
@@ -431,12 +427,8 @@ void InstanceView::mouseDoubleClickEvent(QMouseEvent* event)
     QPersistentModelIndex persistent = index;
     emit doubleClicked(persistent);
 
-#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
     QStyleOptionViewItem option;
     initViewItemOption(&option);
-#else
-    QStyleOptionViewItem option = viewOptions();
-#endif
     if ((model()->flags(index) & Qt::ItemIsEnabled) && !style()->styleHint(QStyle::SH_ItemView_ActivateItemOnSingleClick, &option, this)) {
         emit activated(index);
     }
@@ -472,12 +464,8 @@ void InstanceView::paintEvent([[maybe_unused]] QPaintEvent* event)
         painter.setOpacity(1.0);
     }
 
-#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
     QStyleOptionViewItem option;
     initViewItemOption(&option);
-#else
-    QStyleOptionViewItem option = viewOptions();
-#endif
     option.widget = this;
 
     if (model()->rowCount() == 0) {
@@ -610,7 +598,7 @@ void InstanceView::dragEnterEvent(QDragEnterEvent* event)
     if (!isDragEventAccepted(event)) {
         return;
     }
-    m_lastDragPosition = event->pos() + offset();
+    m_lastDragPosition = event->position().toPoint() + offset();
     viewport()->update();
     event->accept();
 }
@@ -622,7 +610,7 @@ void InstanceView::dragMoveEvent(QDragMoveEvent* event)
     if (!isDragEventAccepted(event)) {
         return;
     }
-    m_lastDragPosition = event->pos() + offset();
+    m_lastDragPosition = event->position().toPoint() + offset();
     viewport()->update();
     event->accept();
 }
@@ -648,7 +636,7 @@ void InstanceView::dropEvent(QDropEvent* event)
 
     if (event->source() == this) {
         if (event->possibleActions() & Qt::MoveAction) {
-            std::pair<VisualGroup*, VisualGroup::HitResults> dropPos = rowDropPos(event->pos());
+            std::pair<VisualGroup*, VisualGroup::HitResults> dropPos = rowDropPos(event->position().toPoint());
             const VisualGroup* group = dropPos.first;
             auto hitResult = dropPos.second;
 
@@ -732,12 +720,8 @@ QRect InstanceView::geometryRect(const QModelIndex& index) const
     int x = pos.first;
     // int y = pos.second;
 
-#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
     QStyleOptionViewItem option;
     initViewItemOption(&option);
-#else
-    QStyleOptionViewItem option = viewOptions();
-#endif
 
     QRect out;
     out.setTop(cat->verticalPosition() + cat->headerHeight() + 5 + cat->rowTopOf(index));
@@ -784,12 +768,8 @@ QPixmap InstanceView::renderToPixmap(const QModelIndexList& indices, QRect* r) c
     QPixmap pixmap(r->size());
     pixmap.fill(Qt::transparent);
     QPainter painter(&pixmap);
-#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
     QStyleOptionViewItem option;
     initViewItemOption(&option);
-#else
-    QStyleOptionViewItem option = viewOptions();
-#endif
     option.state |= QStyle::State_Selected;
     for (int j = 0; j < paintPairs.count(); ++j) {
         option.rect = paintPairs.at(j).first.translated(-r->topLeft());
