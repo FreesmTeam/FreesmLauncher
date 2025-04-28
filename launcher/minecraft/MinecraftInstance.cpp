@@ -53,7 +53,6 @@
 #include "MMCTime.h"
 #include "java/JavaVersion.h"
 #include "pathmatcher/MultiMatcher.h"
-#include "pathmatcher/RegexpMatcher.h"
 
 #include "launch/LaunchTask.h"
 #include "launch/TaskStepWrapper.h"
@@ -689,9 +688,9 @@ static QString replaceTokensIn(QString text, QMap<QString, QString> with)
 {
     // TODO: does this still work??
     QString result;
-    QRegularExpression token_regexp("\\$\\{(.+)\\}", QRegularExpression::InvertedGreedinessOption);
+    static const QRegularExpression s_token_regexp("\\$\\{(.+)\\}", QRegularExpression::InvertedGreedinessOption);
     QStringList list;
-    QRegularExpressionMatchIterator i = token_regexp.globalMatch(text);
+    QRegularExpressionMatchIterator i = s_token_regexp.globalMatch(text);
     int lastCapturedEnd = 0;
     while (i.hasNext()) {
         QRegularExpressionMatch match = i.next();

@@ -378,8 +378,8 @@ void InstanceImportTask::processModrinth()
     } else {
         QString pack_id;
         if (!m_sourceUrl.isEmpty()) {
-            QRegularExpression regex(R"(data\/([^\/]*)\/versions)");
-            pack_id = regex.match(m_sourceUrl.toString()).captured(1);
+            static const QRegularExpression s_regex(R"(data\/([^\/]*)\/versions)");
+            pack_id = s_regex.match(m_sourceUrl.toString()).captured(1);
         }
 
         // FIXME: Find a way to get the ID in directly imported ZIPs

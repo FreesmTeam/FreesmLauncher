@@ -3,8 +3,6 @@
 #include <QCoreApplication>
 #include <QDebug>
 #include <QMap>
-#include <QRegularExpression>
-
 #include "MTPixmapCache.h"
 #include "Version.h"
 

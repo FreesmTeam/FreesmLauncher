@@ -150,7 +150,8 @@ class FilterModel : public QIdentityProxyModel {
             return QVariant();
         if (role == Qt::DisplayRole || role == Qt::EditRole) {
             QVariant result = sourceModel()->data(mapToSource(proxyIndex), role);
-            return result.toString().remove(QRegularExpression("\\.png$"));
+            static const QRegularExpression s_removeChars("\\.png$");
+            return result.toString().remove(s_removeChars);
         }
         if (role == Qt::DecorationRole) {
             QVariant result = sourceModel()->data(mapToSource(proxyIndex), QFileSystemModel::FilePathRole);

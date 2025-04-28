@@ -213,11 +213,10 @@ QPair<QString, QString> StringUtils::splitFirst(const QString& s, const QRegular
     return qMakePair(left, right);
 }
 
-static const QRegularExpression ulMatcher("<\\s*/\\s*ul\\s*>");
-
 QString StringUtils::htmlListPatch(QString htmlStr)
 {
-    int pos = htmlStr.indexOf(ulMatcher);
+    static const QRegularExpression s_ulMatcher("<\\s*/\\s*ul\\s*>");
+    int pos = htmlStr.indexOf(s_ulMatcher);
     int imgPos;
     while (pos != -1) {
         pos = htmlStr.indexOf(">", pos) + 1;  // Get the size of the </ul> tag. Add one for zeroeth index
@@ -230,7 +229,7 @@ QString StringUtils::htmlListPatch(QString htmlStr)
         if (textBetween.isEmpty())
             htmlStr.insert(pos, "<br>");
 
-        pos = htmlStr.indexOf(ulMatcher, pos);
+        pos = htmlStr.indexOf(s_ulMatcher, pos);
     }
     return htmlStr;
 }

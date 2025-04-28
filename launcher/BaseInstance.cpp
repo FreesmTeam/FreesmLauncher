@@ -42,7 +42,6 @@
 #include <QFileInfo>
 #include <QJsonDocument>
 #include <QJsonObject>
-#include <QRegularExpression>
 
 #include "settings/INISettingsObject.h"
 #include "settings/OverrideSetting.h"
