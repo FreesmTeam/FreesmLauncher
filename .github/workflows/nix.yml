@@ -73,7 +73,9 @@ jobs:
         uses: PrismLauncher/PrismLauncher/.github/actions/get-merge-commit@develop
         with:
           pull-request-id: ${{ github.event.pull_request.id }}
-    
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
