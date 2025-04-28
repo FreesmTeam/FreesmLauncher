@@ -2,22 +2,38 @@ name: Flatpak
 
 on:
   push:
-    paths-ignore:
-      - "**.md"
-      - "**/LICENSE"
-      - ".github/ISSUE_TEMPLATE/**"
-      - ".markdownlint**"
-      - "nix/**"
     # We don't do anything with these artifacts on releases. They go to Flathub
     tags-ignore:
       - "*"
+    # NOTE: `!` doesn't work with `paths-ignore` :(
+    # So we a catch-all glob instead
+    # https://github.com/orgs/community/discussions/25369#discussioncomment-3247674
+    paths:
+      - "**"
+      - "!.github/**"
+      - ".github/workflows/flatpak.yml"
+      - "!nix/"
+      - "!scripts/"
+
+      - "!.git*"
+      - "!.envrc"
+      - "!**.md"
+      - "COPYING.md"
+      - "!renovate.json"
   pull_request:
-    paths-ignore:
-      - "**.md"
-      - "**/LICENSE"
-      - ".github/ISSUE_TEMPLATE/**"
-      - ".markdownlint**"
-      - "nix/**"
+    # See above
+    paths:
+      - "**"
+      - "!.github/**"
+      - ".github/workflows/flatpak.yml"
+      - "!nix/"
+      - "!scripts/"
+
+      - "!.git*"
+      - "!.envrc"
+      - "!**.md"
+      - "COPYING.md"
+      - "!renovate.json"
   workflow_dispatch:
 
 permissions:

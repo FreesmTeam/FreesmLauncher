@@ -1004,19 +1004,10 @@ QMap<QString, QString> MinecraftInstance::createCensorFilterFromSession(AuthSess
     return filter;
 }
 
-IPathMatcher::Ptr MinecraftInstance::getLogFileMatcher()
-{
-    auto combined = std::make_shared<MultiMatcher>();
-    combined->add(std::make_shared<RegexpMatcher>(".*\\.log(\\.[0-9]*)?(\\.gz)?$"));
-    combined->add(std::make_shared<RegexpMatcher>("crash-.*\\.txt"));
-    combined->add(std::make_shared<RegexpMatcher>("IDMap dump.*\\.txt$"));
-    combined->add(std::make_shared<RegexpMatcher>("ModLoader\\.txt(\\..*)?$"));
-    return combined;
-}
 
-QString MinecraftInstance::getLogFileRoot()
+QStringList MinecraftInstance::getLogFileSearchPaths()
 {
-    return gameRoot();
+    return { FS::PathCombine(gameRoot(), "crash-reports"), FS::PathCombine(gameRoot(), "logs"), gameRoot() };
 }
 
 QString MinecraftInstance::getStatusbarDescription()

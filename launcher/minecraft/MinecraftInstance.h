@@ -139,9 +139,7 @@ class MinecraftInstance : public BaseInstance {
     QProcessEnvironment createEnvironment() override;
     QProcessEnvironment createLaunchEnvironment() override;
 
-    IPathMatcher::Ptr getLogFileMatcher() override;
-
-    QString getLogFileRoot() override;
+    QStringList getLogFileSearchPaths() override;
 
     QString getStatusbarDescription() override;
 

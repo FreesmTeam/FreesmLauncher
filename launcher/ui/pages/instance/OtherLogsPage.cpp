@@ -43,16 +43,18 @@
 
 #include <FileSystem.h>
 #include <GZip.h>
+#include <QDir>
+#include <QDirIterator>
+#include <QFileSystemWatcher>
 #include <QShortcut>
-#include "RecursiveFileSystemWatcher.h"
+#include <QUrl>
 
-OtherLogsPage::OtherLogsPage(InstancePtr instance, IPathMatcher::Ptr fileFilter, QWidget* parent)
+OtherLogsPage::OtherLogsPage(InstancePtr instance, QWidget* parent)
     : QWidget(parent)
     , ui(new Ui::OtherLogsPage)
     , m_instance(instance)
-    , m_path(instance->getLogFileRoot())
-    , m_fileFilter(fileFilter)
-    , m_watcher(new RecursiveFileSystemWatcher(this))
+    , m_basePath(instance->gameRoot())
+    , m_logSearchPaths(instance->getLogFileSearchPaths())
     , m_model(new LogModel(this))
 {
     ui->setupUi(this);
@@ -78,11 +80,7 @@ OtherLogsPage::OtherLogsPage(InstancePtr instance, IPathMatcher::Ptr fileFilter,
     m_model->setOverflowMessage(tr("Cannot display this log since the log length surpassed %1 lines.").arg(m_model->getMaxLines()));
     m_proxy->setSourceModel(m_model.get());
 
-    m_watcher->setMatcher(fileFilter);
-    m_watcher->setRootDir(QDir::current().absoluteFilePath(m_path));
-
-    connect(m_watcher, &RecursiveFileSystemWatcher::filesChanged, this, &OtherLogsPage::populateSelectLogBox);
-    populateSelectLogBox();
+    connect(&m_watcher, &QFileSystemWatcher::directoryChanged, this, &OtherLogsPage::populateSelectLogBox);
 
     auto findShortcut = new QShortcut(QKeySequence(QKeySequence::Find), this);
     connect(findShortcut, &QShortcut::activated, this, &OtherLogsPage::findActivated);
@@ -108,29 +106,54 @@ void OtherLogsPage::retranslate()
 
 void OtherLogsPage::openedImpl()
 {
-    m_watcher->enable();
+    const QStringList failedPaths = m_watcher.addPaths(m_logSearchPaths);
+
+    for (const QString& path : m_logSearchPaths) {
+        if (failedPaths.contains(path))
+            qDebug() << "Failed to start watching" << path;
+        else
+            qDebug() << "Started watching" << path;
+    }
+
+    populateSelectLogBox();
 }
+
 void OtherLogsPage::closedImpl()
 {
-    m_watcher->disable();
+    const QStringList failedPaths = m_watcher.removePaths(m_logSearchPaths);
+
+    for (const QString& path : m_logSearchPaths) {
+        if (failedPaths.contains(path))
+            qDebug() << "Failed to stop watching" << path;
+        else
+            qDebug() << "Stopped watching" << path;
+    }
 }
 
 void OtherLogsPage::populateSelectLogBox()
 {
+    const QString prevCurrentFile = m_currentFile;
+
+    ui->selectLogBox->blockSignals(true);
     ui->selectLogBox->clear();
-    ui->selectLogBox->addItems(m_watcher->files());
-    if (m_currentFile.isEmpty()) {
-        setControlsEnabled(false);
-        ui->selectLogBox->setCurrentIndex(-1);
-    } else {
-        const int index = ui->selectLogBox->findText(m_currentFile);
+    ui->selectLogBox->addItems(getPaths());
+    ui->selectLogBox->blockSignals(false);
+
+    if (!prevCurrentFile.isEmpty()) {
+        const int index = ui->selectLogBox->findText(prevCurrentFile);
         if (index != -1) {
+            ui->selectLogBox->blockSignals(true);
             ui->selectLogBox->setCurrentIndex(index);
+            ui->selectLogBox->blockSignals(false);
             setControlsEnabled(true);
+            // don't refresh file
+            return;
         } else {
             setControlsEnabled(false);
         }
     }
+
+    on_selectLogBox_currentIndexChanged(ui->selectLogBox->currentIndex());
 }
 
 void OtherLogsPage::on_selectLogBox_currentIndexChanged(const int index)
@@ -140,7 +163,7 @@ void OtherLogsPage::on_selectLogBox_currentIndexChanged(const int index)
         file = ui->selectLogBox->itemText(index);
     }
 
-    if (file.isEmpty() || !QFile::exists(FS::PathCombine(m_path, file))) {
+    if (file.isEmpty() || !QFile::exists(FS::PathCombine(m_basePath, file))) {
         m_currentFile = QString();
         ui->text->clear();
         setControlsEnabled(false);
@@ -157,8 +180,7 @@ void OtherLogsPage::on_btnReload_clicked()
         setControlsEnabled(false);
         return;
     }
-
-    QFile file(FS::PathCombine(m_path, m_currentFile));
+    QFile file(FS::PathCombine(m_basePath, m_currentFile));
     if (!file.open(QFile::ReadOnly)) {
         setControlsEnabled(false);
         ui->btnReload->setEnabled(true);  // allow reload
@@ -270,7 +292,7 @@ void OtherLogsPage::on_btnDelete_clicked()
                               QMessageBox::Yes, QMessageBox::No) == QMessageBox::No) {
         return;
     }
-    QFile file(FS::PathCombine(m_path, m_currentFile));
+    QFile file(FS::PathCombine(m_basePath, m_currentFile));
 
     if (FS::trash(file.fileName())) {
         return;
@@ -283,7 +305,7 @@ void OtherLogsPage::on_btnDelete_clicked()
 
 void OtherLogsPage::on_btnClean_clicked()
 {
-    auto toDelete = m_watcher->files();
+    auto toDelete = getPaths();
     if (toDelete.isEmpty()) {
         return;
     }
@@ -306,7 +328,9 @@ void OtherLogsPage::on_btnClean_clicked()
     }
     QStringList failed;
     for (auto item : toDelete) {
-        QFile file(FS::PathCombine(m_path, item));
+        QString absolutePath = FS::PathCombine(m_basePath, item);
+        QFile file(absolutePath);
+        qDebug() << "Deleting log" << absolutePath;
         if (FS::trash(file.fileName())) {
             continue;
         }
@@ -358,6 +382,29 @@ void OtherLogsPage::setControlsEnabled(const bool enabled)
     ui->btnPaste->setEnabled(enabled);
     ui->text->setEnabled(enabled);
     ui->btnClean->setEnabled(enabled);
+}
+
+QStringList OtherLogsPage::getPaths()
+{
+    QDir baseDir(m_basePath);
+
+    QStringList result;
+
+    for (QString searchPath : m_logSearchPaths) {
+        QDir searchDir(searchPath);
+
+        QStringList filters{ "*.log", "*.log.gz" };
+
+        if (searchPath != m_basePath)
+            filters.append("*.txt");
+
+        QStringList entries = searchDir.entryList(filters, QDir::Files | QDir::Readable, QDir::SortFlag::Time);
+
+        for (const QString& name : entries)
+            result.append(baseDir.relativeFilePath(searchDir.filePath(name)));
+    }
+
+    return result;
 }
 
 void OtherLogsPage::on_findButton_clicked()

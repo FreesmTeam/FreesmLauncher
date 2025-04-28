@@ -39,6 +39,7 @@
 
 #include <Application.h>
 #include <pathmatcher/IPathMatcher.h>
+#include <QFileSystemWatcher>
 #include "LogPage.h"
 #include "ui/pages/BasePage.h"
 
@@ -52,7 +53,7 @@ class OtherLogsPage : public QWidget, public BasePage {
     Q_OBJECT
 
    public:
-    explicit OtherLogsPage(InstancePtr instance, IPathMatcher::Ptr fileFilter, QWidget* parent = 0);
+    explicit OtherLogsPage(InstancePtr instance, QWidget* parent = 0);
     ~OtherLogsPage();
 
     QString id() const override { return "logs"; }
@@ -85,13 +86,16 @@ class OtherLogsPage : public QWidget, public BasePage {
    private:
     void setControlsEnabled(bool enabled);
 
+    QStringList getPaths();
+
    private:
     Ui::OtherLogsPage* ui;
     InstancePtr m_instance;
-    QString m_path;
+    /** Path to display log paths relative to. */
+    QString m_basePath;
+    QStringList m_logSearchPaths;
     QString m_currentFile;
-    IPathMatcher::Ptr m_fileFilter;
-    RecursiveFileSystemWatcher* m_watcher;
+    QFileSystemWatcher m_watcher;
 
     LogFormatProxyModel* m_proxy;
     shared_qobject_ptr<LogModel> m_model;

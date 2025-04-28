@@ -196,14 +196,9 @@ class BaseInstance : public QObject, public std::enable_shared_from_this<BaseIns
     virtual QProcessEnvironment createLaunchEnvironment() = 0;
 
     /*!
-     * Returns a matcher that can maps relative paths within the instance to whether they are 'log files'
-     */
-    virtual IPathMatcher::Ptr getLogFileMatcher() = 0;
-
-    /*!
      * Returns the root folder to use for looking up log files
      */
-    virtual QString getLogFileRoot() = 0;
+    virtual QStringList getLogFileSearchPaths() = 0;
 
     virtual QString getStatusbarDescription() = 0;
 
