@@ -146,6 +146,7 @@ void OtherLogsPage::populateSelectLogBox()
             ui->selectLogBox->setCurrentIndex(index);
             ui->selectLogBox->blockSignals(false);
             setControlsEnabled(true);
+            // don't refresh file
             return;
         } else {
             setControlsEnabled(false);
@@ -405,20 +406,17 @@ QStringList OtherLogsPage::getPaths()
     QStringList result;
 
     for (QString searchPath : m_logSearchPaths) {
-        QDirIterator iterator(searchPath, QDir::Files | QDir::Readable);
+        QDir searchDir(searchPath);
 
-        const bool isRoot = searchPath == m_basePath;
+        QStringList filters{ "*.log", "*.log.gz" };
 
-        while (iterator.hasNext()) {
-            const QString name = iterator.next();
+        if (searchPath != m_basePath)
+            filters.append("*.txt");
 
-            QString relativePath = baseDir.relativeFilePath(name);
+        QStringList entries = searchDir.entryList(filters, QDir::Files | QDir::Readable, QDir::SortFlag::Time);
 
-            if (!(name.endsWith(".log") || name.endsWith(".log.gz") || (!isRoot && name.endsWith(".txt"))))
-                continue;
-
-            result.append(relativePath);
-        }
+        for (const QString& name : entries)
+            result.append(baseDir.relativeFilePath(searchDir.filePath(name)));
     }
 
     return result;

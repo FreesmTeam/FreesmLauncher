@@ -1057,7 +1057,7 @@ MessageLevel::Enum MinecraftInstance::guessLevel(const QString& line, MessageLev
 
 QStringList MinecraftInstance::getLogFileSearchPaths()
 {
-    return { FS::PathCombine(gameRoot(), "logs"), FS::PathCombine(gameRoot(), "crash-reports"), gameRoot() };
+    return { FS::PathCombine(gameRoot(), "crash-reports"), FS::PathCombine(gameRoot(), "logs"), gameRoot() };
 }
 
 QString MinecraftInstance::getStatusbarDescription()
