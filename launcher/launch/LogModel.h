@@ -31,6 +31,8 @@ class LogModel : public QAbstractListModel {
     void setColorLines(bool state);
     bool colorLines() const;
 
+    MessageLevel::Enum previousLevel();
+
     enum Roles { LevelRole = Qt::UserRole };
 
    private /* types */:

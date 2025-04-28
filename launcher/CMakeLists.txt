@@ -175,6 +175,8 @@ set(LAUNCH_SOURCES
     launch/LogModel.h
     launch/TaskStepWrapper.cpp
     launch/TaskStepWrapper.h
+    logs/LogParser.cpp
+    logs/LogParser.h
 )
 
 # Old update system

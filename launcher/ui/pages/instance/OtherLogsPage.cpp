@@ -201,7 +201,9 @@ void OtherLogsPage::on_btnReload_clicked()
             showTooBig();
             return;
         }
-        auto handleLine = [this](QString line) {
+        MessageLevel::Enum last = MessageLevel::Unknown;
+
+        auto handleLine = [this, &last](QString line) {
             if (line.isEmpty())
                 return false;
             if (line.back() == '\n')
@@ -216,9 +218,10 @@ void OtherLogsPage::on_btnReload_clicked()
 
             // If the level is still undetermined, guess level
             if (level == MessageLevel::StdErr || level == MessageLevel::StdOut || level == MessageLevel::Unknown) {
-                level = m_instance->guessLevel(line, level);
+                level = LogParser::guessLevel(line, last);
             }
 
+            last = level;
             m_model->append(level, line);
             return m_model->isOverFlow();
         };
