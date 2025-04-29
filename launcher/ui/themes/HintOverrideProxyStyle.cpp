@@ -18,7 +18,8 @@
 
 #include "HintOverrideProxyStyle.h"
 
-HintOverrideProxyStyle::HintOverrideProxyStyle(QStyle* style) : QProxyStyle(style) {
+HintOverrideProxyStyle::HintOverrideProxyStyle(QStyle* style) : QProxyStyle(style)
+{
     setObjectName(style->objectName());
 }
 

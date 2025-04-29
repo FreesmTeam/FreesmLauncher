@@ -1311,7 +1311,7 @@ void MainWindow::on_actionReportBug_triggered()
 
 void MainWindow::on_actionClearMetadata_triggered()
 {
-    //This if contains side effects!
+    // This if contains side effects!
     if (!APPLICATION->metacache()->evictAll()) {
         CustomMessageBox::selectable(this, tr("Error"),
                                      tr("Metadata cache clear Failed!\nTo clear the metadata cache manually, press Folders -> View "

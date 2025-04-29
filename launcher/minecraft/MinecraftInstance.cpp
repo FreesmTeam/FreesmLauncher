@@ -1003,7 +1003,6 @@ QMap<QString, QString> MinecraftInstance::createCensorFilterFromSession(AuthSess
     return filter;
 }
 
-
 QStringList MinecraftInstance::getLogFileSearchPaths()
 {
     return { FS::PathCombine(gameRoot(), "crash-reports"), FS::PathCombine(gameRoot(), "logs"), gameRoot() };
