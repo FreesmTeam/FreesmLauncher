@@ -1,0 +1,127 @@
+name: MacOS build process
+
+jobs:
+  macos:
+    strategy:
+      fail-fast: true
+      matrix:
+        include:
+          - os: macos-14
+            name: macOS
+            macosx_deployment_target: 11.0
+            qt_ver: 6
+            qt_host: mac
+            qt_arch: ""
+            qt_version: "6.8.1"
+            qt_modules: "qt5compat qtimageformats qtnetworkauth"
+
+    env:
+      MACOSX_DEPLOYMENT_TARGET: ${{ matrix.macosx_deployment_target }}
+      INSTALL_DIR: "install"
+      BUILD_DIR: "build"
+      HOMEBREW_NO_INSTALLED_DEPENDENTS_CHECK: 1
+
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: .github/workflows/utils/set_short_version.yml
+
+      - name: Install Dependencies (macOS)
+        run: |
+          brew update
+          brew install ninja extra-cmake-modules
+
+      - uses: .github/workflows/utils/install_qt.yml
+
+      - name: Setup java (macOS)
+        uses: actions/setup-java@v4
+        with:
+          distribution: "temurin"
+          java-version: "17"
+
+      - name: Configure CMake (macOS)
+        if: matrix.qt_ver == 6
+        run: |
+          cmake -S . -B ${{ env.BUILD_DIR }} -DCMAKE_INSTALL_PREFIX=${{ env.INSTALL_DIR }} -DCMAKE_BUILD_TYPE=${{ inputs.build_type }} -DENABLE_LTO=ON -DLauncher_ENABLE_JAVA_DOWNLOADER=ON -DLauncher_BUILD_PLATFORM=official -DCMAKE_C_COMPILER_LAUNCHER=${{ env.CCACHE_VAR }} -DCMAKE_CXX_COMPILER_LAUNCHER=${{ env.CCACHE_VAR }} -DLauncher_QT_VERSION_MAJOR=${{ matrix.qt_ver }} -DCMAKE_OSX_ARCHITECTURES="x86_64;arm64" -G Ninja
+
+      - name: Build
+        run: |
+          cmake --build ${{ env.BUILD_DIR }}
+
+      - name: Test
+        run: |
+          ctest -E "^example64|example$" --test-dir build --output-on-failure
+
+      # nerd macos certificates
+      - name: Fetch codesign certificate (macOS)
+        run: |
+          echo '${{ secrets.APPLE_CODESIGN_CERT }}' | base64 --decode > codesign.p12
+          if [ -n '${{ secrets.APPLE_CODESIGN_ID }}' ]; then
+            security create-keychain -p '${{ secrets.APPLE_CODESIGN_PASSWORD }}' build.keychain
+            security default-keychain -s build.keychain
+            security unlock-keychain -p '${{ secrets.APPLE_CODESIGN_PASSWORD }}' build.keychain
+            security import codesign.p12 -k build.keychain -P '${{ secrets.APPLE_CODESIGN_PASSWORD }}' -T /usr/bin/codesign
+            security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k '${{ secrets.APPLE_CODESIGN_PASSWORD }}' build.keychain
+          else
+            echo ":warning: Using ad-hoc code signing for macOS, as certificate was not present." >> $GITHUB_STEP_SUMMARY
+          fi
+
+      - name: Package (macOS)
+        run: |
+          cmake --install ${{ env.BUILD_DIR }}
+
+          cd ${{ env.INSTALL_DIR }}
+          chmod +x "FreesmLauncher.app/Contents/MacOS/freesmlauncher"
+
+          if [ -n '${{ secrets.APPLE_CODESIGN_ID }}' ]; then
+            APPLE_CODESIGN_ID='${{ secrets.APPLE_CODESIGN_ID }}'
+            ENTITLEMENTS_FILE='../program_info/App.entitlements'
+          else
+            APPLE_CODESIGN_ID='-'
+            ENTITLEMENTS_FILE='../program_info/AdhocSignedApp.entitlements'
+          fi
+
+          sudo codesign --sign "$APPLE_CODESIGN_ID" --deep --force --entitlements "$ENTITLEMENTS_FILE" --options runtime "FreesmLauncher.app/Contents/MacOS/freesmlauncher"
+          mv "FreesmLauncher.app" "Freesm Launcher.app"
+
+      - name: Notarize (macOS)
+        run: |
+          cd ${{ env.INSTALL_DIR }}
+
+          if [ -n '${{ secrets.APPLE_NOTARIZE_PASSWORD }}' ]; then
+            ditto -c -k --sequesterRsrc --keepParent "Freesm Launcher.app" ../PrismLauncher.zip
+            xcrun notarytool submit ../PrismLauncher.zip \
+              --wait --progress \
+              --apple-id '${{ secrets.APPLE_NOTARIZE_APPLE_ID }}' \
+              --team-id '${{ secrets.APPLE_NOTARIZE_TEAM_ID }}' \
+              --password '${{ secrets.APPLE_NOTARIZE_PASSWORD }}'
+
+            xcrun stapler staple "Freesm Launcher.app"
+          else
+            echo ":warning: Skipping notarization as credentials are not present." >> $GITHUB_STEP_SUMMARY
+          fi
+          ditto -c -k --sequesterRsrc --keepParent "Freesm Launcher.app" ../PrismLauncher.zip
+
+      # another one nerd
+      - name: Make Sparkle signature (macOS)
+        if: matrix.name == 'macOS'
+        run: |
+          if [ '${{ secrets.SPARKLE_ED25519_KEY }}' != '' ]; then
+            echo '${{ secrets.SPARKLE_ED25519_KEY }}' > ed25519-priv.pem
+            signature=$(/opt/homebrew/opt/openssl@3/bin/openssl pkeyutl -sign -rawin -in ${{ github.workspace }}/PrismLauncher.zip -inkey ed25519-priv.pem | openssl base64 | tr -d \\n)
+            rm ed25519-priv.pem
+            cat >> $GITHUB_STEP_SUMMARY << EOF
+          ### Artifact Information :information_source:
+          - :memo: Sparkle Signature (ed25519): \`$signature\`
+          EOF
+          else
+            cat >> $GITHUB_STEP_SUMMARY << EOF
+          ### Artifact Information :information_source:
+          - :warning: Sparkle Signature (ed25519): No private key available (likely a pull request or fork)
+          EOF
+          fi
+
+      - name: Upload binary tarball (macOS)
+        uses: actions/upload-artifact@v4
+        with:
+          name: FreesmLauncher-${{ matrix.name }}-${{ env.VERSION }}-${{ inputs.build_type }}
+          path: PrismLauncher.zip
