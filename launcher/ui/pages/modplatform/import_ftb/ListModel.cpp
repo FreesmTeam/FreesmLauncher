@@ -106,9 +106,6 @@ QVariant ListModel::data(const QModelIndex& index, int role) const
     }
 
     auto pack = m_modpacks.at(pos);
-    if (role == Qt::ToolTipRole) {
-    }
-
     switch (role) {
         case Qt::ToolTipRole:
             return tr("Minecraft %1").arg(pack.mcVersion);
@@ -128,8 +125,6 @@ QVariant ListModel::data(const QModelIndex& index, int role) const
             return pack.name;
         case UserDataTypes::DESCRIPTION:
             return tr("Minecraft %1").arg(pack.mcVersion);
-        case UserDataTypes::SELECTED:
-            return false;
         case UserDataTypes::INSTALLED:
             return false;
         default:

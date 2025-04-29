@@ -114,7 +114,7 @@ void Modrinth::loadExtraPackData(ModPlatform::IndexedPack& pack, QJsonObject& ob
 
 void Modrinth::loadIndexedPackVersions(ModPlatform::IndexedPack& pack, QJsonArray& arr)
 {
-    QVector<ModPlatform::IndexedVersion> unsortedVersions;
+    QList<ModPlatform::IndexedVersion> unsortedVersions;
     for (auto versionIter : arr) {
         auto obj = versionIter.toObject();
         auto file = loadIndexedPackVersion(obj);
@@ -253,7 +253,7 @@ ModPlatform::IndexedVersion Modrinth::loadDependencyVersions([[maybe_unused]] co
     QString mcVersion = profile->getComponentVersion("net.minecraft");
     auto loaders = profile->getSupportedModLoaders();
 
-    QVector<ModPlatform::IndexedVersion> versions;
+    QList<ModPlatform::IndexedVersion> versions;
     for (auto versionIter : arr) {
         auto obj = versionIter.toObject();
         auto file = loadIndexedPackVersion(obj);

@@ -52,19 +52,15 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - os: ubuntu-20.04
-            qt_ver: 5
-            qt_host: linux
-            qt_arch: ""
-            qt_version: "5.15.2"
-            qt_modules: "qtnetworkauth"
-
           - os: ubuntu-22.04
             qt_ver: 6
             qt_host: linux
             qt_arch: ""
-            qt_version: "6.5.3"
+            qt_version: "6.8.1"
             qt_modules: "qt5compat qtimageformats qtnetworkauth"
+            linuxdeploy_hash: "4648f278ab3ef31f819e67c30d50f462640e5365a77637d7e6f2ad9fd0b4522a linuxdeploy-x86_64.AppImage"
+            linuxdeploy_qt_hash: "15106be885c1c48a021198e7e1e9a48ce9d02a86dd0a1848f00bdbf3c1c92724  linuxdeploy-plugin-qt-x86_64.AppImage"
+            appimageupdate_hash: "f1747cf60058e99f1bb9099ee9787d16c10241313b7acec81810ea1b1e568c11  AppImageUpdate-x86_64.AppImage"
 
           - os: windows-2022
             name: "Windows-MinGW-w64"
@@ -105,14 +101,6 @@ jobs:
             qt_arch: ""
             qt_version: "6.8.1"
             qt_modules: "qt5compat qtimageformats qtnetworkauth"
-
-          - os: macos-14
-            name: macOS-Legacy
-            macosx_deployment_target: 10.13
-            qt_ver: 5
-            qt_host: mac
-            qt_version: "5.15.2"
-            qt_modules: "qtnetworkauth"
 
     runs-on: ${{ matrix.os }}
 
@@ -164,9 +152,15 @@ jobs:
 
       - name: Setup ccache
         if: (runner.os != 'Windows' || matrix.msystem == '') && inputs.build_type == 'Debug'
-        uses: hendrikmuhs/ccache-action@v1.2.17
+        uses: hendrikmuhs/ccache-action@v1.2.18
         with:
           key: ${{ matrix.os }}-qt${{ matrix.qt_ver }}-${{ matrix.architecture }}
+
+      - name: Use ccache on Debug builds only
+        if: inputs.build_type == 'Debug'
+        shell: bash
+        run: |
+          echo "CCACHE_VAR=ccache" >> $GITHUB_ENV
 
       - name: Retrieve ccache cache (Windows MinGW-w64)
         if: runner.os == 'Windows' && matrix.msystem != '' && inputs.build_type == 'Debug'
@@ -187,11 +181,16 @@ jobs:
           ccache -p  # Show config
           ccache -z  # Zero stats
 
-      - name: Use ccache on Debug builds only
-        if: inputs.build_type == 'Debug'
-        shell: bash
+      - name: Configure ccache (Windows MSVC)
+        if: ${{ runner.os == 'Windows' && matrix.msystem == '' && inputs.build_type == 'Debug' }}
         run: |
-          echo "CCACHE_VAR=ccache" >> $GITHUB_ENV
+          # https://github.com/ccache/ccache/wiki/MS-Visual-Studio (I coudn't figure out the compiler prefix)
+          Copy-Item C:/ProgramData/chocolatey/lib/ccache/tools/ccache-4.7.1-windows-x86_64/ccache.exe -Destination C:/ProgramData/chocolatey/lib/ccache/tools/ccache-4.7.1-windows-x86_64/cl.exe
+          echo "CLToolExe=cl.exe" >> $env:GITHUB_ENV
+          echo "CLToolPath=C:/ProgramData/chocolatey/lib/ccache/tools/ccache-4.7.1-windows-x86_64/" >> $env:GITHUB_ENV
+          echo "TrackFileAccess=false" >> $env:GITHUB_ENV
+          # Needed for ccache, but also speeds up compile
+          echo "UseMultiToolTask=true" >> $env:GITHUB_ENV
 
       - name: Set short version
         shell: bash
@@ -248,15 +247,22 @@ jobs:
           arch: ${{ matrix.vcvars_arch }}
 
       - name: Prepare AppImage (Linux)
-        if: runner.os == 'Linux' && matrix.qt_ver != 5
+        if: runner.os == 'Linux'
+        env:
+          APPIMAGEUPDATE_HASH: ${{ matrix.appimageupdate_hash }}
+          LINUXDEPLOY_HASH: ${{ matrix.linuxdeploy_hash }}
+          LINUXDEPLOY_QT_HASH: ${{ matrix.linuxdeploy_qt_hash }}
         run: |
-          wget "https://github.com/linuxdeploy/linuxdeploy/releases/download/continuous/linuxdeploy-x86_64.AppImage"
-          wget "https://github.com/linuxdeploy/linuxdeploy-plugin-appimage/releases/download/continuous/linuxdeploy-plugin-appimage-x86_64.AppImage"
-          wget "https://github.com/linuxdeploy/linuxdeploy-plugin-qt/releases/download/continuous/linuxdeploy-plugin-qt-x86_64.AppImage"
+          wget "https://github.com/linuxdeploy/linuxdeploy/releases/download/1-alpha-20250213-2/linuxdeploy-x86_64.AppImage"
+          wget "https://github.com/linuxdeploy/linuxdeploy-plugin-qt/releases/download/1-alpha-20250213-1/linuxdeploy-plugin-qt-x86_64.AppImage"
 
-          wget "https://github.com/AppImageCommunity/AppImageUpdate/releases/download/continuous/AppImageUpdate-x86_64.AppImage"
+          wget "https://github.com/AppImageCommunity/AppImageUpdate/releases/download/2.0.0-alpha-1-20241225/AppImageUpdate-x86_64.AppImage"
 
-          sudo apt install libopengl0 libfuse2
+          sha256sum -c - <<< "$LINUXDEPLOY_HASH"
+          sha256sum -c - <<< "$LINUXDEPLOY_QT_HASH"
+          sha256sum -c - <<< "$APPIMAGEUPDATE_HASH"
+
+          sudo apt install libopengl0
 
       - name: Add QT_HOST_PATH var (Windows MSVC arm64)
         if: runner.os == 'Windows' && matrix.architecture == 'arm64'
@@ -274,14 +280,9 @@ jobs:
       ##
 
       - name: Configure CMake (macOS)
-        if: runner.os == 'macOS' && matrix.qt_ver == 6
+        if: runner.os == 'macOS'
         run: |
           cmake -S . -B ${{ env.BUILD_DIR }} -DCMAKE_INSTALL_PREFIX=${{ env.INSTALL_DIR }} -DCMAKE_BUILD_TYPE=${{ inputs.build_type }} -DENABLE_LTO=ON -DLauncher_ENABLE_JAVA_DOWNLOADER=ON -DLauncher_BUILD_PLATFORM=official -DCMAKE_C_COMPILER_LAUNCHER=${{ env.CCACHE_VAR }} -DCMAKE_CXX_COMPILER_LAUNCHER=${{ env.CCACHE_VAR }} -DLauncher_QT_VERSION_MAJOR=${{ matrix.qt_ver }} -DCMAKE_OSX_ARCHITECTURES="x86_64;arm64" -G Ninja
-
-      - name: Configure CMake (macOS-Legacy)
-        if: runner.os == 'macOS' && matrix.qt_ver == 5
-        run: |
-          cmake -S . -B ${{ env.BUILD_DIR }} -DCMAKE_INSTALL_PREFIX=${{ env.INSTALL_DIR }} -DCMAKE_BUILD_TYPE=${{ inputs.build_type }} -DENABLE_LTO=ON -DLauncher_ENABLE_JAVA_DOWNLOADER=ON -DLauncher_BUILD_PLATFORM=official -DCMAKE_C_COMPILER_LAUNCHER=${{ env.CCACHE_VAR }} -DCMAKE_CXX_COMPILER_LAUNCHER=${{ env.CCACHE_VAR }} -DLauncher_QT_VERSION_MAJOR=${{ matrix.qt_ver }} -DMACOSX_SPARKLE_UPDATE_PUBLIC_KEY="" -DMACOSX_SPARKLE_UPDATE_FEED_URL="" -DCMAKE_OSX_ARCHITECTURES="x86_64" -G Ninja
 
       - name: Configure CMake (Windows MinGW-w64)
         if: runner.os == 'Windows' && matrix.msystem != ''
@@ -290,19 +291,14 @@ jobs:
           cmake -S . -B ${{ env.BUILD_DIR }} -DCMAKE_INSTALL_PREFIX=${{ env.INSTALL_DIR }} -DCMAKE_BUILD_TYPE=${{ inputs.build_type }} -DENABLE_LTO=ON -DLauncher_ENABLE_JAVA_DOWNLOADER=ON -DLauncher_BUILD_PLATFORM=official -DCMAKE_C_COMPILER_LAUNCHER=${{ env.CCACHE_VAR }} -DCMAKE_CXX_COMPILER_LAUNCHER=${{ env.CCACHE_VAR }} -DLauncher_QT_VERSION_MAJOR=6 -DCMAKE_OBJDUMP=/mingw64/bin/objdump.exe -DLauncher_BUILD_ARTIFACT=${{ matrix.name }}-Qt${{ matrix.qt_ver }} -G Ninja
 
       - name: Configure CMake (Windows MSVC)
-        if: runner.os == 'Windows' && matrix.msystem == ''
+        if: runner.os == 'Windows' && matrix.msystem == '' && matrix.architecture != 'arm64'
+        run: |
+          cmake -S . -B ${{ env.BUILD_DIR }} -DCMAKE_INSTALL_PREFIX=${{ env.INSTALL_DIR }} -DCMAKE_BUILD_TYPE=${{ inputs.build_type }} -DENABLE_LTO=ON -DLauncher_ENABLE_JAVA_DOWNLOADER=ON -DLauncher_BUILD_PLATFORM=official -DLauncher_QT_VERSION_MAJOR=${{ matrix.qt_ver }} -DCMAKE_MSVC_RUNTIME_LIBRARY="MultiThreadedDLL" -DLauncher_FORCE_BUNDLED_LIBS=ON  -DLauncher_BUILD_ARTIFACT=${{ matrix.name }}-Qt${{ matrix.qt_ver }} -G Ninja
+
+      - name: Configure CMake (Windows MSVC arm64)
+        if: runner.os == 'Windows' && matrix.msystem == '' && matrix.architecture == 'arm64'
         run: |
           cmake -S . -B ${{ env.BUILD_DIR }} -DCMAKE_INSTALL_PREFIX=${{ env.INSTALL_DIR }} -DCMAKE_BUILD_TYPE=${{ inputs.build_type }} -DENABLE_LTO=ON -DLauncher_ENABLE_JAVA_DOWNLOADER=ON -DLauncher_BUILD_PLATFORM=official -DLauncher_QT_VERSION_MAJOR=${{ matrix.qt_ver }} -DCMAKE_MSVC_RUNTIME_LIBRARY="MultiThreadedDLL" -A${{ matrix.architecture}} -DLauncher_FORCE_BUNDLED_LIBS=ON  -DLauncher_BUILD_ARTIFACT=${{ matrix.name }}-Qt${{ matrix.qt_ver }}
-          # https://github.com/ccache/ccache/wiki/MS-Visual-Studio (I coudn't figure out the compiler prefix)
-          if ("${{ env.CCACHE_VAR }}")
-          {
-            Copy-Item C:/ProgramData/chocolatey/lib/ccache/tools/ccache-4.7.1-windows-x86_64/ccache.exe -Destination C:/ProgramData/chocolatey/lib/ccache/tools/ccache-4.7.1-windows-x86_64/cl.exe
-            echo "CLToolExe=cl.exe" >> $env:GITHUB_ENV
-            echo "CLToolPath=C:/ProgramData/chocolatey/lib/ccache/tools/ccache-4.7.1-windows-x86_64/" >> $env:GITHUB_ENV
-            echo "TrackFileAccess=false" >> $env:GITHUB_ENV
-          }
-          # Needed for ccache, but also speeds up compile
-          echo "UseMultiToolTask=true" >> $env:GITHUB_ENV
 
       - name: Configure CMake (Linux)
         if: runner.os == 'Linux'
@@ -499,7 +495,7 @@ jobs:
           }
 
       - name: Package AppImage (Linux)
-        if: runner.os == 'Linux' && matrix.qt_ver != 5
+        if: runner.os == 'Linux'
         shell: bash
         env:
           GPG_PRIVATE_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
@@ -595,29 +591,22 @@ jobs:
           name: PrismLauncher-${{ matrix.name }}-Setup-${{ env.VERSION }}-${{ inputs.build_type }}
           path: PrismLauncher-Setup.exe
 
-      - name: Upload binary tarball (Linux, portable, Qt 5)
-        if: runner.os == 'Linux' && matrix.qt_ver != 6
-        uses: actions/upload-artifact@v4
-        with:
-          name: PrismLauncher-${{ runner.os }}-Qt5-Portable-${{ env.VERSION }}-${{ inputs.build_type }}
-          path: PrismLauncher-portable.tar.gz
-
-      - name: Upload binary tarball (Linux, portable, Qt 6)
-        if: runner.os == 'Linux' && matrix.qt_ver != 5
+      - name: Upload binary tarball (Linux, portable)
+        if: runner.os == 'Linux'
         uses: actions/upload-artifact@v4
         with:
           name: PrismLauncher-${{ runner.os }}-Qt6-Portable-${{ env.VERSION }}-${{ inputs.build_type }}
           path: PrismLauncher-portable.tar.gz
 
       - name: Upload AppImage (Linux)
-        if: runner.os == 'Linux' && matrix.qt_ver != 5
+        if: runner.os == 'Linux'
         uses: actions/upload-artifact@v4
         with:
           name: PrismLauncher-${{ runner.os }}-${{ env.VERSION }}-${{ inputs.build_type }}-x86_64.AppImage
           path: PrismLauncher-${{ runner.os }}-${{ env.VERSION }}-${{ inputs.build_type }}-x86_64.AppImage
 
       - name: Upload AppImage Zsync (Linux)
-        if: runner.os == 'Linux' && matrix.qt_ver != 5
+        if: runner.os == 'Linux'
         uses: actions/upload-artifact@v4
         with:
           name: PrismLauncher-${{ runner.os }}-${{ env.VERSION }}-${{ inputs.build_type }}-x86_64.AppImage.zsync

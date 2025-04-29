@@ -46,10 +46,8 @@ jobs:
         run: |
           mv ${{ github.workspace }}/PrismLauncher-source PrismLauncher-${{ env.VERSION }}
           mv PrismLauncher-Linux-Qt6-Portable*/PrismLauncher-portable.tar.gz PrismLauncher-Linux-Qt6-Portable-${{ env.VERSION }}.tar.gz
-          mv PrismLauncher-Linux-Qt5-Portable*/PrismLauncher-portable.tar.gz PrismLauncher-Linux-Qt5-Portable-${{ env.VERSION }}.tar.gz
           mv PrismLauncher-*.AppImage/PrismLauncher-*.AppImage PrismLauncher-Linux-x86_64.AppImage
           mv PrismLauncher-*.AppImage.zsync/PrismLauncher-*.AppImage.zsync PrismLauncher-Linux-x86_64.AppImage.zsync
-          mv PrismLauncher-macOS-Legacy*/PrismLauncher.zip PrismLauncher-macOS-Legacy-${{ env.VERSION }}.zip
           mv PrismLauncher-macOS*/PrismLauncher.zip PrismLauncher-macOS-${{ env.VERSION }}.zip
 
           tar --exclude='.git' -czf PrismLauncher-${{ env.VERSION }}.tar.gz PrismLauncher-${{ env.VERSION }}
@@ -90,7 +88,6 @@ jobs:
           draft: true
           prerelease: false
           files: |
-            PrismLauncher-Linux-Qt5-Portable-${{ env.VERSION }}.tar.gz
             PrismLauncher-Linux-x86_64.AppImage
             PrismLauncher-Linux-x86_64.AppImage.zsync
             PrismLauncher-Linux-Qt6-Portable-${{ env.VERSION }}.tar.gz
@@ -104,5 +101,4 @@ jobs:
             PrismLauncher-Windows-MSVC-Portable-${{ env.VERSION }}.zip
             PrismLauncher-Windows-MSVC-Setup-${{ env.VERSION }}.exe
             PrismLauncher-macOS-${{ env.VERSION }}.zip
-            PrismLauncher-macOS-Legacy-${{ env.VERSION }}.zip
             PrismLauncher-${{ env.VERSION }}.tar.gz

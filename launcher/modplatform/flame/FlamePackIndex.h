@@ -3,7 +3,6 @@
 #include <QList>
 #include <QMetaType>
 #include <QString>
-#include <QVector>
 #include "modplatform/ModIndex.h"
 
 namespace Flame {
@@ -39,7 +38,7 @@ struct IndexedPack {
     QString logoUrl;
 
     bool versionsLoaded = false;
-    QVector<IndexedVersion> versions;
+    QList<IndexedVersion> versions;
 
     bool extraInfoLoaded = false;
     ModpackExtra extra;

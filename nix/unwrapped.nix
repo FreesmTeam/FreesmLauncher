@@ -6,46 +6,66 @@
   apple-sdk_11,
   extra-cmake-modules,
   gamemode,
-  ghc_filesystem,
   jdk17,
   kdePackages,
   libnbtplusplus,
+  qt-qrcodegenerator,
   ninja,
-  nix-filter,
   self,
   stripJavaArchivesHook,
   tomlplusplus,
   zlib,
-
   msaClientID ? null,
   gamemodeSupport ? stdenv.hostPlatform.isLinux,
 }:
-
 assert lib.assertMsg (
   gamemodeSupport -> stdenv.hostPlatform.isLinux
 ) "gamemodeSupport is only available on Linux.";
 
+let
+  date =
+    let
+      # YYYYMMDD
+      date' = lib.substring 0 8 self.lastModifiedDate;
+      year = lib.substring 0 4 date';
+      month = lib.substring 4 2 date';
+      date = lib.substring 6 2 date';
+    in
+    if (self ? "lastModifiedDate") then
+      lib.concatStringsSep "-" [
+        year
+        month
+        date
+      ]
+    else
+      "unknown";
+in
+
 stdenv.mkDerivation {
   pname = "prismlauncher-unwrapped";
-  version = self.shortRev or self.dirtyShortRev or "unknown";
+  version = "10.0-unstable-${date}";
 
-  src = nix-filter.lib {
-    root = self;
-    include = [
-      "buildconfig"
-      "cmake"
-      "launcher"
-      "libraries"
-      "program_info"
-      "tests"
-      ../COPYING.md
+  src = lib.fileset.toSource {
+    root = ../.;
+    fileset = lib.fileset.unions [
       ../CMakeLists.txt
+      ../COPYING.md
+
+      ../buildconfig
+      ../cmake
+      ../launcher
+      ../libraries
+      ../program_info
+      ../tests
     ];
   };
 
   postUnpack = ''
     rm -rf source/libraries/libnbtplusplus
     ln -s ${libnbtplusplus} source/libraries/libnbtplusplus
+
+    rm -rf source/libraries/qt-qrcodegenerator/QR-Code-generator
+    ln -s ${qt-qrcodegenerator} source/libraries/qt-qrcodegenerator/QR-Code-generator
   '';
 
   nativeBuildInputs = [
@@ -59,7 +79,6 @@ stdenv.mkDerivation {
   buildInputs =
     [
       cmark
-      ghc_filesystem
       kdePackages.qtbase
       kdePackages.qtnetworkauth
       kdePackages.quazip
@@ -78,9 +97,6 @@ stdenv.mkDerivation {
     ]
     ++ lib.optionals (msaClientID != null) [
       (lib.cmakeFeature "Launcher_MSA_CLIENT_ID" (toString msaClientID))
-    ]
-    ++ lib.optionals (lib.versionOlder kdePackages.qtbase.version "6") [
-      (lib.cmakeFeature "Launcher_QT_VERSION_MAJOR" "5")
     ]
     ++ lib.optionals stdenv.hostPlatform.isDarwin [
       # we wrap our binary manually

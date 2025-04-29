@@ -42,8 +42,8 @@
 #include <QFileInfo>
 #include <QJsonDocument>
 #include <QJsonObject>
-#include <QRegularExpression>
 
+#include "Application.h"
 #include "settings/INISettingsObject.h"
 #include "settings/OverrideSetting.h"
 #include "settings/Setting.h"
@@ -174,6 +174,12 @@ void BaseInstance::copyManagedPack(BaseInstance& other)
     m_settings->set("ManagedPackName", other.getManagedPackName());
     m_settings->set("ManagedPackVersionID", other.getManagedPackVersionID());
     m_settings->set("ManagedPackVersionName", other.getManagedPackVersionName());
+
+    if (APPLICATION->settings()->get("AutomaticJavaSwitch").toBool() && m_settings->get("AutomaticJava").toBool() &&
+        m_settings->get("OverrideJavaLocation").toBool()) {
+        m_settings->set("OverrideJavaLocation", false);
+        m_settings->set("JavaPath", "");
+    }
 }
 
 int BaseInstance::getConsoleMaxLines() const
@@ -384,6 +390,12 @@ void BaseInstance::setName(QString val)
     // FIXME: if no change, do not set. setting involves saving a file.
     m_settings->set("name", val);
     emit propertiesChanged(this);
+}
+
+bool BaseInstance::syncInstanceDirName(const QString& newRoot) const
+{
+    auto oldRoot = instanceRoot();
+    return oldRoot == newRoot || QFile::rename(oldRoot, newRoot);
 }
 
 QString BaseInstance::name() const

@@ -18,10 +18,10 @@
 
 #include "BoxGeometry.h"
 
+#include <QList>
 #include <QMatrix4x4>
 #include <QVector2D>
 #include <QVector3D>
-#include <QVector>
 
 struct VertexData {
     QVector4D position;
@@ -32,7 +32,7 @@ struct VertexData {
 // For cube we would need only 8 vertices but we have to
 // duplicate vertex for each face because texture coordinate
 // is different.
-static const QVector<QVector4D> vertices = {
+static const QList<QVector4D> vertices = {
     // Vertex data for face 0
     QVector4D(-0.5f, -0.5f, 0.5f, 1.0f),  // v0
     QVector4D(0.5f, -0.5f, 0.5f, 1.0f),   // v1
@@ -76,7 +76,7 @@ static const QVector<QVector4D> vertices = {
 // index of the second strip needs to be duplicated. If
 // connecting strips have same vertex order then only last
 // index of the first strip needs to be duplicated.
-static const QVector<GLushort> indices = {
+static const QList<GLushort> indices = {
     0,  1,  2,  3,  3,       // Face 0 - triangle strip ( v0,  v1,  v2,  v3)
     4,  4,  5,  6,  7,  7,   // Face 1 - triangle strip ( v4,  v5,  v6,  v7)
     8,  8,  9,  10, 11, 11,  // Face 2 - triangle strip ( v8,  v9, v10, v11)
@@ -85,19 +85,19 @@ static const QVector<GLushort> indices = {
     20, 20, 21, 22, 23       // Face 5 - triangle strip (v20, v21, v22, v23)
 };
 
-static const QVector<VertexData> planeVertices = {
+static const QList<VertexData> planeVertices = {
     { QVector4D(-1.0f, -1.0f, -0.5f, 1.0f), QVector2D(0.0f, 0.0f) },  // Bottom-left
     { QVector4D(1.0f, -1.0f, -0.5f, 1.0f), QVector2D(1.0f, 0.0f) },   // Bottom-right
     { QVector4D(-1.0f, 1.0f, -0.5f, 1.0f), QVector2D(0.0f, 1.0f) },   // Top-left
     { QVector4D(1.0f, 1.0f, -0.5f, 1.0f), QVector2D(1.0f, 1.0f) },    // Top-right
 };
-static const QVector<GLushort> planeIndices = {
+static const QList<GLushort> planeIndices = {
     0, 1, 2, 3, 3  // Face 0 - triangle strip ( v0,  v1,  v2,  v3)
 };
 
-QVector<QVector4D> transformVectors(const QMatrix4x4& matrix, const QVector<QVector4D>& vectors)
+QList<QVector4D> transformVectors(const QMatrix4x4& matrix, const QList<QVector4D>& vectors)
 {
-    QVector<QVector4D> transformedVectors;
+    QList<QVector4D> transformedVectors;
     transformedVectors.reserve(vectors.size());
 
     for (const QVector4D& vec : vectors) {
@@ -113,9 +113,9 @@ QVector<QVector4D> transformVectors(const QMatrix4x4& matrix, const QVector<QVec
 
 // Function to calculate UV coordinates
 // this is pure magic (if something is wrong with textures this is at fault)
-QVector<QVector2D> getCubeUVs(float u, float v, float width, float height, float depth, float textureWidth, float textureHeight)
+QList<QVector2D> getCubeUVs(float u, float v, float width, float height, float depth, float textureWidth, float textureHeight)
 {
-    auto toFaceVertices = [textureHeight, textureWidth](float x1, float y1, float x2, float y2) -> QVector<QVector2D> {
+    auto toFaceVertices = [textureHeight, textureWidth](float x1, float y1, float x2, float y2) -> QList<QVector2D> {
         return {
             QVector2D(x1 / textureWidth, 1.0 - y2 / textureHeight),
             QVector2D(x2 / textureWidth, 1.0 - y2 / textureHeight),
@@ -168,7 +168,7 @@ QVector<QVector2D> getCubeUVs(float u, float v, float width, float height, float
         back[2],
     };
     // Create a new array to hold the modified UV data
-    QVector<QVector2D> uvData;
+    QList<QVector2D> uvData;
     uvData.reserve(24);
 
     // Iterate over the arrays and copy the data to newUVData
@@ -237,7 +237,7 @@ void BoxGeometry::initGeometry(float u, float v, float width, float height, floa
     transformation.scale(m_size);
     auto positions = transformVectors(transformation, vertices);
 
-    QVector<VertexData> verticesData;
+    QList<VertexData> verticesData;
     verticesData.reserve(positions.size());  // Reserve space for efficiency
 
     for (int i = 0; i < positions.size(); ++i) {

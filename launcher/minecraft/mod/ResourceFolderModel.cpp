@@ -363,16 +363,11 @@ void ResourceFolderModel::onUpdateSucceeded()
 
     auto& new_resources = update_results->resources;
 
-#if QT_VERSION >= QT_VERSION_CHECK(5, 14, 0)
     auto current_list = m_resources_index.keys();
     QSet<QString> current_set(current_list.begin(), current_list.end());
 
     auto new_list = new_resources.keys();
     QSet<QString> new_set(new_list.begin(), new_list.end());
-#else
-    QSet<QString> current_set(m_resources_index.keys().toSet());
-    QSet<QString> new_set(new_resources.keys().toSet());
-#endif
 
     applyUpdates(current_set, new_set, new_resources);
 }
@@ -513,12 +508,9 @@ QVariant ResourceFolderModel::data(const QModelIndex& index, int role) const
             return {};
         }
         case Qt::CheckStateRole:
-            switch (column) {
-                case ActiveColumn:
-                    return m_resources[row]->enabled() ? Qt::Checked : Qt::Unchecked;
-                default:
-                    return {};
-            }
+            if (column == ActiveColumn)
+                return m_resources[row]->enabled() ? Qt::Checked : Qt::Unchecked;
+            return {};
         default:
             return {};
     }
@@ -596,8 +588,7 @@ void ResourceFolderModel::setupHeaderAction(QAction* act, int column)
 void ResourceFolderModel::saveColumns(QTreeView* tree)
 {
     auto const setting_name = QString("UI/%1_Page/Columns").arg(id());
-    auto setting = (m_instance->settings()->contains(setting_name)) ? m_instance->settings()->getSetting(setting_name)
-                                                                    : m_instance->settings()->registerSetting(setting_name);
+    auto setting = m_instance->settings()->getOrRegisterSetting(setting_name);
 
     setting->set(tree->header()->saveState());
 }
@@ -609,8 +600,7 @@ void ResourceFolderModel::loadColumns(QTreeView* tree)
     }
 
     auto const setting_name = QString("UI/%1_Page/Columns").arg(id());
-    auto setting = (m_instance->settings()->contains(setting_name)) ? m_instance->settings()->getSetting(setting_name)
-                                                                    : m_instance->settings()->registerSetting(setting_name);
+    auto setting = m_instance->settings()->getOrRegisterSetting(setting_name);
 
     tree->header()->restoreState(setting->get().toByteArray());
 }

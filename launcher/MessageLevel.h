@@ -12,6 +12,7 @@ enum Enum {
     StdOut,   /**< Undetermined stderr messages */
     StdErr,   /**< Undetermined stdout messages */
     Launcher, /**< Launcher Messages */
+    Trace,    /**< Trace Messages */
     Debug,    /**< Debug Messages */
     Info,     /**< Info Messages */
     Message,  /**< Standard Messages */

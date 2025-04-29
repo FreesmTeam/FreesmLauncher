@@ -18,6 +18,10 @@
 
 #include "HintOverrideProxyStyle.h"
 
+HintOverrideProxyStyle::HintOverrideProxyStyle(QStyle* style) : QProxyStyle(style) {
+    setObjectName(style->objectName());
+}
+
 int HintOverrideProxyStyle::styleHint(QStyle::StyleHint hint,
                                       const QStyleOption* option,
                                       const QWidget* widget,

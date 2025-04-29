@@ -61,14 +61,14 @@ class VersionList : public BaseVersionList, public BaseEntity {
     Version::Ptr getVersion(const QString& version);
     bool hasVersion(QString version) const;
 
-    QVector<Version::Ptr> versions() const { return m_versions; }
+    QList<Version::Ptr> versions() const { return m_versions; }
 
     // this blocks until the version list is loaded
     void waitToLoad();
 
    public:  // for usage only by parsers
     void setName(const QString& name);
-    void setVersions(const QVector<Version::Ptr>& versions);
+    void setVersions(const QList<Version::Ptr>& versions);
     void merge(const VersionList::Ptr& other);
     void mergeFromIndex(const VersionList::Ptr& other);
     void parse(const QJsonObject& obj) override;
@@ -82,7 +82,7 @@ class VersionList : public BaseVersionList, public BaseEntity {
     void updateListData(QList<BaseVersion::Ptr>) override {}
 
    private:
-    QVector<Version::Ptr> m_versions;
+    QList<Version::Ptr> m_versions;
     QStringList m_externalRecommendsVersions;
     QHash<QString, Version::Ptr> m_lookup;
     QString m_uid;

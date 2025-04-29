@@ -517,13 +517,9 @@ QVariant PackProfile::data(const QModelIndex& index, int role) const
 
     switch (role) {
         case Qt::CheckStateRole: {
-            switch (column) {
-                case NameColumn: {
-                    return patch->isEnabled() ? Qt::Checked : Qt::Unchecked;
-                }
-                default:
-                    return QVariant();
-            }
+            if (column == NameColumn)
+                return patch->isEnabled() ? Qt::Checked : Qt::Unchecked;
+            return QVariant();
         }
         case Qt::DisplayRole: {
             switch (column) {
@@ -649,11 +645,7 @@ void PackProfile::move(const int index, const MoveDirection direction)
         return;
     }
     beginMoveRows(QModelIndex(), index, index, QModelIndex(), togap);
-#if QT_VERSION >= QT_VERSION_CHECK(5, 13, 0)
     d->components.swapItemsAt(index, theirIndex);
-#else
-    d->components.swap(index, theirIndex);
-#endif
     endMoveRows();
     invalidateLaunchProfile();
     scheduleSave();

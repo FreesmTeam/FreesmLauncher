@@ -275,6 +275,7 @@ auto ResourceUpdateDialog::ensureMetadata() -> bool
     bool skip_rest = false;
     ModPlatform::ResourceProvider provider_rest = ModPlatform::ResourceProvider::MODRINTH;
 
+    // adds resource to list based on provider
     auto addToTmp = [&modrinth_tmp, &flame_tmp](Resource* resource, ModPlatform::ResourceProvider p) {
         switch (p) {
             case ModPlatform::ResourceProvider::MODRINTH:
@@ -286,6 +287,7 @@ auto ResourceUpdateDialog::ensureMetadata() -> bool
         }
     };
 
+    // ask the user on what provider to seach for the mod first
     for (auto candidate : m_candidates) {
         if (candidate->status() != ResourceStatus::NO_METADATA) {
             onMetadataEnsured(candidate);
@@ -328,6 +330,7 @@ auto ResourceUpdateDialog::ensureMetadata() -> bool
             addToTmp(candidate, response.chosen);
     }
 
+    // prepare task for the modrinth mods
     if (!modrinth_tmp.empty()) {
         auto modrinth_task = makeShared<EnsureMetadataTask>(modrinth_tmp, index_dir, ModPlatform::ResourceProvider::MODRINTH);
         connect(modrinth_task.get(), &EnsureMetadataTask::metadataReady, [this](Resource* candidate) { onMetadataEnsured(candidate); });
@@ -343,6 +346,7 @@ auto ResourceUpdateDialog::ensureMetadata() -> bool
         seq.addTask(modrinth_task);
     }
 
+    // prepare task for the flame mods
     if (!flame_tmp.empty()) {
         auto flame_task = makeShared<EnsureMetadataTask>(flame_tmp, index_dir, ModPlatform::ResourceProvider::FLAME);
         connect(flame_task.get(), &EnsureMetadataTask::metadataReady, [this](Resource* candidate) { onMetadataEnsured(candidate); });
@@ -360,6 +364,7 @@ auto ResourceUpdateDialog::ensureMetadata() -> bool
 
     seq.addTask(m_second_try_metadata);
 
+    // execute all the tasks
     ProgressDialog checking_dialog(m_parent);
     checking_dialog.setSkipButton(true, tr("Abort"));
     checking_dialog.setWindowTitle(tr("Generating metadata..."));
@@ -470,13 +475,8 @@ void ResourceUpdateDialog::appendResource(CheckUpdateTask::Update const& info, Q
     auto changelog_area = new QTextBrowser();
 
     QString text = info.changelog;
-    switch (info.provider) {
-        case ModPlatform::ResourceProvider::MODRINTH: {
-            text = markdownToHTML(info.changelog.toUtf8());
-            break;
-        }
-        default:
-            break;
+    if (info.provider == ModPlatform::ResourceProvider::MODRINTH) {
+        text = markdownToHTML(info.changelog.toUtf8());
     }
 
     changelog_area->setHtml(StringUtils::htmlListPatch(text));

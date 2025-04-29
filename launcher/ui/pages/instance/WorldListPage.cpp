@@ -123,10 +123,7 @@ void WorldListPage::openedImpl()
     }
 
     auto const setting_name = QString("WideBarVisibility_%1").arg(id());
-    if (!APPLICATION->settings()->contains(setting_name))
-        m_wide_bar_setting = APPLICATION->settings()->registerSetting(setting_name);
-    else
-        m_wide_bar_setting = APPLICATION->settings()->getSetting(setting_name);
+    m_wide_bar_setting = APPLICATION->settings()->getOrRegisterSetting(setting_name);
 
     ui->toolBar->setVisibilityState(m_wide_bar_setting->get().toByteArray());
 }
@@ -170,12 +167,9 @@ void WorldListPage::retranslate()
 
 bool WorldListPage::worldListFilter(QKeyEvent* keyEvent)
 {
-    switch (keyEvent->key()) {
-        case Qt::Key_Delete:
-            on_actionRemove_triggered();
-            return true;
-        default:
-            break;
+    if (keyEvent->key() == Qt::Key_Delete) {
+        on_actionRemove_triggered();
+        return true;
     }
     return QWidget::eventFilter(ui->worldTreeView, keyEvent);
 }

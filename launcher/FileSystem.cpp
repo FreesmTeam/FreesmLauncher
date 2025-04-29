@@ -77,24 +77,8 @@
 #include <utime.h>
 #endif
 
-// Snippet from https://github.com/gulrak/filesystem#using-it-as-single-file-header
-
-#ifdef __APPLE__
-#include <Availability.h>  // for deployment target to support pre-catalina targets without std::fs
-#endif                     // __APPLE__
-
-#if ((defined(_MSVC_LANG) && _MSVC_LANG >= 201703L) || (defined(__cplusplus) && __cplusplus >= 201703L)) && defined(__has_include)
-#if __has_include(<filesystem>) && (!defined(__MAC_OS_X_VERSION_MIN_REQUIRED) || __MAC_OS_X_VERSION_MIN_REQUIRED >= 101500)
-#define GHC_USE_STD_FS
 #include <filesystem>
 namespace fs = std::filesystem;
-#endif  // MacOS min version check
-#endif  // Other OSes version check
-
-#ifndef GHC_USE_STD_FS
-#include <ghc/filesystem.hpp>
-namespace fs = ghc::filesystem;
-#endif
 
 // clone
 #if defined(Q_OS_LINUX)
@@ -695,9 +679,6 @@ bool deletePath(QString path)
 
 bool trash(QString path, QString* pathInTrash)
 {
-#if QT_VERSION < QT_VERSION_CHECK(5, 15, 0)
-    return false;
-#else
     // FIXME: Figure out trash in Flatpak. Qt seemingly doesn't use the Trash portal
     if (DesktopServices::isFlatpak())
         return false;
@@ -706,7 +687,6 @@ bool trash(QString path, QString* pathInTrash)
         return false;
 #endif
     return QFile::moveToTrash(path, pathInTrash);
-#endif
 }
 
 QString PathCombine(const QString& path1, const QString& path2)
@@ -740,11 +720,7 @@ int pathDepth(const QString& path)
 
     QFileInfo info(path);
 
-#if QT_VERSION < QT_VERSION_CHECK(5, 14, 0)
-    auto parts = QDir::toNativeSeparators(info.path()).split(QDir::separator(), QString::SkipEmptyParts);
-#else
     auto parts = QDir::toNativeSeparators(info.path()).split(QDir::separator(), Qt::SkipEmptyParts);
-#endif
 
     int numParts = parts.length();
     numParts -= parts.count(".");
@@ -764,11 +740,7 @@ QString pathTruncate(const QString& path, int depth)
         return pathTruncate(trunc, depth);
     }
 
-#if QT_VERSION < QT_VERSION_CHECK(5, 14, 0)
-    auto parts = QDir::toNativeSeparators(trunc).split(QDir::separator(), QString::SkipEmptyParts);
-#else
     auto parts = QDir::toNativeSeparators(trunc).split(QDir::separator(), Qt::SkipEmptyParts);
-#endif
 
     if (parts.startsWith(".") && !path.startsWith(".")) {
         parts.removeFirst();
@@ -950,7 +922,7 @@ bool createShortcut(QString destination, QString target, QStringList args, QStri
     QDir content = application.path() + "/Contents/";
     QDir resources = content.path() + "/Resources/";
     QDir binaryDir = content.path() + "/MacOS/";
-    QFile info = content.path() + "/Info.plist";
+    QFile info(content.path() + "/Info.plist");
 
     if (!(content.mkpath(".") && resources.mkpath(".") && binaryDir.mkpath("."))) {
         qWarning() << "Couldn't create directories within application";

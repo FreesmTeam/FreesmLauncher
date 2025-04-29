@@ -74,7 +74,7 @@ class SkinList : public QAbstractListModel {
    private:
     shared_qobject_ptr<QFileSystemWatcher> m_watcher;
     bool m_isWatching;
-    QVector<SkinModel> m_skinList;
+    QList<SkinModel> m_skinList;
     QDir m_dir;
     MinecraftAccountPtr m_acct;
 };

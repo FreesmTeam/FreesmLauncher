@@ -391,7 +391,8 @@ bool FlameCreationTask::createInstance()
 
     // Hack to correct some 'special sauce'...
     if (mcVersion.endsWith('.')) {
-        mcVersion.remove(QRegularExpression("[.]+$"));
+        static const QRegularExpression s_regex("[.]+$");
+        mcVersion.remove(s_regex);
         logWarning(tr("Mysterious trailing dots removed from Minecraft version while importing pack."));
     }
 

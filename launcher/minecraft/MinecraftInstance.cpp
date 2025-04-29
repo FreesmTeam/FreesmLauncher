@@ -53,7 +53,6 @@
 #include "MMCTime.h"
 #include "java/JavaVersion.h"
 #include "pathmatcher/MultiMatcher.h"
-#include "pathmatcher/RegexpMatcher.h"
 
 #include "launch/LaunchTask.h"
 #include "launch/TaskStepWrapper.h"
@@ -705,9 +704,9 @@ static QString replaceTokensIn(QString text, QMap<QString, QString> with)
 {
     // TODO: does this still work??
     QString result;
-    QRegularExpression token_regexp("\\$\\{(.+)\\}", QRegularExpression::InvertedGreedinessOption);
+    static const QRegularExpression s_token_regexp("\\$\\{(.+)\\}", QRegularExpression::InvertedGreedinessOption);
     QStringList list;
-    QRegularExpressionMatchIterator i = token_regexp.globalMatch(text);
+    QRegularExpressionMatchIterator i = s_token_regexp.globalMatch(text);
     int lastCapturedEnd = 0;
     while (i.hasNext()) {
         QRegularExpressionMatch match = i.next();
@@ -773,11 +772,7 @@ QStringList MinecraftInstance::processMinecraftArgs(AuthSessionPtr session, Mine
     token_mapping["assets_root"] = absAssetsDir;
     token_mapping["assets_index_name"] = assets->id;
 
-#if QT_VERSION >= QT_VERSION_CHECK(5, 14, 0)
     QStringList parts = args_pattern.split(' ', Qt::SkipEmptyParts);
-#else
-    QStringList parts = args_pattern.split(' ', QString::SkipEmptyParts);
-#endif
     for (int i = 0; i < parts.length(); i++) {
         parts[i] = replaceTokensIn(parts[i], token_mapping);
     }
@@ -832,11 +827,7 @@ QString MinecraftInstance::createLaunchScript(AuthSessionPtr session, MinecraftT
                     auto mainWindow = qobject_cast<QMainWindow*>(w);
                     if (mainWindow) {
                         auto m = mainWindow->windowHandle()->frameMargins();
-#if (QT_VERSION >= QT_VERSION_CHECK(5, 14, 0))
                         screenGeometry = screenGeometry.shrunkBy(m);
-#else
-                        screenGeometry = { screenGeometry.width() - m.left() - m.right(), screenGeometry.height() - m.top() - m.bottom() };
-#endif
                         break;
                     }
                 }
@@ -1028,61 +1019,10 @@ QMap<QString, QString> MinecraftInstance::createCensorFilterFromSession(AuthSess
     return filter;
 }
 
-MessageLevel::Enum MinecraftInstance::guessLevel(const QString& line, MessageLevel::Enum level)
-{
-    QRegularExpression re("\\[(?<timestamp>[0-9:]+)\\] \\[[^/]+/(?<level>[^\\]]+)\\]");
-    auto match = re.match(line);
-    if (match.hasMatch()) {
-        // New style logs from log4j
-        QString timestamp = match.captured("timestamp");
-        QString levelStr = match.captured("level");
-        if (levelStr == "INFO")
-            level = MessageLevel::Message;
-        if (levelStr == "WARN")
-            level = MessageLevel::Warning;
-        if (levelStr == "ERROR")
-            level = MessageLevel::Error;
-        if (levelStr == "FATAL")
-            level = MessageLevel::Fatal;
-        if (levelStr == "TRACE" || levelStr == "DEBUG")
-            level = MessageLevel::Debug;
-    } else {
-        // Old style forge logs
-        if (line.contains("[INFO]") || line.contains("[CONFIG]") || line.contains("[FINE]") || line.contains("[FINER]") ||
-            line.contains("[FINEST]"))
-            level = MessageLevel::Message;
-        if (line.contains("[SEVERE]") || line.contains("[STDERR]"))
-            level = MessageLevel::Error;
-        if (line.contains("[WARNING]"))
-            level = MessageLevel::Warning;
-        if (line.contains("[DEBUG]"))
-            level = MessageLevel::Debug;
-    }
-    if (line.contains("overwriting existing"))
-        return MessageLevel::Fatal;
-    // NOTE: this diverges from the real regexp. no unicode, the first section is + instead of *
-    static const QString javaSymbol = "([a-zA-Z_$][a-zA-Z\\d_$]*\\.)+[a-zA-Z_$][a-zA-Z\\d_$]*";
-    if (line.contains("Exception in thread") || line.contains(QRegularExpression("\\s+at " + javaSymbol)) ||
-        line.contains(QRegularExpression("Caused by: " + javaSymbol)) ||
-        line.contains(QRegularExpression("([a-zA-Z_$][a-zA-Z\\d_$]*\\.)+[a-zA-Z_$]?[a-zA-Z\\d_$]*(Exception|Error|Throwable)")) ||
-        line.contains(QRegularExpression("... \\d+ more$")))
-        return MessageLevel::Error;
-    return level;
-}
 
-IPathMatcher::Ptr MinecraftInstance::getLogFileMatcher()
+QStringList MinecraftInstance::getLogFileSearchPaths()
 {
-    auto combined = std::make_shared<MultiMatcher>();
-    combined->add(std::make_shared<RegexpMatcher>(".*\\.log(\\.[0-9]*)?(\\.gz)?$"));
-    combined->add(std::make_shared<RegexpMatcher>("crash-.*\\.txt"));
-    combined->add(std::make_shared<RegexpMatcher>("IDMap dump.*\\.txt$"));
-    combined->add(std::make_shared<RegexpMatcher>("ModLoader\\.txt(\\..*)?$"));
-    return combined;
-}
-
-QString MinecraftInstance::getLogFileRoot()
-{
-    return gameRoot();
+    return { FS::PathCombine(gameRoot(), "crash-reports"), FS::PathCombine(gameRoot(), "logs"), gameRoot() };
 }
 
 QString MinecraftInstance::getStatusbarDescription()

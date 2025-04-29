@@ -21,5 +21,8 @@
 
 #pragma once
 
+#include <system_error>
+
 void BindCrtHandlesToStdHandles(bool bindStdIn, bool bindStdOut, bool bindStdErr);
 bool AttachWindowsConsole();
+std::error_code EnableAnsiSupport();

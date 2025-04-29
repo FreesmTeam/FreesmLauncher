@@ -142,12 +142,7 @@ class MinecraftInstance : public BaseInstance {
     QProcessEnvironment createEnvironment() override;
     QProcessEnvironment createLaunchEnvironment() override;
 
-    /// guess log level from a line of minecraft log
-    MessageLevel::Enum guessLevel(const QString& line, MessageLevel::Enum level) override;
-
-    IPathMatcher::Ptr getLogFileMatcher() override;
-
-    QString getLogFileRoot() override;
+    QStringList getLogFileSearchPaths() override;
 
     QString getStatusbarDescription() override;
 

@@ -150,7 +150,8 @@ class FilterModel : public QIdentityProxyModel {
             return QVariant();
         if (role == Qt::DisplayRole || role == Qt::EditRole) {
             QVariant result = sourceModel()->data(mapToSource(proxyIndex), role);
-            return result.toString().remove(QRegularExpression("\\.png$"));
+            static const QRegularExpression s_removeChars("\\.png$");
+            return result.toString().remove(s_removeChars);
         }
         if (role == Qt::DecorationRole) {
             QVariant result = sourceModel()->data(mapToSource(proxyIndex), QFileSystemModel::FilePathRole);
@@ -559,10 +560,7 @@ void ScreenshotsPage::openedImpl()
     }
 
     auto const setting_name = QString("WideBarVisibility_%1").arg(id());
-    if (!APPLICATION->settings()->contains(setting_name))
-        m_wide_bar_setting = APPLICATION->settings()->registerSetting(setting_name);
-    else
-        m_wide_bar_setting = APPLICATION->settings()->getSetting(setting_name);
+    m_wide_bar_setting = APPLICATION->settings()->getOrRegisterSetting(setting_name);
 
     ui->toolBar->setVisibilityState(m_wide_bar_setting->get().toByteArray());
 }

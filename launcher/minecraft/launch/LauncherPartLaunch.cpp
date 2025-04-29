@@ -53,15 +53,16 @@ LauncherPartLaunch::LauncherPartLaunch(LaunchTask* parent)
     , m_process(parent->instance()->getJavaVersion().defaultsToUtf8() ? QTextCodec::codecForName("UTF-8") : QTextCodec::codecForLocale())
 {
     if (parent->instance()->settings()->get("CloseAfterLaunch").toBool()) {
+        static const QRegularExpression s_settingUser(".*Setting user.+", QRegularExpression::CaseInsensitiveOption);
         std::shared_ptr<QMetaObject::Connection> connection{ new QMetaObject::Connection };
-        *connection = connect(
-            &m_process, &LoggedProcess::log, this, [connection](const QStringList& lines, [[maybe_unused]] MessageLevel::Enum level) {
-                qDebug() << lines;
-                if (lines.filter(QRegularExpression(".*Setting user.+", QRegularExpression::CaseInsensitiveOption)).length() != 0) {
-                    APPLICATION->closeAllWindows();
-                    disconnect(*connection);
-                }
-            });
+        *connection = connect(&m_process, &LoggedProcess::log, this,
+                              [connection](const QStringList& lines, [[maybe_unused]] MessageLevel::Enum level) {
+                                  qDebug() << lines;
+                                  if (lines.filter(s_settingUser).length() != 0) {
+                                      APPLICATION->closeAllWindows();
+                                      disconnect(*connection);
+                                  }
+                              });
     }
 
     connect(&m_process, &LoggedProcess::log, this, &LauncherPartLaunch::logLines);

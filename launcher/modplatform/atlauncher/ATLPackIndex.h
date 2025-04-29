@@ -18,9 +18,9 @@
 
 #include "ATLPackManifest.h"
 
+#include <QList>
 #include <QMetaType>
 #include <QString>
-#include <QVector>
 
 namespace ATLauncher {
 
@@ -34,7 +34,7 @@ struct IndexedPack {
     int position;
     QString name;
     PackType type;
-    QVector<IndexedVersion> versions;
+    QList<IndexedVersion> versions;
     bool system;
     QString description;
 
