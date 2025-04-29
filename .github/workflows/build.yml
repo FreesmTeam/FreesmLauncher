@@ -11,61 +11,20 @@ on:
         description: Enable Qt caching or not
         type: boolean
         default: true
-    secrets:
-      SPARKLE_ED25519_KEY:
-        description: Private key for signing Sparkle updates
-        required: false
-      WINDOWS_CODESIGN_CERT:
-        description: Certificate for signing Windows builds
-        required: false
-      WINDOWS_CODESIGN_PASSWORD:
-        description: Password for signing Windows builds
-        required: false
-      APPLE_CODESIGN_CERT:
-        description: Certificate for signing macOS builds
-        required: false
-      APPLE_CODESIGN_PASSWORD:
-        description: Password for signing macOS builds
-        required: false
-      APPLE_CODESIGN_ID:
-        description: Certificate ID for signing macOS builds
-        required: false
-      APPLE_NOTARIZE_APPLE_ID:
-        description: Apple ID used for notarizing macOS builds
-        required: false
-      APPLE_NOTARIZE_TEAM_ID:
-        description: Team ID used for notarizing macOS builds
-        required: false
-      APPLE_NOTARIZE_PASSWORD:
-        description: Password used for notarizing macOS builds
-        required: false
-      GPG_PRIVATE_KEY:
-        description: Private key for AppImage signing
-        required: false
-      GPG_PRIVATE_KEY_ID:
-        description: ID for the GPG_PRIVATE_KEY, to select the signing key
-        required: false
 
 jobs:
-  build:
-    runs-on: ubuntu-22.04
-    steps:
-      ##
-      # PREPARE
-      ##
-      - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          submodules: "true"
-
-      - name: "Run Windows build process"
-        if: runner.os == 'Windows'
-        uses: ./.github/workflows/by-os/windows.yml
-
-      - name: "Run Linux build process"
-        if: runner.os == 'Linux'
-        uses: ./.github/workflows/by-os/linux.yml
-
-      - name: "Run MacOS build process"
-        if: runner.os == 'MacOS'
-        uses: ./.github/workflows/by-os/macos.yml
+  windows:
+    uses: ./.github/workflows/windows.yml
+    with:
+      is_qt_cached: ${{inputs.is_qt_cached}}
+      build_type: ${{inputs.build_type}}
+  linux:
+    uses: ./.github/workflows/linux.yml
+    with:
+      is_qt_cached: ${{inputs.is_qt_cached}}
+      build_type: ${{inputs.build_type}}
+  macos:
+    uses: ./.github/workflows/macos.yml
+    with:
+      is_qt_cached: ${{inputs.is_qt_cached}}
+      build_type: ${{inputs.build_type}}
