@@ -159,6 +159,7 @@ jobs:
         if: (runner.os != 'Windows' || matrix.msystem == '') && inputs.build_type == 'Debug'
         uses: hendrikmuhs/ccache-action@v1.2.18
         with:
+          create-symlink: ${{ runner.os != 'Windows' }}
           key: ${{ matrix.os }}-qt${{ matrix.qt_ver }}-${{ matrix.architecture }}
 
       - name: Use ccache on Debug builds only
