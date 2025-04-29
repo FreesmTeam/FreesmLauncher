@@ -1,49 +1,72 @@
 name: Windows build process
 
+on:
+  workflow_call:
+    inputs:
+      build_type:
+        required: true
+        type: string
+      is_qt_cached:
+        required: true
+        type: boolean
+    secrets:
+      WINDOWS_CODESIGN_CERT:
+        description: Certificate for signing Windows builds
+        required: false
+      WINDOWS_CODESIGN_PASSWORD:
+        description: Password for signing Windows builds
+        required: false
+
 jobs:
   windows:
     strategy:
       fail-fast: true
       matrix:
-        - os: windows-2022
-          name: "Windows-MinGW-w64"
-          msystem: clang64
-          vcvars_arch: "amd64_x86"
+        include:
+          - os: windows-2022
+            name: "Windows-MinGW-w64"
+            msystem: clang64
+            vcvars_arch: "amd64_x86"
 
-        - os: windows-2022
-          name: "Windows-MSVC"
-          msystem: ""
-          architecture: "x64"
-          vcvars_arch: "amd64"
-          qt_ver: 6
-          qt_host: "windows"
-          qt_arch: "win64_msvc2022_64"
-          qt_version: "6.8.1"
-          qt_modules: "qt5compat qtimageformats qtnetworkauth"
-          nscurl_tag: "v24.9.26.122"
-          nscurl_sha256: "AEE6C4BE3CB6455858E9C1EE4B3AFE0DB9960FA03FE99CCDEDC28390D57CCBB0"
+          - os: windows-2022
+            name: "Windows-MSVC"
+            msystem: ""
+            architecture: "x64"
+            vcvars_arch: "amd64"
+            qt_ver: 6
+            qt_host: "windows"
+            qt_arch: "win64_msvc2022_64"
+            qt_version: "6.8.1"
+            qt_modules: "qt5compat qtimageformats qtnetworkauth"
+            nscurl_tag: "v24.9.26.122"
+            nscurl_sha256: "AEE6C4BE3CB6455858E9C1EE4B3AFE0DB9960FA03FE99CCDEDC28390D57CCBB0"
 
-        - os: windows-2022
-          name: "Windows-MSVC-arm64"
-          msystem: ""
-          architecture: "arm64"
-          vcvars_arch: "amd64_arm64"
-          qt_ver: 6
-          qt_host: "windows"
-          qt_arch: "win64_msvc2022_arm64_cross_compiled"
-          qt_version: "6.8.1"
-          qt_modules: "qt5compat qtimageformats qtnetworkauth"
-          nscurl_tag: "v24.9.26.122"
-          nscurl_sha256: "AEE6C4BE3CB6455858E9C1EE4B3AFE0DB9960FA03FE99CCDEDC28390D57CCBB0"
+          - os: windows-2022
+            name: "Windows-MSVC-arm64"
+            msystem: ""
+            architecture: "arm64"
+            vcvars_arch: "amd64_arm64"
+            qt_ver: 6
+            qt_host: "windows"
+            qt_arch: "win64_msvc2022_arm64_cross_compiled"
+            qt_version: "6.8.1"
+            qt_modules: "qt5compat qtimageformats qtnetworkauth"
+            nscurl_tag: "v24.9.26.122"
+            nscurl_sha256: "AEE6C4BE3CB6455858E9C1EE4B3AFE0DB9960FA03FE99CCDEDC28390D57CCBB0"
 
     env:
       INSTALL_DIR: "install"
       INSTALL_PORTABLE_DIR: "install-portable"
       BUILD_DIR: "build"
-      CCACHE_VAR: ""
+      CCACHE_VAR: "ccache"
 
     runs-on: ${{ matrix.os }}
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          submodules: true
+
       - name: "Setup MSYS2"
         if: matrix.msystem != ''
         uses: msys2/setup-msys2@v2
@@ -98,10 +121,40 @@ jobs:
           ccache -p  # Show config
           ccache -z  # Zero stats
 
-          echo "CCACHE_VAR=ccache" >> $GITHUB_ENV
+      - name: Set short version
+        shell: bash
+        run: |
+          ver_short=`git rev-parse --short HEAD`
+          echo "VERSION=$ver_short" >> $GITHUB_ENV
 
-      - uses: .github/workflows/utils/set_short_version.yml
-      - uses: .github/workflows/utils/install_qt.yml
+      - name: Install host Qt (Windows MSVC arm64)
+        if: matrix.architecture == 'arm64'
+        uses: jurplel/install-qt-action@v4
+        with:
+          aqtversion: "==3.1.*"
+          py7zrversion: ">=0.20.2"
+          version: ${{ matrix.qt_version }}
+          host: "windows"
+          target: "desktop"
+          arch: ${{ matrix.qt_arch }}
+          modules: ${{ matrix.qt_modules }}
+          cache: ${{ inputs.is_qt_cached }}
+          cache-key-prefix: host-qt-arm64-windows
+          dir: ${{ github.workspace }}\HostQt
+          set-env: false
+
+      - name: Install Qt (macOS, Linux & Windows MSVC)
+        if: matrix.msystem == ''
+        uses: jurplel/install-qt-action@v4
+        with:
+          aqtversion: "==3.1.*"
+          py7zrversion: ">=0.20.2"
+          version: ${{ matrix.qt_version }}
+          target: "desktop"
+          arch: ${{ matrix.qt_arch }}
+          modules: ${{ matrix.qt_modules }}
+          tools: ${{ matrix.qt_tools }}
+          cache: ${{ inputs.is_qt_cached }}
 
       - name: Install MSVC (Windows MSVC)
         uses: ilammy/msvc-dev-cmd@v1

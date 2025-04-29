@@ -1,5 +1,37 @@
 name: MacOS build process
 
+on:
+  workflow_call:
+    inputs:
+      build_type:
+        required: true
+        type: string
+      is_qt_cached:
+        required: true
+        type: boolean
+    secrets:
+      SPARKLE_ED25519_KEY:
+        description: Private key for signing Sparkle updates
+        required: false
+      APPLE_CODESIGN_CERT:
+        description: Certificate for signing macOS builds
+        required: false
+      APPLE_CODESIGN_PASSWORD:
+        description: Password for signing macOS builds
+        required: false
+      APPLE_CODESIGN_ID:
+        description: Certificate ID for signing macOS builds
+        required: false
+      APPLE_NOTARIZE_APPLE_ID:
+        description: Apple ID used for notarizing macOS builds
+        required: false
+      APPLE_NOTARIZE_TEAM_ID:
+        description: Team ID used for notarizing macOS builds
+        required: false
+      APPLE_NOTARIZE_PASSWORD:
+        description: Password used for notarizing macOS builds
+        required: false
+
 jobs:
   macos:
     strategy:
@@ -19,18 +51,38 @@ jobs:
       MACOSX_DEPLOYMENT_TARGET: ${{ matrix.macosx_deployment_target }}
       INSTALL_DIR: "install"
       BUILD_DIR: "build"
+      CCACHE_VAR: ""
       HOMEBREW_NO_INSTALLED_DEPENDENTS_CHECK: 1
 
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: .github/workflows/utils/set_short_version.yml
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          submodules: true
+
+      - name: Set short version
+        shell: bash
+        run: |
+          ver_short=`git rev-parse --short HEAD`
+          echo "VERSION=$ver_short" >> $GITHUB_ENV
 
       - name: Install Dependencies (macOS)
         run: |
           brew update
           brew install ninja extra-cmake-modules
 
-      - uses: .github/workflows/utils/install_qt.yml
+      - name: Install Qt (macOS, Linux & Windows MSVC)
+        uses: jurplel/install-qt-action@v4
+        with:
+          aqtversion: "==3.1.*"
+          py7zrversion: ">=0.20.2"
+          version: ${{ matrix.qt_version }}
+          target: "desktop"
+          arch: ${{ matrix.qt_arch }}
+          modules: ${{ matrix.qt_modules }}
+          tools: ${{ matrix.qt_tools }}
+          cache: ${{ inputs.is_qt_cached }}
 
       - name: Setup java (macOS)
         uses: actions/setup-java@v4

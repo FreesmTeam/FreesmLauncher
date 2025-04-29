@@ -1,40 +1,78 @@
 name: Linux build process
 
+on:
+  workflow_call:
+    inputs:
+      build_type:
+        required: true
+        type: string
+      is_qt_cached:
+        required: true
+        type: boolean
+    secrets:
+      GPG_PRIVATE_KEY:
+        description: Private key for AppImage signing
+        required: false
+      GPG_PRIVATE_KEY_ID:
+        description: ID for the GPG_PRIVATE_KEY, to select the signing key
+        required: false
+
 jobs:
   linux:
     strategy:
       fail-fast: true
       matrix:
-        - os: ubuntu-22.04
-          qt_ver: 5
-          qt_host: linux
-          qt_arch: ""
-          qt_version: "5.15.2"
-          qt_modules: "qtnetworkauth"
+        include:
+          - os: ubuntu-22.04
+            qt_ver: 5
+            qt_host: linux
+            qt_arch: ""
+            qt_version: "5.15.2"
+            qt_modules: "qtnetworkauth"
 
-        - os: ubuntu-22.04
-          qt_ver: 6
-          qt_host: linux
-          qt_arch: ""
-          qt_version: "6.8.1"
-          qt_modules: "qt5compat qtimageformats qtnetworkauth"
+          - os: ubuntu-22.04
+            qt_ver: 6
+            qt_host: linux
+            qt_arch: ""
+            qt_version: "6.8.1"
+            qt_modules: "qt5compat qtimageformats qtnetworkauth"
 
     env:
       INSTALL_DIR: "install"
       INSTALL_PORTABLE_DIR: "install-portable"
       INSTALL_APPIMAGE_DIR: "install-appdir"
       BUILD_DIR: "build"
+      CCACHE_VAR: ""
 
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: .github/workflows/utils/set_short_version.yml
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          submodules: true
+
+      - name: Set short version
+        shell: bash
+        run: |
+          ver_short=`git rev-parse --short HEAD`
+          echo "VERSION=$ver_short" >> $GITHUB_ENV
 
       - name: Install Dependencies (Linux)
         run: |
           sudo apt-get -y update
           sudo apt-get -y install ninja-build extra-cmake-modules scdoc appstream libxcb-cursor-dev
 
-      - uses: .github/workflows/utils/install_qt.yml
+      - name: Install Qt (macOS, Linux & Windows MSVC)
+        uses: jurplel/install-qt-action@v4
+        with:
+          aqtversion: "==3.1.*"
+          py7zrversion: ">=0.20.2"
+          version: ${{ matrix.qt_version }}
+          target: "desktop"
+          arch: ${{ matrix.qt_arch }}
+          modules: ${{ matrix.qt_modules }}
+          tools: ${{ matrix.qt_tools }}
+          cache: ${{ inputs.is_qt_cached }}
 
       - name: Prepare AppImage (Linux)
         if: matrix.qt_ver != 5
