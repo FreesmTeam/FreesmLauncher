@@ -40,7 +40,7 @@ ModrinthPackExportTask::ModrinthPackExportTask(const QString& name,
                                                bool optionalFiles,
                                                InstancePtr instance,
                                                const QString& output,
-                                               MMCZip::FilterFunction filter)
+                                               MMCZip::FilterFileFunction filter)
     : name(name)
     , version(version)
     , summary(summary)
