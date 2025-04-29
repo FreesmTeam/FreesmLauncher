@@ -59,7 +59,6 @@ namespace ResourceDownload {
 ModPage::ModPage(ModDownloadDialog* dialog, BaseInstance& instance) : ResourcePage(dialog, instance)
 {
     connect(m_ui->resourceFilterButton, &QPushButton::clicked, this, &ModPage::filterMods);
-    connect(m_ui->packView, &QListView::doubleClicked, this, &ModPage::onResourceSelected);
 }
 
 void ModPage::setFilterWidget(unique_qobject_ptr<ModFilterWidget>& widget)

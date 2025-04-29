@@ -70,7 +70,7 @@ ResourceAPI::SearchArgs TexturePackResourceModel::createSearchArguments()
     return args;
 }
 
-ResourceAPI::VersionSearchArgs TexturePackResourceModel::createVersionsArguments(QModelIndex& entry)
+ResourceAPI::VersionSearchArgs TexturePackResourceModel::createVersionsArguments(const QModelIndex& entry)
 {
     auto args = ResourcePackResourceModel::createVersionsArguments(entry);
     if (!m_version_list->isLoaded()) {
