@@ -1,8 +1,8 @@
-#include <QObject>
-#include <QTcpSocket>
+#include <QFuture>
 #include <QJsonDocument>
 #include <QJsonObject>
-#include <QFuture>
+#include <QObject>
+#include <QTcpSocket>
 
 #include <Exception.h>
 
@@ -22,29 +22,30 @@ class McClient : public QObject {
     unsigned m_wantedRespLength = 0;
     QByteArray m_resp;
 
-public:
-    explicit McClient(QObject *parent, QString domain, QString ip, short port);
+   public:
+    explicit McClient(QObject* parent, QString domain, QString ip, short port);
     //! Read status data of the server, and calls the succeeded() signal with the parsed JSON data
     void getStatusData();
-private:
+
+   private:
     void sendRequest();
     //! Accumulate data until we have a full response, then call parseResponse() once
     void readRawResponse();
     void parseResponse();
 
-    void writeVarInt(QByteArray &data, int value);
-    int readVarInt(QByteArray &data);
-    char readByte(QByteArray &data);
+    void writeVarInt(QByteArray& data, int value);
+    int readVarInt(QByteArray& data);
+    char readByte(QByteArray& data);
     //! write number with specified size in big endian format
-    void writeFixedInt(QByteArray &data, int value, int size);
-    void writeString(QByteArray &data, const std::string &value);
+    void writeFixedInt(QByteArray& data, int value, int size);
+    void writeString(QByteArray& data, const std::string& value);
 
-    void writePacketToSocket(QByteArray &data);
+    void writePacketToSocket(QByteArray& data);
 
     void emitFail(QString error);
     void emitSucceed(QJsonObject data);
 
-signals:
+   signals:
     void succeeded(QJsonObject data);
     void failed(QString error);
     void finished();
