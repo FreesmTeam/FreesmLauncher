@@ -1,0 +1,249 @@
+name: Windows build process
+
+jobs:
+  windows:
+    strategy:
+      fail-fast: true
+      matrix:
+        - os: windows-2022
+          name: "Windows-MinGW-w64"
+          msystem: clang64
+          vcvars_arch: "amd64_x86"
+
+        - os: windows-2022
+          name: "Windows-MSVC"
+          msystem: ""
+          architecture: "x64"
+          vcvars_arch: "amd64"
+          qt_ver: 6
+          qt_host: "windows"
+          qt_arch: "win64_msvc2022_64"
+          qt_version: "6.8.1"
+          qt_modules: "qt5compat qtimageformats qtnetworkauth"
+          nscurl_tag: "v24.9.26.122"
+          nscurl_sha256: "AEE6C4BE3CB6455858E9C1EE4B3AFE0DB9960FA03FE99CCDEDC28390D57CCBB0"
+
+        - os: windows-2022
+          name: "Windows-MSVC-arm64"
+          msystem: ""
+          architecture: "arm64"
+          vcvars_arch: "amd64_arm64"
+          qt_ver: 6
+          qt_host: "windows"
+          qt_arch: "win64_msvc2022_arm64_cross_compiled"
+          qt_version: "6.8.1"
+          qt_modules: "qt5compat qtimageformats qtnetworkauth"
+          nscurl_tag: "v24.9.26.122"
+          nscurl_sha256: "AEE6C4BE3CB6455858E9C1EE4B3AFE0DB9960FA03FE99CCDEDC28390D57CCBB0"
+
+    env:
+      INSTALL_DIR: "install"
+      INSTALL_PORTABLE_DIR: "install-portable"
+      BUILD_DIR: "build"
+      CCACHE_VAR: ""
+
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: "Setup MSYS2"
+        if: matrix.msystem != ''
+        uses: msys2/setup-msys2@v2
+        with:
+          msystem: ${{ matrix.msystem }}
+          update: true
+          install: >-
+            git
+            mingw-w64-x86_64-binutils
+          pacboy: >-
+            toolchain:p
+            cmake:p
+            extra-cmake-modules:p
+            ninja:p
+            qt6-base:p
+            qt6-svg:p
+            qt6-imageformats:p
+            quazip-qt6:p
+            ccache:p
+            qt6-5compat:p
+            qt6-networkauth:p
+            cmark:p
+
+      - name: Force newer ccache
+        if: matrix.msystem == ''
+        run: |
+          choco install ccache --version 4.7.1
+
+      - name: Setup ccache
+        if: matrix.msystem == ''
+        uses: hendrikmuhs/ccache-action@v1.2.17
+        with:
+          key: ${{ matrix.os }}-qt${{ matrix.qt_ver }}-${{ matrix.architecture }}
+
+      - name: Retrieve ccache cache (Windows MinGW-w64)
+        if: matrix.msystem != ''
+        uses: actions/cache@v4.2.3
+        with:
+          path: '${{ github.workspace }}\.ccache'
+          key: ${{ matrix.os }}-mingw-w64-ccache-${{ github.run_id }}
+          restore-keys: |
+            ${{ matrix.os }}-mingw-w64-ccache
+
+      - name: Setup ccache (Windows MinGW-w64)
+        if: matrix.msystem != ''
+        shell: msys2 {0}
+        run: |
+          ccache --set-config=cache_dir='${{ github.workspace }}\.ccache'
+          ccache --set-config=max_size='500M'
+          ccache --set-config=compression=true
+
+          ccache -p  # Show config
+          ccache -z  # Zero stats
+
+          echo "CCACHE_VAR=ccache" >> $GITHUB_ENV
+
+      - uses: .github/workflows/utils/set_short_version.yml
+      - uses: .github/workflows/utils/install_qt.yml
+
+      - name: Install MSVC (Windows MSVC)
+        uses: ilammy/msvc-dev-cmd@v1
+        with:
+          vsversion: 2022
+          arch: ${{ matrix.vcvars_arch }}
+
+      - name: Add QT_HOST_PATH var (Windows MSVC arm64)
+        if: matrix.architecture == 'arm64'
+        run: |
+          echo "QT_HOST_PATH=${{ github.workspace }}\HostQt\Qt\${{ matrix.qt_version }}\msvc2022_64" >> $env:GITHUB_ENV
+
+      - name: Configure CMake (Windows MinGW-w64)
+        if: matrix.msystem != ''
+        shell: msys2 {0}
+        run: |
+          cmake -S . -B ${{ env.BUILD_DIR }} -DCMAKE_INSTALL_PREFIX=${{ env.INSTALL_DIR }} -DCMAKE_BUILD_TYPE=${{ inputs.build_type }} -DENABLE_LTO=ON -DLauncher_ENABLE_JAVA_DOWNLOADER=ON -DLauncher_BUILD_PLATFORM=official -DCMAKE_C_COMPILER_LAUNCHER=${{ env.CCACHE_VAR }} -DCMAKE_CXX_COMPILER_LAUNCHER=${{ env.CCACHE_VAR }} -DLauncher_QT_VERSION_MAJOR=6 -DCMAKE_OBJDUMP=/mingw64/bin/objdump.exe -DLauncher_BUILD_ARTIFACT=${{ matrix.name }}-Qt${{ matrix.qt_ver }} -G Ninja
+
+      - name: Configure CMake (Windows MSVC)
+        if: matrix.msystem == '' && matrix.architecture != 'arm64'
+        run: |
+          cmake -S . -B ${{ env.BUILD_DIR }} -DCMAKE_INSTALL_PREFIX=${{ env.INSTALL_DIR }} -DCMAKE_BUILD_TYPE=${{ inputs.build_type }} -DENABLE_LTO=ON -DLauncher_ENABLE_JAVA_DOWNLOADER=ON -DLauncher_BUILD_PLATFORM=official -DLauncher_QT_VERSION_MAJOR=${{ matrix.qt_ver }} -DCMAKE_MSVC_RUNTIME_LIBRARY="MultiThreadedDLL" -DLauncher_FORCE_BUNDLED_LIBS=ON  -DLauncher_BUILD_ARTIFACT=${{ matrix.name }}-Qt${{ matrix.qt_ver }} -G Ninja
+
+      - name: Configure CMake (Windows MSVC arm64)
+        if: matrix.msystem == '' && matrix.architecture == 'arm64'
+        run: |
+          cmake -S . -B ${{ env.BUILD_DIR }} -DCMAKE_INSTALL_PREFIX=${{ env.INSTALL_DIR }} -DCMAKE_BUILD_TYPE=${{ inputs.build_type }} -DENABLE_LTO=ON -DLauncher_ENABLE_JAVA_DOWNLOADER=ON -DLauncher_BUILD_PLATFORM=official -DLauncher_QT_VERSION_MAJOR=${{ matrix.qt_ver }} -DCMAKE_MSVC_RUNTIME_LIBRARY="MultiThreadedDLL" -A${{ matrix.architecture}} -DLauncher_FORCE_BUNDLED_LIBS=ON  -DLauncher_BUILD_ARTIFACT=${{ matrix.name }}-Qt${{ matrix.qt_ver }}
+
+      - name: Build (Windows MinGW-w64)
+        if: matrix.msystem != ''
+        shell: msys2 {0}
+        run: |
+          cmake --build ${{ env.BUILD_DIR }}
+
+      - name: Build (Windows MSVC)
+        if: matrix.msystem == ''
+        run: |
+          cmake --build ${{ env.BUILD_DIR }} --config ${{ inputs.build_type }}
+
+      - name: Test (Windows MinGW-w64)
+        if: matrix.msystem != ''
+        shell: msys2 {0}
+        run: |
+          ctest -E "^example64|example$" --test-dir build --output-on-failure
+
+      - name: Test (Windows MSVC)
+        if: matrix.msystem == '' && matrix.architecture != 'arm64'
+        run: |
+          ctest -E "^example64|example$" --test-dir build --output-on-failure -C ${{ inputs.build_type }}
+
+      - name: Package (Windows MinGW-w64)
+        if: matrix.msystem != ''
+        shell: msys2 {0}
+        run: |
+          cmake --install ${{ env.BUILD_DIR }}
+          touch ${{ env.INSTALL_DIR }}/manifest.txt
+          for l in $(find ${{ env.INSTALL_DIR }} -type f); do l=$(cygpath -u $l); l=${l#$(pwd)/}; l=${l#${{ env.INSTALL_DIR }}/}; l=${l#./}; echo $l; done >> ${{ env.INSTALL_DIR }}/manifest.txt
+
+      - name: Package (Windows MSVC)
+        if: matrix.msystem == ''
+        run: |
+          cmake --install ${{ env.BUILD_DIR }} --config ${{ inputs.build_type }}
+
+          cd ${{ github.workspace }}
+
+          Get-ChildItem ${{ env.INSTALL_DIR }} -Recurse | ForEach FullName | Resolve-Path -Relative | %{ $_.TrimStart('.\') } | %{ $_.TrimStart('${{ env.INSTALL_DIR }}') } | %{ $_.TrimStart('\') } | Out-File -FilePath ${{ env.INSTALL_DIR }}/manifest.txt
+
+      - name: Fetch codesign certificate (Windows)
+        shell: bash # yes, we are not using MSYS2 or PowerShell here
+        run: |
+          echo '${{ secrets.WINDOWS_CODESIGN_CERT }}' | base64 --decode > codesign.pfx
+
+      - name: Sign executable (Windows)
+        run: |
+          if (Get-Content ./codesign.pfx){
+            cd ${{ env.INSTALL_DIR }}
+            # We ship the exact same executable for portable and non-portable editions, so signing just once is fine
+            SignTool sign /fd sha256 /td sha256 /f ../codesign.pfx /p '${{ secrets.WINDOWS_CODESIGN_PASSWORD }}' /tr http://timestamp.digicert.com prismlauncher.exe prismlauncher_updater.exe prismlauncher_filelink.exe
+          } else {
+            ":warning: Skipped code signing for Windows, as certificate was not present." >> $env:GITHUB_STEP_SUMMARY
+          }
+
+      - name: Package (Windows MinGW-w64, portable)
+        if: matrix.msystem != ''
+        shell: msys2 {0}
+        run: |
+          cp -r ${{ env.INSTALL_DIR }} ${{ env.INSTALL_PORTABLE_DIR }}  # cmake install on Windows is slow, let's just copy instead
+          cmake --install ${{ env.BUILD_DIR }} --prefix ${{ env.INSTALL_PORTABLE_DIR }} --component portable
+          for l in $(find ${{ env.INSTALL_PORTABLE_DIR }} -type f); do l=$(cygpath -u $l); l=${l#$(pwd)/}; l=${l#${{ env.INSTALL_PORTABLE_DIR }}/}; l=${l#./}; echo $l; done >> ${{ env.INSTALL_PORTABLE_DIR }}/manifest.txt
+
+      - name: Package (Windows MSVC, portable)
+        if: matrix.msystem == ''
+        run: |
+          cp -r ${{ env.INSTALL_DIR }} ${{ env.INSTALL_PORTABLE_DIR }}  # cmake install on Windows is slow, let's just copy instead
+          cmake --install ${{ env.BUILD_DIR }} --prefix ${{ env.INSTALL_PORTABLE_DIR }} --component portable
+
+          Get-ChildItem ${{ env.INSTALL_PORTABLE_DIR }} -Recurse | ForEach FullName | Resolve-Path -Relative | %{ $_.TrimStart('.\') } | %{ $_.TrimStart('${{ env.INSTALL_PORTABLE_DIR }}') } | %{ $_.TrimStart('\') } | Out-File -FilePath ${{ env.INSTALL_DIR }}/manifest.txt
+
+      # shitty non-readable windows posh commands
+      - name: Package (Windows, installer)
+        run: |
+          if ('${{ matrix.nscurl_tag }}') {
+            New-Item -Name NSISPlugins -ItemType Directory
+            Invoke-Webrequest https://github.com/negrutiu/nsis-nscurl/releases/download/${{ matrix.nscurl_tag }}/NScurl.zip -OutFile NSISPlugins\NScurl.zip
+            $nscurl_hash = Get-FileHash NSISPlugins\NScurl.zip -Algorithm Sha256 | Select-Object -ExpandProperty Hash
+            if ( $nscurl_hash -ne "${{ matrix.nscurl_sha256 }}") {
+              echo "::error:: NSCurl.zip sha256 mismatch"
+              exit 1
+            }
+            Expand-Archive -Path NSISPlugins\NScurl.zip -DestinationPath NSISPlugins\NScurl
+          }
+          cd ${{ env.INSTALL_DIR }}
+          makensis -NOCD "${{ github.workspace }}/${{ env.BUILD_DIR }}/program_info/win_install.nsi"
+
+      - name: Sign installer (Windows)
+        run: |
+          if (Get-Content ./codesign.pfx){
+            SignTool sign /fd sha256 /td sha256 /f codesign.pfx /p '${{ secrets.WINDOWS_CODESIGN_PASSWORD }}' /tr http://timestamp.digicert.com FreesmLauncher-Setup.exe
+          } else {
+            ":warning: Skipped code signing for Windows, as certificate was not present." >> $env:GITHUB_STEP_SUMMARY
+          }
+
+      - name: Upload binary zip (Windows)
+        uses: actions/upload-artifact@v4
+        with:
+          name: FreesmLauncher-${{ matrix.name }}-${{ env.VERSION }}-${{ inputs.build_type }}
+          path: ${{ env.INSTALL_DIR }}/**
+
+      - name: Upload binary zip (Windows, portable)
+        uses: actions/upload-artifact@v4
+        with:
+          name: FreesmLauncher-${{ matrix.name }}-Portable-${{ env.VERSION }}-${{ inputs.build_type }}
+          path: ${{ env.INSTALL_PORTABLE_DIR }}/**
+
+      - name: Upload installer (Windows)
+        uses: actions/upload-artifact@v4
+        with:
+          name: FreesmLauncher-${{ matrix.name }}-Setup-${{ env.VERSION }}-${{ inputs.build_type }}
+          path: FreesmLauncher-Setup.exe
+
+      - name: ccache stats (Windows MinGW-w64)
+        if: runner.os == 'Windows' && matrix.msystem != ''
+        shell: msys2 {0}
+        run: |
+          ccache -s
