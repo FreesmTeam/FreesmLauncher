@@ -1,0 +1,9 @@
+name: Set short version (universal)
+
+jobs:
+  set-short-version:
+    - name: Set short version
+      shell: bash
+      run: |
+        ver_short=`git rev-parse --short HEAD`
+        echo "VERSION=$ver_short" >> $GITHUB_ENV
