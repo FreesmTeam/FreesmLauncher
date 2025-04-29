@@ -9,7 +9,7 @@ on:
         default: Debug
       is_qt_cached:
         description: Enable Qt caching or not
-        type: string
+        type: boolean
         default: true
     secrets:
       SPARKLE_ED25519_KEY:
@@ -48,17 +48,7 @@ on:
 
 jobs:
   build:
-    runs-on: ${{ matrix.os }}
-
-    env:
-      MACOSX_DEPLOYMENT_TARGET: ${{ matrix.macosx_deployment_target }}
-      INSTALL_DIR: "install"
-      INSTALL_PORTABLE_DIR: "install-portable"
-      INSTALL_APPIMAGE_DIR: "install-appdir"
-      BUILD_DIR: "build"
-      CCACHE_VAR: ""
-      HOMEBREW_NO_INSTALLED_DEPENDENTS_CHECK: 1
-
+    runs-on: ubuntu-22.04
     steps:
       ##
       # PREPARE
