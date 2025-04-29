@@ -54,6 +54,7 @@
 
 #include "settings/INISettingsObject.h"
 
+#include "sys.h"
 #include "tasks/ConcurrentTask.h"
 #include "ui/dialogs/BlockedModsDialog.h"
 #include "ui/dialogs/CustomMessageBox.h"
@@ -416,6 +417,24 @@ bool FlameCreationTask::createInstance()
         } else {
             instance.setIconKey("flame");
         }
+    }
+
+    int recommendedRAM = m_pack.minecraft.recommendedRAM;
+
+    // only set memory if this is a fresh instance
+    if (m_instance == nullptr && recommendedRAM > 0) {
+        const uint64_t sysMiB = Sys::getSystemRam() / Sys::mebibyte;
+        const uint64_t max = sysMiB * 0.9;
+
+        if (recommendedRAM > max) {
+            logWarning(tr("The recommended memory of the modpack exceeds 90% of your system RAM—reducing it from %1 MiB to %2 MiB!")
+                           .arg(recommendedRAM)
+                           .arg(max));
+            recommendedRAM = max;
+        }
+
+        instance.settings()->set("OverrideMemory", true);
+        instance.settings()->set("MaxMemAlloc", recommendedRAM);
     }
 
     QString jarmodsPath = FS::PathCombine(m_stagingPath, "minecraft", "jarmods");
