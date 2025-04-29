@@ -212,6 +212,7 @@ void InstanceImportTask::processZipPack()
         progressStep->status = status;
         stepProgress(*progressStep);
     });
+    connect(zipTask.get(), &Task::warningLogged, this, [this](const QString& line) { m_Warnings.append(line); });
     m_task.reset(zipTask);
     zipTask->start();
 }
@@ -307,6 +308,8 @@ void InstanceImportTask::processFlame()
 
     connect(inst_creation_task.get(), &Task::aborted, this, &Task::abort);
     connect(inst_creation_task.get(), &Task::abortStatusChanged, this, &Task::setAbortable);
+
+    connect(inst_creation_task.get(), &Task::warningLogged, this, [this](const QString& line) { m_Warnings.append(line); });
 
     m_task.reset(inst_creation_task);
     setAbortable(true);
@@ -406,6 +409,8 @@ void InstanceImportTask::processModrinth()
 
     connect(inst_creation_task.get(), &Task::aborted, this, &Task::abort);
     connect(inst_creation_task.get(), &Task::abortStatusChanged, this, &Task::setAbortable);
+
+    connect(inst_creation_task.get(), &Task::warningLogged, this, [this](const QString& line) { m_Warnings.append(line); });
 
     m_task.reset(inst_creation_task);
     setAbortable(true);
