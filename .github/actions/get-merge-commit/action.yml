@@ -98,6 +98,6 @@ runs:
         if [[ "$mergeable" == "true" ]]; then
           echo "merge-commit-sha=$(jq -r .merge_commit_sha <<<"$prInfo")" >> "$GITHUB_OUTPUT"
         else
-        	echo "# 🚨 The PR has a merge conflict!" >>> "$GITHUB_STEP_SUMMARY"
+        	echo "# 🚨 The PR has a merge conflict!" >> "$GITHUB_STEP_SUMMARY"
         	exit 2
         fi
