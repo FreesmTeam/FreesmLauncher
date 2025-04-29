@@ -44,11 +44,15 @@ ExportPackDialog::ExportPackDialog(InstancePtr instance, QWidget* parent, ModPla
     m_ui->version->setText(instance->settings()->get("ExportVersion").toString());
     m_ui->optionalFiles->setChecked(instance->settings()->get("ExportOptionalFiles").toBool());
 
+    connect(m_ui->recommendedMemoryCheckBox, &QCheckBox::toggled, m_ui->recommendedMemory, &QWidget::setEnabled);
+
     if (m_provider == ModPlatform::ResourceProvider::MODRINTH) {
         setWindowTitle(tr("Export Modrinth Pack"));
 
         m_ui->authorLabel->hide();
         m_ui->author->hide();
+
+        m_ui->recommendedMemoryWidget->hide();
 
         m_ui->summary->setPlainText(instance->settings()->get("ExportSummary").toString());
     } else {
@@ -56,6 +60,19 @@ ExportPackDialog::ExportPackDialog(InstancePtr instance, QWidget* parent, ModPla
 
         m_ui->summaryLabel->hide();
         m_ui->summary->hide();
+
+        const int recommendedRAM = instance->settings()->get("ExportRecommendedRAM").toInt();
+
+        if (recommendedRAM > 0) {
+            m_ui->recommendedMemoryCheckBox->setChecked(true);
+            m_ui->recommendedMemory->setValue(recommendedRAM);
+        } else {
+            m_ui->recommendedMemoryCheckBox->setChecked(false);
+
+            // recommend based on setting - limited to 12 GiB (CurseForge warns above this amount)
+            const int defaultRecommendation = qMin(m_instance->settings()->get("MaxMemAlloc").toInt(), 1024 * 12);
+            m_ui->recommendedMemory->setValue(defaultRecommendation);
+        }
 
         m_ui->author->setText(instance->settings()->get("ExportAuthor").toString());
     }
@@ -120,8 +137,14 @@ void ExportPackDialog::done(int result)
 
     if (m_provider == ModPlatform::ResourceProvider::MODRINTH)
         settings->set("ExportSummary", m_ui->summary->toPlainText());
-    else
+    else {
         settings->set("ExportAuthor", m_ui->author->text());
+
+        if (m_ui->recommendedMemoryCheckBox->isChecked())
+            settings->set("ExportRecommendedRAM", m_ui->recommendedMemory->value());
+        else
+            settings->reset("ExportRecommendedRAM");
+    }
 
     if (result == Accepted) {
         const QString name = m_ui->name->text().isEmpty() ? m_instance->name() : m_ui->name->text();

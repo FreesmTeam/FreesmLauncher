@@ -248,6 +248,7 @@ void MinecraftInstance::loadSpecificSettings()
     m_settings->registerSetting("ExportSummary", "");
     m_settings->registerSetting("ExportAuthor", "");
     m_settings->registerSetting("ExportOptionalFiles", true);
+    m_settings->registerSetting("ExportRecommendedRAM");
 
     qDebug() << "Instance-type specific settings were loaded!";
 
