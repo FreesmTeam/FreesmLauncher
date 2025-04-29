@@ -21,13 +21,13 @@ ResourceAPI::SearchArgs DataPackResourceModel::createSearchArguments()
     return { ModPlatform::ResourceType::DATA_PACK, m_next_search_offset, m_search_term, sort, ModPlatform::ModLoaderType::DataPack };
 }
 
-ResourceAPI::VersionSearchArgs DataPackResourceModel::createVersionsArguments(QModelIndex& entry)
+ResourceAPI::VersionSearchArgs DataPackResourceModel::createVersionsArguments(const QModelIndex& entry)
 {
     auto& pack = m_packs[entry.row()];
     return { *pack, {}, ModPlatform::ModLoaderType::DataPack };
 }
 
-ResourceAPI::ProjectInfoArgs DataPackResourceModel::createInfoArguments(QModelIndex& entry)
+ResourceAPI::ProjectInfoArgs DataPackResourceModel::createInfoArguments(const QModelIndex& entry)
 {
     auto& pack = m_packs[entry.row()];
     return { *pack };

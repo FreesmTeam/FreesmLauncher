@@ -5,8 +5,8 @@
 
 #pragma once
 
-#include "ui/pages/modplatform/ResourcePage.h"
 #include "ui/pages/modplatform/DataPackModel.h"
+#include "ui/pages/modplatform/ResourcePage.h"
 
 namespace Ui {
 class ResourcePage;
@@ -26,8 +26,9 @@ class DataPackResourcePage : public ResourcePage {
         auto page = new T(dialog, instance);
         auto model = static_cast<DataPackResourceModel*>(page->getModel());
 
-        connect(model, &ResourceModel::versionListUpdated, page, &ResourcePage::updateVersionList);
+        connect(model, &ResourceModel::versionListUpdated, page, &ResourcePage::versionListUpdated);
         connect(model, &ResourceModel::projectInfoUpdated, page, &ResourcePage::updateUi);
+        connect(model, &QAbstractListModel::modelReset, page, &ResourcePage::modelReset);
 
         return page;
     }

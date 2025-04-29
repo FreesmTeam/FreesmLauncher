@@ -18,9 +18,10 @@
 
 #pragma once
 
+#include <QVBoxLayout>
 #include "ExternalResourcesPage.h"
 #include "minecraft/mod/DataPackFolderModel.h"
-#include "ui_ExternalResourcesPage.h"
+#include "ui/dialogs/ResourceDownloadDialog.h"
 
 class DataPackPage : public ExternalResourcesPage {
     Q_OBJECT
@@ -36,13 +37,14 @@ class DataPackPage : public ExternalResourcesPage {
    public slots:
     void updateFrame(const QModelIndex& current, const QModelIndex& previous) override;
     void downloadDataPacks();
+    void downloadDialogFinished(int result);
     void updateDataPacks();
     void deleteDataPackMetadata();
     void changeDataPackVersion();
 
    private:
     std::shared_ptr<DataPackFolderModel> m_model;
-
+    QPointer<ResourceDownload::DataPackDownloadDialog> m_downloadDialog;
 };
 
 /**
@@ -63,7 +65,7 @@ class GlobalDataPackPage : public QWidget, public BasePage {
     void openedImpl() override;
     void closedImpl() override;
 
-    void setParentContainer(BasePageContainer *container) override;
+    void setParentContainer(BasePageContainer* container) override;
 
    private:
     void updateContent();

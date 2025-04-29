@@ -17,11 +17,13 @@
  */
 
 #include "DataPackPage.h"
-#include <ui/dialogs/ResourceUpdateDialog.h>
+#include "minecraft/PackProfile.h"
+#include "ui_ExternalResourcesPage.h"
 
 #include "ui/dialogs/CustomMessageBox.h"
 #include "ui/dialogs/ProgressDialog.h"
 #include "ui/dialogs/ResourceDownloadDialog.h"
+#include "ui/dialogs/ResourceUpdateDialog.h"
 
 DataPackPage::DataPackPage(BaseInstance* instance, std::shared_ptr<DataPackFolderModel> model, QWidget* parent)
     : ExternalResourcesPage(instance, model, parent), m_model(model)
@@ -65,9 +67,23 @@ void DataPackPage::downloadDataPacks()
     if (m_instance->typeName() != "Minecraft")
         return;  // this is a null instance or a legacy instance
 
-    ResourceDownload::DataPackDownloadDialog mdownload(this, std::static_pointer_cast<DataPackFolderModel>(m_model), m_instance);
-    if (mdownload.exec()) {
-        auto tasks = new ConcurrentTask("Download Data Pack", APPLICATION->settings()->get("NumberOfConcurrentDownloads").toInt());
+    auto profile = static_cast<MinecraftInstance*>(m_instance)->getPackProfile();
+    if (!profile->getModLoaders().has_value()) {
+        QMessageBox::critical(this, tr("Error"), tr("Please install a mod loader first!"));
+        return;
+    }
+
+    m_downloadDialog = new ResourceDownload::DataPackDownloadDialog(this, m_model, m_instance);
+    connect(this, &QObject::destroyed, m_downloadDialog, &QDialog::close);
+    connect(m_downloadDialog, &QDialog::finished, this, &DataPackPage::downloadDialogFinished);
+
+    m_downloadDialog->open();
+}
+
+void DataPackPage::downloadDialogFinished(int result)
+{
+    if (result) {
+        auto tasks = new ConcurrentTask(tr("Download Data Packs"), APPLICATION->settings()->get("NumberOfConcurrentDownloads").toInt());
         connect(tasks, &Task::failed, [this, tasks](QString reason) {
             CustomMessageBox::selectable(this, tr("Error"), reason, QMessageBox::Critical)->show();
             tasks->deleteLater();
@@ -84,8 +100,12 @@ void DataPackPage::downloadDataPacks()
             tasks->deleteLater();
         });
 
-        for (auto& task : mdownload.getTasks()) {
-            tasks->addTask(task);
+        if (m_downloadDialog) {
+            for (auto& task : m_downloadDialog->getTasks()) {
+                tasks->addTask(task);
+            }
+        } else {
+            qWarning() << "ResourceDownloadDialog vanished before we could collect tasks!";
         }
 
         ProgressDialog loadDialog(this);
@@ -94,6 +114,8 @@ void DataPackPage::downloadDataPacks()
 
         m_model->update();
     }
+    if (m_downloadDialog)
+        m_downloadDialog->deleteLater();
 }
 
 void DataPackPage::updateDataPacks()

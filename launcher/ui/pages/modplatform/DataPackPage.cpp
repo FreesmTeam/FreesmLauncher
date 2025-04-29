@@ -4,7 +4,6 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
 #include "DataPackPage.h"
-#include "modplatform/ModIndex.h"
 #include "ui_ResourcePage.h"
 
 #include "DataPackModel.h"
@@ -15,10 +14,7 @@
 
 namespace ResourceDownload {
 
-DataPackResourcePage::DataPackResourcePage(DataPackDownloadDialog* dialog, BaseInstance& instance) : ResourcePage(dialog, instance)
-{
-    connect(m_ui->packView, &QListView::doubleClicked, this, &DataPackResourcePage::onResourceSelected);
-}
+DataPackResourcePage::DataPackResourcePage(DataPackDownloadDialog* dialog, BaseInstance& instance) : ResourcePage(dialog, instance) {}
 
 /******** Callbacks to events in the UI (set up in the derived classes) ********/
 
