@@ -152,7 +152,7 @@ bool ProjectItemDelegate::editorEvent(QEvent* event,
 
     const QStyleOptionViewItem checkboxOpt = makeCheckboxStyleOption(opt, style);
 
-    if (!checkboxOpt.rect.contains(mouseEvent->x(), mouseEvent->y()))
+    if (!checkboxOpt.rect.contains(mouseEvent->pos().x(), mouseEvent->pos().y()))
         return false;
 
     // swallow other events
