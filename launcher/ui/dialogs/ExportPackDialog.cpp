@@ -172,8 +172,10 @@ void ExportPackDialog::done(int result)
             task = new ModrinthPackExportTask(name, m_ui->version->text(), m_ui->summary->toPlainText(), m_ui->optionalFiles->isChecked(),
                                               m_instance, output, std::bind(&FileIgnoreProxy::filterFile, m_proxy, std::placeholders::_1));
         } else {
+            int recommendedRAM = m_ui->recommendedMemoryCheckBox->isChecked() ? m_ui->recommendedMemory->value() : 0;
+
             task = new FlamePackExportTask(name, m_ui->version->text(), m_ui->author->text(), m_ui->optionalFiles->isChecked(), m_instance,
-                                           output, std::bind(&FileIgnoreProxy::filterFile, m_proxy, std::placeholders::_1));
+                                           output, std::bind(&FileIgnoreProxy::filterFile, m_proxy, std::placeholders::_1), recommendedRAM);
         }
 
         connect(task, &Task::failed,

@@ -34,7 +34,8 @@ class FlamePackExportTask : public Task {
                         bool optionalFiles,
                         InstancePtr instance,
                         const QString& output,
-                        MMCZip::FilterFunction filter);
+                        MMCZip::FilterFunction filter,
+                        int recommendedRAM);
 
    protected:
     void executeTask() override;
@@ -52,6 +53,7 @@ class FlamePackExportTask : public Task {
     const QDir gameRoot;
     const QString output;
     const MMCZip::FilterFunction filter;
+    const int m_recommendedRAM;
 
     struct ResolvedFile {
         int addonId;

@@ -47,7 +47,8 @@ FlamePackExportTask::FlamePackExportTask(const QString& name,
                                          bool optionalFiles,
                                          InstancePtr instance,
                                          const QString& output,
-                                         MMCZip::FilterFunction filter)
+                                         MMCZip::FilterFunction filter,
+                                         int recommendedRAM)
     : name(name)
     , version(version)
     , author(author)
@@ -57,6 +58,7 @@ FlamePackExportTask::FlamePackExportTask(const QString& name,
     , gameRoot(instance->gameRoot())
     , output(output)
     , filter(filter)
+    , m_recommendedRAM(recommendedRAM)
 {}
 
 void FlamePackExportTask::executeTask()
@@ -411,6 +413,10 @@ QByteArray FlamePackExportTask::generateIndex()
             loader["primary"] = true;
             version["modLoaders"] = QJsonArray({ loader });
         }
+
+        if (m_recommendedRAM > 0)
+            version["recommendedRam"] = m_recommendedRAM;
+
         obj["minecraft"] = version;
     }
 
