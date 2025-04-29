@@ -1,7 +1,56 @@
 name: Build
 
 on:
+  push:
+    branches-ignore:
+      - "renovate/**"
+    paths:
+      # File types
+      - "**.cpp"
+      - "**.h"
+      - "**.java"
+
+      # Directories
+      - "buildconfig/"
+      - "cmake/"
+      - "launcher/"
+      - "libraries/"
+      - "program_info/"
+      - "tests/"
+
+      # Files
+      - "CMakeLists.txt"
+      - "COPYING.md"
+
+      # Workflows
+      - ".github/workflows/build.yml"
+  pull_request:
+    paths:
+      # File types
+      - "**.cpp"
+      - "**.h"
+
+      # Directories
+      - "buildconfig/"
+      - "cmake/"
+      - "launcher/"
+      - "libraries/"
+      - "program_info/"
+      - "tests/"
+
+      # Files
+      - "CMakeLists.txt"
+      - "COPYING.md"
+
+      # Workflows
+      - ".github/workflows/build.yml"
   workflow_call:
+    inputs:
+      build-type:
+        description: Type of build (Debug or Release)
+        type: string
+        default: Debug
+  workflow_dispatch:
     inputs:
       build-type:
         description: Type of build (Debug or Release)
@@ -40,7 +89,7 @@ jobs:
 
           - os: macos-14
             artifact-name: macOS
-            base-cmake-preset: ${{ inputs.build-type == 'Debug' && 'macos_universal' || 'macos' }}
+            base-cmake-preset: ${{ (inputs.build-type || 'Debug') == 'Debug' && 'macos_universal' || 'macos' }}
             macosx-deployment-target: 11.0
 
     runs-on: ${{ matrix.os }}
@@ -79,7 +128,7 @@ jobs:
         id: cmake-preset
         env:
           BASE_CMAKE_PRESET: ${{ matrix.base-cmake-preset }}
-          PRESET_TYPE: ${{ inputs.build-type == 'Debug' && 'debug' || 'ci' }}
+          PRESET_TYPE: ${{ (inputs.build-type || 'Debug') == 'Debug' && 'debug' || 'ci' }}
         run: |
           echo preset="$BASE_CMAKE_PRESET"_"$PRESET_TYPE" >> "$GITHUB_OUTPUT"
 
