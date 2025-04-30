@@ -48,24 +48,6 @@ runs:
           qt6-networkauth:p
           cmark:p
 
-    - name: Force newer ccache (MSVC)
-      if: ${{ inputs.msystem == '' && inputs.build-type == 'Debug' }}
-      shell: bash
-      run: |
-        choco install ccache --version 4.7.1
-
-    - name: Configure ccache (MSVC)
-      if: ${{ inputs.msystem == '' && inputs.build-type == 'Debug' }}
-      shell: pwsh
-      run: |
-        # https://github.com/ccache/ccache/wiki/MS-Visual-Studio (I coudn't figure out the compiler prefix)
-        Copy-Item C:/ProgramData/chocolatey/lib/ccache/tools/ccache-4.7.1-windows-x86_64/ccache.exe -Destination C:/ProgramData/chocolatey/lib/ccache/tools/ccache-4.7.1-windows-x86_64/cl.exe
-        echo "CLToolExe=cl.exe" >> $env:GITHUB_ENV
-        echo "CLToolPath=C:/ProgramData/chocolatey/lib/ccache/tools/ccache-4.7.1-windows-x86_64/" >> $env:GITHUB_ENV
-        echo "TrackFileAccess=false" >> $env:GITHUB_ENV
-        # Needed for ccache, but also speeds up compile
-        echo "UseMultiToolTask=true" >> $env:GITHUB_ENV
-
     - name: Retrieve ccache cache (MinGW)
       if: ${{ inputs.msystem != '' && inputs.build-type == 'Debug' }}
       uses: actions/cache@v4.2.3
