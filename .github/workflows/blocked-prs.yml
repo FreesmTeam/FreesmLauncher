@@ -125,6 +125,7 @@ jobs:
                       "type": $type,
                       "number": .number,
                       "merged": .merged,
+                      "state": if .state == "open" then "Open" elif .merged then "Merged" else "Closed" end,
                       "labels": (reduce .labels[].name as $l ([]; . + [$l])), 
                       "basePrUrl": .html_url,
                       "baseRepoName": .head.repo.name,
@@ -138,11 +139,16 @@ jobs:
           )
           {
             echo "data=$blocked_pr_data";
-            echo "all_merged=$(jq -r 'all(.[].merged; .)' <<< "$blocked_pr_data")";
-            echo "current_blocking=$(jq -c 'map( select( .merged | not ) | .number )' <<< "$blocked_pr_data" )";
+            echo "all_merged=$(jq -r 'all(.[] | (.type == "Stacked on" and .merged) or (.type == "Blocked on" and (.state != "Open")); .)' <<< "$blocked_pr_data")";
+            echo "current_blocking=$(jq -c 'map(
+                select(
+                  (.type == "Stacked on" and (.merged | not)) or
+                  (.type == "Blocked on" and (.state == "Open")) 
+                ) | .number
+              )' <<< "$blocked_pr_data" )";
           } >> "$GITHUB_OUTPUT"
 
-      - name: Add 'blocked' Label is Missing
+      - name: Add 'blocked' Label if Missing
         id: label_blocked
         if: (fromJSON(steps.pr_ids.outputs.prs).numBlocking > 0) && !contains(fromJSON(env.JOB_DATA).prLabels, 'blocked') && !fromJSON(steps.blocking_data.outputs.all_merged)
         continue-on-error: true
@@ -184,14 +190,18 @@ jobs:
           # create commit Status, overwrites previous identical context
           while read -r pr_data ; do
             DESC=$(
-              jq -r ' "Blocking PR #" + (.number | tostring) + " is " + (if .merged then "" else "not yet " end) + "merged"' <<< "$pr_data"
+              jq -r 'if .type == "Stacked on" then
+                  "Stacked PR #" + (.number | tostring) + " is " + (if .merged then "" else "not yet " end) + "merged"
+                else
+                  "Blocking PR #" + (.number | tostring) + " is " + (if .state == "Open" then "" else "not yet " end) + "merged or closed"
+                end ' <<< "$pr_data"
             )
             gh api \
               --method POST \
               -H "Accept: application/vnd.github+json" \
               -H "X-GitHub-Api-Version: 2022-11-28" \
               "/repos/${OWNER}/${REPO}/statuses/${pr_head_sha}" \
-              -f "state=$(jq -r 'if .merged then "success" else "failure" end' <<< "$pr_data")" \
+              -f "state=$(jq -r 'if (.type == "Stacked on" and .merged) or (.type == "Blocked on" and (.state != "Open")) then "success" else "failure" end' <<< "$pr_data")" \
               -f "target_url=$(jq -r '.basePrUrl' <<< "$pr_data" )" \
               -f "description=$DESC" \
               -f "context=ci/blocking-pr-check:$(jq '.number' <<< "$pr_data")"
@@ -214,7 +224,13 @@ jobs:
             base_repo_owner=$(jq -r '.baseRepoOwner' <<< "$pr_data")
             base_repo_name=$(jq -r '.baseRepoName' <<< "$pr_data")
             compare_url="https://github.com/$base_repo_owner/$base_repo_name/compare/$base_ref_name...$pr_head_label"
-            status=$(jq -r 'if .merged then ":heavy_check_mark: Merged" else ":x: Not Merged" end' <<< "$pr_data")
+            status=$(jq -r '
+                if .type == "Stacked on" then
+                  if .merged then ":heavy_check_mark: Merged" else ":x: Not Merged (" + .state + ")" end
+                else
+                  if .state != "Open" then ":white_check_mark: " + .state else ":x: Open" end
+                end
+              ' <<< "$pr_data")
             type=$(jq -r '.type' <<< "$pr_data")
             echo "  - $type #$base_pr $status [(compare)]($compare_url)" >> "$COMMENT_PATH"
           done < <(jq -c '.[]'  <<< "$BLOCKING_DATA")
