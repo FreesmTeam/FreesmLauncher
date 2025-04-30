@@ -4,34 +4,56 @@ on:
   push:
     tags:
       - "*"
-    # NOTE: `!` doesn't work with `paths-ignore` :(
-    # So we a catch-all glob instead
-    # https://github.com/orgs/community/discussions/25369#discussioncomment-3247674
     paths:
-      - "**"
-      - "!.github/**"
-      - ".github/workflows/nix.yml"
-      - "!flatpak/"
-      - "!scripts/"
+      # File types
+      - "**.cpp"
+      - "**.h"
+      - "**.java"
 
-      - "!.git*"
-      - "!.envrc"
-      - "!**.md"
+      # Build files
+      - "**.nix"
+      - "nix/"
+      - "flake.lock"
+
+      # Directories
+      - "buildconfig/"
+      - "cmake/"
+      - "launcher/"
+      - "libraries/"
+      - "program_info/"
+      - "tests/"
+
+      # Files
+      - "CMakeLists.txt"
       - "COPYING.md"
-      - "!renovate.json"
+
+      # Workflows
+      - ".github/workflows/nix.yml"
   pull_request_target:
     paths:
-      - "**"
-      - "!.github/**"
-      - ".github/workflows/nix.yml"
-      - "!flatpak/"
-      - "!scripts/"
+      # File types
+      - "**.cpp"
+      - "**.h"
 
-      - "!.git*"
-      - "!.envrc"
-      - "!**.md"
+      # Build files
+      - "**.nix"
+      - "nix/"
+      - "flake.lock"
+
+      # Directories
+      - "buildconfig/"
+      - "cmake/"
+      - "launcher/"
+      - "libraries/"
+      - "program_info/"
+      - "tests/"
+
+      # Files
+      - "CMakeLists.txt"
       - "COPYING.md"
-      - "!renovate.json"
+
+      # Workflows
+      - ".github/workflows/nix.yml"
   workflow_dispatch:
 
 permissions:

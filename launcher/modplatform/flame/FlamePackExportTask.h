@@ -34,7 +34,7 @@ class FlamePackExportTask : public Task {
                         bool optionalFiles,
                         InstancePtr instance,
                         const QString& output,
-                        MMCZip::FilterFunction filter,
+                        MMCZip::FilterFileFunction filter,
                         int recommendedRAM);
 
    protected:
@@ -52,7 +52,7 @@ class FlamePackExportTask : public Task {
     MinecraftInstance* mcInstance;
     const QDir gameRoot;
     const QString output;
-    const MMCZip::FilterFunction filter;
+    const MMCZip::FilterFileFunction filter;
     const int m_recommendedRAM;
 
     struct ResolvedFile {

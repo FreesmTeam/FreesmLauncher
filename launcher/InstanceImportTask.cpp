@@ -72,7 +72,6 @@ bool InstanceImportTask::abort()
     bool wasAborted = false;
     if (m_task)
         wasAborted = m_task->abort();
-    Task::abort();
     return wasAborted;
 }
 
@@ -306,7 +305,7 @@ void InstanceImportTask::processFlame()
     connect(inst_creation_task.get(), &Task::status, this, &InstanceImportTask::setStatus);
     connect(inst_creation_task.get(), &Task::details, this, &InstanceImportTask::setDetails);
 
-    connect(inst_creation_task.get(), &Task::aborted, this, &Task::abort);
+    connect(inst_creation_task.get(), &Task::aborted, this, &InstanceImportTask::emitAborted);
     connect(inst_creation_task.get(), &Task::abortStatusChanged, this, &Task::setAbortable);
 
     connect(inst_creation_task.get(), &Task::warningLogged, this, [this](const QString& line) { m_Warnings.append(line); });
@@ -407,7 +406,7 @@ void InstanceImportTask::processModrinth()
     connect(inst_creation_task.get(), &Task::status, this, &InstanceImportTask::setStatus);
     connect(inst_creation_task.get(), &Task::details, this, &InstanceImportTask::setDetails);
 
-    connect(inst_creation_task.get(), &Task::aborted, this, &Task::abort);
+    connect(inst_creation_task.get(), &Task::aborted, this, &InstanceImportTask::emitAborted);
     connect(inst_creation_task.get(), &Task::abortStatusChanged, this, &Task::setAbortable);
 
     connect(inst_creation_task.get(), &Task::warningLogged, this, [this](const QString& line) { m_Warnings.append(line); });
