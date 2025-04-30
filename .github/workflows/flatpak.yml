@@ -5,35 +5,52 @@ on:
     # We don't do anything with these artifacts on releases. They go to Flathub
     tags-ignore:
       - "*"
-    # NOTE: `!` doesn't work with `paths-ignore` :(
-    # So we a catch-all glob instead
-    # https://github.com/orgs/community/discussions/25369#discussioncomment-3247674
     paths:
-      - "**"
-      - "!.github/**"
-      - ".github/workflows/flatpak.yml"
-      - "!nix/"
-      - "!scripts/"
+      # File types
+      - "**.cpp"
+      - "**.h"
+      - "**.java"
 
-      - "!.git*"
-      - "!.envrc"
-      - "!**.md"
+      # Build files
+      - "flatpak/"
+
+      # Directories
+      - "buildconfig/"
+      - "cmake/"
+      - "launcher/"
+      - "libraries/"
+      - "program_info/"
+      - "tests/"
+
+      # Files
+      - "CMakeLists.txt"
       - "COPYING.md"
-      - "!renovate.json"
+
+      # Workflows
+      - ".github/workflows/flatpak.yml"
   pull_request:
-    # See above
     paths:
-      - "**"
-      - "!.github/**"
-      - ".github/workflows/flatpak.yml"
-      - "!nix/"
-      - "!scripts/"
+      # File types
+      - "**.cpp"
+      - "**.h"
 
-      - "!.git*"
-      - "!.envrc"
-      - "!**.md"
+      # Build files
+      - "flatpak/"
+
+      # Directories
+      - "buildconfig/"
+      - "cmake/"
+      - "launcher/"
+      - "libraries/"
+      - "program_info/"
+      - "tests/"
+
+      # Files
+      - "CMakeLists.txt"
       - "COPYING.md"
-      - "!renovate.json"
+
+      # Workflows
+      - ".github/workflows/flatpak.yml"
   workflow_dispatch:
 
 permissions:

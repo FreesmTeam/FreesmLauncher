@@ -4,39 +4,48 @@ on:
   push:
     branches-ignore:
       - "renovate/**"
-    # NOTE: `!` doesn't work with `paths-ignore` :(
-    # So we a catch-all glob instead
-    # https://github.com/orgs/community/discussions/25369#discussioncomment-3247674
     paths:
-      - "**"
-      - "!.github/**"
+      # File types
+      - "**.cpp"
+      - "**.h"
+      - "**.java"
+
+      # Directories
+      - "buildconfig/"
+      - "cmake/"
+      - "launcher/"
+      - "libraries/"
+      - "program_info/"
+      - "tests/"
+
+      # Files
+      - "CMakeLists.txt"
+      - "COPYING.md"
+
+      # Workflows
       - ".github/workflows/build.yml"
       - ".github/workflows/trigger_builds.yml"
-      - "!flatpak/"
-      - "!nix/"
-      - "!scripts/"
-
-      - "!.git*"
-      - "!.envrc"
-      - "!**.md"
-      - "COPYING.md"
-      - "!renovate.json"
   pull_request:
-    # See above
     paths:
-      - "**"
-      - "!.github/**"
+      # File types
+      - "**.cpp"
+      - "**.h"
+
+      # Directories
+      - "buildconfig/"
+      - "cmake/"
+      - "launcher/"
+      - "libraries/"
+      - "program_info/"
+      - "tests/"
+
+      # Files
+      - "CMakeLists.txt"
+      - "COPYING.md"
+
+      # Workflows
       - ".github/workflows/build.yml"
       - ".github/workflows/trigger_builds.yml"
-      - "!flatpak/"
-      - "!nix/"
-      - "!scripts/"
-
-      - "!.git*"
-      - "!.envrc"
-      - "!**.md"
-      - "COPYING.md"
-      - "!renovate.json"
   workflow_dispatch:
 
 jobs:
