@@ -47,7 +47,7 @@ FlamePackExportTask::FlamePackExportTask(const QString& name,
                                          bool optionalFiles,
                                          InstancePtr instance,
                                          const QString& output,
-                                         MMCZip::FilterFunction filter)
+                                         MMCZip::FilterFileFunction filter)
     : name(name)
     , version(version)
     , author(author)

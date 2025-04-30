@@ -69,7 +69,7 @@ class FileIgnoreProxy : public QSortFilterProxyModel {
     // list of relative paths that need to be removed completely from model
     inline SeparatorPrefixTree<'/'>& ignoreFilesWithPath() { return m_ignoreFilePaths; }
 
-    bool filterFile(const QString& fileName) const;
+    bool filterFile(const QFileInfo& fileName) const;
 
     void loadBlockedPathsFromFile(const QString& fileName);
 
