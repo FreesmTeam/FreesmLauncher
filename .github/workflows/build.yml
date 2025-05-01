@@ -72,8 +72,14 @@ jobs:
           - os: windows-2022
             artifact-name: Windows-MinGW-w64
             base-cmake-preset: windows_mingw
-            msystem: clang64
+            msystem: CLANG64
             vcvars-arch: amd64_x86
+
+          - os: windows-11-arm
+            artifact-name: Windows-MinGW-arm64
+            base-cmake-preset: windows_mingw
+            msystem: CLANGARM64
+            vcvars-arch: arm64
 
           - os: windows-2022
             artifact-name: Windows-MSVC
