@@ -33,20 +33,19 @@ runs:
         update: true
         install: >-
           git
-          mingw-w64-x86_64-binutils
         pacboy: >-
           toolchain:p
+          ccache:p
           cmake:p
           extra-cmake-modules:p
           ninja:p
           qt6-base:p
           qt6-svg:p
           qt6-imageformats:p
-          quazip-qt6:p
-          ccache:p
           qt6-5compat:p
           qt6-networkauth:p
           cmark:p
+          quazip-qt6:p
 
     - name: Retrieve ccache cache (MinGW)
       if: ${{ inputs.msystem != '' && inputs.build-type == 'Debug' }}
