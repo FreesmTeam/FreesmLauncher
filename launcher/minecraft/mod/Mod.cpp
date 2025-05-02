@@ -283,3 +283,8 @@ bool Mod::valid() const
 {
     return !m_local_details.mod_id.isEmpty();
 }
+
+QStringList Mod::dependencies() const
+{
+    return details().dependencies;
+}

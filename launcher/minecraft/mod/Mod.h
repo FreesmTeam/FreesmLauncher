@@ -70,6 +70,7 @@ class Mod : public Resource {
     auto loaders() const -> QString;
     auto mcVersions() const -> QString;
     auto releaseType() const -> QString;
+    QStringList dependencies() const;
 
     /** Get the intneral path to the mod's icon file*/
     QString iconPath() const { return m_local_details.icon_file; }

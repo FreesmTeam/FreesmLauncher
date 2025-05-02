@@ -61,6 +61,36 @@ ModDetails ReadMCModInfo(QByteArray contents)
         for (auto author : authors) {
             details.authors.append(author.toString());
         }
+
+        if (details.mod_id.startsWith("mod_")) {
+            details.mod_id = details.mod_id.mid(4);
+        }
+
+        auto addDep = [&details](QString dep) {
+            if (dep == "mod_MinecraftForge" || dep == "Forge")
+                return;
+            if (dep.contains(":")) {
+                dep = dep.section(":", 1);
+            }
+            if (dep.contains("@")) {
+                dep = dep.section("@", 0, 0);
+            }
+            if (dep.startsWith("mod_")) {
+                dep = dep.mid(4);
+            }
+            details.dependencies.append(dep);
+        };
+
+        if (firstObj.contains("requiredMods")) {
+            for (auto dep : firstObj.value("dependencies").toArray().toVariantList()) {
+                addDep(dep.toString());
+            }
+        } else if (firstObj.contains("dependencies")) {
+            for (auto dep : firstObj.value("dependencies").toArray().toVariantList()) {
+                addDep(dep.toString());
+            }
+        }
+
         return details;
     };
     QJsonParseError jsonError;
@@ -198,6 +228,42 @@ ModDetails ReadMCModTOML(QByteArray contents)
     }
     details.icon_file = logoFile;
 
+    auto parseDep = [&details](toml::array* dependencies) {
+        if (dependencies) {
+            for (auto& dep : *dependencies) {
+                auto dep_table = dep.as_table();
+                if (dep_table) {
+                    auto modId = dep_table->get("modId")->value_or<std::string>("");
+                    if (modId != "forge" && modId != "neoforge" && modId != "minecraft") {
+                        if (dep_table->contains("type") && (dep_table->get("type"))->value_or<std::string>("") == "required") {
+                            details.dependencies.append(QString::fromStdString(modId));
+                        } else if (dep_table->contains("mandatory") && (dep_table->get("mandatory"))->value_or(false)) {
+                            details.dependencies.append(QString::fromStdString(modId));
+                        }
+                    }
+                }
+            }
+        }
+    };
+
+    if (tomlData.contains("dependencies")) {
+        auto depValue = tomlData["dependencies"];
+        if (auto array = depValue.as_array()) {
+            parseDep(array);
+        } else if (auto depTable = depValue.as_table()) {
+            auto expectedKey = details.mod_id.toStdString();
+            if (!depTable->contains(expectedKey)) {
+                for (auto [k, v] : *depTable) {
+                    expectedKey = k;
+                    break;
+                }
+            }
+            if (auto array = (*depTable)[expectedKey].as_array()) {
+                parseDep(array);
+            }
+        }
+    }
+
     return details;
 }
 
@@ -285,6 +351,18 @@ ModDetails ReadFabricModInfo(QByteArray contents)
                 details.icon_file = icon.toString();
             }
         }
+
+        if (object.contains("depends")) {
+            auto depends = object.value("depends");
+            if (depends.isObject()) {
+                auto obj = depends.toObject();
+                for (auto key : obj.keys()) {
+                    if (key != "fabricloader" && key != "minecraft" && !key.startsWith("fabric-")) {
+                        details.dependencies.append(key);
+                    }
+                }
+            }
+        }
     }
     return details;
 }
@@ -370,6 +448,29 @@ ModDetails ReadQuiltModInfo(QByteArray contents)
                     }
                 } else if (icon.isString()) {
                     details.icon_file = icon.toString();
+                }
+            }
+            if (object.contains("depends")) {
+                auto depends = object.value("depends");
+                if (depends.isArray()) {
+                    auto array = depends.toArray();
+                    for (auto obj : array) {
+                        QString modId;
+                        if (obj.isString()) {
+                            modId = obj.toString();
+                        } else if (obj.isObject()) {
+                            auto objValue = obj.toObject();
+                            modId = objValue.value("id").toString();
+                            if (objValue.contains("optional") && objValue.value("optional").toBool()) {
+                                continue;
+                            }
+                        } else {
+                            continue;
+                        }
+                        if (modId != "minecraft" && !modId.startsWith("quilt_")) {
+                            details.dependencies.append(modId);
+                        }
+                    }
                 }
             }
         }
