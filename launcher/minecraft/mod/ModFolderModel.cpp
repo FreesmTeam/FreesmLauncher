@@ -48,23 +48,29 @@
 #include <QThreadPool>
 #include <QUrl>
 #include <QUuid>
+#include <algorithm>
 
 #include "minecraft/mod/tasks/LocalModParseTask.h"
+#include "modplatform/ModIndex.h"
 
 ModFolderModel::ModFolderModel(const QDir& dir, BaseInstance* instance, bool is_indexed, bool create_dir, QObject* parent)
     : ResourceFolderModel(QDir(dir), instance, is_indexed, create_dir, parent)
 {
     m_column_names = QStringList({ "Enable", "Image", "Name", "Version", "Last Modified", "Provider", "Size", "Side", "Loaders",
-                                   "Minecraft Versions", "Release Type" });
-    m_column_names_translated = QStringList({ tr("Enable"), tr("Image"), tr("Name"), tr("Version"), tr("Last Modified"), tr("Provider"),
-                                              tr("Size"), tr("Side"), tr("Loaders"), tr("Minecraft Versions"), tr("Release Type") });
-    m_column_sort_keys = { SortType::ENABLED, SortType::NAME,        SortType::NAME,        SortType::VERSION,
-                           SortType::DATE,    SortType::PROVIDER,    SortType::SIZE,        SortType::SIDE,
-                           SortType::LOADERS, SortType::MC_VERSIONS, SortType::RELEASE_TYPE };
+                                   "Minecraft Versions", "Release Type", "Requires", "Required by" });
+    m_column_names_translated =
+        QStringList({ tr("Enable"), tr("Image"), tr("Name"), tr("Version"), tr("Last Modified"), tr("Provider"), tr("Size"), tr("Side"),
+                      tr("Loaders"), tr("Minecraft Versions"), tr("Release Type"), tr("Requires "), tr("Required by") });
+    m_column_sort_keys = { SortType::ENABLED,      SortType::NAME,     SortType::NAME,       SortType::VERSION, SortType::DATE,
+                           SortType::PROVIDER,     SortType::SIZE,     SortType::SIDE,       SortType::LOADERS, SortType::MC_VERSIONS,
+                           SortType::RELEASE_TYPE, SortType::REQUIRES, SortType::REQUIRED_BY };
     m_column_resize_modes = { QHeaderView::Interactive, QHeaderView::Interactive, QHeaderView::Stretch,     QHeaderView::Interactive,
                               QHeaderView::Interactive, QHeaderView::Interactive, QHeaderView::Interactive, QHeaderView::Interactive,
-                              QHeaderView::Interactive, QHeaderView::Interactive, QHeaderView::Interactive };
-    m_columnsHideable = { false, true, false, true, true, true, true, true, true, true, true };
+                              QHeaderView::Interactive, QHeaderView::Interactive, QHeaderView::Interactive, QHeaderView::Interactive,
+                              QHeaderView::Interactive };
+    m_columnsHideable = { false, true, false, true, true, true, true, true, true, true, true, true, true };
+
+    connect(this, &ModFolderModel::parseFinished, this, &ModFolderModel::onParseFinished);
 }
 
 QVariant ModFolderModel::data(const QModelIndex& index, int role) const
@@ -108,8 +114,15 @@ QVariant ModFolderModel::data(const QModelIndex& index, int role) const
                 case ReleaseTypeColumn: {
                     return at(row).releaseType();
                 }
-                case SizeColumn:
+                case SizeColumn: {
                     return at(row).sizeStr();
+                }
+                case RequiredByColumn: {
+                    return at(row).requiredByCount();
+                }
+                case RequiresColumn: {
+                    return at(row).requiresCount();
+                }
                 default:
                     return QVariant();
             }
@@ -166,6 +179,8 @@ QVariant ModFolderModel::headerData(int section, [[maybe_unused]] Qt::Orientatio
                 case McVersionsColumn:
                 case ReleaseTypeColumn:
                 case SizeColumn:
+                case RequiredByColumn:
+                case RequiresColumn:
                     return columnNames().at(section);
                 default:
                     return QVariant();
@@ -193,6 +208,10 @@ QVariant ModFolderModel::headerData(int section, [[maybe_unused]] Qt::Orientatio
                     return tr("The release type.");
                 case SizeColumn:
                     return tr("The size of the mod.");
+                case RequiredByColumn:
+                    return tr("Number of mods for what this is needed.");
+                case RequiresColumn:
+                    return tr("Number of mods that this requires.");
                 default:
                     return QVariant();
             }
@@ -237,4 +256,65 @@ void ModFolderModel::onParseSucceeded(int ticket, QString mod_id)
         static_cast<Mod*>(resource.get())->finishResolvingWithDetails(std::move(result->details));
 
     emit dataChanged(index(row), index(row, columnCount(QModelIndex()) - 1));
+}
+
+void ModFolderModel::onParseFinished()
+{
+    if (hasPendingParseTasks()) {
+        return;
+    }
+    auto mods = allMods();
+
+    auto findById = [mods](QString modId) -> Mod* {
+        auto found = std::find_if(mods.begin(), mods.end(), [modId](Mod* m) { return m->mod_id() == modId; });
+        return found != mods.end() ? *found : nullptr;
+    };
+    auto findByProjectID = [mods](QVariant modId, ModPlatform::ResourceProvider provider) -> Mod* {
+        auto found = std::find_if(mods.begin(), mods.end(), [modId, provider](Mod* m) {
+            return m->metadata()->provider == provider && m->metadata()->project_id == modId;
+        });
+        return found != mods.end() ? *found : nullptr;
+    };
+    for (auto mod : mods) {
+        auto id = mod->internal_id();
+        for (auto dep : mod->dependencies()) {
+            auto d = findById(dep);
+            if (d) {
+                m_requires[id] << d;
+                m_requiredBy[d->internal_id()] << mod;
+            }
+        }
+        for (auto dep : mod->metadata()->dependencies) {
+            auto d = findByProjectID(dep.addonId, mod->metadata()->provider);
+            if (d) {
+                m_requires[id] << d;
+                m_requiredBy[d->internal_id()] << mod;
+            }
+        }
+    }
+    auto removeDuplicates = [](QList<Mod*>& list) {
+        std::set<QString> seen;
+        auto it = std::remove_if(list.begin(), list.end(), [&seen](Mod* m) {
+            auto id = m->internal_id();
+            if (seen.count(id) > 0) {
+                return true;
+            }
+            seen.insert(id);
+            return false;
+        });
+        list.erase(it, list.end());
+    };
+    for (auto key : m_requiredBy.keys()) {
+        removeDuplicates(m_requiredBy[key]);
+    }
+    for (auto key : m_requires.keys()) {
+        removeDuplicates(m_requires[key]);
+    }
+    for (auto mod : mods) {
+        auto id = mod->internal_id();
+        mod->setRequiredByCount(m_requiredBy[id].count());
+        mod->setRequiresCount(m_requires[id].count());
+        int row = m_resources_index[id];
+        emit dataChanged(index(row), index(row, columnCount(QModelIndex()) - 1));
+    }
 }
