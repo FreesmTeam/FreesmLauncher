@@ -152,9 +152,6 @@ class Resource : public QObject {
 
     bool isMoreThanOneHardLink() const;
 
-    auto mod_id() const -> QString { return m_mod_id; }
-    void setModId(const QString& modId) { m_mod_id = modId; }
-
    protected:
     /* The file corresponding to this resource. */
     QFileInfo m_file_info;
@@ -165,7 +162,6 @@ class Resource : public QObject {
     QString m_internal_id;
     /* Name as reported via the file name. In the absence of a better name, this is shown to the user. */
     QString m_name;
-    QString m_mod_id;
 
     /* The type of file we're dealing with. */
     ResourceType m_type = ResourceType::UNKNOWN;
