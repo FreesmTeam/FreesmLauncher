@@ -17,7 +17,7 @@
  */
 
 #include "ExportPackDialog.h"
-#include "minecraft/mod/ModFolderModel.h"
+#include "minecraft/mod/ResourceFolderModel.h"
 #include "modplatform/ModIndex.h"
 #include "modplatform/flame/FlamePackExportTask.h"
 #include "ui/dialogs/CustomMessageBox.h"
@@ -33,7 +33,7 @@
 #include "MMCZip.h"
 #include "modplatform/modrinth/ModrinthPackExportTask.h"
 
-ExportPackDialog::ExportPackDialog(InstancePtr instance, QWidget* parent, ModPlatform::ResourceProvider provider)
+ExportPackDialog::ExportPackDialog(MinecraftInstancePtr instance, QWidget* parent, ModPlatform::ResourceProvider provider)
     : QDialog(parent), m_instance(instance), m_ui(new Ui::ExportPackDialog), m_provider(provider)
 {
     Q_ASSERT(m_provider == ModPlatform::ResourceProvider::MODRINTH || m_provider == ModPlatform::ResourceProvider::FLAME);
@@ -172,10 +172,18 @@ void ExportPackDialog::done(int result)
             task = new ModrinthPackExportTask(name, m_ui->version->text(), m_ui->summary->toPlainText(), m_ui->optionalFiles->isChecked(),
                                               m_instance, output, std::bind(&FileIgnoreProxy::filterFile, m_proxy, std::placeholders::_1));
         } else {
-            int recommendedRAM = m_ui->recommendedMemoryCheckBox->isChecked() ? m_ui->recommendedMemory->value() : 0;
+            FlamePackExportOptions options{};
 
-            task = new FlamePackExportTask(name, m_ui->version->text(), m_ui->author->text(), m_ui->optionalFiles->isChecked(), m_instance,
-                                           output, std::bind(&FileIgnoreProxy::filterFile, m_proxy, std::placeholders::_1), recommendedRAM);
+            options.name = name;
+            options.version = m_ui->version->text();
+            options.author = m_ui->author->text();
+            options.optionalFiles = m_ui->optionalFiles->isChecked();
+            options.instance = m_instance;
+            options.output = output;
+            options.filter = std::bind(&FileIgnoreProxy::filterFile, m_proxy, std::placeholders::_1);
+            options.recommendedRAM = m_ui->recommendedMemoryCheckBox->isChecked() ? m_ui->recommendedMemory->value() : 0;
+
+            task = new FlamePackExportTask(std::move(options));
         }
 
         connect(task, &Task::failed,

@@ -71,6 +71,7 @@
 #include <QToolButton>
 #include <QWidget>
 #include <QWidgetAction>
+#include <memory>
 
 #include <BaseInstance.h>
 #include <BuildConfig.h>
@@ -1419,15 +1420,18 @@ void MainWindow::on_actionExportInstanceZip_triggered()
 void MainWindow::on_actionExportInstanceMrPack_triggered()
 {
     if (m_selectedInstance) {
-        ExportPackDialog dlg(m_selectedInstance, this);
-        dlg.exec();
+        auto instance = std::dynamic_pointer_cast<MinecraftInstance>(m_selectedInstance);
+        if (instance != nullptr) {
+            ExportPackDialog dlg(instance, this);
+            dlg.exec();
+        }
     }
 }
 
 void MainWindow::on_actionExportInstanceFlamePack_triggered()
 {
     if (m_selectedInstance) {
-        auto instance = dynamic_cast<MinecraftInstance*>(m_selectedInstance.get());
+        auto instance = std::dynamic_pointer_cast<MinecraftInstance>(m_selectedInstance);
         if (instance) {
             if (auto cmp = instance->getPackProfile()->getComponent("net.minecraft");
                 cmp && cmp->getVersionFile() && cmp->getVersionFile()->type == "snapshot") {
@@ -1436,7 +1440,7 @@ void MainWindow::on_actionExportInstanceFlamePack_triggered()
                 msgBox.exec();
                 return;
             }
-            ExportPackDialog dlg(m_selectedInstance, this, ModPlatform::ResourceProvider::FLAME);
+            ExportPackDialog dlg(instance, this, ModPlatform::ResourceProvider::FLAME);
             dlg.exec();
         }
     }
