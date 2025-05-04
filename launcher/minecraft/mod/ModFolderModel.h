@@ -47,6 +47,7 @@
 
 #include "Mod.h"
 #include "ResourceFolderModel.h"
+#include "minecraft/Component.h"
 #include "minecraft/mod/Resource.h"
 
 class BaseInstance;
@@ -88,6 +89,9 @@ class ModFolderModel : public ResourceFolderModel {
     [[nodiscard]] Task* createParseTask(Resource&) override;
 
     bool isValid();
+
+    bool setResourceEnabled(const QModelIndexList& indexes, EnableAction action) override;
+    QModelIndexList getAffectedMods(const QModelIndexList& indexes, EnableAction action);
 
     RESOURCE_HELPERS(Mod)
 

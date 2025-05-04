@@ -902,6 +902,7 @@ QList<Resource*> ResourceFolderModel::allResources()
         result.append((resource.get()));
     return result;
 }
+
 QList<Resource*> ResourceFolderModel::selectedResources(const QModelIndexList& indexes)
 {
     QList<Resource*> result;

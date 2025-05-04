@@ -37,6 +37,7 @@
  */
 
 #include "ModFolderPage.h"
+#include "minecraft/mod/Resource.h"
 #include "ui/dialogs/ExportToModListDialog.h"
 #include "ui/dialogs/InstallLoaderDialog.h"
 #include "ui_ExternalResourcesPage.h"
@@ -91,7 +92,7 @@ ModFolderPage::ModFolderPage(BaseInstance* inst, ModFolderModel* model, QWidget*
     auto depsDisabled = APPLICATION->settings()->getSetting("ModDependenciesDisabled");
     ui->actionVerifyItemDependencies->setVisible(!depsDisabled->get().toBool());
     connect(depsDisabled.get(), &Setting::SettingChanged, this,
-            [this](const Setting& setting, const QVariant& value) { ui->actionVerifyItemDependencies->setVisible(!value.toBool()); });
+            [this](const Setting&, const QVariant& value) { ui->actionVerifyItemDependencies->setVisible(!value.toBool()); });
 
     updateMenu->addAction(ui->actionResetItemMetadata);
     connect(ui->actionResetItemMetadata, &QAction::triggered, this, &ModFolderPage::deleteModMetadata);
@@ -136,7 +137,22 @@ void ModFolderPage::removeItems(const QItemSelection& selection)
         if (response != QMessageBox::Yes)
             return;
     }
-    m_model->deleteResources(selection.indexes());
+
+    auto indexes = selection.indexes();
+    auto affected = m_model->getAffectedMods(indexes, EnableAction::DISABLE);
+    if (!affected.isEmpty()) {
+        auto response = CustomMessageBox::selectable(this, tr("Confirm Disable"),
+                                                     tr("The mods you are tring to disable are required by %1 mods.\n"
+                                                        "Do you want to disable them?")
+                                                         .arg(affected.length()),
+                                                     QMessageBox::Warning, QMessageBox::Yes | QMessageBox::No, QMessageBox::No)
+                            ->exec();
+
+        if (response != QMessageBox::Yes) {
+            m_model->setResourceEnabled(affected, EnableAction::DISABLE);
+        }
+    }
+    m_model->deleteResources(indexes);
 }
 
 void ModFolderPage::downloadMods()

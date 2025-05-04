@@ -50,6 +50,9 @@
 #include <QUuid>
 #include <algorithm>
 
+#include "minecraft/Component.h"
+#include "minecraft/mod/Resource.h"
+#include "minecraft/mod/ResourceFolderModel.h"
 #include "minecraft/mod/tasks/LocalModParseTask.h"
 #include "modplatform/ModIndex.h"
 
@@ -258,6 +261,12 @@ void ModFolderModel::onParseSucceeded(int ticket, QString mod_id)
     emit dataChanged(index(row), index(row, columnCount(QModelIndex()) - 1));
 }
 
+Mod* findById(QList<Mod*> mods, QString modId)
+{
+    auto found = std::find_if(mods.begin(), mods.end(), [modId](Mod* m) { return m->mod_id() == modId; });
+    return found != mods.end() ? *found : nullptr;
+}
+
 void ModFolderModel::onParseFinished()
 {
     if (hasPendingParseTasks()) {
@@ -265,37 +274,37 @@ void ModFolderModel::onParseFinished()
     }
     auto mods = allMods();
 
-    auto findById = [mods](QString modId) -> Mod* {
-        auto found = std::find_if(mods.begin(), mods.end(), [modId](Mod* m) { return m->mod_id() == modId; });
-        return found != mods.end() ? *found : nullptr;
-    };
     auto findByProjectID = [mods](QVariant modId, ModPlatform::ResourceProvider provider) -> Mod* {
         auto found = std::find_if(mods.begin(), mods.end(), [modId, provider](Mod* m) {
-            return m->metadata()->provider == provider && m->metadata()->project_id == modId;
+            return m->metadata() && m->metadata()->provider == provider && m->metadata()->project_id == modId;
         });
         return found != mods.end() ? *found : nullptr;
     };
     for (auto mod : mods) {
-        auto id = mod->internal_id();
+        auto id = mod->mod_id();
         for (auto dep : mod->dependencies()) {
-            auto d = findById(dep);
+            auto d = findById(mods, dep);
             if (d) {
                 m_requires[id] << d;
-                m_requiredBy[d->internal_id()] << mod;
+                m_requiredBy[d->mod_id()] << mod;
             }
         }
-        for (auto dep : mod->metadata()->dependencies) {
-            auto d = findByProjectID(dep.addonId, mod->metadata()->provider);
-            if (d) {
-                m_requires[id] << d;
-                m_requiredBy[d->internal_id()] << mod;
+        if (mod->metadata()) {
+            for (auto dep : mod->metadata()->dependencies) {
+                if (dep.type == ModPlatform::DependencyType::REQUIRED) {
+                    auto d = findByProjectID(dep.addonId, mod->metadata()->provider);
+                    if (d) {
+                        m_requires[id] << d;
+                        m_requiredBy[d->mod_id()] << mod;
+                    }
+                }
             }
         }
     }
     auto removeDuplicates = [](QList<Mod*>& list) {
         std::set<QString> seen;
         auto it = std::remove_if(list.begin(), list.end(), [&seen](Mod* m) {
-            auto id = m->internal_id();
+            auto id = m->mod_id();
             if (seen.count(id) > 0) {
                 return true;
             }
@@ -311,10 +320,66 @@ void ModFolderModel::onParseFinished()
         removeDuplicates(m_requires[key]);
     }
     for (auto mod : mods) {
-        auto id = mod->internal_id();
+        auto id = mod->mod_id();
         mod->setRequiredByCount(m_requiredBy[id].count());
         mod->setRequiresCount(m_requires[id].count());
-        int row = m_resources_index[id];
+        int row = m_resources_index[mod->internal_id()];
         emit dataChanged(index(row), index(row, columnCount(QModelIndex()) - 1));
     }
+}
+
+QModelIndexList ModFolderModel::getAffectedMods(const QModelIndexList& indexes, EnableAction action)
+{
+    if (indexes.isEmpty())
+        return {};
+
+    QModelIndexList affectedList = {};
+    auto indexedMods = selectedMods(indexes);
+    if (action == EnableAction::TOGGLE) {
+        if (indexedMods.length() != 1) {
+            return {};  // not sure how to handle a bunch of rows that are toggled(not even sure it is posible)
+        }
+        action = indexedMods.first()->enabled() ? EnableAction::DISABLE : EnableAction::ENABLE;
+    }
+
+    std::set<QString> seen;
+    bool shouldBeEnabled = action == EnableAction::ENABLE;
+    for (auto mod : indexedMods) {
+        auto id = mod->mod_id();
+        QList<Mod*> mods;
+        switch (action) {
+            case EnableAction::DISABLE: {
+                mods = m_requiredBy[id];
+                break;
+            }
+            case EnableAction::ENABLE: {
+                mods = m_requires[id];
+                break;
+            }
+            case EnableAction::TOGGLE:
+                break;
+        }
+        for (auto affected : mods) {
+            auto affectedId = affected->mod_id();
+
+            if (findById(indexedMods, affectedId) == nullptr && seen.count(affectedId) == 0) {
+                seen.insert(affectedId);
+                if (shouldBeEnabled != affected->enabled()) {
+                    auto row = m_resources_index[affected->internal_id()];
+                    affectedList << index(row, 0);
+                }
+            }
+        }
+    }
+    // collect the affected mods until all of them are included in the list
+    if (!affectedList.isEmpty()) {
+        affectedList += getAffectedMods(indexes + affectedList, action);
+    }
+    return affectedList;
+}
+
+bool ModFolderModel::setResourceEnabled(const QModelIndexList& indexes, EnableAction action)
+{
+    auto affected = getAffectedMods(indexes, action);
+    return ResourceFolderModel::setResourceEnabled(indexes + affected, action);
 }
