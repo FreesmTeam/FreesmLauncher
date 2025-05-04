@@ -46,6 +46,7 @@
 #include <memory>
 
 #include "FileSystem.h"
+#include "logs/AnonymizeLog.h"
 #include "net/NetJob.h"
 #include "net/PasteUpload.h"
 #include "ui/dialogs/CustomMessageBox.h"
@@ -172,8 +173,9 @@ std::optional<QString> GuiUtil::uploadPaste(const QString& name, const QString& 
     return {};
 }
 
-void GuiUtil::setClipboardText(const QString& text)
+void GuiUtil::setClipboardText(QString text)
 {
+    anonymizeLog(text);
     QApplication::clipboard()->setText(text);
 }
 

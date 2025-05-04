@@ -39,6 +39,7 @@
 #include "tasks/Task.h"
 
 #include <QNetworkReply>
+#include <QRegularExpression>
 #include <QString>
 
 #include <array>
@@ -93,10 +94,10 @@ class PasteUpload : public Net::NetRequest {
         ResultPtr m_result;
         QByteArray m_output;
     };
-    PasteUpload(const QString& log, const PasteType pasteType) : m_log(log), m_paste_type(pasteType) {}
+    PasteUpload(const QString& log, PasteType pasteType);
     virtual ~PasteUpload() = default;
 
-    static NetRequest::Ptr make(const QString& log, const PasteType pasteType, const QString baseURL, ResultPtr result);
+    static NetRequest::Ptr make(const QString& log, PasteType pasteType, QString baseURL, ResultPtr result);
 
    private:
     virtual QNetworkReply* getReply(QNetworkRequest&) override;

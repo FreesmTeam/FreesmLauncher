@@ -41,7 +41,9 @@
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonObject>
+#include <QRegularExpression>
 #include <QUrlQuery>
+#include "logs/AnonymizeLog.h"
 
 const std::array<PasteUpload::PasteTypeInfo, 4> PasteUpload::PasteTypes = { { { "0x0.st", "https://0x0.st", "" },
                                                                               { "hastebin", "https://hst.sh", "/documents" },
@@ -184,10 +186,7 @@ auto PasteUpload::Sink::finalize(QNetworkReply&) -> Task::State
     return Task::State::Succeeded;
 }
 
-Net::NetRequest::Ptr PasteUpload::make(const QString& log,
-                                       const PasteUpload::PasteType pasteType,
-                                       const QString customBaseURL,
-                                       ResultPtr result)
+Net::NetRequest::Ptr PasteUpload::make(const QString& log, PasteUpload::PasteType pasteType, QString customBaseURL, ResultPtr result)
 {
     auto base = PasteUpload::PasteTypes.at(pasteType);
     QString baseUrl = customBaseURL.isEmpty() ? base.defaultBase : customBaseURL;
@@ -201,4 +200,9 @@ Net::NetRequest::Ptr PasteUpload::make(const QString& log,
 
     up->m_sink.reset(new Sink(pasteType, baseUrl, result));
     return up;
+}
+
+PasteUpload::PasteUpload(const QString& log, PasteType pasteType) : m_log(log), m_paste_type(pasteType)
+{
+    anonymizeLog(m_log);
 }
