@@ -934,7 +934,7 @@ bool createShortcut(QString destination, QString target, QStringList args, QStri
     QDir content = application.path() + "/Contents/";
     QDir resources = content.path() + "/Resources/";
     QDir binaryDir = content.path() + "/MacOS/";
-    QFile info = content.path() + "/Info.plist";
+    QFile info(content.path() + "/Info.plist");
 
     if (!(content.mkpath(".") && resources.mkpath(".") && binaryDir.mkpath("."))) {
         qWarning() << "Couldn't create directories within application";
