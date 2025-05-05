@@ -49,11 +49,6 @@
 #include "Application.h"
 #include "minecraft/PackProfile.h"
 
-unique_qobject_ptr<ModFilterWidget> ModFilterWidget::create(MinecraftInstance* instance, bool extended, QWidget* parent)
-{
-    return unique_qobject_ptr<ModFilterWidget>(new ModFilterWidget(instance, extended, parent));
-}
-
 class VersionBasicModel : public QIdentityProxyModel {
     Q_OBJECT
 
