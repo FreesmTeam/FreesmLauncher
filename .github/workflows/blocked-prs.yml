@@ -125,7 +125,7 @@ jobs:
                       "type": $type,
                       "number": .number,
                       "merged": .merged,
-                      "state": if .state == "open" then "Open" elif .merged then "Merged" else "Closed" end,
+                      "state": (if .state == "open" then "Open" elif .merged then "Merged" else "Closed" end),
                       "labels": (reduce .labels[].name as $l ([]; . + [$l])), 
                       "basePrUrl": .html_url,
                       "baseRepoName": .head.repo.name,
