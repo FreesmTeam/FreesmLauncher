@@ -64,7 +64,7 @@ jobs:
                 "prNumber": .number,
                 "prHeadSha": .head.sha,
                 "prHeadLabel": .head.label,
-                "prBody": .body // "",
+                "prBody": (.body // ""),
                 "prLabels": (reduce .labels[].name as $l ([]; . + [$l]))
               }
             ' <<< "$PR_JSON")"
