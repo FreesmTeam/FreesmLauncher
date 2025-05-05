@@ -69,6 +69,10 @@ jobs:
   build:
     name: Build (${{ matrix.artifact-name }})
 
+    permissions:
+      # Required for vcpkg binary cache
+      packages: write
+
     strategy:
       fail-fast: false
       matrix:
