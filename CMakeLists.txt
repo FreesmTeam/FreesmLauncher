@@ -46,9 +46,9 @@ if(MSVC)
     # Additinaly LINK autodetects we use a GUI so we can omit /SUBSYSTEM
     # This allows tests to still use have console without using seperate linker flags
     # /LTCG allows for linking wholy optimizated programs
-    # /MANIFEST:NO disables generating a manifest file, we instead provide our own
+    # /MANIFEST:NO and /MANIFESTUAC:NO disables generating a manifest file, we instead provide our own
     # /STACK sets the stack reserve size, ATL's pack list needs 3-4 MiB as of November 2022, provide 8 MiB
-    set(CMAKE_EXE_LINKER_FLAGS "/LTCG /MANIFEST:NO /STACK:8388608 ${CMAKE_EXE_LINKER_FLAGS}")
+    set(CMAKE_EXE_LINKER_FLAGS "/LTCG /MANIFEST:NO /MANIFESTUAC:NO /STACK:8388608 ${CMAKE_EXE_LINKER_FLAGS}")
 
     # /GL enables whole program optimizations
     # /Gw helps reduce binary size
