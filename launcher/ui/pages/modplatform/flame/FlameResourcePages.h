@@ -96,7 +96,7 @@ class FlameModPage : public ModPage {
     [[nodiscard]] inline auto helpPage() const -> QString override { return "Mod-platform"; }
 
     void openUrl(const QUrl& url) override;
-    ModFilterWidget* createFilterWidget() override;
+    unique_qobject_ptr<ModFilterWidget> createFilterWidget() override;
 
    protected:
     virtual void prepareProviderCategories() override;
