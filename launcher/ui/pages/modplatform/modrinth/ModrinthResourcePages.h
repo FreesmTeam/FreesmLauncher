@@ -98,6 +98,7 @@ class ModrinthModPage : public ModPage {
 
    protected:
     virtual void prepareProviderCategories() override;
+    Task::Ptr m_categoriesTask;
 };
 
 class ModrinthResourcePackPage : public ResourcePackResourcePage {

@@ -150,11 +150,11 @@ std::unique_ptr<ModFilterWidget> ModrinthModPage::createFilterWidget()
 void ModrinthModPage::prepareProviderCategories()
 {
     auto response = std::make_shared<QByteArray>();
-    auto task = ModrinthAPI::getModCategories(response);
-    QObject::connect(task.get(), &Task::succeeded, [this, response]() {
+    m_categoriesTask = ModrinthAPI::getModCategories(response);
+    QObject::connect(m_categoriesTask.get(), &Task::succeeded, [this, response]() {
         auto categories = ModrinthAPI::loadModCategories(response);
         m_filter_widget->setCategories(categories);
     });
-    task->start();
+    m_categoriesTask->start();
 };
 }  // namespace ResourceDownload
