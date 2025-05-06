@@ -38,7 +38,6 @@ jobs:
           mv FreesmLauncher-Linux-Qt5-Portable*/FreesmLauncher-portable.tar.gz FreesmLauncher-Linux-Qt5-Portable-${{ env.VERSION }}.tar.gz
           mv FreesmLauncher-*.AppImage/FreesmLauncher-*.AppImage FreesmLauncher-Linux-x86_64.AppImage
           mv FreesmLauncher-*.AppImage.zsync/FreesmLauncher-*.AppImage.zsync FreesmLauncher-Linux-x86_64.AppImage.zsync
-          mv FreesmLauncher-macOS-Legacy*/PrismLauncher.zip FreesmLauncher-macOS-Legacy-${{ env.VERSION }}.zip
           mv FreesmLauncher-macOS*/PrismLauncher.zip FreesmLauncher-macOS-${{ env.VERSION }}.zip
 
           tar --exclude='.git' -czf FreesmLauncher-${{ env.VERSION }}.tar.gz FreesmLauncher-${{ env.VERSION }}
@@ -93,5 +92,4 @@ jobs:
             FreesmLauncher-Windows-MSVC-Portable-${{ env.VERSION }}.zip
             FreesmLauncher-Windows-MSVC-Setup-${{ env.VERSION }}.exe
             FreesmLauncher-macOS-${{ env.VERSION }}.zip
-            FreesmLauncher-macOS-Legacy-${{ env.VERSION }}.zip
             FreesmLauncher-${{ env.VERSION }}.tar.gz
