@@ -181,7 +181,7 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent), ui(new Ui::MainWi
         auto const setting_name = QString("WideBarVisibility_%1").arg(ui->instanceToolBar->objectName());
         instanceToolbarSetting = APPLICATION->settings()->getOrRegisterSetting(setting_name);
 
-        ui->instanceToolBar->setVisibilityState(instanceToolbarSetting->get().toByteArray());
+        ui->instanceToolBar->setVisibilityState(QByteArray::fromBase64(instanceToolbarSetting->get().toByteArray()));
 
         ui->instanceToolBar->addContextMenuAction(ui->newsToolBar->toggleViewAction());
         ui->instanceToolBar->addContextMenuAction(ui->instanceToolBar->toggleViewAction());
@@ -1493,7 +1493,7 @@ void MainWindow::closeEvent(QCloseEvent* event)
     // Save the window state and geometry.
     APPLICATION->settings()->set("MainWindowState", saveState().toBase64());
     APPLICATION->settings()->set("MainWindowGeometry", saveGeometry().toBase64());
-    instanceToolbarSetting->set(ui->instanceToolBar->getVisibilityState());
+    instanceToolbarSetting->set(ui->instanceToolBar->getVisibilityState().toBase64());
     event->accept();
     emit isClosing();
 }

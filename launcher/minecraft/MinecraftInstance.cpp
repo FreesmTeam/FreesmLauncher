@@ -231,6 +231,9 @@ void MinecraftInstance::loadSpecificSettings()
         auto envSetting = m_settings->registerSetting("OverrideEnv", false);
         m_settings->registerOverride(global_settings->getSetting("Env"), envSetting);
 
+        m_settings->registerSetting("UI/ColumnsOverride", false);
+        m_settings->registerSetting("UI/FolderResourceColumnVisibility", QVariantMap{});
+
         m_settings->set("InstanceType", "OneSix");
     }
 
