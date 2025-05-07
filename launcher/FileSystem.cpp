@@ -107,6 +107,10 @@ namespace fs = std::filesystem;
 
 #if defined(__MINGW32__)
 
+// Avoid re-defining structs retroactively added to MinGW
+// https://github.com/mingw-w64/mingw-w64/issues/90#issuecomment-2829284729
+#if __MINGW64_VERSION_MAJOR < 13
+
 struct _DUPLICATE_EXTENTS_DATA {
     HANDLE FileHandle;
     LARGE_INTEGER SourceFileOffset;
@@ -116,6 +120,7 @@ struct _DUPLICATE_EXTENTS_DATA {
 
 using DUPLICATE_EXTENTS_DATA = _DUPLICATE_EXTENTS_DATA;
 using PDUPLICATE_EXTENTS_DATA = _DUPLICATE_EXTENTS_DATA*;
+#endif
 
 struct _FSCTL_GET_INTEGRITY_INFORMATION_BUFFER {
     WORD ChecksumAlgorithm;  // Checksum algorithm. e.g. CHECKSUM_TYPE_UNCHANGED, CHECKSUM_TYPE_NONE, CHECKSUM_TYPE_CRC32
