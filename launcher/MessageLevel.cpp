@@ -2,19 +2,22 @@
 
 MessageLevel::Enum MessageLevel::getLevel(const QString& levelName)
 {
-    if (levelName == "Launcher")
+    QString name = levelName.toUpper();
+    if (name == "LAUNCHER")
         return MessageLevel::Launcher;
-    else if (levelName == "Debug")
+    else if (name == "TRACE")
+        return MessageLevel::Trace;
+    else if (name == "DEBUG")
         return MessageLevel::Debug;
-    else if (levelName == "Info")
+    else if (name == "INFO")
         return MessageLevel::Info;
-    else if (levelName == "Message")
+    else if (name == "MESSAGE")
         return MessageLevel::Message;
-    else if (levelName == "Warning")
+    else if (name == "WARNING" || name == "WARN")
         return MessageLevel::Warning;
-    else if (levelName == "Error")
+    else if (name == "ERROR")
         return MessageLevel::Error;
-    else if (levelName == "Fatal")
+    else if (name == "FATAL")
         return MessageLevel::Fatal;
     // Skip PrePost, it's not exposed to !![]!
     // Also skip StdErr and StdOut

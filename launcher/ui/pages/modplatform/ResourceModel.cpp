@@ -82,8 +82,8 @@ auto ResourceModel::data(const QModelIndex& index, int role) const -> QVariant
             return pack->name;
         case UserDataTypes::DESCRIPTION:
             return pack->description;
-        case UserDataTypes::SELECTED:
-            return pack->isAnyVersionSelected();
+        case Qt::CheckStateRole:
+            return pack->isAnyVersionSelected() ? Qt::Checked : Qt::Unchecked;
         case UserDataTypes::INSTALLED:
             return this->isPackInstalled(pack);
         default:
@@ -103,7 +103,6 @@ QHash<int, QByteArray> ResourceModel::roleNames() const
     roles[Qt::UserRole] = "pack";
     roles[UserDataTypes::TITLE] = "title";
     roles[UserDataTypes::DESCRIPTION] = "description";
-    roles[UserDataTypes::SELECTED] = "selected";
     roles[UserDataTypes::INSTALLED] = "installed";
 
     return roles;
@@ -193,7 +192,7 @@ void ResourceModel::search()
         runSearchJob(job);
 }
 
-void ResourceModel::loadEntry(QModelIndex& entry)
+void ResourceModel::loadEntry(const QModelIndex& entry)
 {
     auto const& pack = m_packs[entry.row()];
 
@@ -337,7 +336,7 @@ std::optional<QIcon> ResourceModel::getIcon(QModelIndex& index, const QUrl& url)
     auto icon_fetch_action = Net::ApiDownload::makeCached(url, cache_entry);
 
     auto full_file_path = cache_entry->getFullPath();
-    connect(icon_fetch_action.get(), &Task::succeeded, this, [=] {
+    connect(icon_fetch_action.get(), &Task::succeeded, this, [this, url, full_file_path, index] {
         auto icon = QIcon(full_file_path);
         QPixmapCache::insert(url.toString(), icon.pixmap(icon.actualSize({ 64, 64 })));
 
@@ -345,7 +344,7 @@ std::optional<QIcon> ResourceModel::getIcon(QModelIndex& index, const QUrl& url)
 
         emit dataChanged(index, index, { Qt::DecorationRole });
     });
-    connect(icon_fetch_action.get(), &Task::failed, this, [=] {
+    connect(icon_fetch_action.get(), &Task::failed, this, [this, url] {
         m_currently_running_icon_actions.remove(url);
         m_failed_icon_actions.insert(url);
     });
@@ -504,7 +503,7 @@ void ResourceModel::versionRequestSucceeded(QJsonDocument& doc, ModPlatform::Ind
         return;
     }
 
-    emit versionListUpdated();
+    emit versionListUpdated(index);
 }
 
 void ResourceModel::infoRequestSucceeded(QJsonDocument& doc, ModPlatform::IndexedPack& pack, const QModelIndex& index)
@@ -531,7 +530,7 @@ void ResourceModel::infoRequestSucceeded(QJsonDocument& doc, ModPlatform::Indexe
         return;
     }
 
-    emit projectInfoUpdated();
+    emit projectInfoUpdated(index);
 }
 
 void ResourceModel::addPack(ModPlatform::IndexedPack::Ptr pack,

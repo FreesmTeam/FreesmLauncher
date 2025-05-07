@@ -64,11 +64,12 @@ class ModFilterWidget : public QTabWidget {
         QString side;
         bool hideInstalled;
         QStringList categoryIds;
+        bool openSource;
 
         bool operator==(const Filter& other) const
         {
             return hideInstalled == other.hideInstalled && side == other.side && loaders == other.loaders && versions == other.versions &&
-                   releases == other.releases && categoryIds == other.categoryIds;
+                   releases == other.releases && categoryIds == other.categoryIds && openSource == other.openSource;
         }
         bool operator!=(const Filter& other) const { return !(*this == other); }
 
@@ -82,7 +83,7 @@ class ModFilterWidget : public QTabWidget {
         }
     };
 
-    static unique_qobject_ptr<ModFilterWidget> create(MinecraftInstance* instance, bool extended, QWidget* parent = nullptr);
+    ModFilterWidget(MinecraftInstance* instance, bool extendedSupport, QWidget* parent = nullptr);
     virtual ~ModFilterWidget();
 
     auto getFilter() -> std::shared_ptr<Filter>;
@@ -95,8 +96,6 @@ class ModFilterWidget : public QTabWidget {
     void setCategories(const QList<ModPlatform::Category>&);
 
    private:
-    ModFilterWidget(MinecraftInstance* instance, bool extendedSupport, QWidget* parent = nullptr);
-
     void loadVersionList();
     void prepareBasicFilter();
 
@@ -107,6 +106,8 @@ class ModFilterWidget : public QTabWidget {
     void onSideFilterChanged();
     void onHideInstalledFilterChanged();
     void onShowAllVersionsChanged();
+    void onOpenSourceFilterChanged();
+    void onReleaseFilterChanged();
 
    private:
     Ui::ModFilterWidget* ui;

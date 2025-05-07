@@ -43,20 +43,44 @@
 
 #include <FileSystem.h>
 #include <GZip.h>
+#include <QDir>
+#include <QDirIterator>
+#include <QFileSystemWatcher>
 #include <QShortcut>
-#include "RecursiveFileSystemWatcher.h"
+#include <QUrl>
 
-OtherLogsPage::OtherLogsPage(QString path, IPathMatcher::Ptr fileFilter, QWidget* parent)
-    : QWidget(parent), ui(new Ui::OtherLogsPage), m_path(path), m_fileFilter(fileFilter), m_watcher(new RecursiveFileSystemWatcher(this))
+OtherLogsPage::OtherLogsPage(InstancePtr instance, QWidget* parent)
+    : QWidget(parent)
+    , ui(new Ui::OtherLogsPage)
+    , m_instance(instance)
+    , m_basePath(instance->gameRoot())
+    , m_logSearchPaths(instance->getLogFileSearchPaths())
+    , m_model(new LogModel(this))
 {
     ui->setupUi(this);
     ui->tabWidget->tabBar()->hide();
 
-    m_watcher->setMatcher(fileFilter);
-    m_watcher->setRootDir(QDir::current().absoluteFilePath(m_path));
+    m_proxy = new LogFormatProxyModel(this);
 
-    connect(m_watcher, &RecursiveFileSystemWatcher::filesChanged, this, &OtherLogsPage::populateSelectLogBox);
-    populateSelectLogBox();
+    // set up fonts in the log proxy
+    {
+        QString fontFamily = APPLICATION->settings()->get("ConsoleFont").toString();
+        bool conversionOk = false;
+        int fontSize = APPLICATION->settings()->get("ConsoleFontSize").toInt(&conversionOk);
+        if (!conversionOk) {
+            fontSize = 11;
+        }
+        m_proxy->setFont(QFont(fontFamily, fontSize));
+    }
+
+    ui->text->setModel(m_proxy);
+
+    m_model->setMaxLines(m_instance->getConsoleMaxLines());
+    m_model->setStopOnOverflow(m_instance->shouldStopOnConsoleOverflow());
+    m_model->setOverflowMessage(tr("Cannot display this log since the log length surpassed %1 lines.").arg(m_model->getMaxLines()));
+    m_proxy->setSourceModel(m_model.get());
+
+    connect(&m_watcher, &QFileSystemWatcher::directoryChanged, this, &OtherLogsPage::populateSelectLogBox);
 
     auto findShortcut = new QShortcut(QKeySequence(QKeySequence::Find), this);
     connect(findShortcut, &QShortcut::activated, this, &OtherLogsPage::findActivated);
@@ -82,29 +106,54 @@ void OtherLogsPage::retranslate()
 
 void OtherLogsPage::openedImpl()
 {
-    m_watcher->enable();
+    const QStringList failedPaths = m_watcher.addPaths(m_logSearchPaths);
+
+    for (const QString& path : m_logSearchPaths) {
+        if (failedPaths.contains(path))
+            qDebug() << "Failed to start watching" << path;
+        else
+            qDebug() << "Started watching" << path;
+    }
+
+    populateSelectLogBox();
 }
+
 void OtherLogsPage::closedImpl()
 {
-    m_watcher->disable();
+    const QStringList failedPaths = m_watcher.removePaths(m_logSearchPaths);
+
+    for (const QString& path : m_logSearchPaths) {
+        if (failedPaths.contains(path))
+            qDebug() << "Failed to stop watching" << path;
+        else
+            qDebug() << "Stopped watching" << path;
+    }
 }
 
 void OtherLogsPage::populateSelectLogBox()
 {
+    const QString prevCurrentFile = m_currentFile;
+
+    ui->selectLogBox->blockSignals(true);
     ui->selectLogBox->clear();
-    ui->selectLogBox->addItems(m_watcher->files());
-    if (m_currentFile.isEmpty()) {
-        setControlsEnabled(false);
-        ui->selectLogBox->setCurrentIndex(-1);
-    } else {
-        const int index = ui->selectLogBox->findText(m_currentFile);
+    ui->selectLogBox->addItems(getPaths());
+    ui->selectLogBox->blockSignals(false);
+
+    if (!prevCurrentFile.isEmpty()) {
+        const int index = ui->selectLogBox->findText(prevCurrentFile);
         if (index != -1) {
+            ui->selectLogBox->blockSignals(true);
             ui->selectLogBox->setCurrentIndex(index);
+            ui->selectLogBox->blockSignals(false);
             setControlsEnabled(true);
+            // don't refresh file
+            return;
         } else {
             setControlsEnabled(false);
         }
     }
+
+    on_selectLogBox_currentIndexChanged(ui->selectLogBox->currentIndex());
 }
 
 void OtherLogsPage::on_selectLogBox_currentIndexChanged(const int index)
@@ -114,7 +163,7 @@ void OtherLogsPage::on_selectLogBox_currentIndexChanged(const int index)
         file = ui->selectLogBox->itemText(index);
     }
 
-    if (file.isEmpty() || !QFile::exists(FS::PathCombine(m_path, file))) {
+    if (file.isEmpty() || !QFile::exists(FS::PathCombine(m_basePath, file))) {
         m_currentFile = QString();
         ui->text->clear();
         setControlsEnabled(false);
@@ -131,25 +180,19 @@ void OtherLogsPage::on_btnReload_clicked()
         setControlsEnabled(false);
         return;
     }
-    QFile file(FS::PathCombine(m_path, m_currentFile));
+    QFile file(FS::PathCombine(m_basePath, m_currentFile));
     if (!file.open(QFile::ReadOnly)) {
         setControlsEnabled(false);
         ui->btnReload->setEnabled(true);  // allow reload
         m_currentFile = QString();
         QMessageBox::critical(this, tr("Error"), tr("Unable to open %1 for reading: %2").arg(m_currentFile, file.errorString()));
     } else {
-        auto setPlainText = [&](const QString& text) {
-            QString fontFamily = APPLICATION->settings()->get("ConsoleFont").toString();
-            bool conversionOk = false;
-            int fontSize = APPLICATION->settings()->get("ConsoleFontSize").toInt(&conversionOk);
-            if (!conversionOk) {
-                fontSize = 11;
-            }
+        auto setPlainText = [this](const QString& text) {
             QTextDocument* doc = ui->text->document();
-            doc->setDefaultFont(QFont(fontFamily, fontSize));
+            doc->setDefaultFont(m_proxy->getFont());
             ui->text->setPlainText(text);
         };
-        auto showTooBig = [&]() {
+        auto showTooBig = [setPlainText, &file]() {
             setPlainText(tr("The file (%1) is too big. You may want to open it in a viewer optimized "
                             "for large files.")
                              .arg(file.fileName()));
@@ -158,22 +201,65 @@ void OtherLogsPage::on_btnReload_clicked()
             showTooBig();
             return;
         }
-        QString content;
-        if (file.fileName().endsWith(".gz")) {
-            QByteArray temp;
-            if (!GZip::unzip(file.readAll(), temp)) {
-                setPlainText(tr("The file (%1) is not readable.").arg(file.fileName()));
-                return;
+        MessageLevel::Enum last = MessageLevel::Unknown;
+
+        auto handleLine = [this, &last](QString line) {
+            if (line.isEmpty())
+                return false;
+            if (line.back() == '\n')
+                line = line.remove(line.size() - 1, 1);
+            MessageLevel::Enum level = MessageLevel::Unknown;
+
+            // if the launcher part set a log level, use it
+            auto innerLevel = MessageLevel::fromLine(line);
+            if (innerLevel != MessageLevel::Unknown) {
+                level = innerLevel;
             }
-            content = QString::fromUtf8(temp);
+
+            // If the level is still undetermined, guess level
+            if (level == MessageLevel::StdErr || level == MessageLevel::StdOut || level == MessageLevel::Unknown) {
+                level = LogParser::guessLevel(line, last);
+            }
+
+            last = level;
+            m_model->append(level, line);
+            return m_model->isOverFlow();
+        };
+
+        // Try to determine a level for each line
+        ui->text->clear();
+        ui->text->setModel(nullptr);
+        m_model->clear();
+        if (file.fileName().endsWith(".gz")) {
+            QString line;
+            auto error = GZip::readGzFileByBlocks(&file, [&line, handleLine](const QByteArray& d) {
+                auto block = d;
+                int newlineIndex = block.indexOf('\n');
+                while (newlineIndex != -1) {
+                    line += QString::fromUtf8(block).left(newlineIndex);
+                    block.remove(0, newlineIndex + 1);
+                    if (handleLine(line)) {
+                        line.clear();
+                        return false;
+                    }
+                    line.clear();
+                    newlineIndex = block.indexOf('\n');
+                }
+                line += QString::fromUtf8(block);
+                return true;
+            });
+            if (!error.isEmpty()) {
+                setPlainText(tr("The file (%1) encountered an error when reading: %2.").arg(file.fileName(), error));
+                return;
+            } else if (!line.isEmpty()) {
+                handleLine(line);
+            }
         } else {
-            content = QString::fromUtf8(file.readAll());
+            while (!file.atEnd() && !handleLine(QString::fromUtf8(file.readLine()))) {
+            }
         }
-        if (content.size() >= 50000000ll) {
-            showTooBig();
-            return;
-        }
-        setPlainText(content);
+        ui->text->setModel(m_proxy);
+        ui->text->scrollToBottom();
     }
 }
 
@@ -185,6 +271,11 @@ void OtherLogsPage::on_btnPaste_clicked()
 void OtherLogsPage::on_btnCopy_clicked()
 {
     GuiUtil::setClipboardText(ui->text->toPlainText());
+}
+
+void OtherLogsPage::on_btnBottom_clicked()
+{
+    ui->text->scrollToBottom();
 }
 
 void OtherLogsPage::on_btnDelete_clicked()
@@ -201,7 +292,7 @@ void OtherLogsPage::on_btnDelete_clicked()
                               QMessageBox::Yes, QMessageBox::No) == QMessageBox::No) {
         return;
     }
-    QFile file(FS::PathCombine(m_path, m_currentFile));
+    QFile file(FS::PathCombine(m_basePath, m_currentFile));
 
     if (FS::trash(file.fileName())) {
         return;
@@ -214,7 +305,7 @@ void OtherLogsPage::on_btnDelete_clicked()
 
 void OtherLogsPage::on_btnClean_clicked()
 {
-    auto toDelete = m_watcher->files();
+    auto toDelete = getPaths();
     if (toDelete.isEmpty()) {
         return;
     }
@@ -237,7 +328,9 @@ void OtherLogsPage::on_btnClean_clicked()
     }
     QStringList failed;
     for (auto item : toDelete) {
-        QFile file(FS::PathCombine(m_path, item));
+        QString absolutePath = FS::PathCombine(m_basePath, item);
+        QFile file(absolutePath);
+        qDebug() << "Deleting log" << absolutePath;
         if (FS::trash(file.fileName())) {
             continue;
         }
@@ -263,6 +356,24 @@ void OtherLogsPage::on_btnClean_clicked()
     }
 }
 
+void OtherLogsPage::on_wrapCheckbox_clicked(bool checked)
+{
+    ui->text->setWordWrap(checked);
+    if (!m_model)
+        return;
+    m_model->setLineWrap(checked);
+    ui->text->scrollToBottom();
+}
+
+void OtherLogsPage::on_colorCheckbox_clicked(bool checked)
+{
+    ui->text->setColorLines(checked);
+    if (!m_model)
+        return;
+    m_model->setColorLines(checked);
+    ui->text->scrollToBottom();
+}
+
 void OtherLogsPage::setControlsEnabled(const bool enabled)
 {
     ui->btnReload->setEnabled(enabled);
@@ -273,27 +384,44 @@ void OtherLogsPage::setControlsEnabled(const bool enabled)
     ui->btnClean->setEnabled(enabled);
 }
 
-// FIXME: HACK, use LogView instead?
-static void findNext(QPlainTextEdit* _this, const QString& what, bool reverse)
+QStringList OtherLogsPage::getPaths()
 {
-    _this->find(what, reverse ? QTextDocument::FindFlag::FindBackward : QTextDocument::FindFlag(0));
+    QDir baseDir(m_basePath);
+
+    QStringList result;
+
+    for (QString searchPath : m_logSearchPaths) {
+        QDir searchDir(searchPath);
+
+        QStringList filters{ "*.log", "*.log.gz" };
+
+        if (searchPath != m_basePath)
+            filters.append("*.txt");
+
+        QStringList entries = searchDir.entryList(filters, QDir::Files | QDir::Readable, QDir::SortFlag::Time);
+
+        for (const QString& name : entries)
+            result.append(baseDir.relativeFilePath(searchDir.filePath(name)));
+    }
+
+    return result;
 }
 
 void OtherLogsPage::on_findButton_clicked()
 {
     auto modifiers = QApplication::keyboardModifiers();
     bool reverse = modifiers & Qt::ShiftModifier;
-    findNext(ui->text, ui->searchBar->text(), reverse);
+    ui->text->findNext(ui->searchBar->text(), reverse);
 }
 
 void OtherLogsPage::findNextActivated()
 {
-    findNext(ui->text, ui->searchBar->text(), false);
+    ui->text->findNext(ui->searchBar->text(), false);
 }
 
 void OtherLogsPage::findPreviousActivated()
 {
-    findNext(ui->text, ui->searchBar->text(), true);
+    ui->text->findNext(ui->searchBar->text(), true);
 }
 
 void OtherLogsPage::findActivated()

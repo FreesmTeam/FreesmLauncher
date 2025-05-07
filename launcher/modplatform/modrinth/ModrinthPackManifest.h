@@ -40,10 +40,10 @@
 
 #include <QByteArray>
 #include <QCryptographicHash>
+#include <QList>
 #include <QQueue>
 #include <QString>
 #include <QUrl>
-#include <QVector>
 
 #include "modplatform/ModIndex.h"
 
@@ -110,7 +110,7 @@ struct Modpack {
     bool extraInfoLoaded = false;
 
     ModpackExtra extra;
-    QVector<ModpackVersion> versions;
+    QList<ModpackVersion> versions;
 };
 
 void loadIndexedPack(Modpack&, QJsonObject&);

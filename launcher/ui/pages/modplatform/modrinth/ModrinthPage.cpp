@@ -375,7 +375,7 @@ void ModrinthPage::onVersionSelectionChanged(int index)
         selectedVersion = "";
         return;
     }
-    selectedVersion = ui->versionSelectionBox->currentData().toString();
+    selectedVersion = ui->versionSelectionBox->itemData(index).toString();
     suggestCurrent();
 }
 
@@ -391,17 +391,19 @@ QString ModrinthPage::getSerachTerm() const
 
 void ModrinthPage::createFilterWidget()
 {
-    auto widget = ModFilterWidget::create(nullptr, true, this);
-    m_filterWidget.swap(widget);
-    auto old = ui->splitter->replaceWidget(0, m_filterWidget.get());
+    auto widget = new ModFilterWidget(nullptr, true, this);
+    if (m_filterWidget)
+        m_filterWidget->deleteLater();
+    m_filterWidget = widget;
+    auto old = ui->splitter->replaceWidget(0, m_filterWidget);
     // because we replaced the widget we also need to delete it
     if (old) {
-        delete old;
+        old->deleteLater();
     }
 
     connect(ui->filterButton, &QPushButton::clicked, this, [this] { m_filterWidget->setHidden(!m_filterWidget->isHidden()); });
 
-    connect(m_filterWidget.get(), &ModFilterWidget::filterChanged, this, &ModrinthPage::triggerSearch);
+    connect(m_filterWidget, &ModFilterWidget::filterChanged, this, &ModrinthPage::triggerSearch);
     auto response = std::make_shared<QByteArray>();
     m_categoriesTask = ModrinthAPI::getModCategories(response);
     QObject::connect(m_categoriesTask.get(), &Task::succeeded, [this, response]() {

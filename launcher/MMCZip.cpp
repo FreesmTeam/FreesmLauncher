@@ -378,7 +378,7 @@ std::optional<QStringList> extractDir(QString fileCompressed, QString dir)
         if (fileInfo.size() == 22) {
             return QStringList();
         }
-        qWarning() << "Could not open archive for unzipping:" << fileCompressed << "Error:" << zip.getZipError();
+        qWarning() << "Could not open archive for unpacking:" << fileCompressed << "Error:" << zip.getZipError();
         ;
         return std::nullopt;
     }
@@ -395,7 +395,7 @@ std::optional<QStringList> extractDir(QString fileCompressed, QString subdir, QS
         if (fileInfo.size() == 22) {
             return QStringList();
         }
-        qWarning() << "Could not open archive for unzipping:" << fileCompressed << "Error:" << zip.getZipError();
+        qWarning() << "Could not open archive for unpacking:" << fileCompressed << "Error:" << zip.getZipError();
         ;
         return std::nullopt;
     }
@@ -412,13 +412,13 @@ bool extractFile(QString fileCompressed, QString file, QString target)
         if (fileInfo.size() == 22) {
             return true;
         }
-        qWarning() << "Could not open archive for unzipping:" << fileCompressed << "Error:" << zip.getZipError();
+        qWarning() << "Could not open archive for unpacking:" << fileCompressed << "Error:" << zip.getZipError();
         return false;
     }
     return extractRelFile(&zip, file, target);
 }
 
-bool collectFileListRecursively(const QString& rootDir, const QString& subDir, QFileInfoList* files, FilterFunction excludeFilter)
+bool collectFileListRecursively(const QString& rootDir, const QString& subDir, QFileInfoList* files, FilterFileFunction excludeFilter)
 {
     QDir rootDirectory(rootDir);
     if (!rootDirectory.exists())
@@ -443,8 +443,8 @@ bool collectFileListRecursively(const QString& rootDir, const QString& subDir, Q
     // collect files
     entries = directory.entryInfoList(QDir::Files);
     for (const auto& e : entries) {
-        QString relativeFilePath = rootDirectory.relativeFilePath(e.absoluteFilePath());
-        if (excludeFilter && excludeFilter(relativeFilePath)) {
+        if (excludeFilter && excludeFilter(e)) {
+            QString relativeFilePath = rootDirectory.relativeFilePath(e.absoluteFilePath());
             qDebug() << "Skipping file " << relativeFilePath;
             continue;
         }
@@ -577,7 +577,7 @@ auto ExtractZipTask::extractZip() -> ZipResult
 
         auto relative_file_name = QDir::fromNativeSeparators(file_name.mid(m_subdirectory.size()));
         auto original_name = relative_file_name;
-        setStatus("Unziping: " + relative_file_name);
+        setStatus("Unpacking: " + relative_file_name);
 
         // Fix subdirs/files ending with a / getting transformed into absolute paths
         if (relative_file_name.startsWith('/'))

@@ -49,11 +49,6 @@
 #include "Application.h"
 #include "minecraft/PackProfile.h"
 
-unique_qobject_ptr<ModFilterWidget> ModFilterWidget::create(MinecraftInstance* instance, bool extended, QWidget* parent)
-{
-    return unique_qobject_ptr<ModFilterWidget>(new ModFilterWidget(instance, extended, parent));
-}
-
 class VersionBasicModel : public QIdentityProxyModel {
     Q_OBJECT
 
@@ -134,6 +129,7 @@ ModFilterWidget::ModFilterWidget(MinecraftInstance* instance, bool extended, QWi
         ui->versions->hide();
         ui->showAllVersions->hide();
         ui->environmentGroup->hide();
+        ui->openSource->hide();
     }
 
     ui->versions->setStyleSheet("combobox-popup: 0;");
@@ -147,11 +143,10 @@ ModFilterWidget::ModFilterWidget(MinecraftInstance* instance, bool extended, QWi
     connect(ui->forge, &QCheckBox::stateChanged, this, &ModFilterWidget::onLoadersFilterChanged);
     connect(ui->fabric, &QCheckBox::stateChanged, this, &ModFilterWidget::onLoadersFilterChanged);
     connect(ui->quilt, &QCheckBox::stateChanged, this, &ModFilterWidget::onLoadersFilterChanged);
-
-    connect(ui->neoForge, &QCheckBox::stateChanged, this, &ModFilterWidget::onLoadersFilterChanged);
-    connect(ui->forge, &QCheckBox::stateChanged, this, &ModFilterWidget::onLoadersFilterChanged);
-    connect(ui->fabric, &QCheckBox::stateChanged, this, &ModFilterWidget::onLoadersFilterChanged);
-    connect(ui->quilt, &QCheckBox::stateChanged, this, &ModFilterWidget::onLoadersFilterChanged);
+    if (extended)
+        connect(ui->liteLoader, &QCheckBox::stateChanged, this, &ModFilterWidget::onLoadersFilterChanged);
+    else
+        ui->liteLoader->setVisible(false);
 
     if (extended) {
         connect(ui->clientSide, &QCheckBox::stateChanged, this, &ModFilterWidget::onSideFilterChanged);
@@ -159,6 +154,12 @@ ModFilterWidget::ModFilterWidget(MinecraftInstance* instance, bool extended, QWi
     }
 
     connect(ui->hideInstalled, &QCheckBox::stateChanged, this, &ModFilterWidget::onHideInstalledFilterChanged);
+    connect(ui->openSource, &QCheckBox::stateChanged, this, &ModFilterWidget::onOpenSourceFilterChanged);
+
+    connect(ui->releaseCb, &QCheckBox::stateChanged, this, &ModFilterWidget::onReleaseFilterChanged);
+    connect(ui->betaCb, &QCheckBox::stateChanged, this, &ModFilterWidget::onReleaseFilterChanged);
+    connect(ui->alphaCb, &QCheckBox::stateChanged, this, &ModFilterWidget::onReleaseFilterChanged);
+    connect(ui->unknownCb, &QCheckBox::stateChanged, this, &ModFilterWidget::onReleaseFilterChanged);
 
     setHidden(true);
     loadVersionList();
@@ -208,6 +209,7 @@ void ModFilterWidget::loadVersionList()
 
 void ModFilterWidget::prepareBasicFilter()
 {
+    m_filter->openSource = false;
     if (m_instance) {
         m_filter->hideInstalled = false;
         m_filter->side = "";  // or "both"
@@ -216,6 +218,7 @@ void ModFilterWidget::prepareBasicFilter()
         ui->forge->setChecked(loaders & ModPlatform::Forge);
         ui->fabric->setChecked(loaders & ModPlatform::Fabric);
         ui->quilt->setChecked(loaders & ModPlatform::Quilt);
+        ui->liteLoader->setChecked(loaders & ModPlatform::LiteLoader);
         m_filter->loaders = loaders;
         auto def = m_instance->getPackProfile()->getComponentVersion("net.minecraft");
         m_filter->versions.emplace_front(def);
@@ -261,6 +264,8 @@ void ModFilterWidget::onLoadersFilterChanged()
         loaders |= ModPlatform::Fabric;
     if (ui->quilt->isChecked())
         loaders |= ModPlatform::Quilt;
+    if (ui->liteLoader->isChecked())
+        loaders |= ModPlatform::LiteLoader;
     m_filter_changed = loaders != m_filter->loaders;
     m_filter->loaders = loaders;
     if (m_filter_changed)
@@ -271,13 +276,13 @@ void ModFilterWidget::onSideFilterChanged()
 {
     QString side;
 
-    if (ui->clientSide->isChecked() != ui->serverSide->isChecked()) {
-        if (ui->clientSide->isChecked())
-            side = "client";
-        else
-            side = "server";
+    if (ui->clientSide->isChecked() && !ui->serverSide->isChecked()) {
+        side = "client";
+    } else if (!ui->clientSide->isChecked() && ui->serverSide->isChecked()) {
+        side = "server";
+    } else if (ui->clientSide->isChecked() && ui->serverSide->isChecked()) {
+        side = "both";
     } else {
-        // both are checked or none are checked; in either case no filtering will happen
         side = "";
     }
 
@@ -335,6 +340,32 @@ void ModFilterWidget::setCategories(const QList<ModPlatform::Category>& categori
             emit filterChanged();
         });
     }
+}
+
+void ModFilterWidget::onOpenSourceFilterChanged()
+{
+    auto open = ui->openSource->isChecked();
+    m_filter_changed = open != m_filter->openSource;
+    m_filter->openSource = open;
+    if (m_filter_changed)
+        emit filterChanged();
+}
+
+void ModFilterWidget::onReleaseFilterChanged()
+{
+    std::list<ModPlatform::IndexedVersionType> releases;
+    if (ui->releaseCb->isChecked())
+        releases.push_back(ModPlatform::IndexedVersionType(ModPlatform::IndexedVersionType::VersionType::Release));
+    if (ui->betaCb->isChecked())
+        releases.push_back(ModPlatform::IndexedVersionType(ModPlatform::IndexedVersionType::VersionType::Beta));
+    if (ui->alphaCb->isChecked())
+        releases.push_back(ModPlatform::IndexedVersionType(ModPlatform::IndexedVersionType::VersionType::Alpha));
+    if (ui->unknownCb->isChecked())
+        releases.push_back(ModPlatform::IndexedVersionType(ModPlatform::IndexedVersionType::VersionType::Unknown));
+    m_filter_changed = releases != m_filter->releases;
+    m_filter->releases = releases;
+    if (m_filter_changed)
+        emit filterChanged();
 }
 
 #include "ModFilterWidget.moc"

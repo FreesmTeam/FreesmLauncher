@@ -273,7 +273,7 @@ void FlamePage::suggestCurrent()
 void FlamePage::onVersionSelectionChanged(int index)
 {
     bool is_blocked = false;
-    ui->versionSelectionBox->currentData().toInt(&is_blocked);
+    ui->versionSelectionBox->itemData(index).toInt(&is_blocked);
 
     if (index == -1 || is_blocked) {
         m_selected_version_index = -1;
@@ -341,17 +341,20 @@ void FlamePage::setSearchTerm(QString term)
 
 void FlamePage::createFilterWidget()
 {
-    auto widget = ModFilterWidget::create(nullptr, false, this);
-    m_filterWidget.swap(widget);
-    auto old = ui->splitter->replaceWidget(0, m_filterWidget.get());
+    auto widget = new ModFilterWidget(nullptr, false, this);
+    if (m_filterWidget) {
+        m_filterWidget->deleteLater();
+    }
+    m_filterWidget = (widget);
+    auto old = ui->splitter->replaceWidget(0, m_filterWidget);
     // because we replaced the widget we also need to delete it
     if (old) {
-        delete old;
+        old->deleteLater();
     }
 
     connect(ui->filterButton, &QPushButton::clicked, this, [this] { m_filterWidget->setHidden(!m_filterWidget->isHidden()); });
 
-    connect(m_filterWidget.get(), &ModFilterWidget::filterChanged, this, &FlamePage::triggerSearch);
+    connect(m_filterWidget, &ModFilterWidget::filterChanged, this, &FlamePage::triggerSearch);
     auto response = std::make_shared<QByteArray>();
     m_categoriesTask = FlameAPI::getCategories(response, ModPlatform::ResourceType::MODPACK);
     QObject::connect(m_categoriesTask.get(), &Task::succeeded, [this, response]() {

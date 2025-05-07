@@ -65,6 +65,15 @@ enum InstSortMode {
     Sort_LastLaunch
 };
 
+enum InstRenamingMode {
+    // Rename metadata only.
+    Rename_Always,
+    // Ask everytime.
+    Rename_Ask,
+    // Rename physical directory too.
+    Rename_Never
+};
+
 LauncherPage::LauncherPage(QWidget* parent) : QWidget(parent), ui(new Ui::LauncherPage)
 {
     ui->setupUi(this);
@@ -217,9 +226,6 @@ void LauncherPage::applySettings()
     s->set("RequestTimeout", ui->timeoutSecondsSpinBox->value());
 
     // Console settings
-    s->set("ShowConsole", ui->showConsoleCheck->isChecked());
-    s->set("AutoCloseConsole", ui->autoCloseConsoleCheck->isChecked());
-    s->set("ShowConsoleOnError", ui->showConsoleErrorCheck->isChecked());
     QString consoleFontFamily = ui->consoleFont->currentFont().family();
     s->set("ConsoleFont", consoleFontFamily);
     s->set("ConsoleFontSize", ui->fontSizeBox->value());
@@ -235,7 +241,9 @@ void LauncherPage::applySettings()
     s->set("SkinsDir", ui->skinsDirTextBox->text());
     s->set("JavaDir", ui->javaDirTextBox->text());
     s->set("DownloadsDirWatchRecursive", ui->downloadsDirWatchRecursiveCheckBox->isChecked());
+    s->set("MoveModsFromDownloadsDir", ui->downloadsDirMoveCheckBox->isChecked());
 
+    // Instance
     auto sortMode = (InstSortMode)ui->sortingModeGroup->checkedId();
     switch (sortMode) {
         case Sort_LastLaunch:
@@ -244,6 +252,20 @@ void LauncherPage::applySettings()
         case Sort_Name:
         default:
             s->set("InstSortMode", "Name");
+            break;
+    }
+
+    auto renamingMode = (InstRenamingMode)ui->renamingBehaviorComboBox->currentIndex();
+    switch (renamingMode) {
+        case Rename_Always:
+            s->set("InstRenamingMode", "MetadataOnly");
+            break;
+        case Rename_Never:
+            s->set("InstRenamingMode", "PhysicalDir");
+            break;
+        case Rename_Ask:
+        default:
+            s->set("InstRenamingMode", "AskEverytime");
             break;
     }
 
@@ -277,9 +299,6 @@ void LauncherPage::loadSettings()
     ui->timeoutSecondsSpinBox->setValue(s->get("RequestTimeout").toInt());
 
     // Console settings
-    ui->showConsoleCheck->setChecked(s->get("ShowConsole").toBool());
-    ui->autoCloseConsoleCheck->setChecked(s->get("AutoCloseConsole").toBool());
-    ui->showConsoleErrorCheck->setChecked(s->get("ShowConsoleOnError").toBool());
     QString fontFamily = APPLICATION->settings()->get("ConsoleFont").toString();
     QFont consoleFont(fontFamily);
     ui->consoleFont->setCurrentFont(consoleFont);
@@ -302,14 +321,26 @@ void LauncherPage::loadSettings()
     ui->skinsDirTextBox->setText(s->get("SkinsDir").toString());
     ui->javaDirTextBox->setText(s->get("JavaDir").toString());
     ui->downloadsDirWatchRecursiveCheckBox->setChecked(s->get("DownloadsDirWatchRecursive").toBool());
+    ui->downloadsDirMoveCheckBox->setChecked(s->get("MoveModsFromDownloadsDir").toBool());
 
+    // Instance
     QString sortMode = s->get("InstSortMode").toString();
-
     if (sortMode == "LastLaunch") {
         ui->sortLastLaunchedBtn->setChecked(true);
     } else {
         ui->sortByNameBtn->setChecked(true);
     }
+
+    QString renamingMode = s->get("InstRenamingMode").toString();
+    InstRenamingMode renamingModeEnum;
+    if (renamingMode == "MetadataOnly") {
+        renamingModeEnum = Rename_Always;
+    } else if (renamingMode == "PhysicalDir") {
+        renamingModeEnum = Rename_Never;
+    } else {
+        renamingModeEnum = Rename_Ask;
+    }
+    ui->renamingBehaviorComboBox->setCurrentIndex(renamingModeEnum);
 
     // Cat
     ui->catOpacitySpinBox->setValue(s->get("CatOpacity").toInt());

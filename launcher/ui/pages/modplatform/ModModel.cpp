@@ -39,10 +39,12 @@ ResourceAPI::SearchArgs ModModel::createSearchArguments()
 
     auto sort = getCurrentSortingMethodByIndex();
 
-    return { ModPlatform::ResourceType::MOD, m_next_search_offset, m_search_term, sort, loaders, versions, side, categories };
+    return {
+        ModPlatform::ResourceType::MOD, m_next_search_offset, m_search_term, sort, loaders, versions, side, categories, m_filter->openSource
+    };
 }
 
-ResourceAPI::VersionSearchArgs ModModel::createVersionsArguments(QModelIndex& entry)
+ResourceAPI::VersionSearchArgs ModModel::createVersionsArguments(const QModelIndex& entry)
 {
     auto& pack = *m_packs[entry.row()];
     auto profile = static_cast<MinecraftInstance const&>(m_base_instance).getPackProfile();
@@ -60,7 +62,7 @@ ResourceAPI::VersionSearchArgs ModModel::createVersionsArguments(QModelIndex& en
     return { pack, versions, loaders };
 }
 
-ResourceAPI::ProjectInfoArgs ModModel::createInfoArguments(QModelIndex& entry)
+ResourceAPI::ProjectInfoArgs ModModel::createInfoArguments(const QModelIndex& entry)
 {
     auto& pack = *m_packs[entry.row()];
     return { pack };

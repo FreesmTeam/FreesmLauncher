@@ -124,10 +124,7 @@ void VersionPage::retranslate()
 void VersionPage::openedImpl()
 {
     auto const setting_name = QString("WideBarVisibility_%1").arg(id());
-    if (!APPLICATION->settings()->contains(setting_name))
-        m_wide_bar_setting = APPLICATION->settings()->registerSetting(setting_name);
-    else
-        m_wide_bar_setting = APPLICATION->settings()->getSetting(setting_name);
+    m_wide_bar_setting = APPLICATION->settings()->getOrRegisterSetting(setting_name);
 
     ui->toolBar->setVisibilityState(m_wide_bar_setting->get().toByteArray());
 }
@@ -243,7 +240,7 @@ void VersionPage::updateButtons(int row)
     ui->actionRemove->setEnabled(patch && patch->isRemovable());
     ui->actionMove_down->setEnabled(patch && patch->isMoveable());
     ui->actionMove_up->setEnabled(patch && patch->isMoveable());
-    ui->actionChange_version->setEnabled(patch && patch->isVersionChangeable());
+    ui->actionChange_version->setEnabled(patch && patch->isVersionChangeable(false));
     ui->actionEdit->setEnabled(patch && patch->isCustom());
     ui->actionCustomize->setEnabled(patch && patch->isCustomizable());
     ui->actionRevert->setEnabled(patch && patch->isRevertible());
@@ -252,8 +249,11 @@ void VersionPage::updateButtons(int row)
 bool VersionPage::reloadPackProfile()
 {
     try {
-        m_profile->reload(Net::Mode::Online);
-        return true;
+        auto result = m_profile->reload(Net::Mode::Online);
+        if (!result) {
+            QMessageBox::critical(this, tr("Error"), result.error);
+        }
+        return result;
     } catch (const Exception& e) {
         QMessageBox::critical(this, tr("Error"), e.cause());
         return false;
@@ -435,7 +435,7 @@ void VersionPage::on_actionDownload_All_triggered()
     if (updateTasks.isEmpty()) {
         return;
     }
-    auto task = makeShared<SequentialTask>(this);
+    auto task = makeShared<SequentialTask>();
     for (auto t : updateTasks) {
         task->addTask(t);
     }

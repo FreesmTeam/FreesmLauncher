@@ -68,8 +68,8 @@ class ThemeManager {
     QDir m_applicationThemeFolder{ "themes" };
     QDir m_catPacksFolder{ "catpacks" };
     std::map<QString, std::unique_ptr<CatPack>> m_catPacks;
-    QString m_defaultStyle;
     QPalette m_defaultPalette;
+    QString m_defaultStyle;
     LogColors m_logColors;
 
     void initializeThemes();

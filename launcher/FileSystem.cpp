@@ -77,24 +77,8 @@
 #include <utime.h>
 #endif
 
-// Snippet from https://github.com/gulrak/filesystem#using-it-as-single-file-header
-
-#ifdef __APPLE__
-#include <Availability.h>  // for deployment target to support pre-catalina targets without std::fs
-#endif                     // __APPLE__
-
-#if ((defined(_MSVC_LANG) && _MSVC_LANG >= 201703L) || (defined(__cplusplus) && __cplusplus >= 201703L)) && defined(__has_include)
-#if __has_include(<filesystem>) && (!defined(__MAC_OS_X_VERSION_MIN_REQUIRED) || __MAC_OS_X_VERSION_MIN_REQUIRED >= 101500)
-#define GHC_USE_STD_FS
 #include <filesystem>
 namespace fs = std::filesystem;
-#endif  // MacOS min version check
-#endif  // Other OSes version check
-
-#ifndef GHC_USE_STD_FS
-#include <ghc/filesystem.hpp>
-namespace fs = ghc::filesystem;
-#endif
 
 // clone
 #if defined(Q_OS_LINUX)
@@ -341,7 +325,7 @@ bool copy::operator()(const QString& offset, bool dryRun)
         opt |= copy_opts::overwrite_existing;
 
     // Function that'll do the actual copying
-    auto copy_file = [&](QString src_path, QString relative_dst_path) {
+    auto copy_file = [this, dryRun, src, dst, opt, &err](QString src_path, QString relative_dst_path) {
         if (m_matcher && (m_matcher->matches(relative_dst_path) != m_whitelist))
             return;
 
@@ -428,7 +412,7 @@ void create_link::make_link_list(const QString& offset)
             m_recursive = true;
 
         // Function that'll do the actual linking
-        auto link_file = [&](QString src_path, QString relative_dst_path) {
+        auto link_file = [this, dst](QString src_path, QString relative_dst_path) {
             if (m_matcher && (m_matcher->matches(relative_dst_path) != m_whitelist)) {
                 qDebug() << "path" << relative_dst_path << "in black list or not in whitelist";
                 return;
@@ -523,7 +507,7 @@ void create_link::runPrivileged(const QString& offset)
 
     QString serverName = BuildConfig.LAUNCHER_APP_BINARY_NAME + "_filelink_server" + StringUtils::getRandomAlphaNumeric();
 
-    connect(&m_linkServer, &QLocalServer::newConnection, this, [&]() {
+    connect(&m_linkServer, &QLocalServer::newConnection, this, [this, &gotResults]() {
         qDebug() << "Client connected, sending out pairs";
         // construct block of data to send
         QByteArray block;
@@ -605,7 +589,7 @@ void create_link::runPrivileged(const QString& offset)
     }
 
     ExternalLinkFileProcess* linkFileProcess = new ExternalLinkFileProcess(serverName, m_useHardLinks, this);
-    connect(linkFileProcess, &ExternalLinkFileProcess::processExited, this, [&]() { emit finishedPrivileged(gotResults); });
+    connect(linkFileProcess, &ExternalLinkFileProcess::processExited, this, [this, gotResults]() { emit finishedPrivileged(gotResults); });
     connect(linkFileProcess, &ExternalLinkFileProcess::finished, linkFileProcess, &QObject::deleteLater);
 
     linkFileProcess->start();
@@ -695,9 +679,6 @@ bool deletePath(QString path)
 
 bool trash(QString path, QString* pathInTrash)
 {
-#if QT_VERSION < QT_VERSION_CHECK(5, 15, 0)
-    return false;
-#else
     // FIXME: Figure out trash in Flatpak. Qt seemingly doesn't use the Trash portal
     if (DesktopServices::isFlatpak())
         return false;
@@ -706,7 +687,6 @@ bool trash(QString path, QString* pathInTrash)
         return false;
 #endif
     return QFile::moveToTrash(path, pathInTrash);
-#endif
 }
 
 QString PathCombine(const QString& path1, const QString& path2)
@@ -740,11 +720,7 @@ int pathDepth(const QString& path)
 
     QFileInfo info(path);
 
-#if QT_VERSION < QT_VERSION_CHECK(5, 14, 0)
-    auto parts = QDir::toNativeSeparators(info.path()).split(QDir::separator(), QString::SkipEmptyParts);
-#else
     auto parts = QDir::toNativeSeparators(info.path()).split(QDir::separator(), Qt::SkipEmptyParts);
-#endif
 
     int numParts = parts.length();
     numParts -= parts.count(".");
@@ -764,11 +740,7 @@ QString pathTruncate(const QString& path, int depth)
         return pathTruncate(trunc, depth);
     }
 
-#if QT_VERSION < QT_VERSION_CHECK(5, 14, 0)
-    auto parts = QDir::toNativeSeparators(trunc).split(QDir::separator(), QString::SkipEmptyParts);
-#else
     auto parts = QDir::toNativeSeparators(trunc).split(QDir::separator(), Qt::SkipEmptyParts);
-#endif
 
     if (parts.startsWith(".") && !path.startsWith(".")) {
         parts.removeFirst();
@@ -946,7 +918,7 @@ bool createShortcut(QString destination, QString target, QStringList args, QStri
     QDir content = application.path() + "/Contents/";
     QDir resources = content.path() + "/Resources/";
     QDir binaryDir = content.path() + "/MacOS/";
-    QFile info = content.path() + "/Info.plist";
+    QFile info(content.path() + "/Info.plist");
 
     if (!(content.mkpath(".") && resources.mkpath(".") && binaryDir.mkpath("."))) {
         qWarning() << "Couldn't create directories within application";
@@ -1291,7 +1263,7 @@ bool clone::operator()(const QString& offset, bool dryRun)
     std::error_code err;
 
     // Function that'll do the actual cloneing
-    auto cloneFile = [&](QString src_path, QString relative_dst_path) {
+    auto cloneFile = [this, dryRun, dst, &err](QString src_path, QString relative_dst_path) {
         if (m_matcher && (m_matcher->matches(relative_dst_path) != m_whitelist))
             return;
 

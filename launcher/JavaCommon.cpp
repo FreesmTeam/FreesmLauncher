@@ -41,7 +41,9 @@
 
 bool JavaCommon::checkJVMArgs(QString jvmargs, QWidget* parent)
 {
-    if (jvmargs.contains("-XX:PermSize=") || jvmargs.contains(QRegularExpression("-Xm[sx]")) || jvmargs.contains("-XX-MaxHeapSize") ||
+    static const QRegularExpression s_memRegex("-Xm[sx]");
+    static const QRegularExpression s_versionRegex("-version:.*");
+    if (jvmargs.contains("-XX:PermSize=") || jvmargs.contains(s_memRegex) || jvmargs.contains("-XX-MaxHeapSize") ||
         jvmargs.contains("-XX:InitialHeapSize")) {
         auto warnStr = QObject::tr(
             "You tried to manually set a JVM memory option (using \"-XX:PermSize\", \"-XX-MaxHeapSize\", \"-XX:InitialHeapSize\", \"-Xmx\" "
@@ -52,7 +54,7 @@ bool JavaCommon::checkJVMArgs(QString jvmargs, QWidget* parent)
         return false;
     }
     // block lunacy with passing required version to the JVM
-    if (jvmargs.contains(QRegularExpression("-version:.*"))) {
+    if (jvmargs.contains(s_versionRegex)) {
         auto warnStr = QObject::tr(
             "You tried to pass required Java version argument to the JVM (using \"-version:xxx\"). This is not safe and will not be "
             "allowed.\n"
@@ -116,7 +118,7 @@ void JavaCommon::TestCheck::run()
         emit finished();
         return;
     }
-    checker.reset(new JavaChecker(m_path, "", 0, 0, 0, 0, this));
+    checker.reset(new JavaChecker(m_path, "", 0, 0, 0, 0));
     connect(checker.get(), &JavaChecker::checkFinished, this, &JavaCommon::TestCheck::checkFinished);
     checker->start();
 }
@@ -128,7 +130,7 @@ void JavaCommon::TestCheck::checkFinished(const JavaChecker::Result& result)
         emit finished();
         return;
     }
-    checker.reset(new JavaChecker(m_path, m_args, m_maxMem, m_maxMem, result.javaVersion.requiresPermGen() ? m_permGen : 0, 0, this));
+    checker.reset(new JavaChecker(m_path, m_args, m_maxMem, m_maxMem, result.javaVersion.requiresPermGen() ? m_permGen : 0, 0));
     connect(checker.get(), &JavaChecker::checkFinished, this, &JavaCommon::TestCheck::checkFinishedWithArgs);
     checker->start();
 }

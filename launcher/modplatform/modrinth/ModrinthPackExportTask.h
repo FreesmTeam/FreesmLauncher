@@ -35,7 +35,7 @@ class ModrinthPackExportTask : public Task {
                            bool optionalFiles,
                            InstancePtr instance,
                            const QString& output,
-                           MMCZip::FilterFunction filter);
+                           MMCZip::FilterFileFunction filter);
 
    protected:
     void executeTask() override;
@@ -58,7 +58,7 @@ class ModrinthPackExportTask : public Task {
     MinecraftInstance* mcInstance;
     const QDir gameRoot;
     const QString output;
-    const MMCZip::FilterFunction filter;
+    const MMCZip::FilterFileFunction filter;
 
     ModrinthAPI api;
     QFileInfoList files;

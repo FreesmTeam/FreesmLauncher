@@ -23,7 +23,7 @@
 
 namespace Meta {
 Index::Index(QObject* parent) : QAbstractListModel(parent) {}
-Index::Index(const QVector<VersionList::Ptr>& lists, QObject* parent) : QAbstractListModel(parent), m_lists(lists)
+Index::Index(const QList<VersionList::Ptr>& lists, QObject* parent) : QAbstractListModel(parent), m_lists(lists)
 {
     for (int i = 0; i < m_lists.size(); ++i) {
         m_uids.insert(m_lists.at(i)->uid(), m_lists.at(i));
@@ -103,7 +103,7 @@ void Index::parse(const QJsonObject& obj)
 
 void Index::merge(const std::shared_ptr<Index>& other)
 {
-    const QVector<VersionList::Ptr> lists = other->m_lists;
+    const QList<VersionList::Ptr> lists = other->m_lists;
     // initial load, no need to merge
     if (m_lists.isEmpty()) {
         beginResetModel();
@@ -140,8 +140,8 @@ Task::Ptr Index::loadVersion(const QString& uid, const QString& version, Net::Mo
     }
 
     auto versionList = get(uid);
-    auto loadTask = makeShared<SequentialTask>(
-        this, tr("Load meta for %1:%2", "This is for the task name that loads the meta index.").arg(uid, version));
+    auto loadTask =
+        makeShared<SequentialTask>(tr("Load meta for %1:%2", "This is for the task name that loads the meta index.").arg(uid, version));
     if (status() != BaseEntity::LoadStatus::Remote || force) {
         loadTask->addTask(this->loadTask(mode));
     }

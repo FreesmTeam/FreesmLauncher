@@ -69,7 +69,8 @@ PackInstallTask::PackInstallTask(UserInteractionSupport* support, QString packNa
 {
     m_support = support;
     m_pack_name = packName;
-    m_pack_safe_name = packName.replace(QRegularExpression("[^A-Za-z0-9]"), "");
+    static const QRegularExpression s_regex("[^A-Za-z0-9]");
+    m_pack_safe_name = packName.replace(s_regex, "");
     m_version_name = version;
     m_install_mode = installMode;
 }
@@ -641,22 +642,22 @@ void PackInstallTask::installConfigs()
     jobPtr->addNetAction(dl);
     archivePath = entry->getFullPath();
 
-    connect(jobPtr.get(), &NetJob::succeeded, this, [&]() {
+    connect(jobPtr.get(), &NetJob::succeeded, this, [this]() {
         abortable = false;
         jobPtr.reset();
         extractConfigs();
     });
-    connect(jobPtr.get(), &NetJob::failed, [&](QString reason) {
+    connect(jobPtr.get(), &NetJob::failed, [this](QString reason) {
         abortable = false;
         jobPtr.reset();
         emitFailed(reason);
     });
-    connect(jobPtr.get(), &NetJob::progress, [&](qint64 current, qint64 total) {
+    connect(jobPtr.get(), &NetJob::progress, [this](qint64 current, qint64 total) {
         abortable = true;
         setProgress(current, total);
     });
     connect(jobPtr.get(), &NetJob::stepProgress, this, &PackInstallTask::propagateStepProgress);
-    connect(jobPtr.get(), &NetJob::aborted, [&] {
+    connect(jobPtr.get(), &NetJob::aborted, [this] {
         abortable = false;
         jobPtr.reset();
         emitAborted();
@@ -678,15 +679,10 @@ void PackInstallTask::extractConfigs()
         return;
     }
 
-#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
     m_extractFuture = QtConcurrent::run(QThreadPool::globalInstance(), QOverload<QString, QString>::of(MMCZip::extractDir), archivePath,
                                         extractDir.absolutePath() + "/minecraft");
-#else
-    m_extractFuture =
-        QtConcurrent::run(QThreadPool::globalInstance(), MMCZip::extractDir, archivePath, extractDir.absolutePath() + "/minecraft");
-#endif
-    connect(&m_extractFutureWatcher, &QFutureWatcher<QStringList>::finished, this, [&]() { downloadMods(); });
-    connect(&m_extractFutureWatcher, &QFutureWatcher<QStringList>::canceled, this, [&]() { emitAborted(); });
+    connect(&m_extractFutureWatcher, &QFutureWatcher<QStringList>::finished, this, [this]() { downloadMods(); });
+    connect(&m_extractFutureWatcher, &QFutureWatcher<QStringList>::canceled, this, [this]() { emitAborted(); });
     m_extractFutureWatcher.setFuture(m_extractFuture);
 }
 
@@ -694,7 +690,7 @@ void PackInstallTask::downloadMods()
 {
     qDebug() << "PackInstallTask::installMods: " << QThread::currentThreadId();
 
-    QVector<ATLauncher::VersionMod> optionalMods;
+    QList<ATLauncher::VersionMod> optionalMods;
     for (const auto& mod : m_version.mods) {
         if (mod.optional) {
             optionalMods.push_back(mod);
@@ -702,7 +698,7 @@ void PackInstallTask::downloadMods()
     }
 
     // Select optional mods, if pack contains any
-    QVector<QString> selectedMods;
+    QList<QString> selectedMods;
     if (!optionalMods.isEmpty()) {
         setStatus(tr("Selecting optional mods..."));
         auto mods = m_support->chooseOptionalMods(m_version, optionalMods);
@@ -897,13 +893,8 @@ void PackInstallTask::onModsDownloaded()
     jobPtr.reset();
 
     if (!modsToExtract.empty() || !modsToDecomp.empty() || !modsToCopy.empty()) {
-#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
         m_modExtractFuture =
             QtConcurrent::run(QThreadPool::globalInstance(), &PackInstallTask::extractMods, this, modsToExtract, modsToDecomp, modsToCopy);
-#else
-        m_modExtractFuture =
-            QtConcurrent::run(QThreadPool::globalInstance(), this, &PackInstallTask::extractMods, modsToExtract, modsToDecomp, modsToCopy);
-#endif
         connect(&m_modExtractFutureWatcher, &QFutureWatcher<QStringList>::finished, this, &PackInstallTask::onModsExtracted);
         connect(&m_modExtractFutureWatcher, &QFutureWatcher<QStringList>::canceled, this, &PackInstallTask::emitAborted);
         m_modExtractFutureWatcher.setFuture(m_modExtractFuture);
@@ -948,7 +939,8 @@ bool PackInstallTask::extractMods(const QMap<QString, VersionMod>& toExtract,
         QString folderToExtract = "";
         if (mod.type == ModType::Extract) {
             folderToExtract = mod.extractFolder;
-            folderToExtract.remove(QRegularExpression("^/"));
+            static const QRegularExpression s_regex("^/");
+            folderToExtract.remove(s_regex);
         }
 
         qDebug() << "Extracting " + mod.file + " to " + extractToDir;

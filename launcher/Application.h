@@ -112,7 +112,7 @@ class Application : public QApplication {
 
     std::shared_ptr<SettingsObject> settings() const { return m_settings; }
 
-    qint64 timeSinceStart() const { return startTime.msecsTo(QDateTime::currentDateTime()); }
+    qint64 timeSinceStart() const { return m_startTime.msecsTo(QDateTime::currentDateTime()); }
 
     QIcon getThemedIcon(const QString& name);
 
@@ -211,7 +211,8 @@ class Application : public QApplication {
                 bool online = true,
                 bool demo = false,
                 MinecraftTarget::Ptr targetToJoin = nullptr,
-                MinecraftAccountPtr accountToUse = nullptr);
+                MinecraftAccountPtr accountToUse = nullptr,
+                const QString& offlineName = QString());
     bool kill(InstancePtr instance);
     void closeCurrentWindow();
 
@@ -236,7 +237,7 @@ class Application : public QApplication {
     bool shouldExitNow() const;
 
    private:
-    QDateTime startTime;
+    QDateTime m_startTime;
 
     shared_qobject_ptr<QNetworkAccessManager> m_network;
 
@@ -279,6 +280,7 @@ class Application : public QApplication {
         shared_qobject_ptr<LaunchController> controller;
     };
     std::map<QString, InstanceXtras> m_instanceExtras;
+    mutable QMutex m_instanceExtrasMutex;
 
     // main state variables
     size_t m_openWindows = 0;
@@ -300,6 +302,8 @@ class Application : public QApplication {
     QString m_serverToJoin;
     QString m_worldToJoin;
     QString m_profileToUse;
+    bool m_offline = false;
+    QString m_offlineName;
     bool m_liveCheck = false;
     QList<QUrl> m_urlsToImport;
     QString m_instanceIdToShowWindowOf;

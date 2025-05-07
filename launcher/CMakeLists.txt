@@ -21,6 +21,8 @@ set(CORE_SOURCES
     BaseVersion.h
     BaseInstance.h
     BaseInstance.cpp
+    InstanceDirUpdate.h
+    InstanceDirUpdate.cpp
     NullInstance.h
     MMCZip.h
     MMCZip.cpp
@@ -97,7 +99,7 @@ set(CORE_SOURCES
     MTPixmapCache.h
 )
 if (UNIX AND NOT CYGWIN AND NOT APPLE)
-set(CORE_SOURCES
+    set(CORE_SOURCES
     ${CORE_SOURCES}
 
     # MangoHud
@@ -173,6 +175,8 @@ set(LAUNCH_SOURCES
     launch/LogModel.h
     launch/TaskStepWrapper.cpp
     launch/TaskStepWrapper.h
+    logs/LogParser.cpp
+    logs/LogParser.h
 )
 
 # Old update system
@@ -345,13 +349,12 @@ set(MINECRAFT_SOURCES
     minecraft/mod/TexturePackFolderModel.h
     minecraft/mod/TexturePackFolderModel.cpp
     minecraft/mod/ShaderPackFolderModel.h
-    minecraft/mod/tasks/BasicFolderLoadTask.h
-    minecraft/mod/tasks/ModFolderLoadTask.h
-    minecraft/mod/tasks/ModFolderLoadTask.cpp
+    minecraft/mod/tasks/ResourceFolderLoadTask.h
+    minecraft/mod/tasks/ResourceFolderLoadTask.cpp
     minecraft/mod/tasks/LocalModParseTask.h
     minecraft/mod/tasks/LocalModParseTask.cpp
-    minecraft/mod/tasks/LocalModUpdateTask.h
-    minecraft/mod/tasks/LocalModUpdateTask.cpp
+    minecraft/mod/tasks/LocalResourceUpdateTask.h
+    minecraft/mod/tasks/LocalResourceUpdateTask.cpp
     minecraft/mod/tasks/LocalDataPackParseTask.h
     minecraft/mod/tasks/LocalDataPackParseTask.cpp
     minecraft/mod/tasks/LocalResourcePackParseTask.h
@@ -588,8 +591,8 @@ set(ATLAUNCHER_SOURCES
 )
 
 set(LINKEXE_SOURCES
-    WindowsConsole.cpp
-    WindowsConsole.h
+    console/WindowsConsole.h
+    console/WindowsConsole.cpp
 
     filelink/FileLink.h
     filelink/FileLink.cpp
@@ -657,6 +660,14 @@ set(PRISMUPDATER_SOURCES
     ui/widgets/SubTaskProgressBar.cpp
 
 )
+
+if(WIN32)
+    set(PRISMUPDATER_SOURCES
+        console/WindowsConsole.h
+        console/WindowsConsole.cpp
+        ${PRISMUPDATER_SOURCES}
+    )
+endif()
 
 ######## Logging categories ########
 
@@ -785,6 +796,9 @@ SET(LAUNCHER_SOURCES
     SysInfo.h
     SysInfo.cpp
 
+    # console utils
+    console/Console.h
+
     # GUI - general utilities
     DesktopServices.h
     DesktopServices.cpp
@@ -811,7 +825,8 @@ SET(LAUNCHER_SOURCES
     resources/flat/flat.qrc
     resources/flat_white/flat_white.qrc
     resources/documents/documents.qrc
-    ../${Launcher_Branding_LogoQRC}
+    resources/shaders/shaders.qrc
+    "${CMAKE_CURRENT_BINARY_DIR}/../${Launcher_Branding_LogoQRC}"
 
     # Icons
     icons/MMCIcon.h
@@ -909,7 +924,6 @@ SET(LAUNCHER_SOURCES
     ui/pages/instance/NotesPage.h
     ui/pages/instance/LogPage.cpp
     ui/pages/instance/LogPage.h
-    ui/pages/instance/InstanceSettingsPage.cpp
     ui/pages/instance/InstanceSettingsPage.h
     ui/pages/instance/ScreenshotsPage.cpp
     ui/pages/instance/ScreenshotsPage.h
@@ -919,21 +933,22 @@ SET(LAUNCHER_SOURCES
     ui/pages/instance/ServersPage.h
     ui/pages/instance/WorldListPage.cpp
     ui/pages/instance/WorldListPage.h
+    ui/pages/instance/McClient.cpp
+    ui/pages/instance/McClient.h
+    ui/pages/instance/McResolver.cpp
+    ui/pages/instance/McResolver.h
+    ui/pages/instance/ServerPingTask.cpp
+    ui/pages/instance/ServerPingTask.h
 
     # GUI - global settings pages
     ui/pages/global/AccountListPage.cpp
     ui/pages/global/AccountListPage.h
-    ui/pages/global/CustomCommandsPage.cpp
-    ui/pages/global/CustomCommandsPage.h
-    ui/pages/global/EnvironmentVariablesPage.cpp
-    ui/pages/global/EnvironmentVariablesPage.h
     ui/pages/global/ExternalToolsPage.cpp
     ui/pages/global/ExternalToolsPage.h
     ui/pages/global/JavaPage.cpp
     ui/pages/global/JavaPage.h
     ui/pages/global/LanguagePage.cpp
     ui/pages/global/LanguagePage.h
-    ui/pages/global/MinecraftPage.cpp
     ui/pages/global/MinecraftPage.h
     ui/pages/global/LauncherPage.cpp
     ui/pages/global/LauncherPage.h
@@ -1031,8 +1046,6 @@ SET(LAUNCHER_SOURCES
     ui/dialogs/CopyInstanceDialog.h
     ui/dialogs/CustomMessageBox.cpp
     ui/dialogs/CustomMessageBox.h
-    ui/dialogs/EditAccountDialog.cpp
-    ui/dialogs/EditAccountDialog.h
     ui/dialogs/ExportInstanceDialog.cpp
     ui/dialogs/ExportInstanceDialog.h
     ui/dialogs/ExportPackDialog.cpp
@@ -1069,13 +1082,20 @@ SET(LAUNCHER_SOURCES
     ui/dialogs/BlockedModsDialog.h
     ui/dialogs/ChooseProviderDialog.h
     ui/dialogs/ChooseProviderDialog.cpp
-    ui/dialogs/ModUpdateDialog.cpp
-    ui/dialogs/ModUpdateDialog.h
+    ui/dialogs/ResourceUpdateDialog.cpp
+    ui/dialogs/ResourceUpdateDialog.h
     ui/dialogs/InstallLoaderDialog.cpp
     ui/dialogs/InstallLoaderDialog.h
 
     ui/dialogs/skins/SkinManageDialog.cpp
     ui/dialogs/skins/SkinManageDialog.h
+
+    ui/dialogs/skins/draw/SkinOpenGLWindow.h
+    ui/dialogs/skins/draw/SkinOpenGLWindow.cpp
+    ui/dialogs/skins/draw/Scene.h
+    ui/dialogs/skins/draw/Scene.cpp
+    ui/dialogs/skins/draw/BoxGeometry.h
+    ui/dialogs/skins/draw/BoxGeometry.cpp
 
     # GUI - widgets
     ui/widgets/CheckComboBox.cpp
@@ -1086,14 +1106,12 @@ SET(LAUNCHER_SOURCES
     ui/widgets/CustomCommands.h
     ui/widgets/EnvironmentVariables.cpp
     ui/widgets/EnvironmentVariables.h
-    ui/widgets/DropLabel.cpp
-    ui/widgets/DropLabel.h
     ui/widgets/FocusLineEdit.cpp
     ui/widgets/FocusLineEdit.h
     ui/widgets/IconLabel.cpp
     ui/widgets/IconLabel.h
-    ui/widgets/JavaSettingsWidget.cpp
-    ui/widgets/JavaSettingsWidget.h
+    ui/widgets/JavaWizardWidget.cpp
+    ui/widgets/JavaWizardWidget.h
     ui/widgets/LabeledToolButton.cpp
     ui/widgets/LabeledToolButton.h
     ui/widgets/LanguageSelectionWidget.cpp
@@ -1129,6 +1147,10 @@ SET(LAUNCHER_SOURCES
     ui/widgets/WideBar.cpp
     ui/widgets/ThemeCustomizationWidget.h
     ui/widgets/ThemeCustomizationWidget.cpp
+    ui/widgets/MinecraftSettingsWidget.h
+    ui/widgets/MinecraftSettingsWidget.cpp
+    ui/widgets/JavaSettingsWidget.h
+    ui/widgets/JavaSettingsWidget.cpp
 
     # GUI - instance group view
     ui/instanceview/InstanceProxyModel.cpp
@@ -1145,7 +1167,7 @@ SET(LAUNCHER_SOURCES
 )
 
 if (NOT Apple)
-set(LAUNCHER_SOURCES
+    set(LAUNCHER_SOURCES
     ${LAUNCHER_SOURCES}
 
     ui/dialogs/UpdateAvailableDialog.h
@@ -1155,8 +1177,8 @@ endif()
 
 if(WIN32)
     set(LAUNCHER_SOURCES
-        WindowsConsole.cpp
-        WindowsConsole.h
+        console/WindowsConsole.h
+        console/WindowsConsole.cpp
         ${LAUNCHER_SOURCES}
     )
 endif()
@@ -1172,7 +1194,6 @@ qt_wrap_ui(LAUNCHER_UI
     ui/pages/global/LauncherPage.ui
     ui/pages/global/APIPage.ui
     ui/pages/global/ProxyPage.ui
-    ui/pages/global/MinecraftPage.ui
     ui/pages/global/ExternalToolsPage.ui
     ui/pages/instance/ExternalResourcesPage.ui
     ui/pages/instance/NotesPage.ui
@@ -1180,7 +1201,6 @@ qt_wrap_ui(LAUNCHER_UI
     ui/pages/instance/ServersPage.ui
     ui/pages/instance/GameOptionsPage.ui
     ui/pages/instance/OtherLogsPage.ui
-    ui/pages/instance/InstanceSettingsPage.ui
     ui/pages/instance/VersionPage.ui
     ui/pages/instance/ManagedPackPage.ui
     ui/pages/instance/WorldListPage.ui
@@ -1203,6 +1223,8 @@ qt_wrap_ui(LAUNCHER_UI
     ui/widgets/ModFilterWidget.ui
     ui/widgets/SubTaskProgressBar.ui
     ui/widgets/ThemeCustomizationWidget.ui
+    ui/widgets/MinecraftSettingsWidget.ui
+    ui/widgets/JavaSettingsWidget.ui
     ui/dialogs/CopyInstanceDialog.ui
     ui/dialogs/ProfileSetupDialog.ui
     ui/dialogs/ProgressDialog.ui
@@ -1218,12 +1240,10 @@ qt_wrap_ui(LAUNCHER_UI
     ui/dialogs/MSALoginDialog.ui
     ui/dialogs/OfflineLoginDialog.ui
     ui/dialogs/AboutDialog.ui
-    ui/dialogs/EditAccountDialog.ui
     ui/dialogs/ReviewMessageBox.ui
     ui/dialogs/ScrollMessageBox.ui
     ui/dialogs/BlockedModsDialog.ui
     ui/dialogs/ChooseProviderDialog.ui
-
     ui/dialogs/skins/SkinManageDialog.ui
 )
 
@@ -1248,7 +1268,8 @@ qt_add_resources(LAUNCHER_RESOURCES
     resources/iOS/iOS.qrc
     resources/flat/flat.qrc
     resources/documents/documents.qrc
-    ../${Launcher_Branding_LogoQRC}
+    resources/shaders/shaders.qrc
+    "${CMAKE_CURRENT_BINARY_DIR}/../${Launcher_Branding_LogoQRC}"
 )
 
 qt_wrap_ui(PRISMUPDATER_UI
@@ -1281,7 +1302,7 @@ target_link_libraries(Launcher_logic
     qdcss
     BuildConfig
     Qt${QT_VERSION_MAJOR}::Widgets
-    ghcFilesystem::ghc_filesystem
+    qrcode
 )
 
 if (UNIX AND NOT CYGWIN AND NOT APPLE)
@@ -1298,6 +1319,8 @@ target_link_libraries(Launcher_logic
     Qt${QT_VERSION_MAJOR}::Gui
     Qt${QT_VERSION_MAJOR}::Widgets
     Qt${QT_VERSION_MAJOR}::NetworkAuth
+    Qt${QT_VERSION_MAJOR}::OpenGL
+    ${Launcher_QT_DBUS}
     ${Launcher_QT_LIBS}
 )
 target_link_libraries(Launcher_logic
@@ -1306,16 +1329,20 @@ target_link_libraries(Launcher_logic
     LocalPeer
     Launcher_rainbow
 )
+if (TARGET ${Launcher_QT_DBUS})
+    add_compile_definitions(WITH_QTDBUS)
+endif()
+
 if(APPLE)
     set(CMAKE_MACOSX_RPATH 1)
     set(CMAKE_INSTALL_RPATH "@loader_path/../Frameworks/")
 
     if(Launcher_ENABLE_UPDATER)
-      file(DOWNLOAD ${MACOSX_SPARKLE_DOWNLOAD_URL} ${CMAKE_BINARY_DIR}/Sparkle.tar.xz EXPECTED_HASH SHA256=${MACOSX_SPARKLE_SHA256})
-      file(ARCHIVE_EXTRACT INPUT ${CMAKE_BINARY_DIR}/Sparkle.tar.xz DESTINATION ${CMAKE_BINARY_DIR}/frameworks/Sparkle)
+        file(DOWNLOAD ${MACOSX_SPARKLE_DOWNLOAD_URL} ${CMAKE_BINARY_DIR}/Sparkle.tar.xz EXPECTED_HASH SHA256=${MACOSX_SPARKLE_SHA256})
+        file(ARCHIVE_EXTRACT INPUT ${CMAKE_BINARY_DIR}/Sparkle.tar.xz DESTINATION ${CMAKE_BINARY_DIR}/frameworks/Sparkle)
 
-      find_library(SPARKLE_FRAMEWORK Sparkle "${CMAKE_BINARY_DIR}/frameworks/Sparkle")
-      add_compile_definitions(SPARKLE_ENABLED)
+        find_library(SPARKLE_FRAMEWORK Sparkle "${CMAKE_BINARY_DIR}/frameworks/Sparkle")
+        add_compile_definitions(SPARKLE_ENABLED)
     endif()
 
     target_link_libraries(Launcher_logic
@@ -1325,7 +1352,7 @@ if(APPLE)
         "-framework ApplicationServices"
     )
     if(Launcher_ENABLE_UPDATER)
-      target_link_libraries(Launcher_logic ${SPARKLE_FRAMEWORK})
+        target_link_libraries(Launcher_logic ${SPARKLE_FRAMEWORK})
     endif()
 endif()
 
@@ -1362,7 +1389,6 @@ if(Launcher_BUILD_UPDATER)
         ${ZLIB_LIBRARIES}
         systeminfo
         BuildConfig
-        ghcFilesystem::ghc_filesystem
         Qt${QT_VERSION_MAJOR}::Widgets
         Qt${QT_VERSION_MAJOR}::Core
         Qt${QT_VERSION_MAJOR}::Network
@@ -1401,7 +1427,6 @@ if(WIN32 OR (DEFINED Launcher_BUILD_FILELINKER AND Launcher_BUILD_FILELINKER))
     target_link_libraries(filelink_logic
         systeminfo
         BuildConfig
-        ghcFilesystem::ghc_filesystem
         Qt${QT_VERSION_MAJOR}::Widgets
         Qt${QT_VERSION_MAJOR}::Core
         Qt${QT_VERSION_MAJOR}::Network

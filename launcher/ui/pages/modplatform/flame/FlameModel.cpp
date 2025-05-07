@@ -65,8 +65,6 @@ QVariant ListModel::data(const QModelIndex& index, int role) const
             return pack.name;
         case UserDataTypes::DESCRIPTION:
             return pack.description;
-        case UserDataTypes::SELECTED:
-            return false;
         case UserDataTypes::INSTALLED:
             return false;
         default:
@@ -189,7 +187,7 @@ void ListModel::performPaginatedSearch()
 
     auto netJob = makeShared<NetJob>("Flame::Search", APPLICATION->network());
     auto searchUrl = FlameAPI().getSearchURL({ ModPlatform::ResourceType::MODPACK, nextSearchOffset, currentSearchTerm, sort,
-                                               m_filter->loaders, m_filter->versions, "", m_filter->categoryIds });
+                                               m_filter->loaders, m_filter->versions, "", m_filter->categoryIds, m_filter->openSource });
 
     netJob->addNetAction(Net::ApiDownload::makeByteArray(QUrl(searchUrl.value()), response));
     jobPtr = netJob;

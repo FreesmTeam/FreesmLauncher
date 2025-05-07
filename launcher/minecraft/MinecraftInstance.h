@@ -116,6 +116,7 @@ class MinecraftInstance : public BaseInstance {
     std::shared_ptr<ResourcePackFolderModel> resourcePackList();
     std::shared_ptr<TexturePackFolderModel> texturePackList();
     std::shared_ptr<ShaderPackFolderModel> shaderPackList();
+    QList<std::shared_ptr<ResourceFolderModel>> resourceLists();
     std::shared_ptr<WorldList> worldList();
     std::shared_ptr<GameOptions> gameOptionsModel();
 
@@ -138,12 +139,7 @@ class MinecraftInstance : public BaseInstance {
     QProcessEnvironment createEnvironment() override;
     QProcessEnvironment createLaunchEnvironment() override;
 
-    /// guess log level from a line of minecraft log
-    MessageLevel::Enum guessLevel(const QString& line, MessageLevel::Enum level) override;
-
-    IPathMatcher::Ptr getLogFileMatcher() override;
-
-    QString getLogFileRoot() override;
+    QStringList getLogFileSearchPaths() override;
 
     QString getStatusbarDescription() override;
 

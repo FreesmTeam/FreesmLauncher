@@ -44,8 +44,8 @@
 #include "FileSystem.h"
 #include "java/JavaUtils.h"
 
-JavaChecker::JavaChecker(QString path, QString args, int minMem, int maxMem, int permGen, int id, QObject* parent)
-    : Task(parent), m_path(path), m_args(args), m_minMem(minMem), m_maxMem(maxMem), m_permGen(permGen), m_id(id)
+JavaChecker::JavaChecker(QString path, QString args, int minMem, int maxMem, int permGen, int id)
+    : Task(), m_path(path), m_args(args), m_minMem(minMem), m_maxMem(maxMem), m_permGen(permGen), m_id(id)
 {}
 
 void JavaChecker::executeTask()
@@ -137,11 +137,7 @@ void JavaChecker::finished(int exitcode, QProcess::ExitStatus status)
 
     QMap<QString, QString> results;
 
-#if QT_VERSION >= QT_VERSION_CHECK(5, 14, 0)
     QStringList lines = m_stdout.split("\n", Qt::SkipEmptyParts);
-#else
-    QStringList lines = m_stdout.split("\n", QString::SkipEmptyParts);
-#endif
     for (QString line : lines) {
         line = line.trimmed();
         // NOTE: workaround for GH-4125, where garbage is getting printed into stdout on bedrock linux
@@ -149,11 +145,7 @@ void JavaChecker::finished(int exitcode, QProcess::ExitStatus status)
             continue;
         }
 
-#if QT_VERSION >= QT_VERSION_CHECK(5, 14, 0)
         auto parts = line.split('=', Qt::SkipEmptyParts);
-#else
-        auto parts = line.split('=', QString::SkipEmptyParts);
-#endif
         if (parts.size() != 2 || parts[0].isEmpty() || parts[1].isEmpty()) {
             continue;
         } else {
@@ -171,7 +163,7 @@ void JavaChecker::finished(int exitcode, QProcess::ExitStatus status)
     auto os_arch = results["os.arch"];
     auto java_version = results["java.version"];
     auto java_vendor = results["java.vendor"];
-    bool is_64 = os_arch == "x86_64" || os_arch == "amd64" || os_arch == "aarch64" || os_arch == "arm64";
+    bool is_64 = os_arch == "x86_64" || os_arch == "amd64" || os_arch == "aarch64" || os_arch == "arm64" || os_arch == "riscv64";
 
     result.validity = Result::Validity::Valid;
     result.is_64bit = is_64;

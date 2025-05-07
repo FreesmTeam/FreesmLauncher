@@ -52,13 +52,15 @@ class Config {
     QString LAUNCHER_DOMAIN;
     QString LAUNCHER_CONFIGFILE;
     QString LAUNCHER_GIT;
-    QString LAUNCHER_DESKTOPFILENAME;
+    QString LAUNCHER_APPID;
     QString LAUNCHER_SVGFILENAME;
 
     /// The major version number.
     int VERSION_MAJOR;
     /// The minor version number.
     int VERSION_MINOR;
+    /// The patch version number.
+    int VERSION_PATCH;
 
     /**
      * The version channel

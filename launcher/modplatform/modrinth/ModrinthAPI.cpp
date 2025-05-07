@@ -34,7 +34,7 @@ Task::Ptr ModrinthAPI::currentVersions(const QStringList& hashes, QString hash_f
     auto body_raw = body.toJson();
 
     netJob->addNetAction(Net::ApiUpload::makeByteArray(QString(BuildConfig.MODRINTH_PROD_URL + "/version_files"), response, body_raw));
-
+    netJob->setAskRetry(false);
     return netJob;
 }
 
@@ -54,7 +54,7 @@ Task::Ptr ModrinthAPI::latestVersion(QString hash,
     if (mcVersions.has_value()) {
         QStringList game_versions;
         for (auto& ver : mcVersions.value()) {
-            game_versions.append(ver.toString());
+            game_versions.append(mapMCVersionToModrinth(ver));
         }
         Json::writeStringList(body_obj, "game_versions", game_versions);
     }
@@ -87,7 +87,7 @@ Task::Ptr ModrinthAPI::latestVersions(const QStringList& hashes,
     if (mcVersions.has_value()) {
         QStringList game_versions;
         for (auto& ver : mcVersions.value()) {
-            game_versions.append(ver.toString());
+            game_versions.append(mapMCVersionToModrinth(ver));
         }
         Json::writeStringList(body_obj, "game_versions", game_versions);
     }
