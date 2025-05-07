@@ -122,9 +122,24 @@ void ConcurrentTask::executeNextSubTask()
                 emitSucceeded();
             } else if (m_failed.count() == 1) {
                 auto task = m_failed.keys().first();
-                emitFailed(task->failReason());
+                auto reason = task->failReason();
+                if (reason.isEmpty()) {  // clearly a bug somewhere
+                    reason = tr("Task failed");
+                }
+                emitFailed(reason);
             } else {
-                emitFailed(tr("One or more subtasks failed"));
+                QStringList failReason;
+                for (auto t : m_failed) {
+                    auto reason = t->failReason();
+                    if (!reason.isEmpty()) {
+                        failReason << reason;
+                    }
+                }
+                if (failReason.isEmpty()) {
+                    emitFailed(tr("Multiple subtasks failed"));
+                } else {
+                    emitFailed(tr("Multiple subtasks failed\n%1").arg(failReason.join("\n")));
+                }
             }
         }
         return;
