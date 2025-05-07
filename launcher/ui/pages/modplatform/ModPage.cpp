@@ -61,24 +61,22 @@ ModPage::ModPage(ModDownloadDialog* dialog, BaseInstance& instance) : ResourcePa
     connect(m_ui->resourceFilterButton, &QPushButton::clicked, this, &ModPage::filterMods);
 }
 
-void ModPage::setFilterWidget(ModFilterWidget* widget)
+void ModPage::setFilterWidget(std::unique_ptr<ModFilterWidget>& widget)
 {
     if (m_filter_widget)
-        disconnect(m_filter_widget, nullptr, nullptr, nullptr);
+        disconnect(m_filter_widget.get(), nullptr, nullptr, nullptr);
 
-    auto old = m_ui->splitter->replaceWidget(0, widget);
+    auto old = m_ui->splitter->replaceWidget(0, widget.get());
     // because we replaced the widget we also need to delete it
     if (old) {
-        old->deleteLater();
+        delete old;
     }
 
-    m_filter_widget = widget;
-    if (m_filter_widget) {
-        m_filter_widget->deleteLater();
-    }
+    m_filter_widget.swap(widget);
+
     m_filter = m_filter_widget->getFilter();
 
-    connect(m_filter_widget, &ModFilterWidget::filterChanged, this, &ModPage::triggerSearch);
+    connect(m_filter_widget.get(), &ModFilterWidget::filterChanged, this, &ModPage::triggerSearch);
     prepareProviderCategories();
 }
 

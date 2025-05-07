@@ -83,7 +83,7 @@ class ModFilterWidget : public QTabWidget {
         }
     };
 
-    ModFilterWidget(MinecraftInstance* instance, bool extendedSupport, QWidget* parent = nullptr);
+    static std::unique_ptr<ModFilterWidget> create(MinecraftInstance* instance, bool extended);
     virtual ~ModFilterWidget();
 
     auto getFilter() -> std::shared_ptr<Filter>;
@@ -96,6 +96,8 @@ class ModFilterWidget : public QTabWidget {
     void setCategories(const QList<ModPlatform::Category>&);
 
    private:
+    ModFilterWidget(MinecraftInstance* instance, bool extendedSupport);
+
     void loadVersionList();
     void prepareBasicFilter();
 
