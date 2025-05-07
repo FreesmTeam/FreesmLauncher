@@ -262,6 +262,25 @@ void InstanceImportTask::extractFinished()
     }
 }
 
+bool installIcon(QString root, QString instIcon)
+{
+    auto importIconPath = IconUtils::findBestIconIn(root, instIcon);
+    if (importIconPath.isNull() || !QFile::exists(importIconPath))
+        importIconPath = IconUtils::findBestIconIn(root, "icon.png");
+    if (importIconPath.isNull() || !QFile::exists(importIconPath))
+        importIconPath = IconUtils::findBestIconIn(FS::PathCombine(root, "overrides"), "icon.png");
+    if (!importIconPath.isNull() && QFile::exists(importIconPath)) {
+        // import icon
+        auto iconList = APPLICATION->icons();
+        if (iconList->iconFileExists(instIcon)) {
+            iconList->deleteIcon(instIcon);
+        }
+        iconList->installIcon(importIconPath, instIcon);
+        return true;
+    }
+    return false;
+}
+
 void InstanceImportTask::processFlame()
 {
     shared_qobject_ptr<FlameCreationTask> inst_creation_task = nullptr;
@@ -287,6 +306,14 @@ void InstanceImportTask::processFlame()
     }
 
     inst_creation_task->setName(*this);
+    // if the icon was specified by user, use that. otherwise pull icon from the pack
+    if (m_instIcon == "default") {
+        auto iconKey = QString("Flame_%1_Icon").arg(name());
+
+        if (installIcon(m_stagingPath, iconKey)) {
+            m_instIcon = iconKey;
+        }
+    }
     inst_creation_task->setIcon(m_instIcon);
     inst_creation_task->setGroup(m_instGroup);
     inst_creation_task->setConfirmUpdate(shouldConfirmUpdate());
@@ -339,17 +366,7 @@ void InstanceImportTask::processMultiMC()
     } else {
         m_instIcon = instance.iconKey();
 
-        auto importIconPath = IconUtils::findBestIconIn(instance.instanceRoot(), m_instIcon);
-        if (importIconPath.isNull() || !QFile::exists(importIconPath))
-            importIconPath = IconUtils::findBestIconIn(instance.instanceRoot(), "icon.png");
-        if (!importIconPath.isNull() && QFile::exists(importIconPath)) {
-            // import icon
-            auto iconList = APPLICATION->icons();
-            if (iconList->iconFileExists(m_instIcon)) {
-                iconList->deleteIcon(m_instIcon);
-            }
-            iconList->installIcon(importIconPath, m_instIcon);
-        }
+        installIcon(instance.instanceRoot(), m_instIcon);
     }
     emitSucceeded();
 }
@@ -386,6 +403,14 @@ void InstanceImportTask::processModrinth()
     }
 
     inst_creation_task->setName(*this);
+    // if the icon was specified by user, use that. otherwise pull icon from the pack
+    if (m_instIcon == "default") {
+        auto iconKey = QString("Modrinth_%1_Icon").arg(name());
+
+        if (installIcon(m_stagingPath, iconKey)) {
+            m_instIcon = iconKey;
+        }
+    }
     inst_creation_task->setIcon(m_instIcon);
     inst_creation_task->setGroup(m_instGroup);
     inst_creation_task->setConfirmUpdate(shouldConfirmUpdate());
