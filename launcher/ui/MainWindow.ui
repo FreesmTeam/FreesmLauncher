@@ -776,7 +776,7 @@
     <string>Desktop</string>
    </property>
    <property name="toolTip">
-    <string>Creates an shortcut to this instance on your desktop</string>
+    <string>Creates a shortcut to this instance on your desktop</string>
    </property>
    <property name="menuRole">
     <enum>QAction::TextHeuristicRole</enum>
