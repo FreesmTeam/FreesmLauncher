@@ -107,9 +107,6 @@ class Config {
     /// User-Agent to use.
     QString USER_AGENT;
 
-    /// User-Agent to use for uncached requests.
-    QString USER_AGENT_UNCACHED;
-
     /// The git commit hash of this build
     QString GIT_COMMIT;
 

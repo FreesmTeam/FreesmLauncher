@@ -834,6 +834,10 @@ SET(LAUNCHER_SOURCES
     icons/IconList.h
     icons/IconList.cpp
 
+    # log utils
+    logs/AnonymizeLog.cpp
+    logs/AnonymizeLog.h
+
     # GUI - windows
     ui/GuiUtil.h
     ui/GuiUtil.cpp
