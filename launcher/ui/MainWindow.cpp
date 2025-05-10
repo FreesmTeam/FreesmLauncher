@@ -1383,6 +1383,14 @@ void MainWindow::on_actionDeleteInstance_triggered()
         return;
     }
 
+    if (m_selectedInstance->isRunning()) {
+        CustomMessageBox::selectable(this, tr("Cannot Delete Running Instance"),
+                                     tr("The selected instance is currently running and cannot be deleted. Please stop the instance before "
+                                        "attempting to delete it."),
+                                     QMessageBox::Warning, QMessageBox::Ok)
+            ->exec();
+        return;
+    }
     auto id = m_selectedInstance->id();
 
     auto response = CustomMessageBox::selectable(this, tr("Confirm Deletion"),
