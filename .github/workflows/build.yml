@@ -24,6 +24,8 @@ on:
 
       # Workflows
       - ".github/workflows/build.yml"
+      - ".github/actions/package/"
+      - ".github/actions/setup-dependencies/"
   pull_request:
     paths:
       # File types
@@ -44,6 +46,8 @@ on:
 
       # Workflows
       - ".github/workflows/build.yml"
+      - ".github/actions/package/"
+      - ".github/actions/setup-dependencies/"
   workflow_call:
     inputs:
       build-type:

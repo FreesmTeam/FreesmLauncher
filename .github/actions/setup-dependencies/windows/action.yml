@@ -25,7 +25,7 @@ runs:
         arch: ${{ inputs.vcvars-arch }}
         vsversion: 2022
 
-    - name: Setup MSYS2 (MinGW-64)
+    - name: Setup MSYS2 (MinGW)
       if: ${{ inputs.msystem != '' }}
       uses: msys2/setup-msys2@v2
       with:
@@ -45,7 +45,14 @@ runs:
           qt6-5compat:p
           qt6-networkauth:p
           cmark:p
+          tomlplusplus:p
           quazip-qt6:p
+
+    - name: List pacman packages (MinGW)
+      if: ${{ inputs.msystem != '' }}
+      shell: msys2 {0}
+      run: |
+        pacman -Qe
 
     - name: Retrieve ccache cache (MinGW)
       if: ${{ inputs.msystem != '' && inputs.build-type == 'Debug' }}

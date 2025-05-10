@@ -23,6 +23,7 @@ on:
       # Workflows
       - ".github/codeql"
       - ".github/workflows/codeql.yml"
+      - ".github/actions/setup-dependencies/"
   pull_request:
     paths:
       # File types
@@ -44,6 +45,7 @@ on:
       # Workflows
       - ".github/codeql"
       - ".github/workflows/codeql.yml"
+      - ".github/actions/setup-dependencies/"
   workflow_dispatch:
 
 jobs:
