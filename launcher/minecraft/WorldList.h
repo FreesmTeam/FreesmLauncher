@@ -84,6 +84,11 @@ class WorldList : public QAbstractListModel {
 
     const QList<World>& allWorlds() const { return m_worlds; }
 
+    void createWorldShortcut(const QModelIndex& index, QWidget* parent = nullptr) const;
+    void createWorldShortcutOnDesktop(const QModelIndex& index, QWidget* parent = nullptr) const;
+    void createWorldShortcutInApplications(const QModelIndex& index, QWidget* parent = nullptr) const;
+    void createWorldShortcutInOther(const QModelIndex& index, QWidget* parent = nullptr) const;
+
    private slots:
     void directoryChanged(QString path);
     void loadWorldsAsync();

@@ -214,17 +214,17 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent), ui(new Ui::MainWi
             QString desktopDir = FS::getDesktopDir();
             QString applicationDir = FS::getApplicationsDir();
 
-            if(!applicationDir.isEmpty())
+            if (!applicationDir.isEmpty())
                 shortcutActions.push_front(ui->actionCreateInstanceShortcutApplications);
 
-            if(!desktopDir.isEmpty())
+            if (!desktopDir.isEmpty())
                 shortcutActions.push_front(ui->actionCreateInstanceShortcutDesktop);
         }
 
-        if(shortcutActions.length() > 1) {
+        if (shortcutActions.length() > 1) {
             auto shortcutInstanceMenu = new QMenu(this);
 
-            for(auto action : shortcutActions)
+            for (auto action : shortcutActions)
                 shortcutInstanceMenu->addAction(action);
             ui->actionCreateInstanceShortcut->setMenu(shortcutInstanceMenu);
         }

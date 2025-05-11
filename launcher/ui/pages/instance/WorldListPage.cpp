@@ -345,6 +345,28 @@ void WorldListPage::worldChanged([[maybe_unused]] const QModelIndex& current, [[
 
     if (!supportsJoin) {
         ui->toolBar->removeAction(ui->actionJoin);
+        ui->toolBar->removeAction(ui->actionCreateWorldShortcut);
+    } else {
+        QList<QAction*> shortcutActions = { ui->actionCreateWorldShortcutOther };
+        if (!DesktopServices::isFlatpak()) {
+            QString desktopDir = FS::getDesktopDir();
+            QString applicationDir = FS::getApplicationsDir();
+
+            if (!applicationDir.isEmpty())
+                shortcutActions.push_front(ui->actionCreateWorldShortcutApplications);
+
+            if (!desktopDir.isEmpty())
+                shortcutActions.push_front(ui->actionCreateWorldShortcutDesktop);
+        }
+
+        if (shortcutActions.length() > 1) {
+            auto shortcutInstanceMenu = new QMenu(this);
+
+            for (auto action : shortcutActions)
+                shortcutInstanceMenu->addAction(action);
+            ui->actionCreateWorldShortcut->setMenu(shortcutInstanceMenu);
+        }
+        ui->actionCreateWorldShortcut->setEnabled(enable);
     }
 }
 
@@ -418,6 +440,42 @@ void WorldListPage::on_actionRename_triggered()
     if (ok && name.length() > 0) {
         world->rename(name);
     }
+}
+
+void WorldListPage::on_actionCreateWorldShortcut_triggered()
+{
+    QModelIndex index = getSelectedWorld();
+    if (!index.isValid()) {
+        return;
+    }
+    m_worlds->createWorldShortcut(index, this);
+}
+
+void WorldListPage::on_actionCreateWorldShortcutDesktop_triggered()
+{
+    QModelIndex index = getSelectedWorld();
+    if (!index.isValid()) {
+        return;
+    }
+    m_worlds->createWorldShortcutOnDesktop(index, this);
+}
+
+void WorldListPage::on_actionCreateWorldShortcutApplications_triggered()
+{
+    QModelIndex index = getSelectedWorld();
+    if (!index.isValid()) {
+        return;
+    }
+    m_worlds->createWorldShortcutInApplications(index, this);
+}
+
+void WorldListPage::on_actionCreateWorldShortcutOther_triggered()
+{
+    QModelIndex index = getSelectedWorld();
+    if (!index.isValid()) {
+        return;
+    }
+    m_worlds->createWorldShortcutInOther(index, this);
 }
 
 void WorldListPage::on_actionRefresh_triggered()

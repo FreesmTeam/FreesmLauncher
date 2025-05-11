@@ -85,10 +85,11 @@
    <addaction name="actionRename"/>
    <addaction name="actionCopy"/>
    <addaction name="actionRemove"/>
+   <addaction name="actionCreateWorldShortcut"/>
+   <addaction name="separator"/>
    <addaction name="actionMCEdit"/>
    <addaction name="actionDatapacks"/>
    <addaction name="actionReset_Icon"/>
-   <addaction name="separator"/>
    <addaction name="actionCopy_Seed"/>
    <addaction name="actionRefresh"/>
    <addaction name="actionView_Folder"/>
@@ -116,6 +117,14 @@
   <action name="actionRemove">
    <property name="text">
     <string>Delete</string>
+   </property>
+  </action>
+  <action name="actionCreateWorldShortcut">
+   <property name="text">
+    <string>Create Shortcut</string>
+   </property>
+   <property name="toolTip">
+    <string>Creates a shortcut on a selected folder to join the selected world.</string>
    </property>
   </action>
   <action name="actionMCEdit">
@@ -152,6 +161,39 @@
    </property>
    <property name="toolTip">
     <string>Manage datapacks inside the world.</string>
+   </property>
+  </action>
+  <action name="actionCreateWorldShortcutDesktop">
+   <property name="text">
+    <string>Desktop</string>
+   </property>
+   <property name="toolTip">
+    <string>Creates a shortcut to this world on your desktop</string>
+   </property>
+   <property name="menuRole">
+    <enum>QAction::TextHeuristicRole</enum>
+   </property>
+  </action>
+  <action name="actionCreateWorldShortcutApplications">
+   <property name="text">
+    <string>Applications</string>
+   </property>
+   <property name="toolTip">
+    <string>Create a shortcut of this world on your start menu</string>
+   </property>
+   <property name="menuRole">
+    <enum>QAction::TextHeuristicRole</enum>
+   </property>
+  </action>
+  <action name="actionCreateWorldShortcutOther">
+   <property name="text">
+    <string>Other...</string>
+   </property>
+   <property name="toolTip">
+    <string>Creates a shortcut in a folder selected by you</string>
+   </property>
+   <property name="menuRole">
+    <enum>QAction::TextHeuristicRole</enum>
    </property>
   </action>
  </widget>
