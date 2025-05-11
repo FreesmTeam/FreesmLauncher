@@ -170,7 +170,6 @@ void createInstanceShortcut(BaseInstance* instance,
         iconFile.remove();
 #endif
         QMessageBox::critical(parent, QObject::tr("Create Shortcut"), QObject::tr("Failed to create %1 shortcut!").arg(targetString));
-        return;
     }
 }
 

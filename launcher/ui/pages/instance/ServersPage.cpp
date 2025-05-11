@@ -40,8 +40,10 @@
 #include "ui/dialogs/CustomMessageBox.h"
 #include "ui_ServersPage.h"
 
+#include <DesktopServices.h>
 #include <FileSystem.h>
 #include <io/stream_reader.h>
+#include <minecraft/ShortcutUtils.h>
 #include <minecraft/MinecraftInstance.h>
 #include <tag_compound.h>
 #include <tag_list.h>
@@ -100,6 +102,38 @@ struct Server {
         if (m_acceptsTextures != AcceptsTextures::ASK) {
             server.insert("acceptTextures", nbt::tag_byte(m_acceptsTextures == AcceptsTextures::ALWAYS));
         }
+    }
+
+    void createServerShortcut(BaseInstance* instance, QWidget* parent = nullptr) const
+    {
+        if (!instance)
+            return;
+
+        if (DesktopServices::isFlatpak())
+            createServerShortcutInOther(instance, parent);
+        else
+            createServerShortcutOnDesktop(instance, parent);
+    }
+
+    void createServerShortcutOnDesktop(BaseInstance* instance, QWidget* parent = nullptr) const
+    {
+        QString name = QString(QObject::tr("%1 - Server %2")).arg(instance->name(), m_name);
+        QStringList extraArgs{ "--server", m_address };
+        ShortcutUtils::createInstanceShortcutOnDesktop(instance, name, QObject::tr("server"), parent, extraArgs);
+    }
+
+    void createServerShortcutInApplications(BaseInstance* instance, QWidget* parent = nullptr) const
+    {
+        QString name = QString(QObject::tr("%1 - Server %2")).arg(instance->name(), m_name);
+        QStringList extraArgs{ "--server", m_address };
+        ShortcutUtils::createInstanceShortcutInApplications(instance, name, QObject::tr("server"), parent, extraArgs);
+    }
+
+    void createServerShortcutInOther(BaseInstance* instance, QWidget* parent = nullptr) const
+    {
+        QString name = QString(QObject::tr("%1 - Server %2")).arg(instance->name(), m_name);
+        QStringList extraArgs{ "--server", m_address };
+        ShortcutUtils::createInstanceShortcutInOther(instance, name, QObject::tr("server"), parent, extraArgs);
     }
 
     // Data - persistent and user changeable
@@ -696,6 +730,27 @@ void ServersPage::updateState()
     }
 
     ui->actionAdd->setDisabled(m_locked);
+
+    QList<QAction*> shortcutActions = { ui->actionCreateServerShortcutOther };
+    if (!DesktopServices::isFlatpak()) {
+        QString desktopDir = FS::getDesktopDir();
+        QString applicationDir = FS::getApplicationsDir();
+
+        if (!applicationDir.isEmpty())
+            shortcutActions.push_front(ui->actionCreateServerShortcutApplications);
+
+        if (!desktopDir.isEmpty())
+            shortcutActions.push_front(ui->actionCreateServerShortcutDesktop);
+    }
+
+    if (shortcutActions.length() > 1) {
+        auto shortcutInstanceMenu = new QMenu(this);
+
+        for (auto action : shortcutActions)
+            shortcutInstanceMenu->addAction(action);
+        ui->actionCreateServerShortcut->setMenu(shortcutInstanceMenu);
+    }
+    ui->actionCreateServerShortcut->setEnabled(serverEditEnabled);
 }
 
 void ServersPage::openedImpl()
@@ -765,6 +820,26 @@ void ServersPage::on_actionJoin_triggered()
 {
     const auto& address = m_model->at(currentServer)->m_address;
     APPLICATION->launch(m_inst, true, false, std::make_shared<MinecraftTarget>(MinecraftTarget::parse(address, false)));
+}
+
+void ServersPage::on_actionCreateServerShortcut_triggered()
+{
+    m_model->at(currentServer)->createServerShortcut(m_inst.get(), this);
+}
+
+void ServersPage::on_actionCreateServerShortcutDesktop_triggered()
+{
+    m_model->at(currentServer)->createServerShortcutOnDesktop(m_inst.get(), this);
+}
+
+void ServersPage::on_actionCreateServerShortcutApplications_triggered()
+{
+    m_model->at(currentServer)->createServerShortcutInApplications(m_inst.get(), this);
+}
+
+void ServersPage::on_actionCreateServerShortcutOther_triggered()
+{
+    m_model->at(currentServer)->createServerShortcutInOther(m_inst.get(), this);
 }
 
 void ServersPage::on_actionRefresh_triggered()
