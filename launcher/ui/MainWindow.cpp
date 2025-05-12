@@ -1559,17 +1559,17 @@ void MainWindow::on_actionCreateInstanceShortcut_triggered()
 
 void MainWindow::on_actionCreateInstanceShortcutDesktop_triggered()
 {
-    ShortcutUtils::createInstanceShortcutOnDesktop(m_selectedInstance.get(), m_selectedInstance->name(), tr("instance"), this);
+    ShortcutUtils::createInstanceShortcutOnDesktop({ m_selectedInstance.get(), m_selectedInstance->name(), tr("instance"), this });
 }
 
 void MainWindow::on_actionCreateInstanceShortcutApplications_triggered()
 {
-    ShortcutUtils::createInstanceShortcutInApplications(m_selectedInstance.get(), m_selectedInstance->name(), tr("instance"), this);
+    ShortcutUtils::createInstanceShortcutInApplications({ m_selectedInstance.get(), m_selectedInstance->name(), tr("instance"), this });
 }
 
 void MainWindow::on_actionCreateInstanceShortcutOther_triggered()
 {
-    ShortcutUtils::createInstanceShortcutInOther(m_selectedInstance.get(), m_selectedInstance->name(), tr("instance"), this);
+    ShortcutUtils::createInstanceShortcutInOther({ m_selectedInstance.get(), m_selectedInstance->name(), tr("instance"), this });
 }
 
 void MainWindow::taskEnd()

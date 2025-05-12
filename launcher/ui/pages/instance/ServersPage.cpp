@@ -119,21 +119,21 @@ struct Server {
     {
         QString name = QString(QObject::tr("%1 - Server %2")).arg(instance->name(), m_name);
         QStringList extraArgs{ "--server", m_address };
-        ShortcutUtils::createInstanceShortcutOnDesktop(instance, name, QObject::tr("server"), parent, extraArgs);
+        ShortcutUtils::createInstanceShortcutOnDesktop({ instance, name, QObject::tr("server"), parent, extraArgs });
     }
 
     void createServerShortcutInApplications(BaseInstance* instance, QWidget* parent = nullptr) const
     {
         QString name = QString(QObject::tr("%1 - Server %2")).arg(instance->name(), m_name);
         QStringList extraArgs{ "--server", m_address };
-        ShortcutUtils::createInstanceShortcutInApplications(instance, name, QObject::tr("server"), parent, extraArgs);
+        ShortcutUtils::createInstanceShortcutInApplications({ instance, name, QObject::tr("server"), parent, extraArgs });
     }
 
     void createServerShortcutInOther(BaseInstance* instance, QWidget* parent = nullptr) const
     {
         QString name = QString(QObject::tr("%1 - Server %2")).arg(instance->name(), m_name);
         QStringList extraArgs{ "--server", m_address };
-        ShortcutUtils::createInstanceShortcutInOther(instance, name, QObject::tr("server"), parent, extraArgs);
+        ShortcutUtils::createInstanceShortcutInOther({ instance, name, QObject::tr("server"), parent, extraArgs });
     }
 
     // Data - persistent and user changeable

@@ -41,33 +41,25 @@
 #include <QMessageBox>
 
 namespace ShortcutUtils {
+/// A struct to hold parameters for creating a shortcut
+struct Shortcut {
+    BaseInstance* instance;
+    QString name;
+    QString targetString;
+    QWidget* parent = nullptr;
+    QStringList extraArgs = {};
+};
+
 /// Create an instance shortcut on the specified file path
-void createInstanceShortcut(BaseInstance* instance,
-                            QString shortcutName,
-                            QString shortcutFilePath,
-                            QString targetString,
-                            QWidget* parent = nullptr,
-                            const QStringList& extraArgs = {});
+void createInstanceShortcut(const Shortcut& shortcut, const QString& filePath);
 
 /// Create an instance shortcut on the desktop
-void createInstanceShortcutOnDesktop(BaseInstance* instance,
-                                     QString shortcutName,
-                                     QString targetString,
-                                     QWidget* parent = nullptr,
-                                     const QStringList& extraArgs = {});
+void createInstanceShortcutOnDesktop(const Shortcut& shortcut);
 
 /// Create an instance shortcut in the Applications directory
-void createInstanceShortcutInApplications(BaseInstance* instance,
-                                          QString shortcutName,
-                                          QString targetString,
-                                          QWidget* parent = nullptr,
-                                          const QStringList& extraArgs = {});
+void createInstanceShortcutInApplications(const Shortcut& shortcut);
 
 /// Create an instance shortcut in other directories
-void createInstanceShortcutInOther(BaseInstance* instance,
-                                   QString shortcutName,
-                                   QString targetString,
-                                   QWidget* parent = nullptr,
-                                   const QStringList& extraArgs = {});
+void createInstanceShortcutInOther(const Shortcut& shortcut);
 
 }  // namespace ShortcutUtils
