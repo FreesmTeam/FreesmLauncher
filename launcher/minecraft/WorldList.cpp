@@ -470,25 +470,25 @@ void WorldList::createWorldShortcut(const QModelIndex& index, QWidget* parent) c
 
 void WorldList::createWorldShortcutOnDesktop(const QModelIndex& index, QWidget* parent) const
 {
-    auto world = static_cast<World*>(data(index, ObjectRole).value<void*>());
-    QString name = QString(tr("%1 - %2")).arg(m_instance->name(), world->name());
-    QStringList extraArgs{ "--world", world->name() };
+    const auto& world = allWorlds().at(index.row());
+    QString name = QString(tr("%1 - %2")).arg(m_instance->name(), world.name());
+    QStringList extraArgs{ "--world", world.name() };
     ShortcutUtils::createInstanceShortcutOnDesktop(m_instance, name, tr("world"), parent, extraArgs);
 }
 
 void WorldList::createWorldShortcutInApplications(const QModelIndex& index, QWidget* parent) const
 {
-    auto world = static_cast<World*>(data(index, ObjectRole).value<void*>());
-    QString name = QString(tr("%1 - %2")).arg(m_instance->name(), world->name());
-    QStringList extraArgs{ "--world", world->name() };
+    const auto& world = allWorlds().at(index.row());
+    QString name = QString(tr("%1 - %2")).arg(m_instance->name(), world.name());
+    QStringList extraArgs{ "--world", world.name() };
     ShortcutUtils::createInstanceShortcutInApplications(m_instance, name, tr("world"), parent, extraArgs);
 }
 
 void WorldList::createWorldShortcutInOther(const QModelIndex& index, QWidget* parent) const
 {
-    auto world = static_cast<World*>(data(index, ObjectRole).value<void*>());
-    QString name = QString(tr("%1 - %2")).arg(m_instance->name(), world->name());
-    QStringList extraArgs{ "--world", world->name() };
+    const auto& world = allWorlds().at(index.row());
+    QString name = QString(tr("%1 - %2")).arg(m_instance->name(), world.name());
+    QStringList extraArgs{ "--world", world.name() };
     ShortcutUtils::createInstanceShortcutInOther(m_instance, name, tr("world"), parent, extraArgs);
 }
 
