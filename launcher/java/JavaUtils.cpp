@@ -365,13 +365,13 @@ QList<QString> JavaUtils::FindJavaPaths()
     javas.append("/System/Library/Frameworks/JavaVM.framework/Versions/Current/Commands/java");
     QDir libraryJVMDir("/Library/Java/JavaVirtualMachines/");
     QStringList libraryJVMJavas = libraryJVMDir.entryList(QDir::Dirs | QDir::NoDotAndDotDot);
-    foreach (const QString& java, libraryJVMJavas) {
+    for (const QString& java : libraryJVMJavas) {
         javas.append(libraryJVMDir.absolutePath() + "/" + java + "/Contents/Home/bin/java");
         javas.append(libraryJVMDir.absolutePath() + "/" + java + "/Contents/Home/jre/bin/java");
     }
     QDir systemLibraryJVMDir("/System/Library/Java/JavaVirtualMachines/");
     QStringList systemLibraryJVMJavas = systemLibraryJVMDir.entryList(QDir::Dirs | QDir::NoDotAndDotDot);
-    foreach (const QString& java, systemLibraryJVMJavas) {
+    for (const QString& java : systemLibraryJVMJavas) {
         javas.append(systemLibraryJVMDir.absolutePath() + "/" + java + "/Contents/Home/bin/java");
         javas.append(systemLibraryJVMDir.absolutePath() + "/" + java + "/Contents/Commands/java");
     }
@@ -381,14 +381,14 @@ QList<QString> JavaUtils::FindJavaPaths()
     // javas downloaded by sdkman
     QDir sdkmanDir(FS::PathCombine(home, ".sdkman/candidates/java"));
     QStringList sdkmanJavas = sdkmanDir.entryList(QDir::Dirs | QDir::NoDotAndDotDot);
-    foreach (const QString& java, sdkmanJavas) {
+    for (const QString& java : sdkmanJavas) {
         javas.append(sdkmanDir.absolutePath() + "/" + java + "/bin/java");
     }
 
     // java in user library folder (like from intellij downloads)
     QDir userLibraryJVMDir(FS::PathCombine(home, "Library/Java/JavaVirtualMachines/"));
     QStringList userLibraryJVMJavas = userLibraryJVMDir.entryList(QDir::Dirs | QDir::NoDotAndDotDot);
-    foreach (const QString& java, userLibraryJVMJavas) {
+    for (const QString& java : userLibraryJVMJavas) {
         javas.append(userLibraryJVMDir.absolutePath() + "/" + java + "/Contents/Home/bin/java");
         javas.append(userLibraryJVMDir.absolutePath() + "/" + java + "/Contents/Commands/java");
     }
