@@ -615,6 +615,26 @@ ServersPage::ServersPage(InstancePtr inst, QWidget* parent) : QMainWindow(parent
     connect(ui->resourceComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(resourceIndexChanged(int)));
     connect(m_model, &QAbstractItemModel::rowsRemoved, this, &ServersPage::rowsRemoved);
 
+    QList<QAction*> shortcutActions = { ui->actionCreateServerShortcutOther };
+    if (!DesktopServices::isFlatpak()) {
+        QString desktopDir = FS::getDesktopDir();
+        QString applicationDir = FS::getApplicationsDir();
+
+        if (!applicationDir.isEmpty())
+            shortcutActions.push_front(ui->actionCreateServerShortcutApplications);
+
+        if (!desktopDir.isEmpty())
+            shortcutActions.push_front(ui->actionCreateServerShortcutDesktop);
+    }
+
+    if (shortcutActions.length() > 1) {
+        auto shortcutInstanceMenu = new QMenu(this);
+
+        for (auto action : shortcutActions)
+            shortcutInstanceMenu->addAction(action);
+        ui->actionCreateServerShortcut->setMenu(shortcutInstanceMenu);
+    }
+
     m_locked = m_inst->isRunning();
     if (m_locked) {
         m_model->lock();
@@ -718,6 +738,7 @@ void ServersPage::updateState()
     ui->actionMove_Up->setEnabled(serverEditEnabled);
     ui->actionRemove->setEnabled(serverEditEnabled);
     ui->actionJoin->setEnabled(serverEditEnabled);
+    ui->actionCreateServerShortcut->setEnabled(serverEditEnabled);
 
     if (server) {
         ui->addressLine->setText(server->m_address);
@@ -730,27 +751,6 @@ void ServersPage::updateState()
     }
 
     ui->actionAdd->setDisabled(m_locked);
-
-    QList<QAction*> shortcutActions = { ui->actionCreateServerShortcutOther };
-    if (!DesktopServices::isFlatpak()) {
-        QString desktopDir = FS::getDesktopDir();
-        QString applicationDir = FS::getApplicationsDir();
-
-        if (!applicationDir.isEmpty())
-            shortcutActions.push_front(ui->actionCreateServerShortcutApplications);
-
-        if (!desktopDir.isEmpty())
-            shortcutActions.push_front(ui->actionCreateServerShortcutDesktop);
-    }
-
-    if (shortcutActions.length() > 1) {
-        auto shortcutInstanceMenu = new QMenu(this);
-
-        for (auto action : shortcutActions)
-            shortcutInstanceMenu->addAction(action);
-        ui->actionCreateServerShortcut->setMenu(shortcutInstanceMenu);
-    }
-    ui->actionCreateServerShortcut->setEnabled(serverEditEnabled);
 }
 
 void ServersPage::openedImpl()

@@ -89,6 +89,26 @@ WorldListPage::WorldListPage(InstancePtr inst, std::shared_ptr<WorldList> worlds
 
     ui->toolBar->insertSpacer(ui->actionRefresh);
 
+    QList<QAction*> shortcutActions = { ui->actionCreateWorldShortcutOther };
+    if (!DesktopServices::isFlatpak()) {
+        QString desktopDir = FS::getDesktopDir();
+        QString applicationDir = FS::getApplicationsDir();
+
+        if (!applicationDir.isEmpty())
+            shortcutActions.push_front(ui->actionCreateWorldShortcutApplications);
+
+        if (!desktopDir.isEmpty())
+            shortcutActions.push_front(ui->actionCreateWorldShortcutDesktop);
+    }
+
+    if (shortcutActions.length() > 1) {
+        auto shortcutInstanceMenu = new QMenu(this);
+
+        for (auto action : shortcutActions)
+            shortcutInstanceMenu->addAction(action);
+        ui->actionCreateWorldShortcut->setMenu(shortcutInstanceMenu);
+    }
+
     WorldListProxyModel* proxy = new WorldListProxyModel(this);
     proxy->setSortCaseSensitivity(Qt::CaseInsensitive);
     proxy->setSourceModel(m_worlds.get());
@@ -347,25 +367,6 @@ void WorldListPage::worldChanged([[maybe_unused]] const QModelIndex& current, [[
         ui->toolBar->removeAction(ui->actionJoin);
         ui->toolBar->removeAction(ui->actionCreateWorldShortcut);
     } else {
-        QList<QAction*> shortcutActions = { ui->actionCreateWorldShortcutOther };
-        if (!DesktopServices::isFlatpak()) {
-            QString desktopDir = FS::getDesktopDir();
-            QString applicationDir = FS::getApplicationsDir();
-
-            if (!applicationDir.isEmpty())
-                shortcutActions.push_front(ui->actionCreateWorldShortcutApplications);
-
-            if (!desktopDir.isEmpty())
-                shortcutActions.push_front(ui->actionCreateWorldShortcutDesktop);
-        }
-
-        if (shortcutActions.length() > 1) {
-            auto shortcutInstanceMenu = new QMenu(this);
-
-            for (auto action : shortcutActions)
-                shortcutInstanceMenu->addAction(action);
-            ui->actionCreateWorldShortcut->setMenu(shortcutInstanceMenu);
-        }
         ui->actionCreateWorldShortcut->setEnabled(enable);
     }
 }
