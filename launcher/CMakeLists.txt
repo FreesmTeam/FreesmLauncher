@@ -325,6 +325,8 @@ set(MINECRAFT_SOURCES
     minecraft/ParseUtils.h
     minecraft/ProfileUtils.cpp
     minecraft/ProfileUtils.h
+        minecraft/ScreenshotsWatcher.cpp
+        minecraft/ScreenshotsWatcher.h
     minecraft/Library.cpp
     minecraft/Library.h
     minecraft/MojangDownloadInfo.h

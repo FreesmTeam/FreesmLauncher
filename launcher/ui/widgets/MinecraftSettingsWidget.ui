@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>648</width>
-    <height>400</height>
+       <width>621</width>
+       <height>687</height>
    </rect>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
@@ -62,8 +62,8 @@
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>568</width>
-            <height>593</height>
+               <width>561</width>
+               <height>614</height>
            </rect>
           </property>
           <layout class="QVBoxLayout" name="verticalLayout_5">
@@ -260,6 +260,13 @@
                 </property>
                </widget>
               </item>
+                 <item>
+                     <widget class="QCheckBox" name="copyIngameScreenshotsCheck">
+                         <property name="text">
+                             <string>Copy in-game screenshots to clipboard</string>
+                         </property>
+                     </widget>
+                 </item>
              </layout>
             </widget>
            </item>
@@ -357,8 +364,8 @@
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>568</width>
-            <height>580</height>
+               <width>561</width>
+               <height>582</height>
            </rect>
           </property>
          </widget>
@@ -384,8 +391,8 @@
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>568</width>
-            <height>580</height>
+               <width>561</width>
+               <height>582</height>
            </rect>
           </property>
           <layout class="QVBoxLayout" name="verticalLayout_7">
@@ -572,8 +579,8 @@
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>568</width>
-            <height>580</height>
+               <width>561</width>
+               <height>582</height>
            </rect>
           </property>
           <layout class="QVBoxLayout" name="verticalLayout_14">
