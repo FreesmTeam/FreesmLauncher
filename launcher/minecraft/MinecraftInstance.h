@@ -45,6 +45,7 @@
 class ModFolderModel;
 class ResourceFolderModel;
 class ResourcePackFolderModel;
+class ScreenshotsWatcher;
 class ShaderPackFolderModel;
 class TexturePackFolderModel;
 class WorldList;
@@ -106,6 +107,8 @@ class MinecraftInstance : public BaseInstance {
 
     void updateRuntimeContext() override;
 
+    void updateScreenshotsWatcherState();
+
     //////  Profile management //////
     std::shared_ptr<PackProfile> getPackProfile() const;
 
@@ -165,6 +168,7 @@ class MinecraftInstance : public BaseInstance {
 
    protected:  // data
     std::shared_ptr<PackProfile> m_components;
+    std::shared_ptr<ScreenshotsWatcher> m_screenshots_watcher;
     mutable std::shared_ptr<ModFolderModel> m_loader_mod_list;
     mutable std::shared_ptr<ModFolderModel> m_core_mod_list;
     mutable std::shared_ptr<ModFolderModel> m_nil_mod_list;

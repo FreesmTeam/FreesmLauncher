@@ -39,6 +39,7 @@
 #include "Application.h"
 #include "BuildConfig.h"
 #include "QObjectPtr.h"
+#include "minecraft/ScreenshotsWatcher.h"
 #include "minecraft/launch/AutoInstallJava.h"
 #include "minecraft/launch/CreateGameFolders.h"
 #include "minecraft/launch/ExtractNatives.h"
@@ -167,6 +168,8 @@ MinecraftInstance::MinecraftInstance(SettingsObjectPtr globalSettings, SettingsO
     : BaseInstance(globalSettings, settings, rootDir)
 {
     m_components.reset(new PackProfile(this));
+    // TODO: move it elsewhere
+    connect(this, &BaseInstance::runningStatusChanged, [=]() { updateScreenshotsWatcherState(); });
 }
 
 void MinecraftInstance::saveNow()
@@ -226,6 +229,7 @@ void MinecraftInstance::loadSpecificSettings()
         auto miscellaneousOverride = m_settings->registerSetting("OverrideMiscellaneous", false);
         m_settings->registerOverride(global_settings->getSetting("CloseAfterLaunch"), miscellaneousOverride);
         m_settings->registerOverride(global_settings->getSetting("QuitAfterGameStop"), miscellaneousOverride);
+        m_settings->registerOverride(global_settings->getSetting("CopyIngameScreenshots"), miscellaneousOverride);
 
         // Elyby
         auto elybyOverride = m_settings->registerSetting("OverrideElyby", false);
@@ -1348,6 +1352,18 @@ QList<Mod*> MinecraftInstance::getJarMods() const
         mods.push_back(new Mod(QFileInfo(jar[0])));
     }
     return mods;
+}
+
+void MinecraftInstance::updateScreenshotsWatcherState()
+{
+    if (m_settings->get("CopyIngameScreenshots").toBool()) {
+        if (m_isRunning) {
+            m_screenshots_watcher.reset(new ScreenshotsWatcher(gameRoot() + "/screenshots"));
+            qDebug() << "Started watching " << gameRoot() + "/screenshots";
+        } else {
+            m_screenshots_watcher.reset();
+        }
+    }
 }
 
 #include "MinecraftInstance.moc"
