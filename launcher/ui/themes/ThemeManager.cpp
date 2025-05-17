@@ -303,6 +303,7 @@ void ThemeManager::initializeCatPacks()
                                                     { "typescript", QObject::tr("You should have used Typescript") },
                                                     { "miside-screenshot", QObject::tr("MiSide Screenshot") },
                                                     { "maxwell-christmas-gif", QObject::tr("Maxwell Christmas Cat") },
+                                                    { "konata-gif", QObject::tr("Low-poly Konata") },
                                                     { "rory", QObject::tr("Rory ID 11 (drawn by Ashtaka)") },
                                                     { "rory-flat", QObject::tr("Rory ID 11 (flat edition, drawn by Ashtaka)") },
                                                     { "teawie", QObject::tr("Teawie (drawn by SympathyTea)") } };
