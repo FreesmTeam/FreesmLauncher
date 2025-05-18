@@ -110,7 +110,6 @@
 #include "ui/widgets/LabeledToolButton.h"
 
 #include "minecraft/PackProfile.h"
-#include "minecraft/ShortcutUtils.h"
 #include "minecraft/VersionFile.h"
 #include "minecraft/WorldList.h"
 #include "minecraft/mod/ModFolderModel.h"
@@ -209,26 +208,6 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent), ui(new Ui::MainWi
         exportInstanceMenu->addAction(ui->actionExportInstanceMrPack);
         exportInstanceMenu->addAction(ui->actionExportInstanceFlamePack);
         ui->actionExportInstance->setMenu(exportInstanceMenu);
-
-        QList<QAction*> shortcutActions = { ui->actionCreateInstanceShortcutOther };
-        if (!DesktopServices::isFlatpak()) {
-            QString desktopDir = FS::getDesktopDir();
-            QString applicationDir = FS::getApplicationsDir();
-
-            if (!applicationDir.isEmpty())
-                shortcutActions.push_front(ui->actionCreateInstanceShortcutApplications);
-
-            if (!desktopDir.isEmpty())
-                shortcutActions.push_front(ui->actionCreateInstanceShortcutDesktop);
-        }
-
-        if (shortcutActions.length() > 1) {
-            auto shortcutInstanceMenu = new QMenu(this);
-
-            for (auto action : shortcutActions)
-                shortcutInstanceMenu->addAction(action);
-            ui->actionCreateInstanceShortcut->setMenu(shortcutInstanceMenu);
-        }
     }
 
     // hide, disable and show stuff
@@ -1552,25 +1531,10 @@ void MainWindow::on_actionCreateInstanceShortcut_triggered()
     if (!m_selectedInstance)
         return;
 
-    if (DesktopServices::isFlatpak())
-        on_actionCreateInstanceShortcutOther_triggered();
-    else
-        on_actionCreateInstanceShortcutDesktop_triggered();
-}
-
-void MainWindow::on_actionCreateInstanceShortcutDesktop_triggered()
-{
-    ShortcutUtils::createInstanceShortcutOnDesktop({ m_selectedInstance.get(), m_selectedInstance->name(), tr("instance"), this });
-}
-
-void MainWindow::on_actionCreateInstanceShortcutApplications_triggered()
-{
-    ShortcutUtils::createInstanceShortcutInApplications({ m_selectedInstance.get(), m_selectedInstance->name(), tr("instance"), this });
-}
-
-void MainWindow::on_actionCreateInstanceShortcutOther_triggered()
-{
-    ShortcutUtils::createInstanceShortcutInOther({ m_selectedInstance.get(), m_selectedInstance->name(), tr("instance"), this });
+    CreateShortcutDialog shortcutDlg(m_selectedInstance, this);
+    if (!shortcutDlg.exec())
+        return;
+    shortcutDlg.createShortcut();
 }
 
 void MainWindow::taskEnd()

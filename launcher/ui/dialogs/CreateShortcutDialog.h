@@ -31,6 +31,8 @@ class CreateShortcutDialog : public QDialog {
     explicit CreateShortcutDialog(InstancePtr instance, QWidget* parent = nullptr);
     ~CreateShortcutDialog();
 
+    void createShortcut() const;
+
    private slots:
     // Icon, target and name
     void on_iconButton_clicked();

@@ -50,21 +50,59 @@
 #include "FileSystem.h"
 #include "InstanceList.h"
 #include "icons/IconList.h"
+#include "minecraft/ShortcutUtils.h"
 
 CreateShortcutDialog::CreateShortcutDialog(InstancePtr instance, QWidget* parent)
     : QDialog(parent), ui(new Ui::CreateShortcutDialog), m_instance(instance)
 {
     ui->setupUi(this);
-    resize(minimumSizeHint());
-    layout()->setSizeConstraint(QLayout::SetFixedSize);
 
     InstIconKey = instance->iconKey();
     ui->iconButton->setIcon(APPLICATION->icons()->getIcon(InstIconKey));
     ui->instNameTextBox->setText(instance->name());
-    ui->instNameTextBox->setFocus();
 }
 
 CreateShortcutDialog::~CreateShortcutDialog()
 {
     delete ui;
 }
+
+void CreateShortcutDialog::on_iconButton_clicked()
+{
+    IconPickerDialog dlg(this);
+    dlg.execWithSelection(InstIconKey);
+
+    if (dlg.result() == QDialog::Accepted) {
+        InstIconKey = dlg.selectedIconKey;
+        ui->iconButton->setIcon(APPLICATION->icons()->getIcon(InstIconKey));
+    }
+}
+
+void CreateShortcutDialog::on_saveTargetSelectionBox_currentIndexChanged(int index)
+{}
+
+void CreateShortcutDialog::on_instNameTextBox_textChanged(const QString& arg1)
+{}
+
+void CreateShortcutDialog::on_overrideAccountCheckbox_stateChanged(int state)
+{}
+
+void CreateShortcutDialog::on_accountSelectionBox_currentIndexChanged(int index)
+{}
+
+void CreateShortcutDialog::on_targetCheckbox_stateChanged(int state)
+{}
+
+void CreateShortcutDialog::on_worldSelectionBox_currentIndexChanged(int index)
+{}
+
+void CreateShortcutDialog::on_serverAddressTextBox_textChanged(const QString& arg1)
+{}
+
+void CreateShortcutDialog::targetChanged()
+{}
+
+// Real work
+void CreateShortcutDialog::createShortcut() const
+{}
+
