@@ -39,7 +39,6 @@ class CreateShortcutDialog : public QDialog {
 
     // Override account
     void on_overrideAccountCheckbox_stateChanged(int state);
-    void on_accountSelectionBox_currentIndexChanged(int index);
 
     // Override target (world, server)
     void on_targetCheckbox_stateChanged(int state);

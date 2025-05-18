@@ -50,9 +50,11 @@
 #include "FileSystem.h"
 #include "InstanceList.h"
 #include "icons/IconList.h"
+
 #include "minecraft/MinecraftInstance.h"
 #include "minecraft/ShortcutUtils.h"
 #include "minecraft/WorldList.h"
+#include "minecraft/auth/AccountList.h"
 
 CreateShortcutDialog::CreateShortcutDialog(InstancePtr instance, QWidget* parent)
     : QDialog(parent), ui(new Ui::CreateShortcutDialog), m_instance(instance)
@@ -95,6 +97,25 @@ CreateShortcutDialog::CreateShortcutDialog(InstancePtr instance, QWidget* parent
             ui->worldSelectionBox->addItem(entry_name, world.name());
         }
     }
+
+    // Populate accounts
+    auto accounts = APPLICATION->accounts();
+    MinecraftAccountPtr defaultAccount = accounts->defaultAccount();
+    if (accounts->count() <= 0) {
+        ui->overrideAccountCheckbox->setEnabled(false);
+    } else
+        for (int i = 0; i < accounts->count(); i++) {
+            MinecraftAccountPtr account = accounts->at(i);
+            auto profileLabel = account->profileName();
+            if (account->isInUse())
+                profileLabel = tr("%1 (in use)").arg(profileLabel);
+            auto face = account->getFace();
+            QIcon icon = face.isNull() ? APPLICATION->getThemedIcon("noaccount") : face;
+            ui->accountSelectionBox->addItem(profileLabel, account->profileName());
+            ui->accountSelectionBox->setItemIcon(i, icon);
+            if (defaultAccount == account)
+                ui->accountSelectionBox->setCurrentIndex(i);
+        }
 }
 
 CreateShortcutDialog::~CreateShortcutDialog()
@@ -117,8 +138,6 @@ void CreateShortcutDialog::on_overrideAccountCheckbox_stateChanged(int state)
 {
     ui->accountOptionsGroup->setEnabled(state == Qt::Checked);
 }
-
-void CreateShortcutDialog::on_accountSelectionBox_currentIndexChanged(int index) {}
 
 void CreateShortcutDialog::on_targetCheckbox_stateChanged(int state)
 {
@@ -186,10 +205,14 @@ void CreateShortcutDialog::createShortcut()
     auto name = ui->instNameTextBox->text();
     if (name.isEmpty())
         name = ui->instNameTextBox->placeholderText();
+    if (ui->overrideAccountCheckbox->isChecked())
+        extraArgs.append({ "--profile", ui->accountSelectionBox->currentData().toString() });
+
+    ShortcutUtils::Shortcut args{ m_instance.get(), name, targetString, this, extraArgs, InstIconKey };
     if (target == SaveTarget::Desktop)
-        ShortcutUtils::createInstanceShortcutOnDesktop({ m_instance.get(), name, targetString, this, extraArgs, InstIconKey });
+        ShortcutUtils::createInstanceShortcutOnDesktop(args);
     else if (target == SaveTarget::Applications)
-        ShortcutUtils::createInstanceShortcutInApplications({ m_instance.get(), name, targetString, this, extraArgs, InstIconKey });
+        ShortcutUtils::createInstanceShortcutInApplications(args);
     else
-        ShortcutUtils::createInstanceShortcutInOther({ m_instance.get(), name, targetString, this, extraArgs, InstIconKey });
+        ShortcutUtils::createInstanceShortcutInOther(args);
 }
