@@ -36,8 +36,6 @@ class CreateShortcutDialog : public QDialog {
    private slots:
     // Icon, target and name
     void on_iconButton_clicked();
-    void on_saveTargetSelectionBox_currentIndexChanged(int index);
-    void on_instNameTextBox_textChanged(const QString& arg1);
 
     // Override account
     void on_overrideAccountCheckbox_stateChanged(int state);
@@ -57,4 +55,5 @@ class CreateShortcutDialog : public QDialog {
     bool m_QuickJoinSupported = false;
 
     // Index representations
+    enum class SaveTarget { Desktop, Applications, Other };
 };

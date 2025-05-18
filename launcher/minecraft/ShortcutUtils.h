@@ -48,6 +48,7 @@ struct Shortcut {
     QString targetString;
     QWidget* parent = nullptr;
     QStringList extraArgs = {};
+    QString iconKey = "";
 };
 
 /// Create an instance shortcut on the specified file path

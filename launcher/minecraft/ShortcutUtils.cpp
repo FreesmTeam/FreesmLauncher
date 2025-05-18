@@ -54,6 +54,10 @@ void createInstanceShortcut(const Shortcut& shortcut, const QString& filePath)
         return;
 
     QString appPath = QApplication::applicationFilePath();
+    auto icon = APPLICATION->icons()->icon(shortcut.iconKey.isEmpty() ? shortcut.instance->iconKey() : shortcut.iconKey);
+    if (icon == nullptr) {
+        icon = APPLICATION->icons()->icon("grass");
+    }
     QString iconPath;
     QStringList args;
 #if defined(Q_OS_MACOS)
@@ -61,11 +65,6 @@ void createInstanceShortcut(const Shortcut& shortcut, const QString& filePath)
         QMessageBox::critical(shortcut.parent, QObject::tr("Create Shortcut"),
                               QObject::tr("The launcher is in the folder it was extracted from, therefore it cannot create shortcuts."));
         return;
-    }
-
-    auto pIcon = APPLICATION->icons()->icon(shortcut.instance->iconKey());
-    if (pIcon == nullptr) {
-        pIcon = APPLICATION->icons()->icon("grass");
     }
 
     iconPath = FS::PathCombine(shortcut.instance->instanceRoot(), "Icon.icns");
@@ -76,9 +75,8 @@ void createInstanceShortcut(const Shortcut& shortcut, const QString& filePath)
         return;
     }
 
-    QIcon icon = pIcon->icon();
-
-    bool success = icon.pixmap(1024, 1024).save(iconPath, "ICNS");
+    QIcon iconObj = icon->icon();
+    bool success = iconObj.pixmap(1024, 1024).save(iconPath, "ICNS");
     iconFile.close();
 
     if (!success) {
@@ -97,11 +95,6 @@ void createInstanceShortcut(const Shortcut& shortcut, const QString& filePath)
         } else if (appPath.endsWith("/")) {
             appPath.chop(1);
         }
-    }
-
-    auto icon = APPLICATION->icons()->icon(shortcut.instance->iconKey());
-    if (icon == nullptr) {
-        icon = APPLICATION->icons()->icon("grass");
     }
 
     iconPath = FS::PathCombine(shortcut.instance->instanceRoot(), "icon.png");
@@ -126,11 +119,6 @@ void createInstanceShortcut(const Shortcut& shortcut, const QString& filePath)
     }
 
 #elif defined(Q_OS_WIN)
-    auto icon = APPLICATION->icons()->icon(shortcut.instance->iconKey());
-    if (icon == nullptr) {
-        icon = APPLICATION->icons()->icon("grass");
-    }
-
     iconPath = FS::PathCombine(shortcut.instance->instanceRoot(), "icon.ico");
 
     // part of fix for weird bug involving the window icon being replaced

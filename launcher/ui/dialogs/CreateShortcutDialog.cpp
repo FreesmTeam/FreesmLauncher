@@ -63,8 +63,22 @@ CreateShortcutDialog::CreateShortcutDialog(InstancePtr instance, QWidget* parent
 
     m_QuickJoinSupported = instance->traits().contains("feature:is_quick_play_singleplayer");
     if (!m_QuickJoinSupported) {
-        // TODO: Remove radio box and add a single server address textbox instead
+        ui->worldTarget->hide();
+        ui->worldSelectionBox->hide();
     }
+
+    // Populate save targets
+    if (!DesktopServices::isFlatpak()) {
+        QString desktopDir = FS::getDesktopDir();
+        QString applicationDir = FS::getApplicationsDir();
+
+        if (!desktopDir.isEmpty())
+            ui->saveTargetSelectionBox->addItem("Desktop", QVariant::fromValue(SaveTarget::Desktop));
+
+        if (!applicationDir.isEmpty())
+            ui->saveTargetSelectionBox->addItem("Applications", QVariant::fromValue(SaveTarget::Applications));
+    }
+    ui->saveTargetSelectionBox->addItem("Other...", QVariant::fromValue(SaveTarget::Other));
 }
 
 CreateShortcutDialog::~CreateShortcutDialog()
@@ -83,15 +97,17 @@ void CreateShortcutDialog::on_iconButton_clicked()
     }
 }
 
-void CreateShortcutDialog::on_saveTargetSelectionBox_currentIndexChanged(int index) {}
-
-void CreateShortcutDialog::on_instNameTextBox_textChanged(const QString& arg1) {}
-
-void CreateShortcutDialog::on_overrideAccountCheckbox_stateChanged(int state) {}
+void CreateShortcutDialog::on_overrideAccountCheckbox_stateChanged(int state)
+{
+    ui->accountOptionsGroup->setEnabled(state == Qt::Checked);
+}
 
 void CreateShortcutDialog::on_accountSelectionBox_currentIndexChanged(int index) {}
 
-void CreateShortcutDialog::on_targetCheckbox_stateChanged(int state) {}
+void CreateShortcutDialog::on_targetCheckbox_stateChanged(int state)
+{
+    ui->targetOptionsGroup->setEnabled(state == Qt::Checked);
+}
 
 void CreateShortcutDialog::on_worldSelectionBox_currentIndexChanged(int index) {}
 
@@ -113,5 +129,13 @@ void CreateShortcutDialog::createShortcut()
             extraArgs = { "--server", /* server address */ };
         }
     }
-    ShortcutUtils::createInstanceShortcutOnDesktop({ m_instance.get(), m_instance->name(), targetString, this, extraArgs });
+
+    auto target = ui->saveTargetSelectionBox->currentData().value<SaveTarget>();
+    auto name = ui->instNameTextBox->text();
+    if (target == SaveTarget::Desktop)
+        ShortcutUtils::createInstanceShortcutOnDesktop({ m_instance.get(), name, targetString, this, extraArgs, InstIconKey });
+    else if (target == SaveTarget::Applications)
+        ShortcutUtils::createInstanceShortcutInApplications({ m_instance.get(), name, targetString, this, extraArgs, InstIconKey });
+    else
+        ShortcutUtils::createInstanceShortcutInOther({ m_instance.get(), m_instance->name(), targetString, this, extraArgs, InstIconKey });
 }
