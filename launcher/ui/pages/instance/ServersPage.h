@@ -85,10 +85,6 @@ class ServersPage : public QMainWindow, public BasePage {
     void on_actionMove_Up_triggered();
     void on_actionMove_Down_triggered();
     void on_actionJoin_triggered();
-    void on_actionCreateServerShortcut_triggered();
-    void on_actionCreateServerShortcutDesktop_triggered();
-    void on_actionCreateServerShortcutApplications_triggered();
-    void on_actionCreateServerShortcutOther_triggered();
     void on_actionRefresh_triggered();
 
     void runningStateChanged(bool running);

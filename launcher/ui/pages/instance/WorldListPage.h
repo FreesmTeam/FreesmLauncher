@@ -95,10 +95,6 @@ class WorldListPage : public QMainWindow, public BasePage {
     void on_actionAdd_triggered();
     void on_actionCopy_triggered();
     void on_actionRename_triggered();
-    void on_actionCreateWorldShortcut_triggered();
-    void on_actionCreateWorldShortcutDesktop_triggered();
-    void on_actionCreateWorldShortcutApplications_triggered();
-    void on_actionCreateWorldShortcutOther_triggered();
     void on_actionRefresh_triggered();
     void on_actionView_Folder_triggered();
     void on_actionDatapacks_triggered();

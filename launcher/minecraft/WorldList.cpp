@@ -46,9 +46,6 @@
 #include <QUuid>
 #include <Qt>
 
-#include <DesktopServices.h>
-#include "minecraft/ShortcutUtils.h"
-
 WorldList::WorldList(const QString& dir, BaseInstance* instance) : QAbstractListModel(), m_instance(instance), m_dir(dir)
 {
     FS::ensureFolderPathExists(m_dir.absolutePath());
@@ -455,41 +452,6 @@ void WorldList::loadWorldsAsync()
                 Qt::QueuedConnection);
         });
     }
-}
-
-void WorldList::createWorldShortcut(const QModelIndex& index, QWidget* parent) const
-{
-    if (!m_instance)
-        return;
-
-    if (DesktopServices::isFlatpak())
-        createWorldShortcutInOther(index, parent);
-    else
-        createWorldShortcutOnDesktop(index, parent);
-}
-
-void WorldList::createWorldShortcutOnDesktop(const QModelIndex& index, QWidget* parent) const
-{
-    const auto& world = allWorlds().at(index.row());
-    QString name = QString(tr("%1 - %2")).arg(m_instance->name(), world.name());
-    QStringList extraArgs{ "--world", world.name() };
-    ShortcutUtils::createInstanceShortcutOnDesktop({ m_instance, name, tr("world"), parent, extraArgs });
-}
-
-void WorldList::createWorldShortcutInApplications(const QModelIndex& index, QWidget* parent) const
-{
-    const auto& world = allWorlds().at(index.row());
-    QString name = QString(tr("%1 - %2")).arg(m_instance->name(), world.name());
-    QStringList extraArgs{ "--world", world.name() };
-    ShortcutUtils::createInstanceShortcutInApplications({ m_instance, name, tr("world"), parent, extraArgs });
-}
-
-void WorldList::createWorldShortcutInOther(const QModelIndex& index, QWidget* parent) const
-{
-    const auto& world = allWorlds().at(index.row());
-    QString name = QString(tr("%1 - %2")).arg(m_instance->name(), world.name());
-    QStringList extraArgs{ "--world", world.name() };
-    ShortcutUtils::createInstanceShortcutInOther({ m_instance, name, tr("world"), parent, extraArgs });
 }
 
 #include "WorldList.moc"
