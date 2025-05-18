@@ -50,7 +50,9 @@
 #include "FileSystem.h"
 #include "InstanceList.h"
 #include "icons/IconList.h"
+#include "minecraft/MinecraftInstance.h"
 #include "minecraft/ShortcutUtils.h"
+#include "minecraft/WorldList.h"
 
 CreateShortcutDialog::CreateShortcutDialog(InstancePtr instance, QWidget* parent)
     : QDialog(parent), ui(new Ui::CreateShortcutDialog), m_instance(instance)
@@ -59,12 +61,14 @@ CreateShortcutDialog::CreateShortcutDialog(InstancePtr instance, QWidget* parent
 
     InstIconKey = instance->iconKey();
     ui->iconButton->setIcon(APPLICATION->icons()->getIcon(InstIconKey));
-    ui->instNameTextBox->setText(instance->name());
+    ui->instNameTextBox->setPlaceholderText(instance->name());
 
-    m_QuickJoinSupported = instance->traits().contains("feature:is_quick_play_singleplayer");
+    auto mInst = std::dynamic_pointer_cast<MinecraftInstance>(instance);
+    m_QuickJoinSupported = mInst && mInst->traits().contains("feature:is_quick_play_singleplayer");
     if (!m_QuickJoinSupported) {
         ui->worldTarget->hide();
         ui->worldSelectionBox->hide();
+        ui->serverTarget->setChecked(true);
     }
 
     // Populate save targets
@@ -79,6 +83,18 @@ CreateShortcutDialog::CreateShortcutDialog(InstancePtr instance, QWidget* parent
             ui->saveTargetSelectionBox->addItem("Applications", QVariant::fromValue(SaveTarget::Applications));
     }
     ui->saveTargetSelectionBox->addItem("Other...", QVariant::fromValue(SaveTarget::Other));
+
+    // Populate worlds
+    if (m_QuickJoinSupported) {
+        auto worldList = mInst->worldList();
+        worldList->update();
+        for (const auto& world : worldList->allWorlds()) {
+            // Entry name: World Name [Game Mode] - Last Played: DateTime
+            QString entry_name = tr("%1 [%2] - Last Played: %3")
+                                     .arg(world.name(), world.gameType().toTranslatedString(), world.lastPlayed().toString(Qt::ISODate));
+            ui->worldSelectionBox->addItem(entry_name, world.name());
+        }
+    }
 }
 
 CreateShortcutDialog::~CreateShortcutDialog()
@@ -107,13 +123,49 @@ void CreateShortcutDialog::on_accountSelectionBox_currentIndexChanged(int index)
 void CreateShortcutDialog::on_targetCheckbox_stateChanged(int state)
 {
     ui->targetOptionsGroup->setEnabled(state == Qt::Checked);
+    ui->worldSelectionBox->setEnabled(ui->worldTarget->isChecked());
+    ui->serverAddressBox->setEnabled(ui->serverTarget->isChecked());
+    stateChanged();
 }
 
-void CreateShortcutDialog::on_worldSelectionBox_currentIndexChanged(int index) {}
+void CreateShortcutDialog::on_worldTarget_toggled(bool checked)
+{
+    ui->worldSelectionBox->setEnabled(checked);
+    stateChanged();
+}
 
-void CreateShortcutDialog::on_serverAddressBox_textChanged(const QString& arg1) {}
+void CreateShortcutDialog::on_serverTarget_toggled(bool checked)
+{
+    ui->serverAddressBox->setEnabled(checked);
+    stateChanged();
+}
 
-void CreateShortcutDialog::targetChanged() {}
+void CreateShortcutDialog::on_worldSelectionBox_currentIndexChanged(int index)
+{
+    stateChanged();
+}
+
+void CreateShortcutDialog::on_serverAddressBox_textChanged(const QString& text)
+{
+    stateChanged();
+}
+
+void CreateShortcutDialog::stateChanged()
+{
+    QString result = m_instance->name();
+    if (ui->targetCheckbox->isChecked()) {
+        if (ui->worldTarget->isChecked())
+            result = tr("%1 - %2").arg(result, ui->worldSelectionBox->currentData().toString());
+        else if (ui->serverTarget->isChecked())
+            result = tr("%1 - Server %2").arg(result, ui->serverAddressBox->text());
+    }
+    ui->instNameTextBox->setPlaceholderText(result);
+    if (!ui->targetCheckbox->isChecked())
+        ui->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(true);
+    else
+        ui->buttonBox->button(QDialogButtonBox::Ok)
+            ->setEnabled(ui->worldTarget->isChecked() || (ui->serverTarget->isChecked() && !ui->serverAddressBox->text().isEmpty()));
+}
 
 // Real work
 void CreateShortcutDialog::createShortcut()
@@ -123,19 +175,21 @@ void CreateShortcutDialog::createShortcut()
     if (ui->targetCheckbox->isChecked()) {
         if (ui->worldTarget->isChecked()) {
             targetString = tr("world");
-            extraArgs = { "--world", /* world ID */ };
+            extraArgs = { "--world", ui->worldSelectionBox->currentData().toString() };
         } else if (ui->serverTarget->isChecked()) {
             targetString = tr("server");
-            extraArgs = { "--server", /* server address */ };
+            extraArgs = { "--server", ui->serverAddressBox->text() };
         }
     }
 
     auto target = ui->saveTargetSelectionBox->currentData().value<SaveTarget>();
     auto name = ui->instNameTextBox->text();
+    if (name.isEmpty())
+        name = ui->instNameTextBox->placeholderText();
     if (target == SaveTarget::Desktop)
         ShortcutUtils::createInstanceShortcutOnDesktop({ m_instance.get(), name, targetString, this, extraArgs, InstIconKey });
     else if (target == SaveTarget::Applications)
         ShortcutUtils::createInstanceShortcutInApplications({ m_instance.get(), name, targetString, this, extraArgs, InstIconKey });
     else
-        ShortcutUtils::createInstanceShortcutInOther({ m_instance.get(), m_instance->name(), targetString, this, extraArgs, InstIconKey });
+        ShortcutUtils::createInstanceShortcutInOther({ m_instance.get(), name, targetString, this, extraArgs, InstIconKey });
 }

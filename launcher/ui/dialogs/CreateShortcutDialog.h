@@ -43,9 +43,10 @@ class CreateShortcutDialog : public QDialog {
 
     // Override target (world, server)
     void on_targetCheckbox_stateChanged(int state);
+    void on_worldTarget_toggled(bool checked);
+    void on_serverTarget_toggled(bool checked);
     void on_worldSelectionBox_currentIndexChanged(int index);
-    void on_serverAddressBox_textChanged(const QString& arg1);
-    void targetChanged();
+    void on_serverAddressBox_textChanged(const QString& text);
 
    private:
     // Data
@@ -56,4 +57,7 @@ class CreateShortcutDialog : public QDialog {
 
     // Index representations
     enum class SaveTarget { Desktop, Applications, Other };
+
+    // Functions
+    void stateChanged();
 };
