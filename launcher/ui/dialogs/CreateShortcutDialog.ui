@@ -131,14 +131,21 @@
      </property>
      <layout class="QGridLayout" name="targetOptionsGridLayout">
       <item row="0" column="0">
-       <widget class="QRadioButton" name="worldTarget">
-        <property name="text">
-         <string>World:</string>
+       <layout class="QVBoxLayout" name="worldOverlap">
+        <property name="spacing">
+         <number>0</number>
         </property>
-        <attribute name="buttonGroup">
-         <string notr="true">targetBtnGroup</string>
-        </attribute>
-       </widget>
+        <item>
+         <widget class="QRadioButton" name="worldTarget">
+          <property name="text">
+           <string>World:</string>
+          </property>
+          <attribute name="buttonGroup">
+           <string notr="true">targetBtnGroup</string>
+          </attribute>
+         </widget>
+        </item>
+       </layout>
       </item>
       <item row="0" column="1">
        <widget class="QComboBox" name="worldSelectionBox">
@@ -151,14 +158,31 @@
        </widget>
       </item>
       <item row="1" column="0">
-       <widget class="QRadioButton" name="serverTarget">
-        <property name="text">
-         <string>Server Address:</string>
+       <layout class="QVBoxLayout" name="serverOverlap">
+        <property name="spacing">
+         <number>0</number>
         </property>
-        <attribute name="buttonGroup">
-         <string notr="true">targetBtnGroup</string>
-        </attribute>
-       </widget>
+        <item>
+         <widget class="QRadioButton" name="serverTarget">
+          <property name="text">
+           <string>Server Address:</string>
+          </property>
+          <attribute name="buttonGroup">
+           <string notr="true">targetBtnGroup</string>
+          </attribute>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLabel" name="serverLabel">
+          <property name="visible">
+           <bool>false</bool>
+          </property>
+          <property name="text">
+           <string>Server Address:</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
       </item>
       <item row="1" column="1">
        <widget class="QLineEdit" name="serverAddressBox">

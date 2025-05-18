@@ -71,6 +71,8 @@ CreateShortcutDialog::CreateShortcutDialog(InstancePtr instance, QWidget* parent
         ui->worldTarget->hide();
         ui->worldSelectionBox->hide();
         ui->serverTarget->setChecked(true);
+        ui->serverTarget->hide();
+        ui->serverLabel->show();
     }
 
     // Populate save targets
