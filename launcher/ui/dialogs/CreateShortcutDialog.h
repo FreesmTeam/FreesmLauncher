@@ -31,7 +31,7 @@ class CreateShortcutDialog : public QDialog {
     explicit CreateShortcutDialog(InstancePtr instance, QWidget* parent = nullptr);
     ~CreateShortcutDialog();
 
-    void createShortcut() const;
+    void createShortcut();
 
    private slots:
     // Icon, target and name
@@ -46,13 +46,15 @@ class CreateShortcutDialog : public QDialog {
     // Override target (world, server)
     void on_targetCheckbox_stateChanged(int state);
     void on_worldSelectionBox_currentIndexChanged(int index);
-    void on_serverAddressTextBox_textChanged(const QString& arg1);
+    void on_serverAddressBox_textChanged(const QString& arg1);
     void targetChanged();
 
    private:
-    /* data */
+    // Data
     Ui::CreateShortcutDialog* ui;
     QString InstIconKey;
     InstancePtr m_instance;
     bool m_QuickJoinSupported = false;
+
+    // Index representations
 };

@@ -60,6 +60,11 @@ CreateShortcutDialog::CreateShortcutDialog(InstancePtr instance, QWidget* parent
     InstIconKey = instance->iconKey();
     ui->iconButton->setIcon(APPLICATION->icons()->getIcon(InstIconKey));
     ui->instNameTextBox->setText(instance->name());
+
+    m_QuickJoinSupported = instance->traits().contains("feature:is_quick_play_singleplayer");
+    if (!m_QuickJoinSupported) {
+        // TODO: Remove radio box and add a single server address textbox instead
+    }
 }
 
 CreateShortcutDialog::~CreateShortcutDialog()
@@ -78,31 +83,35 @@ void CreateShortcutDialog::on_iconButton_clicked()
     }
 }
 
-void CreateShortcutDialog::on_saveTargetSelectionBox_currentIndexChanged(int index)
-{}
+void CreateShortcutDialog::on_saveTargetSelectionBox_currentIndexChanged(int index) {}
 
-void CreateShortcutDialog::on_instNameTextBox_textChanged(const QString& arg1)
-{}
+void CreateShortcutDialog::on_instNameTextBox_textChanged(const QString& arg1) {}
 
-void CreateShortcutDialog::on_overrideAccountCheckbox_stateChanged(int state)
-{}
+void CreateShortcutDialog::on_overrideAccountCheckbox_stateChanged(int state) {}
 
-void CreateShortcutDialog::on_accountSelectionBox_currentIndexChanged(int index)
-{}
+void CreateShortcutDialog::on_accountSelectionBox_currentIndexChanged(int index) {}
 
-void CreateShortcutDialog::on_targetCheckbox_stateChanged(int state)
-{}
+void CreateShortcutDialog::on_targetCheckbox_stateChanged(int state) {}
 
-void CreateShortcutDialog::on_worldSelectionBox_currentIndexChanged(int index)
-{}
+void CreateShortcutDialog::on_worldSelectionBox_currentIndexChanged(int index) {}
 
-void CreateShortcutDialog::on_serverAddressTextBox_textChanged(const QString& arg1)
-{}
+void CreateShortcutDialog::on_serverAddressBox_textChanged(const QString& arg1) {}
 
-void CreateShortcutDialog::targetChanged()
-{}
+void CreateShortcutDialog::targetChanged() {}
 
 // Real work
-void CreateShortcutDialog::createShortcut() const
-{}
-
+void CreateShortcutDialog::createShortcut()
+{
+    QString targetString = tr("instance");
+    QStringList extraArgs;
+    if (ui->targetCheckbox->isChecked()) {
+        if (ui->worldTarget->isChecked()) {
+            targetString = tr("world");
+            extraArgs = { "--world", /* world ID */ };
+        } else if (ui->serverTarget->isChecked()) {
+            targetString = tr("server");
+            extraArgs = { "--server", /* server address */ };
+        }
+    }
+    ShortcutUtils::createInstanceShortcutOnDesktop({ m_instance.get(), m_instance->name(), targetString, this, extraArgs });
+}
