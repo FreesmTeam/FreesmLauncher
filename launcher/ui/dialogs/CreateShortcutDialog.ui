@@ -135,6 +135,9 @@
         <property name="text">
          <string>World:</string>
         </property>
+        <attribute name="buttonGroup">
+         <string notr="true">targetBtnGroup</string>
+        </attribute>
        </widget>
       </item>
       <item row="0" column="1">
@@ -152,6 +155,9 @@
         <property name="text">
          <string>Server Address:</string>
         </property>
+        <attribute name="buttonGroup">
+         <string notr="true">targetBtnGroup</string>
+        </attribute>
        </widget>
       </item>
       <item row="1" column="1">
@@ -214,4 +220,7 @@
    </hints>
   </connection>
  </connections>
+ <buttongroups>
+  <buttongroup name="targetBtnGroup"/>
+ </buttongroups>
 </ui>

@@ -1050,6 +1050,8 @@ SET(LAUNCHER_SOURCES
     ui/dialogs/ProfileSetupDialog.h
     ui/dialogs/CopyInstanceDialog.cpp
     ui/dialogs/CopyInstanceDialog.h
+    ui/dialogs/CreateShortcutDialog.cpp
+    ui/dialogs/CreateShortcutDialog.h
     ui/dialogs/CustomMessageBox.cpp
     ui/dialogs/CustomMessageBox.h
     ui/dialogs/ExportInstanceDialog.cpp
@@ -1232,6 +1234,7 @@ qt_wrap_ui(LAUNCHER_UI
     ui/widgets/MinecraftSettingsWidget.ui
     ui/widgets/JavaSettingsWidget.ui
     ui/dialogs/CopyInstanceDialog.ui
+    ui/dialogs/CreateShortcutDialog.ui
     ui/dialogs/ProfileSetupDialog.ui
     ui/dialogs/ProgressDialog.ui
     ui/dialogs/NewInstanceDialog.ui

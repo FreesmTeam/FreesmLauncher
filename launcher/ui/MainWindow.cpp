@@ -93,6 +93,7 @@
 #include "ui/GuiUtil.h"
 #include "ui/dialogs/AboutDialog.h"
 #include "ui/dialogs/CopyInstanceDialog.h"
+#include "ui/dialogs/CreateShortcutDialog.h"
 #include "ui/dialogs/CustomMessageBox.h"
 #include "ui/dialogs/ExportInstanceDialog.h"
 #include "ui/dialogs/ExportPackDialog.h"
