@@ -1,5 +1,4 @@
 #include "ResourceFolderModel.h"
-#include <qvariant.h>
 #include <QMessageBox>
 
 #include <QCoreApplication>
