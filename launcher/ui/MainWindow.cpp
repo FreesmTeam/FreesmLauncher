@@ -181,7 +181,7 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent), ui(new Ui::MainWi
         auto const setting_name = QString("WideBarVisibility_%1").arg(ui->instanceToolBar->objectName());
         instanceToolbarSetting = APPLICATION->settings()->getOrRegisterSetting(setting_name);
 
-        ui->instanceToolBar->setVisibilityState(QByteArray::fromBase64(instanceToolbarSetting->get().toByteArray()));
+        ui->instanceToolBar->setVisibilityState(QByteArray::fromBase64(instanceToolbarSetting->get().toString().toUtf8()));
 
         ui->instanceToolBar->addContextMenuAction(ui->newsToolBar->toggleViewAction());
         ui->instanceToolBar->addContextMenuAction(ui->instanceToolBar->toggleViewAction());
@@ -1296,7 +1296,7 @@ void MainWindow::globalSettingsClosed()
     updateStatusCenter();
     // This needs to be done to prevent UI elements disappearing in the event the config is changed
     // but Prism Launcher exits abnormally, causing the window state to never be saved:
-    APPLICATION->settings()->set("MainWindowState", saveState().toBase64());
+    APPLICATION->settings()->set("MainWindowState", QString::fromUtf8(saveState().toBase64()));
     update();
 }
 
@@ -1491,9 +1491,9 @@ void MainWindow::on_actionViewSelectedInstFolder_triggered()
 void MainWindow::closeEvent(QCloseEvent* event)
 {
     // Save the window state and geometry.
-    APPLICATION->settings()->set("MainWindowState", saveState().toBase64());
-    APPLICATION->settings()->set("MainWindowGeometry", saveGeometry().toBase64());
-    instanceToolbarSetting->set(ui->instanceToolBar->getVisibilityState().toBase64());
+    APPLICATION->settings()->set("MainWindowState", QString::fromUtf8(saveState().toBase64()));
+    APPLICATION->settings()->set("MainWindowGeometry", QString::fromUtf8(saveGeometry().toBase64()));
+    instanceToolbarSetting->set(QString::fromUtf8(ui->instanceToolBar->getVisibilityState().toBase64()));
     event->accept();
     emit isClosing();
 }

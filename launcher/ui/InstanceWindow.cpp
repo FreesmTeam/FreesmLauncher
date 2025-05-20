@@ -116,9 +116,9 @@ InstanceWindow::InstanceWindow(InstancePtr instance, QWidget* parent) : QMainWin
 
     // restore window state
     {
-        auto base64State = APPLICATION->settings()->get("ConsoleWindowState").toByteArray();
+        auto base64State = APPLICATION->settings()->get("ConsoleWindowState").toString().toUtf8();
         restoreState(QByteArray::fromBase64(base64State));
-        auto base64Geometry = APPLICATION->settings()->get("ConsoleWindowGeometry").toByteArray();
+        auto base64Geometry = APPLICATION->settings()->get("ConsoleWindowGeometry").toString().toUtf8();
         restoreGeometry(QByteArray::fromBase64(base64Geometry));
     }
 
@@ -190,8 +190,8 @@ void InstanceWindow::closeEvent(QCloseEvent* event)
         return;
     }
 
-    APPLICATION->settings()->set("ConsoleWindowState", saveState().toBase64());
-    APPLICATION->settings()->set("ConsoleWindowGeometry", saveGeometry().toBase64());
+    APPLICATION->settings()->set("ConsoleWindowState", QString::fromUtf8(saveState().toBase64()));
+    APPLICATION->settings()->set("ConsoleWindowGeometry", QString::fromUtf8(saveGeometry().toBase64()));
     emit isClosing();
     event->accept();
 }

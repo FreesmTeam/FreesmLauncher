@@ -152,7 +152,14 @@ bool parseOldFileFormat(QIODevice& device, QSettings::SettingsMap& map)
 QVariant migrateQByteArrayToBase64(QString key, QVariant value)
 {
     if (key.startsWith("WideBarVisibility_") || (key.startsWith("UI/") && key.endsWith("_Page/Columns"))) {
-        return value.toByteArray().toBase64();
+        return QString::fromUtf8(value.toByteArray().toBase64());
+    }
+    static const QStringList otherByteArrays = { "MainWindowState",       "MainWindowGeometry", "ConsoleWindowState",
+                                                 "ConsoleWindowGeometry", "PagedGeometry",      "NewInstanceGeometry",
+                                                 "ModDownloadGeometry",   "RPDownloadGeometry", "TPDownloadGeometry",
+                                                 "ShaderDownloadGeometry" };
+    if (otherByteArrays.contains(key)) {
+        return QString::fromUtf8(value.toByteArray());
     }
     return value;
 }
