@@ -282,5 +282,8 @@ JSON_HELPERFUNCTIONS(Variant, QVariant)
 QStringList toStringList(const QString& jsonString);
 QString fromStringList(const QStringList& list);
 
+QVariantMap toMap(const QString& jsonString);
+QString fromMap(const QVariantMap& map);
+
 }  // namespace Json
 using JSONValidationError = Json::JsonException;

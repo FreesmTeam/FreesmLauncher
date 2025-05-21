@@ -44,6 +44,7 @@
 #include <QJsonObject>
 
 #include "Application.h"
+#include "Json.h"
 #include "settings/INISettingsObject.h"
 #include "settings/OverrideSetting.h"
 #include "settings/Setting.h"
@@ -202,25 +203,25 @@ bool BaseInstance::shouldStopOnConsoleOverflow() const
 
 QStringList BaseInstance::getLinkedInstances() const
 {
-    return m_settings->get("linkedInstances").toStringList();
+    auto setting = m_settings->get("linkedInstances").toString();
+    return Json::toStringList(setting);
 }
 
 void BaseInstance::setLinkedInstances(const QStringList& list)
 {
-    auto linkedInstances = m_settings->get("linkedInstances").toStringList();
-    m_settings->set("linkedInstances", list);
+    m_settings->set("linkedInstances", Json::fromStringList(list));
 }
 
 void BaseInstance::addLinkedInstanceId(const QString& id)
 {
-    auto linkedInstances = m_settings->get("linkedInstances").toStringList();
+    auto linkedInstances = getLinkedInstances();
     linkedInstances.append(id);
     setLinkedInstances(linkedInstances);
 }
 
 bool BaseInstance::removeLinkedInstanceId(const QString& id)
 {
-    auto linkedInstances = m_settings->get("linkedInstances").toStringList();
+    auto linkedInstances = getLinkedInstances();
     int numRemoved = linkedInstances.removeAll(id);
     setLinkedInstances(linkedInstances);
     return numRemoved > 0;
@@ -228,7 +229,7 @@ bool BaseInstance::removeLinkedInstanceId(const QString& id)
 
 bool BaseInstance::isLinkedToInstanceId(const QString& id) const
 {
-    auto linkedInstances = m_settings->get("linkedInstances").toStringList();
+    auto linkedInstances = getLinkedInstances();
     return linkedInstances.contains(id);
 }
 

@@ -44,6 +44,7 @@
 #include <QTextStream>
 
 #include <QSettings>
+#include "Json.h"
 
 INIFile::INIFile() {}
 
@@ -151,15 +152,21 @@ bool parseOldFileFormat(QIODevice& device, QSettings::SettingsMap& map)
 
 QVariant migrateQByteArrayToBase64(QString key, QVariant value)
 {
-    if (key.startsWith("WideBarVisibility_") || (key.startsWith("UI/") && key.endsWith("_Page/Columns"))) {
-        return QString::fromUtf8(value.toByteArray().toBase64());
-    }
     static const QStringList otherByteArrays = { "MainWindowState",       "MainWindowGeometry", "ConsoleWindowState",
                                                  "ConsoleWindowGeometry", "PagedGeometry",      "NewInstanceGeometry",
                                                  "ModDownloadGeometry",   "RPDownloadGeometry", "TPDownloadGeometry",
                                                  "ShaderDownloadGeometry" };
+    if (key.startsWith("WideBarVisibility_") || (key.startsWith("UI/") && key.endsWith("_Page/Columns"))) {
+        return QString::fromUtf8(value.toByteArray().toBase64());
+    }
     if (otherByteArrays.contains(key)) {
         return QString::fromUtf8(value.toByteArray());
+    }
+    if (key == "linkedInstances") {
+        return Json::fromStringList(value.toStringList());
+    }
+    if (key == "Env") {
+        return Json::fromMap(value.toMap());
     }
     return value;
 }

@@ -304,4 +304,23 @@ QString fromStringList(const QStringList& list)
     return QString::fromUtf8(doc.toJson(QJsonDocument::Compact));
 }
 
+QVariantMap toMap(const QString& jsonString)
+{
+    QJsonParseError parseError;
+    QJsonDocument doc = QJsonDocument::fromJson(jsonString.toUtf8(), &parseError);
+
+    if (parseError.error != QJsonParseError::NoError || !doc.isObject())
+        return {};
+
+    QJsonObject obj = doc.object();
+    return obj.toVariantMap();
+}
+
+QString fromMap(const QVariantMap& map)
+{
+    QJsonObject obj = QJsonObject::fromVariantMap(map);
+    QJsonDocument doc(obj);
+    return QString::fromUtf8(doc.toJson(QJsonDocument::Compact));
+}
+
 }  // namespace Json

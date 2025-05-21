@@ -816,7 +816,7 @@ Application::Application(int& argc, char** argv) : QApplication(argc, argv)
         m_settings->registerSetting("TPDownloadGeometry", "");
         m_settings->registerSetting("ShaderDownloadGeometry", "");
 
-        m_settings->registerSetting("UI/FolderResourceColumnVisibility", QVariantMap{});
+        m_settings->registerSetting("UI/FolderResourceColumnVisibility", "{}");
 
         // HACK: This code feels so stupid is there a less stupid way of doing this?
         {
@@ -855,7 +855,7 @@ Application::Application(int& argc, char** argv) : QApplication(argc, argv)
         m_settings->registerSetting("CloseAfterLaunch", false);
         m_settings->registerSetting("QuitAfterGameStop", false);
 
-        m_settings->registerSetting("Env", QVariant(QMap<QString, QVariant>()));
+        m_settings->registerSetting("Env", "{}");
 
         // Custom Microsoft Authentication Client ID
         m_settings->registerSetting("MSAClientIDOverride", "");

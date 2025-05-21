@@ -38,6 +38,7 @@
 #include "MinecraftInstance.h"
 #include "Application.h"
 #include "BuildConfig.h"
+#include "Json.h"
 #include "QObjectPtr.h"
 #include "minecraft/launch/AutoInstallJava.h"
 #include "minecraft/launch/CreateGameFolders.h"
@@ -232,7 +233,7 @@ void MinecraftInstance::loadSpecificSettings()
         m_settings->registerOverride(global_settings->getSetting("Env"), envSetting);
 
         m_settings->registerSetting("UI/ColumnsOverride", false);
-        m_settings->registerSetting("UI/FolderResourceColumnVisibility", QVariantMap{});
+        m_settings->registerSetting("UI/FolderResourceColumnVisibility", "{}");
 
         m_settings->set("InstanceType", "OneSix");
     }
@@ -623,7 +624,8 @@ QProcessEnvironment MinecraftInstance::createEnvironment()
     }
     // custom env
 
-    auto insertEnv = [&env](QMap<QString, QVariant> envMap) {
+    auto insertEnv = [&env](QString value) {
+        auto envMap = Json::toMap(value);
         if (envMap.isEmpty())
             return;
 
@@ -634,9 +636,9 @@ QProcessEnvironment MinecraftInstance::createEnvironment()
     bool overrideEnv = settings()->get("OverrideEnv").toBool();
 
     if (!overrideEnv)
-        insertEnv(APPLICATION->settings()->get("Env").toMap());
+        insertEnv(APPLICATION->settings()->get("Env").toString());
     else
-        insertEnv(settings()->get("Env").toMap());
+        insertEnv(settings()->get("Env").toString());
     return env;
 }
 

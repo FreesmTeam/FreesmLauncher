@@ -597,14 +597,14 @@ void ResourceFolderModel::saveColumns(QTreeView* tree)
     if (!settings->get("UI/ColumnsOverride").toBool()) {
         settings = APPLICATION->settings();
     }
-    auto visibility = settings->get("UI/FolderResourceColumnVisibility").toMap();
+    auto visibility = Json::toMap(settings->get("UI/FolderResourceColumnVisibility").toString());
     for (auto i = 0; i < m_column_names.size(); ++i) {
         if (m_columnsHideable[i]) {
             auto name = m_column_names[i];
             visibility[name] = !tree->isColumnHidden(i);
         }
     }
-    settings->set("UI/FolderResourceColumnVisibility", visibility);
+    settings->set("UI/FolderResourceColumnVisibility", Json::fromMap(visibility));
 }
 
 void ResourceFolderModel::loadColumns(QTreeView* tree)
@@ -615,7 +615,7 @@ void ResourceFolderModel::loadColumns(QTreeView* tree)
     tree->header()->restoreState(QByteArray::fromBase64(setting->get().toString().toUtf8()));
 
     auto setVisible = [this, tree](QVariant value) {
-        auto visibility = value.toMap();
+        auto visibility = Json::toMap(value.toString());
         for (auto i = 0; i < m_column_names.size(); ++i) {
             if (m_columnsHideable[i]) {
                 auto name = m_column_names[i];
@@ -630,13 +630,13 @@ void ResourceFolderModel::loadColumns(QTreeView* tree)
         settings = APPLICATION->settings();
     }
     auto visibility = settings->getSetting("UI/FolderResourceColumnVisibility");
-    setVisible(visibility->get().toMap());
+    setVisible(visibility->get());
 
     // allways connect the signal in case the setting is toggled on and off
     auto gSetting = APPLICATION->settings()->getOrRegisterSetting("UI/FolderResourceColumnVisibility");
     connect(gSetting.get(), &Setting::SettingChanged, tree, [this, setVisible](const Setting&, QVariant value) {
         if (!m_instance->settings()->get("UI/ColumnsOverride").toBool()) {
-            setVisible(value.toMap());
+            setVisible(value);
         }
     });
 }

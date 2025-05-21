@@ -180,7 +180,7 @@ void MinecraftSettingsWidget::loadSettings()
 
     // Environment variables
     m_ui->environmentVariables->initialize(m_instance != nullptr, m_instance == nullptr || settings->get("OverrideEnv").toBool(),
-                                           settings->get("Env").toMap());
+                                           Json::toMap(settings->get("Env").toString()));
 
     // Legacy Tweaks
     m_ui->legacySettingsGroupBox->setChecked(m_instance == nullptr || settings->get("OverrideLegacySettings").toBool());
@@ -342,7 +342,7 @@ void MinecraftSettingsWidget::saveSettings()
             settings->set("OverrideEnv", env);
 
         if (env)
-            settings->set("Env", m_ui->environmentVariables->value());
+            settings->set("Env", Json::fromMap(m_ui->environmentVariables->value()));
         else
             settings->reset("Env");
 
