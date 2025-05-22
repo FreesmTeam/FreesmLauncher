@@ -587,32 +587,36 @@ void ResourceFolderModel::setupHeaderAction(QAction* act, int column)
 
 void ResourceFolderModel::saveColumns(QTreeView* tree)
 {
-    auto const settingName = QString("UI/%1_Page/Columns").arg(id());
-    auto setting = m_instance->settings()->getSetting(settingName);
+    auto const stateSettingName = QString("UI/%1_Page/Columns").arg(id());
+    auto const overrideSettingName = QString("UI/%1_Page/ColumnsOverride").arg(id());
+    auto const visibilitySettingName = QString("UI/%1_Page/ColumnsVisibility").arg(id());
 
-    setting->set(QString::fromUtf8(tree->header()->saveState().toBase64()));
+    auto stateSetting = m_instance->settings()->getSetting(stateSettingName);
+    stateSetting->set(QString::fromUtf8(tree->header()->saveState().toBase64()));
 
     // neither passthrough nor override settings works for this usecase as I need to only set the global when the gate is false
     auto settings = m_instance->settings();
-    if (!settings->get("UI/ColumnsOverride").toBool()) {
+    if (!settings->get(overrideSettingName).toBool()) {
         settings = APPLICATION->settings();
     }
-    auto visibility = Json::toMap(settings->get("UI/FolderResourceColumnVisibility").toString());
+    auto visibility = Json::toMap(settings->get(visibilitySettingName).toString());
     for (auto i = 0; i < m_column_names.size(); ++i) {
         if (m_columnsHideable[i]) {
             auto name = m_column_names[i];
             visibility[name] = !tree->isColumnHidden(i);
         }
     }
-    settings->set("UI/FolderResourceColumnVisibility", Json::fromMap(visibility));
+    settings->set(visibilitySettingName, Json::fromMap(visibility));
 }
 
 void ResourceFolderModel::loadColumns(QTreeView* tree)
 {
-    auto const settingName = QString("UI/%1_Page/Columns").arg(id());
+    auto const stateSettingName = QString("UI/%1_Page/Columns").arg(id());
+    auto const overrideSettingName = QString("UI/%1_Page/ColumnsOverride").arg(id());
+    auto const visibilitySettingName = QString("UI/%1_Page/ColumnsVisibility").arg(id());
 
-    auto setting = m_instance->settings()->getOrRegisterSetting(settingName, "");
-    tree->header()->restoreState(QByteArray::fromBase64(setting->get().toString().toUtf8()));
+    auto stateSetting = m_instance->settings()->getOrRegisterSetting(stateSettingName, "");
+    tree->header()->restoreState(QByteArray::fromBase64(stateSetting->get().toString().toUtf8()));
 
     auto setVisible = [this, tree](QVariant value) {
         auto visibility = Json::toMap(value.toString());
@@ -624,18 +628,25 @@ void ResourceFolderModel::loadColumns(QTreeView* tree)
         }
     };
 
+    auto const defaultValue = Json::fromMap({
+        { "Image", true },
+        { "Version", true },
+        { "Last Modified", true },
+        { "Provider", true },
+        { "Pack Format", true },
+    });
     // neither passthrough nor override settings works for this usecase as I need to only set the global when the gate is false
     auto settings = m_instance->settings();
-    if (!settings->get("UI/ColumnsOverride").toBool()) {
+    if (!settings->getOrRegisterSetting(overrideSettingName, false)->get().toBool()) {
         settings = APPLICATION->settings();
     }
-    auto visibility = settings->getSetting("UI/FolderResourceColumnVisibility");
+    auto visibility = settings->getOrRegisterSetting(visibilitySettingName, defaultValue);
     setVisible(visibility->get());
 
     // allways connect the signal in case the setting is toggled on and off
-    auto gSetting = APPLICATION->settings()->getOrRegisterSetting("UI/FolderResourceColumnVisibility");
-    connect(gSetting.get(), &Setting::SettingChanged, tree, [this, setVisible](const Setting&, QVariant value) {
-        if (!m_instance->settings()->get("UI/ColumnsOverride").toBool()) {
+    auto gSetting = APPLICATION->settings()->getOrRegisterSetting(visibilitySettingName, defaultValue);
+    connect(gSetting.get(), &Setting::SettingChanged, tree, [this, setVisible, overrideSettingName](const Setting&, QVariant value) {
+        if (!m_instance->settings()->get(overrideSettingName).toBool()) {
             setVisible(value);
         }
     });
@@ -647,12 +658,13 @@ QMenu* ResourceFolderModel::createHeaderContextMenu(QTreeView* tree)
 
     {  // action to decide if the visibility is per instance or not
         auto act = new QAction(tr("Overide Columns Visibility"), menu);
+        auto const overrideSettingName = QString("UI/%1_Page/ColumnsOverride").arg(id());
 
         act->setCheckable(true);
-        act->setChecked(m_instance->settings()->get("UI/ColumnsOverride").toBool());
+        act->setChecked(m_instance->settings()->getOrRegisterSetting(overrideSettingName, false)->get().toBool());
 
-        connect(act, &QAction::toggled, tree, [this, tree](bool toggled) {
-            m_instance->settings()->set("UI/ColumnsOverride", toggled);
+        connect(act, &QAction::toggled, tree, [this, tree, overrideSettingName](bool toggled) {
+            m_instance->settings()->set(overrideSettingName, toggled);
             saveColumns(tree);
         });
 
