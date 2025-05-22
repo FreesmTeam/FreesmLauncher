@@ -287,7 +287,7 @@ void InfoFrame::setDescription(QString text)
     QChar rem('\n');
     QString finaltext;
     finaltext.reserve(intermediatetext.size());
-    foreach (const QChar& c, intermediatetext) {
+    for (const QChar& c : intermediatetext) {
         if (c == rem && prev) {
             continue;
         }
@@ -341,7 +341,7 @@ void InfoFrame::setLicense(QString text)
     QChar rem('\n');
     QString finaltext;
     finaltext.reserve(intermediatetext.size());
-    foreach (const QChar& c, intermediatetext) {
+    for (const QChar& c : intermediatetext) {
         if (c == rem && prev) {
             continue;
         }

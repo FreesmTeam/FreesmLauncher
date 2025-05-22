@@ -35,17 +35,18 @@
 
 #pragma once
 
+#include <QWidget>
 #include "Application.h"
 #include "BaseInstance.h"
 #include "ui/pages/BasePage.h"
 #include "ui/widgets/MinecraftSettingsWidget.h"
-#include <QWidget>
 
 class InstanceSettingsPage : public MinecraftSettingsWidget, public BasePage {
     Q_OBJECT
 
    public:
-    explicit InstanceSettingsPage(MinecraftInstancePtr instance, QWidget* parent = nullptr) : MinecraftSettingsWidget(std::move(instance), parent)
+    explicit InstanceSettingsPage(MinecraftInstancePtr instance, QWidget* parent = nullptr)
+        : MinecraftSettingsWidget(std::move(instance), parent)
     {
         connect(APPLICATION, &Application::globalSettingsAboutToOpen, this, &InstanceSettingsPage::saveSettings);
         connect(APPLICATION, &Application::globalSettingsApplied, this, &InstanceSettingsPage::loadSettings);

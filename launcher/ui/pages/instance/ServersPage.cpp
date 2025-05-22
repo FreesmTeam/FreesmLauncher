@@ -255,11 +255,7 @@ class ServersModel : public QAbstractListModel {
             return false;
         }
         beginMoveRows(QModelIndex(), row, row, QModelIndex(), row - 1);
-#if QT_VERSION >= QT_VERSION_CHECK(5, 13, 0)
         m_servers.swapItemsAt(row - 1, row);
-#else
-        m_servers.swap(row - 1, row);
-#endif
         endMoveRows();
         scheduleSave();
         return true;
@@ -275,11 +271,7 @@ class ServersModel : public QAbstractListModel {
             return false;
         }
         beginMoveRows(QModelIndex(), row, row, QModelIndex(), row + 2);
-#if QT_VERSION >= QT_VERSION_CHECK(5, 13, 0)
         m_servers.swapItemsAt(row + 1, row);
-#else
-        m_servers.swap(row + 1, row);
-#endif
         endMoveRows();
         scheduleSave();
         return true;
@@ -711,10 +703,7 @@ void ServersPage::openedImpl()
     m_model->observe();
 
     auto const setting_name = QString("WideBarVisibility_%1").arg(id());
-    if (!APPLICATION->settings()->contains(setting_name))
-        m_wide_bar_setting = APPLICATION->settings()->registerSetting(setting_name);
-    else
-        m_wide_bar_setting = APPLICATION->settings()->getSetting(setting_name);
+    m_wide_bar_setting = APPLICATION->settings()->getOrRegisterSetting(setting_name);
 
     ui->toolBar->setVisibilityState(m_wide_bar_setting->get().toByteArray());
 

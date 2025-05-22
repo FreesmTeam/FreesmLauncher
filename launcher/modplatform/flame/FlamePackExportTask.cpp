@@ -47,7 +47,7 @@ FlamePackExportTask::FlamePackExportTask(const QString& name,
                                          bool optionalFiles,
                                          InstancePtr instance,
                                          const QString& output,
-                                         MMCZip::FilterFunction filter)
+                                         MMCZip::FilterFileFunction filter)
     : name(name)
     , version(version)
     , author(author)
@@ -70,7 +70,6 @@ bool FlamePackExportTask::abort()
 {
     if (task) {
         task->abort();
-        emitAborted();
         return true;
     }
     return false;
@@ -171,6 +170,7 @@ void FlamePackExportTask::collectHashes()
         progressStep->status = status;
         stepProgress(*progressStep);
     });
+    connect(hashingTask.get(), &Task::aborted, this, &FlamePackExportTask::emitAborted);
     hashingTask->start();
 }
 
@@ -246,6 +246,7 @@ void FlamePackExportTask::makeApiRequest()
         getProjectsInfo();
     });
     connect(task.get(), &Task::failed, this, &FlamePackExportTask::getProjectsInfo);
+    connect(task.get(), &Task::aborted, this, &FlamePackExportTask::emitAborted);
     task->start();
 }
 
@@ -324,6 +325,7 @@ void FlamePackExportTask::getProjectsInfo()
         buildZip();
     });
     connect(projTask.get(), &Task::failed, this, &FlamePackExportTask::emitFailed);
+    connect(projTask.get(), &Task::aborted, this, &FlamePackExportTask::emitAborted);
     task.reset(projTask);
     task->start();
 }

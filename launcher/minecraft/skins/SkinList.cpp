@@ -67,7 +67,7 @@ void SkinList::stopWatching()
 
 bool SkinList::update()
 {
-    QVector<SkinModel> newSkins;
+    QList<SkinModel> newSkins;
     m_dir.refresh();
 
     auto manifestInfo = QFileInfo(m_dir.absoluteFilePath("index.json"));

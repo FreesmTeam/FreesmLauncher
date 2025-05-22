@@ -12,6 +12,8 @@ class RegexpMatcher : public IPathMatcher {
         m_onlyFilenamePart = !regexp.contains('/');
     }
 
+    RegexpMatcher(const QRegularExpression& regex) : m_regexp(regex) { m_onlyFilenamePart = !regex.pattern().contains('/'); }
+
     RegexpMatcher& caseSensitive(bool cs = true)
     {
         if (cs) {

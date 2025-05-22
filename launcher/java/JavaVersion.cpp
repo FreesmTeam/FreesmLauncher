@@ -19,9 +19,13 @@ JavaVersion& JavaVersion::operator=(const QString& javaVersionString)
 
     QRegularExpression pattern;
     if (javaVersionString.startsWith("1.")) {
-        pattern = QRegularExpression("1[.](?<major>[0-9]+)([.](?<minor>[0-9]+))?(_(?<security>[0-9]+)?)?(-(?<prerelease>[a-zA-Z0-9]+))?");
+        static const QRegularExpression s_withOne(
+            "1[.](?<major>[0-9]+)([.](?<minor>[0-9]+))?(_(?<security>[0-9]+)?)?(-(?<prerelease>[a-zA-Z0-9]+))?");
+        pattern = s_withOne;
     } else {
-        pattern = QRegularExpression("(?<major>[0-9]+)([.](?<minor>[0-9]+))?([.](?<security>[0-9]+))?(-(?<prerelease>[a-zA-Z0-9]+))?");
+        static const QRegularExpression s_withoutOne(
+            "(?<major>[0-9]+)([.](?<minor>[0-9]+))?([.](?<security>[0-9]+))?(-(?<prerelease>[a-zA-Z0-9]+))?");
+        pattern = s_withoutOne;
     }
 
     auto match = pattern.match(m_string);

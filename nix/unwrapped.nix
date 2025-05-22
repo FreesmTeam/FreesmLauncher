@@ -9,16 +9,15 @@
   jdk17,
   kdePackages,
   libnbtplusplus,
+  qt-qrcodegenerator,
   ninja,
   self,
   stripJavaArchivesHook,
   tomlplusplus,
   zlib,
-
   msaClientID ? null,
   gamemodeSupport ? stdenv.hostPlatform.isLinux,
 }:
-
 assert lib.assertMsg (
   gamemodeSupport -> stdenv.hostPlatform.isLinux
 ) "gamemodeSupport is only available on Linux.";
@@ -64,6 +63,9 @@ stdenv.mkDerivation {
   postUnpack = ''
     rm -rf source/libraries/libnbtplusplus
     ln -s ${libnbtplusplus} source/libraries/libnbtplusplus
+
+    rm -rf source/libraries/qt-qrcodegenerator/QR-Code-generator
+    ln -s ${qt-qrcodegenerator} source/libraries/qt-qrcodegenerator/QR-Code-generator
   '';
 
   nativeBuildInputs = [
@@ -95,9 +97,6 @@ stdenv.mkDerivation {
     ]
     ++ lib.optionals (msaClientID != null) [
       (lib.cmakeFeature "Launcher_MSA_CLIENT_ID" (toString msaClientID))
-    ]
-    ++ lib.optionals (lib.versionOlder kdePackages.qtbase.version "6") [
-      (lib.cmakeFeature "Launcher_QT_VERSION_MAJOR" "5")
     ]
     ++ lib.optionals stdenv.hostPlatform.isDarwin [
       # we wrap our binary manually

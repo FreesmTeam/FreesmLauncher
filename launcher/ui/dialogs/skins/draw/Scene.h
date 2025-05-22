@@ -34,9 +34,9 @@ class Scene {
     void setCapeVisible(bool visible);
 
    private:
-    QVector<BoxGeometry*> m_staticComponents;
-    QVector<BoxGeometry*> m_normalArms;
-    QVector<BoxGeometry*> m_slimArms;
+    QList<BoxGeometry*> m_staticComponents;
+    QList<BoxGeometry*> m_normalArms;
+    QList<BoxGeometry*> m_slimArms;
     BoxGeometry* m_cape = nullptr;
     QOpenGLTexture* m_skinTexture = nullptr;
     QOpenGLTexture* m_capeTexture = nullptr;

@@ -47,7 +47,7 @@
 
 AtlOptionalModListModel::AtlOptionalModListModel(QWidget* parent,
                                                  const ATLauncher::PackVersion& version,
-                                                 QVector<ATLauncher::VersionMod> mods)
+                                                 QList<ATLauncher::VersionMod> mods)
     : QAbstractListModel(parent), m_version(version), m_mods(mods)
 {
     // fill mod index
@@ -64,9 +64,9 @@ AtlOptionalModListModel::AtlOptionalModListModel(QWidget* parent,
     }
 }
 
-QVector<QString> AtlOptionalModListModel::getResult()
+QList<QString> AtlOptionalModListModel::getResult()
 {
-    QVector<QString> result;
+    QList<QString> result;
 
     for (const auto& mod : m_mods) {
         if (m_selection[mod.name]) {
@@ -315,7 +315,7 @@ void AtlOptionalModListModel::setMod(const ATLauncher::VersionMod& mod, int inde
     }
 }
 
-AtlOptionalModDialog::AtlOptionalModDialog(QWidget* parent, const ATLauncher::PackVersion& version, QVector<ATLauncher::VersionMod> mods)
+AtlOptionalModDialog::AtlOptionalModDialog(QWidget* parent, const ATLauncher::PackVersion& version, QList<ATLauncher::VersionMod> mods)
     : QDialog(parent), ui(new Ui::AtlOptionalModDialog)
 {
     ui->setupUi(this);

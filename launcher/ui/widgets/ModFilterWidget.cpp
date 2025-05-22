@@ -49,9 +49,9 @@
 #include "Application.h"
 #include "minecraft/PackProfile.h"
 
-unique_qobject_ptr<ModFilterWidget> ModFilterWidget::create(MinecraftInstance* instance, bool extended, QWidget* parent)
+std::unique_ptr<ModFilterWidget> ModFilterWidget::create(MinecraftInstance* instance, bool extended)
 {
-    return unique_qobject_ptr<ModFilterWidget>(new ModFilterWidget(instance, extended, parent));
+    return std::unique_ptr<ModFilterWidget>(new ModFilterWidget(instance, extended));
 }
 
 class VersionBasicModel : public QIdentityProxyModel {
@@ -107,8 +107,8 @@ class AllVersionProxyModel : public QSortFilterProxyModel {
     }
 };
 
-ModFilterWidget::ModFilterWidget(MinecraftInstance* instance, bool extended, QWidget* parent)
-    : QTabWidget(parent), ui(new Ui::ModFilterWidget), m_instance(instance), m_filter(new Filter())
+ModFilterWidget::ModFilterWidget(MinecraftInstance* instance, bool extended)
+    : QTabWidget(), ui(new Ui::ModFilterWidget), m_instance(instance), m_filter(new Filter())
 {
     ui->setupUi(this);
 
@@ -290,7 +290,6 @@ void ModFilterWidget::onSideFilterChanged()
     } else {
         side = "";
     }
-
 
     m_filter_changed = side != m_filter->side;
     m_filter->side = side;

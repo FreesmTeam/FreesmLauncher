@@ -23,7 +23,6 @@
 #include <QMetaType>
 #include <QString>
 #include <QVariant>
-#include <QVector>
 #include <memory>
 
 class QIODevice;
@@ -141,7 +140,7 @@ struct IndexedPack {
     QString side;
 
     bool versionsLoaded = false;
-    QVector<IndexedVersion> versions;
+    QList<IndexedVersion> versions;
 
     // Don't load by default, since some modplatform don't have that info
     bool extraDataLoaded = true;

@@ -142,19 +142,19 @@ auto ModrinthShaderPackPage::shouldDisplay() const -> bool
     return true;
 }
 
-unique_qobject_ptr<ModFilterWidget> ModrinthModPage::createFilterWidget()
+std::unique_ptr<ModFilterWidget> ModrinthModPage::createFilterWidget()
 {
-    return ModFilterWidget::create(&static_cast<MinecraftInstance&>(m_baseInstance), true, this);
+    return ModFilterWidget::create(&static_cast<MinecraftInstance&>(m_baseInstance), true);
 }
 
 void ModrinthModPage::prepareProviderCategories()
 {
     auto response = std::make_shared<QByteArray>();
-    auto task = ModrinthAPI::getModCategories(response);
-    QObject::connect(task.get(), &Task::succeeded, [this, response]() {
+    m_categoriesTask = ModrinthAPI::getModCategories(response);
+    QObject::connect(m_categoriesTask.get(), &Task::succeeded, [this, response]() {
         auto categories = ModrinthAPI::loadModCategories(response);
         m_filter_widget->setCategories(categories);
     });
-    task->start();
+    m_categoriesTask->start();
 };
 }  // namespace ResourceDownload

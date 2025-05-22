@@ -88,10 +88,8 @@ else()
     endif()
 endif()
 
-# Fix build with Qt 5.13
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DQT_NO_DEPRECATED_WARNINGS=Y")
-
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DQT_DISABLE_DEPRECATED_BEFORE=0x050C00")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DQT_WARN_DEPRECATED_UP_TO=0x060200")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DQT_DISABLE_DEPRECATED_UP_TO=0x060000")
 
 # Fix aarch64 build for toml++
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DTOML_ENABLE_FLOAT16=0")
@@ -310,23 +308,7 @@ endif()
 
 # Find the required Qt parts
 include(QtVersionlessBackport)
-if(Launcher_QT_VERSION_MAJOR EQUAL 5)
-    set(QT_VERSION_MAJOR 5)
-    find_package(Qt5 REQUIRED COMPONENTS Core Widgets Concurrent Network Test Xml NetworkAuth OpenGL)
-    find_package(Qt5 COMPONENTS DBus)
-    list(APPEND Launcher_QT_DBUS Qt5::DBus)
-
-    if(NOT Launcher_FORCE_BUNDLED_LIBS)
-        find_package(QuaZip-Qt5 1.3 QUIET)
-    endif()
-    if (NOT QuaZip-Qt5_FOUND)
-        set(QUAZIP_QT_MAJOR_VERSION ${QT_VERSION_MAJOR} CACHE STRING "Qt version to use (4, 5 or 6), defaults to ${QT_VERSION_MAJOR}" FORCE)
-        set(FORCE_BUNDLED_QUAZIP 1)
-    endif()
-
-    # Qt 6 sets these by default. Notably causes Windows APIs to use UNICODE strings.
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DUNICODE -D_UNICODE")
-elseif(Launcher_QT_VERSION_MAJOR EQUAL 6)
+if(Launcher_QT_VERSION_MAJOR EQUAL 6)
     set(QT_VERSION_MAJOR 6)
     find_package(Qt6 REQUIRED COMPONENTS Core CoreTools Widgets Concurrent Network Test Xml Core5Compat NetworkAuth OpenGL)
     find_package(Qt6 COMPONENTS DBus)
@@ -344,20 +326,10 @@ else()
     message(FATAL_ERROR "Qt version ${Launcher_QT_VERSION_MAJOR} is not supported")
 endif()
 
-if(Launcher_QT_VERSION_MAJOR EQUAL 5)
-    include(ECMQueryQt)
-    ecm_query_qt(QT_PLUGINS_DIR  QT_INSTALL_PLUGINS)
-    ecm_query_qt(QT_LIBS_DIR     QT_INSTALL_LIBS)
-    ecm_query_qt(QT_LIBEXECS_DIR QT_INSTALL_LIBEXECS)
-else()
+if(Launcher_QT_VERSION_MAJOR EQUAL 6)
     set(QT_PLUGINS_DIR  ${QT${QT_VERSION_MAJOR}_INSTALL_PREFIX}/${QT${QT_VERSION_MAJOR}_INSTALL_PLUGINS})
     set(QT_LIBS_DIR     ${QT${QT_VERSION_MAJOR}_INSTALL_PREFIX}/${QT${QT_VERSION_MAJOR}_INSTALL_LIBS})
     set(QT_LIBEXECS_DIR ${QT${QT_VERSION_MAJOR}_INSTALL_PREFIX}/${QT${QT_VERSION_MAJOR}_INSTALL_LIBEXECS})
-endif()
-
-# NOTE: Qt 6 already sets this by default
-if (Qt5_POSITION_INDEPENDENT_CODE)
-    SET(CMAKE_POSITION_INDEPENDENT_CODE ON)
 endif()
 
 if(NOT Launcher_FORCE_BUNDLED_LIBS)
@@ -503,6 +475,7 @@ add_subdirectory(libraries/libnbtplusplus)
 add_subdirectory(libraries/systeminfo) # system information library
 add_subdirectory(libraries/launcher) # java based launcher part for Minecraft
 add_subdirectory(libraries/javacheck) # java compatibility checker
+add_subdirectory(libraries/qt-qrcodegenerator) # qr code generator
 if(FORCE_BUNDLED_ZLIB)
     message(STATUS "Using bundled zlib")
 

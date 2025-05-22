@@ -84,7 +84,7 @@ class Mod : public Resource {
 
     bool valid() const override;
 
-    [[nodiscard]] int compare(const Resource & other, SortType type) const override;
+    [[nodiscard]] int compare(const Resource& other, SortType type) const override;
     [[nodiscard]] bool applyFilter(QRegularExpression filter) const override;
 
     // Delete all the files of this mod
