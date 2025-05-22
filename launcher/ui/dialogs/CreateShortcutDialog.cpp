@@ -67,7 +67,9 @@ CreateShortcutDialog::CreateShortcutDialog(InstancePtr instance, QWidget* parent
 
     auto mInst = std::dynamic_pointer_cast<MinecraftInstance>(instance);
     m_QuickJoinSupported = mInst && mInst->traits().contains("feature:is_quick_play_singleplayer");
-    if (!m_QuickJoinSupported) {
+    auto worldList = mInst->worldList();
+    worldList->update();
+    if (!m_QuickJoinSupported || worldList->empty()) {
         ui->worldTarget->hide();
         ui->worldSelectionBox->hide();
         ui->serverTarget->setChecked(true);
@@ -90,8 +92,6 @@ CreateShortcutDialog::CreateShortcutDialog(InstancePtr instance, QWidget* parent
 
     // Populate worlds
     if (m_QuickJoinSupported) {
-        auto worldList = mInst->worldList();
-        worldList->update();
         for (const auto& world : worldList->allWorlds()) {
             // Entry name: World Name [Game Mode] - Last Played: DateTime
             QString entry_name = tr("%1 [%2] - Last Played: %3")
