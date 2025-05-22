@@ -149,7 +149,7 @@ void createInstanceShortcut(const Shortcut& shortcut, const QString& filePath)
     args.append({ "--launch", shortcut.instance->id() });
     args.append(shortcut.extraArgs);
 
-    if (!FS::createShortcut(std::move(filePath), appPath, args, shortcut.name, iconPath)) {
+    if (!FS::createShortcut(filePath, appPath, args, shortcut.name, iconPath)) {
 #if not defined(Q_OS_MACOS)
         iconFile.remove();
 #endif

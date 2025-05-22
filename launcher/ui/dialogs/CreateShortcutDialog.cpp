@@ -81,12 +81,12 @@ CreateShortcutDialog::CreateShortcutDialog(InstancePtr instance, QWidget* parent
         QString applicationDir = FS::getApplicationsDir();
 
         if (!desktopDir.isEmpty())
-            ui->saveTargetSelectionBox->addItem("Desktop", QVariant::fromValue(SaveTarget::Desktop));
+            ui->saveTargetSelectionBox->addItem(tr("Desktop"), QVariant::fromValue(SaveTarget::Desktop));
 
         if (!applicationDir.isEmpty())
-            ui->saveTargetSelectionBox->addItem("Applications", QVariant::fromValue(SaveTarget::Applications));
+            ui->saveTargetSelectionBox->addItem(tr("Applications"), QVariant::fromValue(SaveTarget::Applications));
     }
-    ui->saveTargetSelectionBox->addItem("Other...", QVariant::fromValue(SaveTarget::Other));
+    ui->saveTargetSelectionBox->addItem(tr("Other..."), QVariant::fromValue(SaveTarget::Other));
 
     // Populate worlds
     if (m_QuickJoinSupported) {
@@ -105,7 +105,7 @@ CreateShortcutDialog::CreateShortcutDialog(InstancePtr instance, QWidget* parent
     MinecraftAccountPtr defaultAccount = accounts->defaultAccount();
     if (accounts->count() <= 0) {
         ui->overrideAccountCheckbox->setEnabled(false);
-    } else
+    } else {
         for (int i = 0; i < accounts->count(); i++) {
             MinecraftAccountPtr account = accounts->at(i);
             auto profileLabel = account->profileName();
@@ -118,6 +118,7 @@ CreateShortcutDialog::CreateShortcutDialog(InstancePtr instance, QWidget* parent
             if (defaultAccount == account)
                 ui->accountSelectionBox->setCurrentIndex(i);
         }
+    }
 }
 
 CreateShortcutDialog::~CreateShortcutDialog()
@@ -183,9 +184,11 @@ void CreateShortcutDialog::stateChanged()
     ui->instNameTextBox->setPlaceholderText(result);
     if (!ui->targetCheckbox->isChecked())
         ui->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(true);
-    else
+    else {
         ui->buttonBox->button(QDialogButtonBox::Ok)
-            ->setEnabled(ui->worldTarget->isChecked() || (ui->serverTarget->isChecked() && !ui->serverAddressBox->text().isEmpty()));
+            ->setEnabled((ui->worldTarget->isChecked() && ui->worldSelectionBox->currentIndex() != -1) ||
+                         (ui->serverTarget->isChecked() && !ui->serverAddressBox->text().isEmpty()));
+    }
 }
 
 // Real work
