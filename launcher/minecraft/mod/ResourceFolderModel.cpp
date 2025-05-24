@@ -657,7 +657,7 @@ QMenu* ResourceFolderModel::createHeaderContextMenu(QTreeView* tree)
     auto menu = new QMenu(tree);
 
     {  // action to decide if the visibility is per instance or not
-        auto act = new QAction(tr("Overide Columns Visibility"), menu);
+        auto act = new QAction(tr("Override Columns Visibility"), menu);
         auto const overrideSettingName = QString("UI/%1_Page/ColumnsOverride").arg(id());
 
         act->setCheckable(true);
