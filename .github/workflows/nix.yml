@@ -111,7 +111,7 @@ jobs:
         # For PRs
       - name: Setup Nix Magic Cache
         if: ${{ env.USE_DETERMINATE == 'true' }}
-        uses: DeterminateSystems/flakehub-cache-action@v1
+        uses: DeterminateSystems/flakehub-cache-action@v2
 
         # For in-tree builds
       - name: Setup Cachix
