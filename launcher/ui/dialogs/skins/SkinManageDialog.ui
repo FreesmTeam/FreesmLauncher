@@ -62,7 +62,7 @@
           <item>
            <widget class="QCheckBox" name="elytraCB">
             <property name="text">
-             <string>Elytra</string>
+             <string>Preview Elytra</string>
             </property>
            </widget>
           </item>
