@@ -475,7 +475,6 @@ add_subdirectory(libraries/libnbtplusplus)
 add_subdirectory(libraries/systeminfo) # system information library
 add_subdirectory(libraries/launcher) # java based launcher part for Minecraft
 add_subdirectory(libraries/javacheck) # java compatibility checker
-add_subdirectory(libraries/qt-qrcodegenerator) # qr code generator
 if(FORCE_BUNDLED_ZLIB)
     message(STATUS "Using bundled zlib")
 
@@ -532,6 +531,15 @@ endif()
 add_subdirectory(libraries/gamemode)
 add_subdirectory(libraries/murmur2) # Hash for usage with the CurseForge API
 add_subdirectory(libraries/qdcss) # css parser
+
+# qr code generator
+set(QRCODE_SOURCES
+    libraries/qrcodegenerator/cpp/qrcodegen.cpp 
+    libraries/qrcodegenerator/cpp/qrcodegen.hpp
+)
+add_library(qrcodegenerator STATIC ${QRCODE_SOURCES})
+target_include_directories(qrcodegenerator PUBLIC "libraries/qrcodegenerator/cpp/" )
+generate_export_header(qrcodegenerator)
 
 ############################### Built Artifacts ###############################
 
