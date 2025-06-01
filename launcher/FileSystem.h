@@ -362,7 +362,7 @@ bool overrideFolder(QString overwritten_path, QString override_path);
 
 /**
  * Creates a shortcut to the specified target file at the specified destination path.
- * Returns empty string if creation failed; otherwise returns the path to the created shortcut.
+ * Returns null QString if creation failed; otherwise returns the path to the created shortcut.
  */
 QString createShortcut(QString destination, QString target, QStringList args, QString name, QString icon);
 

@@ -905,19 +905,19 @@ QString createShortcut(QString destination, QString target, QStringList args, QS
     }
     if (!ensureFilePathExists(destination)) {
         qWarning() << "Destination path can't be created!";
-        return "";
+        return QString();
     }
 #if defined(Q_OS_MACOS)
     QDir application = destination + ".app/";
 
     if (application.exists()) {
         qWarning() << "Application already exists!";
-        return "";
+        return QString();
     }
 
     if (!application.mkpath(".")) {
         qWarning() << "Couldn't create application";
-        return "";
+        return QString();
     }
 
     QDir content = application.path() + "/Contents/";
@@ -927,7 +927,7 @@ QString createShortcut(QString destination, QString target, QStringList args, QS
 
     if (!(content.mkpath(".") && resources.mkpath(".") && binaryDir.mkpath("."))) {
         qWarning() << "Couldn't create directories within application";
-        return "";
+        return QString();
     }
     info.open(QIODevice::WriteOnly | QIODevice::Text);
 
@@ -1008,26 +1008,26 @@ QString createShortcut(QString destination, QString target, QStringList args, QS
 
     if (!targetInfo.exists()) {
         qWarning() << "Target file does not exist!";
-        return "";
+        return QString();
     }
 
     target = targetInfo.absoluteFilePath();
 
     if (target.length() >= MAX_PATH) {
         qWarning() << "Target file path is too long!";
-        return "";
+        return QString();
     }
 
     if (!icon.isEmpty() && icon.length() >= MAX_PATH) {
         qWarning() << "Icon path is too long!";
-        return "";
+        return QString();
     }
 
     destination += ".lnk";
 
     if (destination.length() >= MAX_PATH) {
         qWarning() << "Destination path is too long!";
-        return "";
+        return QString();
     }
 
     QString argStr;
@@ -1046,7 +1046,7 @@ QString createShortcut(QString destination, QString target, QStringList args, QS
 
     if (argStr.length() >= MAX_PATH) {
         qWarning() << "Arguments string is too long!";
-        return "";
+        return QString();
     }
 
     HRESULT hres;
@@ -1055,7 +1055,7 @@ QString createShortcut(QString destination, QString target, QStringList args, QS
     hres = CoInitialize(nullptr);
     if (FAILED(hres)) {
         qWarning() << "Failed to initialize COM!";
-        return "";
+        return QString();
     }
 
     WCHAR wsz[MAX_PATH];
@@ -1111,10 +1111,10 @@ QString createShortcut(QString destination, QString target, QStringList args, QS
 
     if (SUCCEEDED(hres))
         return destination;
-    return "";
+    return QString();
 #else
     qWarning("Desktop Shortcuts not supported on your platform!");
-    return "";
+    return QString();
 #endif
 }
 
