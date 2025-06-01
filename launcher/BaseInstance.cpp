@@ -69,7 +69,7 @@ BaseInstance::BaseInstance(SettingsObjectPtr globalSettings, SettingsObjectPtr s
     m_settings->registerSetting("lastTimePlayed", 0);
 
     m_settings->registerSetting("linkedInstances", "[]");
-    m_settings->registerSetting("shortcuts", QVariant::fromValue(QByteArray{}));
+    m_settings->registerSetting("shortcuts", QString());
 
     // Game time override
     auto gameTimeOverride = m_settings->registerSetting("OverrideGameTime", false);
@@ -417,12 +417,12 @@ void BaseInstance::setShortcuts(const QList<ShortcutData>& shortcuts)
 
     QJsonDocument document;
     document.setArray(array);
-    m_settings->set("shortcuts", QVariant::fromValue(document.toJson(QJsonDocument::Compact)));
+    m_settings->set("shortcuts", QString::fromUtf8(document.toJson(QJsonDocument::Compact)));
 }
 
 QList<ShortcutData> BaseInstance::shortcuts() const
 {
-    auto data = m_settings->get("shortcuts").value<QByteArray>();
+    auto data = m_settings->get("shortcuts").toString().toUtf8();
     auto document = QJsonDocument::fromJson(data);
     QList<ShortcutData> results;
     for (const auto& elem : document.array()) {
