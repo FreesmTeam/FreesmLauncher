@@ -686,18 +686,7 @@ InstancePtr InstanceList::loadInstance(const InstanceId& id)
     }
     qDebug() << "Loaded instance" << inst->name() << "from" << inst->instanceRoot();
 
-    // Fixup the shortcuts by pruning all non-existing links
     auto shortcut = inst->shortcuts();
-    for (auto it = shortcut.begin(); it != shortcut.end();) {
-        const auto& [name, filePath, target] = *it;
-        if (!QDir(filePath).exists()) {
-            qWarning() << "Shortcut" << name << "have non-existent path" << filePath;
-            it = shortcut.erase(it);
-            continue;
-        }
-        ++it;
-    }
-    inst->setShortcuts(shortcut);
     if (!shortcut.isEmpty())
         qDebug() << "Loaded" << shortcut.size() << "shortcut(s) for instance" << inst->name();
 

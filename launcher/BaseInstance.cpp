@@ -427,7 +427,19 @@ QList<ShortcutData> BaseInstance::shortcuts() const
     QList<ShortcutData> results;
     for (const auto& elem : document.array()) {
         auto dict = elem.toObject();
-        results.append({ dict["name"].toString(), dict["filePath"].toString(), static_cast<ShortcutTarget>(dict["target"].toInt()) });
+        if (!dict.contains("name") || !dict.contains("filePath") || !dict.contains("target"))
+            return {};
+        int value = dict["target"].toInt(-1);
+        if (!dict["name"].isString() || !dict["filePath"].isString() || value < 0 || value >= 3)
+            return {};
+
+        QString shortcutName = dict["name"].toString();
+        QString filePath = dict["filePath"].toString();
+        if (!QDir(filePath).exists()) {
+            qWarning() << "Shortcut" << shortcutName << "for instance" << name() << "have non-existent path" << filePath;
+            continue;
+        }
+        results.append({ shortcutName, filePath, static_cast<ShortcutTarget>(value) });
     }
     return results;
 }
