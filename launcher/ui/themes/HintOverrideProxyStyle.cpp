@@ -20,7 +20,7 @@
 
 HintOverrideProxyStyle::HintOverrideProxyStyle(QStyle* style) : QProxyStyle(style)
 {
-    setObjectName(style->objectName());
+    setObjectName(baseStyle()->objectName());
 }
 
 int HintOverrideProxyStyle::styleHint(QStyle::StyleHint hint,
