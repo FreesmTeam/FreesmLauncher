@@ -38,6 +38,7 @@
 #pragma once
 #include <cassert>
 
+#include <QDataStream>
 #include <QDateTime>
 #include <QList>
 #include <QMenu>
@@ -74,7 +75,18 @@ enum class ShortcutTarget { Desktop, Applications, Other };
 struct ShortcutData {
     QString name;
     QString filePath;
-    ShortcutTarget target;
+    ShortcutTarget target = ShortcutTarget::Other;
+
+    friend QDataStream& operator<<(QDataStream& out, const ShortcutData& data)
+    {
+        out << data.name << data.filePath << data.target;
+        return out;
+    }
+    friend QDataStream& operator>>(QDataStream& in, ShortcutData& data)
+    {
+        in >> data.name >> data.filePath >> data.target;
+        return in;
+    }
 };
 
 /*!
@@ -142,7 +154,8 @@ class BaseInstance : public QObject, public std::enable_shared_from_this<BaseIns
 
     /// Register a created shortcut
     void registerShortcut(const ShortcutData& data);
-    QList<ShortcutData>& getShortcuts();
+    QList<ShortcutData> shortcuts() const;
+    void setShortcuts(const QList<ShortcutData>& shortcuts);
 
     /// Value used for instance window titles
     QString windowTitle() const;
@@ -323,10 +336,9 @@ class BaseInstance : public QObject, public std::enable_shared_from_this<BaseIns
 
     SettingsObjectWeakPtr m_global_settings;
     bool m_specific_settings_loaded = false;
-
-    QList<ShortcutData> m_shortcuts;
 };
 
 Q_DECLARE_METATYPE(shared_qobject_ptr<BaseInstance>)
+Q_DECLARE_METATYPE(ShortcutData)
 // Q_DECLARE_METATYPE(BaseInstance::InstanceFlag)
 // Q_DECLARE_OPERATORS_FOR_FLAGS(BaseInstance::InstanceFlags)

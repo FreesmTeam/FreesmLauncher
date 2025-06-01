@@ -357,25 +357,20 @@ bool InstanceList::trashInstance(const InstanceId& id)
     m_trashHistory.push({ id, inst->instanceRoot(), trashedLoc, cachedGroupId });
 
     // Also trash all of its shortcuts; we remove the shortcuts if trash fails since it is invalid anyway
-    auto& shortcuts = inst->getShortcuts();
-    for (auto it = shortcuts.begin(); it != shortcuts.end();) {
-        const auto& [name, filePath, target] = *it;
+    for (const auto& [name, filePath, target] : inst->shortcuts()) {
         if (!FS::trash(filePath, &trashedLoc)) {
             qWarning() << "Trash of shortcut" << name << "at path" << filePath << "for instance" << id
                        << "has not been successful, trying to delete it instead...";
             if (!FS::deletePath(filePath)) {
                 qWarning() << "Deletion of shortcut" << name << "at path" << filePath << "for instance" << id
                            << "has not been successful, given up...";
-                ++it;
             } else {
                 qDebug() << "Shortcut" << name << "at path" << filePath << "for instance" << id << "has been deleted by the launcher.";
-                it = shortcuts.erase(it);
             }
             continue;
         }
         qDebug() << "Shortcut" << name << "at path" << filePath << "for instance" << id << "has been trashed by the launcher.";
-        m_trashHistory.top().shortcuts.append({ *it, trashedLoc });
-        it = shortcuts.erase(it);
+        m_trashHistory.top().shortcuts.append({ { name, filePath, target }, trashedLoc });
     }
 
     return true;
@@ -453,7 +448,7 @@ void InstanceList::deleteInstance(const InstanceId& id)
 
     qDebug() << "Instance" << id << "has been deleted by the launcher.";
 
-    for (const auto& [name, filePath, target] : inst->getShortcuts()) {
+    for (const auto& [name, filePath, target] : inst->shortcuts()) {
         if (!FS::deletePath(filePath)) {
             qWarning() << "Deletion of shortcut" << name << "at path" << filePath << "for instance" << id << "has not been successful...";
             continue;
@@ -675,6 +670,7 @@ InstancePtr InstanceList::loadInstance(const InstanceId& id)
     }
 
     auto instanceRoot = FS::PathCombine(m_instDir, id);
+    qRegisterMetaType<QList<ShortcutData>>("QList<ShortcutData>");
     auto instanceSettings = std::make_shared<INISettingsObject>(FS::PathCombine(instanceRoot, "instance.cfg"));
     InstancePtr inst;
 
@@ -690,6 +686,22 @@ InstancePtr InstanceList::loadInstance(const InstanceId& id)
         inst.reset(new NullInstance(m_globalSettings, instanceSettings, instanceRoot));
     }
     qDebug() << "Loaded instance" << inst->name() << "from" << inst->instanceRoot();
+
+    // Fixup the shortcuts by pruning all non-existing links
+    auto shortcut = inst->shortcuts();
+    for (auto it = shortcut.begin(); it != shortcut.end();) {
+        const auto& [name, filePath, target] = *it;
+        if (!QDir(filePath).exists()) {
+            qWarning() << "Shortcut" << name << "have non-existent path" << filePath;
+            it = shortcut.erase(it);
+            continue;
+        }
+        ++it;
+    }
+    inst->setShortcuts(shortcut);
+    if (!shortcut.isEmpty())
+        qDebug() << "Loaded" << shortcut.size() << "shortcut(s) for instance" << inst->name();
+
     return inst;
 }
 

@@ -1040,6 +1040,10 @@ QString MinecraftInstance::getStatusbarDescription()
                     .arg(Time::prettifyDuration(totalTimePlayed(), APPLICATION->settings()->get("ShowGameTimeWithoutDays").toBool())));
         }
     }
+    auto currentShortcuts = shortcuts();
+    if (!currentShortcuts.isEmpty()) {
+        description.append(tr(", %n shortcut(s) registered", "", currentShortcuts.size()));
+    }
     if (hasCrashed()) {
         description.append(tr(", has crashed."));
     }

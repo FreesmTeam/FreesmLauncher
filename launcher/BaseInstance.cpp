@@ -69,6 +69,7 @@ BaseInstance::BaseInstance(SettingsObjectPtr globalSettings, SettingsObjectPtr s
     m_settings->registerSetting("lastTimePlayed", 0);
 
     m_settings->registerSetting("linkedInstances", "[]");
+    m_settings->registerSetting("shortcuts", QVariant::fromValue(QList<ShortcutData>{}));
 
     // Game time override
     auto gameTimeOverride = m_settings->registerSetting("OverrideGameTime", false);
@@ -400,13 +401,21 @@ bool BaseInstance::syncInstanceDirName(const QString& newRoot) const
 
 void BaseInstance::registerShortcut(const ShortcutData& data)
 {
-    m_shortcuts.append(data);
+    auto currentShortcuts = shortcuts();
+    currentShortcuts.append(data);
     qDebug() << "Registering shortcut for instance" << id() << "with name" << data.name << "and path" << data.filePath;
+    setShortcuts(currentShortcuts);
 }
 
-QList<ShortcutData>& BaseInstance::getShortcuts()
+void BaseInstance::setShortcuts(const QList<ShortcutData>& shortcuts)
 {
-    return m_shortcuts;
+    // FIXME: if no change, do not set. setting involves saving a file.
+    m_settings->set("shortcuts", QVariant::fromValue(shortcuts));
+}
+
+QList<ShortcutData> BaseInstance::shortcuts() const
+{
+    return m_settings->get("shortcuts").value<QList<ShortcutData>>();
 }
 
 QString BaseInstance::name() const
