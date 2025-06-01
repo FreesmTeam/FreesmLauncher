@@ -128,6 +128,7 @@
 
 #include <stdlib.h>
 #include <sys.h>
+#include <QStringLiteral>
 #include "SysInfo.h"
 
 #ifdef Q_OS_LINUX
@@ -1885,17 +1886,6 @@ QString Application::getUserAgent()
     }
 
     return BuildConfig.USER_AGENT;
-}
-
-QString Application::getUserAgentUncached()
-{
-    QString uaOverride = m_settings->get("UserAgentOverride").toString();
-    if (!uaOverride.isEmpty()) {
-        uaOverride += " (Uncached)";
-        return uaOverride.replace("$LAUNCHER_VER", BuildConfig.printableVersionString());
-    }
-
-    return BuildConfig.USER_AGENT_UNCACHED;
 }
 
 bool Application::handleDataMigration(const QString& currentData,

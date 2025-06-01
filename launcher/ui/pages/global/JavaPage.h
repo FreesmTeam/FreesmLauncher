@@ -37,11 +37,11 @@
 
 #include <Application.h>
 #include <QObjectPtr.h>
-#include "ui/widgets/JavaSettingsWidget.h"
 #include <QDialog>
 #include <QStringListModel>
 #include "JavaCommon.h"
 #include "ui/pages/BasePage.h"
+#include "ui/widgets/JavaSettingsWidget.h"
 
 class SettingsObject;
 

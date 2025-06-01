@@ -1,23 +1,25 @@
-#include <QObject>
-#include <QDnsLookup>
 #include <QtNetwork/qtcpsocket.h>
+#include <QDnsLookup>
 #include <QHostInfo>
+#include <QObject>
 
 #include "McResolver.h"
 
-McResolver::McResolver(QObject *parent, QString domain, int port): QObject(parent), m_constrDomain(domain), m_constrPort(port) {}
+McResolver::McResolver(QObject* parent, QString domain, int port) : QObject(parent), m_constrDomain(domain), m_constrPort(port) {}
 
-void McResolver::ping() {
+void McResolver::ping()
+{
     pingWithDomainSRV(m_constrDomain, m_constrPort);
 }
 
-void McResolver::pingWithDomainSRV(QString domain, int port) {
-    QDnsLookup *lookup = new QDnsLookup(this);
+void McResolver::pingWithDomainSRV(QString domain, int port)
+{
+    QDnsLookup* lookup = new QDnsLookup(this);
     lookup->setName(QString("_minecraft._tcp.%1").arg(domain));
     lookup->setType(QDnsLookup::SRV);
 
     connect(lookup, &QDnsLookup::finished, this, [this, domain, port]() {
-        QDnsLookup *lookup = qobject_cast<QDnsLookup *>(sender());
+        QDnsLookup* lookup = qobject_cast<QDnsLookup*>(sender());
 
         lookup->deleteLater();
 
@@ -43,8 +45,9 @@ void McResolver::pingWithDomainSRV(QString domain, int port) {
     lookup->lookup();
 }
 
-void McResolver::pingWithDomainA(QString domain, int port) {
-    QHostInfo::lookupHost(domain, this, [this, port](const QHostInfo &hostInfo){
+void McResolver::pingWithDomainA(QString domain, int port)
+{
+    QHostInfo::lookupHost(domain, this, [this, port](const QHostInfo& hostInfo) {
         if (hostInfo.error() != QHostInfo::NoError) {
             emitFail("A record lookup failed");
             return;
@@ -55,19 +58,21 @@ void McResolver::pingWithDomainA(QString domain, int port) {
             emitFail("No A entries found for domain");
             return;
         }
-        
+
         const auto& firstRecord = records.at(0);
         emitSucceed(firstRecord.toString(), port);
-    });        
+    });
 }
 
-void McResolver::emitFail(QString error) {
+void McResolver::emitFail(QString error)
+{
     qDebug() << "DNS resolver error:" << error;
     emit failed(error);
     emit finished();
 }
 
-void McResolver::emitSucceed(QString ip, int port) {
+void McResolver::emitSucceed(QString ip, int port)
+{
     emit succeeded(ip, port);
     emit finished();
 }

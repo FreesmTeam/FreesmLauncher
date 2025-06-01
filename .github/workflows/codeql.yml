@@ -2,37 +2,50 @@ name: "CodeQL Code Scanning"
 
 on:
   push:
-    # NOTE: `!` doesn't work with `paths-ignore` :(
-    # So we a catch-all glob instead
-    # https://github.com/orgs/community/discussions/25369#discussioncomment-3247674
     paths:
-      - "**"
-      - "!.github/**"
-      - ".github/workflows/codeql.yml"
-      - "!flatpak/"
-      - "!nix/"
-      - "!scripts/"
+      # File types
+      - "**.cpp"
+      - "**.h"
+      - "**.java"
 
-      - "!.git*"
-      - "!.envrc"
-      - "!**.md"
+      # Directories
+      - "buildconfig/"
+      - "cmake/"
+      - "launcher/"
+      - "libraries/"
+      - "program_info/"
+      - "tests/"
+
+      # Files
+      - "CMakeLists.txt"
       - "COPYING.md"
-      - "!renovate.json"
+
+      # Workflows
+      - ".github/codeql"
+      - ".github/workflows/codeql.yml"
+      - ".github/actions/setup-dependencies/"
   pull_request:
-    # See above
     paths:
-      - "**"
-      - "!.github/**"
-      - ".github/workflows/codeql.yml"
-      - "!flatpak/"
-      - "!nix/"
-      - "!scripts/"
+      # File types
+      - "**.cpp"
+      - "**.h"
 
-      - "!.git*"
-      - "!.envrc"
-      - "!**.md"
+      # Directories
+      - "buildconfig/"
+      - "cmake/"
+      - "launcher/"
+      - "libraries/"
+      - "program_info/"
+      - "tests/"
+
+      # Files
+      - "CMakeLists.txt"
       - "COPYING.md"
-      - "!renovate.json"
+
+      # Workflows
+      - ".github/codeql"
+      - ".github/workflows/codeql.yml"
+      - ".github/actions/setup-dependencies/"
   workflow_dispatch:
 
 jobs:
@@ -52,28 +65,15 @@ jobs:
           queries: security-and-quality
           languages: cpp, java
 
-      - name: Install Dependencies
-        run: sudo apt-get -y update
-
-          sudo apt-get -y install ninja-build extra-cmake-modules scdoc
-
-      - name: Install Qt
-        uses: jurplel/install-qt-action@v3
+      - name: Setup dependencies
+        uses: ./.github/actions/setup-dependencies
         with:
-          aqtversion: "==3.1.*"
-          py7zrversion: ">=0.20.2"
-          version: "6.8.1"
-          host: "linux"
-          target: "desktop"
-          arch: ""
-          modules: "qt5compat qtimageformats qtnetworkauth"
-          tools: ""
+          build-type: Debug
 
       - name: Configure and Build
         run: |
-          cmake -S . -B build -DCMAKE_INSTALL_PREFIX=/usr -G Ninja
-
-          cmake --build build
+          cmake --preset linux_debug
+          cmake --build --preset linux_debug
 
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v3

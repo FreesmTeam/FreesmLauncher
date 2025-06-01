@@ -67,6 +67,7 @@ struct Minecraft {
     QString version;
     QString libraries;
     QList<Flame::Modloader> modLoaders;
+    int recommendedRAM;
 };
 
 struct Manifest {

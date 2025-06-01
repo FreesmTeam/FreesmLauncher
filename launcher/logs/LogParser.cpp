@@ -107,7 +107,7 @@ std::optional<LogParser::ParsedItem> LogParser::parseNext()
     if (m_buffer.trimmed().isEmpty()) {
         auto text = QString(m_buffer);
         m_buffer.clear();
-        return LogParser::PlainText { text };
+        return LogParser::PlainText{ text };
     }
 
     // check if we have a full xml log4j event

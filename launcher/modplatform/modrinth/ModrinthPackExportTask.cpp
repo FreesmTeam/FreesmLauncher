@@ -40,7 +40,7 @@ ModrinthPackExportTask::ModrinthPackExportTask(const QString& name,
                                                bool optionalFiles,
                                                InstancePtr instance,
                                                const QString& output,
-                                               MMCZip::FilterFunction filter)
+                                               MMCZip::FilterFileFunction filter)
     : name(name)
     , version(version)
     , summary(summary)
@@ -63,7 +63,6 @@ bool ModrinthPackExportTask::abort()
 {
     if (task) {
         task->abort();
-        emitAborted();
         return true;
     }
     return false;
@@ -158,6 +157,7 @@ void ModrinthPackExportTask::makeApiRequest()
         task = api.currentVersions(pendingHashes.values(), "sha512", response);
         connect(task.get(), &Task::succeeded, [this, response]() { parseApiResponse(response); });
         connect(task.get(), &Task::failed, this, &ModrinthPackExportTask::emitFailed);
+        connect(task.get(), &Task::aborted, this, &ModrinthPackExportTask::emitAborted);
         task->start();
     }
 }

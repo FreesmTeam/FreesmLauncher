@@ -269,9 +269,9 @@ bool FileIgnoreProxy::ignoreFile(QFileInfo fileInfo) const
     return m_ignoreFiles.contains(fileInfo.fileName()) || m_ignoreFilePaths.covers(relPath(fileInfo.absoluteFilePath()));
 }
 
-bool FileIgnoreProxy::filterFile(const QString& fileName) const
+bool FileIgnoreProxy::filterFile(const QFileInfo& file) const
 {
-    return m_blocked.covers(fileName) || ignoreFile(QFileInfo(QDir(m_root), fileName));
+    return m_blocked.covers(relPath(file.absoluteFilePath())) || ignoreFile(file);
 }
 
 void FileIgnoreProxy::loadBlockedPathsFromFile(const QString& fileName)

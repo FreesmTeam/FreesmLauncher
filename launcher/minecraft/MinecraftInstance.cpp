@@ -248,6 +248,7 @@ void MinecraftInstance::loadSpecificSettings()
     m_settings->registerSetting("ExportSummary", "");
     m_settings->registerSetting("ExportAuthor", "");
     m_settings->registerSetting("ExportOptionalFiles", true);
+    m_settings->registerSetting("ExportRecommendedRAM");
 
     auto dataPacksEnabled = m_settings->registerSetting("GlobalDataPacksEnabled", false);
     auto dataPacksPath = m_settings->registerSetting("GlobalDataPacksPath", "");
@@ -1018,7 +1019,6 @@ QMap<QString, QString> MinecraftInstance::createCensorFilterFromSession(AuthSess
 
     return filter;
 }
-
 
 QStringList MinecraftInstance::getLogFileSearchPaths()
 {
