@@ -398,6 +398,17 @@ bool BaseInstance::syncInstanceDirName(const QString& newRoot) const
     return oldRoot == newRoot || QFile::rename(oldRoot, newRoot);
 }
 
+void BaseInstance::registerShortcut(const ShortcutData& data)
+{
+    m_shortcuts.append(data);
+    qDebug() << "Registering shortcut for instance" << id() << "with name" << data.name << "and path" << data.filePath;
+}
+
+QList<ShortcutData>& BaseInstance::getShortcuts()
+{
+    return m_shortcuts;
+}
+
 QString BaseInstance::name() const
 {
     return m_settings->get("name").toString();

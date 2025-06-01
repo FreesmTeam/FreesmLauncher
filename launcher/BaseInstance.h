@@ -39,6 +39,7 @@
 #include <cassert>
 
 #include <QDateTime>
+#include <QList>
 #include <QMenu>
 #include <QObject>
 #include <QProcess>
@@ -65,6 +66,16 @@ class BaseInstance;
 
 // pointer for lazy people
 using InstancePtr = std::shared_ptr<BaseInstance>;
+
+/// Shortcut saving target representations
+enum class ShortcutTarget { Desktop, Applications, Other };
+
+/// Shortcut data representation
+struct ShortcutData {
+    QString name;
+    QString filePath;
+    ShortcutTarget target;
+};
 
 /*!
  * \brief Base class for instances.
@@ -128,6 +139,10 @@ class BaseInstance : public QObject, public std::enable_shared_from_this<BaseIns
 
     /// Sync name and rename instance dir accordingly; returns true if successful
     bool syncInstanceDirName(const QString& newRoot) const;
+
+    /// Register a created shortcut
+    void registerShortcut(const ShortcutData& data);
+    QList<ShortcutData>& getShortcuts();
 
     /// Value used for instance window titles
     QString windowTitle() const;
@@ -308,6 +323,8 @@ class BaseInstance : public QObject, public std::enable_shared_from_this<BaseIns
 
     SettingsObjectWeakPtr m_global_settings;
     bool m_specific_settings_loaded = false;
+
+    QList<ShortcutData> m_shortcuts;
 };
 
 Q_DECLARE_METATYPE(shared_qobject_ptr<BaseInstance>)
