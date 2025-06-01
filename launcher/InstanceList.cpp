@@ -670,7 +670,6 @@ InstancePtr InstanceList::loadInstance(const InstanceId& id)
     }
 
     auto instanceRoot = FS::PathCombine(m_instDir, id);
-    qRegisterMetaType<QList<ShortcutData>>("QList<ShortcutData>");
     auto instanceSettings = std::make_shared<INISettingsObject>(FS::PathCombine(instanceRoot, "instance.cfg"));
     InstancePtr inst;
 

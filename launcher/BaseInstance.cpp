@@ -69,7 +69,7 @@ BaseInstance::BaseInstance(SettingsObjectPtr globalSettings, SettingsObjectPtr s
     m_settings->registerSetting("lastTimePlayed", 0);
 
     m_settings->registerSetting("linkedInstances", "[]");
-    m_settings->registerSetting("shortcuts", QVariant::fromValue(QList<ShortcutData>{}));
+    m_settings->registerSetting("shortcuts", QVariant::fromValue(QByteArray{}));
 
     // Game time override
     auto gameTimeOverride = m_settings->registerSetting("OverrideGameTime", false);
@@ -410,12 +410,26 @@ void BaseInstance::registerShortcut(const ShortcutData& data)
 void BaseInstance::setShortcuts(const QList<ShortcutData>& shortcuts)
 {
     // FIXME: if no change, do not set. setting involves saving a file.
-    m_settings->set("shortcuts", QVariant::fromValue(shortcuts));
+    QJsonArray array;
+    for (const auto& elem : shortcuts) {
+        array.append(QJsonObject{ { "name", elem.name }, { "filePath", elem.filePath }, { "target", static_cast<int>(elem.target) } });
+    }
+
+    QJsonDocument document;
+    document.setArray(array);
+    m_settings->set("shortcuts", QVariant::fromValue(document.toJson(QJsonDocument::Compact)));
 }
 
 QList<ShortcutData> BaseInstance::shortcuts() const
 {
-    return m_settings->get("shortcuts").value<QList<ShortcutData>>();
+    auto data = m_settings->get("shortcuts").value<QByteArray>();
+    auto document = QJsonDocument::fromJson(data);
+    QList<ShortcutData> results;
+    for (const auto& elem : document.array()) {
+        auto dict = elem.toObject();
+        results.append({ dict["name"].toString(), dict["filePath"].toString(), static_cast<ShortcutTarget>(dict["target"].toInt()) });
+    }
+    return results;
 }
 
 QString BaseInstance::name() const
