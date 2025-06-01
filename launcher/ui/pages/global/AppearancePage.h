@@ -35,30 +35,33 @@
 
 #pragma once
 
-#include <QWidget>
+#include <QDialog>
+#include <QLayout>
 #include "Application.h"
-#include "BaseInstance.h"
+#include "java/JavaChecker.h"
+#include "translations/TranslationsModel.h"
 #include "ui/pages/BasePage.h"
-#include "ui/widgets/MinecraftSettingsWidget.h"
+#include "ui/widgets/AppearanceWidget.h"
 
-class InstanceSettingsPage : public MinecraftSettingsWidget, public BasePage {
+class QTextCharFormat;
+class SettingsObject;
+
+class AppearancePage : public AppearanceWidget, public BasePage {
     Q_OBJECT
 
    public:
-    explicit InstanceSettingsPage(MinecraftInstancePtr instance, QWidget* parent = nullptr)
-        : MinecraftSettingsWidget(std::move(instance), parent)
-    {
-        connect(APPLICATION, &Application::globalSettingsAboutToOpen, this, &InstanceSettingsPage::saveSettings);
-        connect(APPLICATION, &Application::globalSettingsApplied, this, &InstanceSettingsPage::loadSettings);
-    }
-    ~InstanceSettingsPage() override {}
-    QString displayName() const override { return tr("Settings"); }
-    QIcon icon() const override { return APPLICATION->getThemedIcon("instance-settings"); }
-    QString id() const override { return "settings"; }
+    explicit AppearancePage(QWidget* parent = nullptr) : AppearanceWidget(false, parent) { layout()->setContentsMargins(0, 0, 6, 0); }
+
+    QString displayName() const override { return tr("Appearance"); }
+    QIcon icon() const override { return APPLICATION->getThemedIcon("appearance"); }
+    QString id() const override { return "appearance-settings"; }
+    QString helpPage() const override { return "Launcher-settings"; }
+
     bool apply() override
     {
-        saveSettings();
+        applySettings();
         return true;
     }
-    QString helpPage() const override { return "Instance-settings"; }
+
+    void retranslate() override { retranslateUi(); }
 };

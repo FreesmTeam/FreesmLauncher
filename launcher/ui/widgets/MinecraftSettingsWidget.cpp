@@ -50,14 +50,11 @@ MinecraftSettingsWidget::MinecraftSettingsWidget(MinecraftInstancePtr instance, 
     m_ui->setupUi(this);
 
     if (m_instance == nullptr) {
-        for (int i = m_ui->settingsTabs->count() - 1; i >= 0; --i) {
-            const QString name = m_ui->settingsTabs->widget(i)->objectName();
-
-            if (name == "javaPage" || name == "launchPage")
-                m_ui->settingsTabs->removeTab(i);
-        }
+        m_ui->settingsTabs->removeTab(1);
 
         m_ui->openGlobalSettingsButton->setVisible(false);
+        m_ui->instanceAccountGroupBox->hide();
+        m_ui->serverJoinGroupBox->hide();
     } else {
         m_javaSettings = new JavaSettingsWidget(m_instance, this);
         m_ui->javaScrollArea->setWidget(m_javaSettings);
@@ -71,7 +68,6 @@ MinecraftSettingsWidget::MinecraftSettingsWidget(MinecraftInstancePtr instance, 
             tr("<span style=\" font-weight:600; color:#f5c211;\">Warning</span><span style=\" color:#f5c211;\">: The maximized option is "
                "not fully supported on this Minecraft version.</span>"));
 
-        m_ui->miscellaneousSettingsBox->setCheckable(true);
         m_ui->consoleSettingsBox->setCheckable(true);
         m_ui->windowSizeGroupBox->setCheckable(true);
         m_ui->nativeWorkaroundsGroupBox->setCheckable(true);
@@ -139,11 +135,13 @@ void MinecraftSettingsWidget::loadSettings()
         settings = APPLICATION->settings();
 
     // Game Window
-    m_ui->windowSizeGroupBox->setChecked(m_instance == nullptr || settings->get("OverrideWindow").toBool());
-    m_ui->windowSizeGroupBox->setChecked(settings->get("OverrideWindow").toBool());
+    m_ui->windowSizeGroupBox->setChecked(m_instance == nullptr || settings->get("OverrideWindow").toBool() ||
+                                         settings->get("OverrideMiscellaneous").toBool());
     m_ui->maximizedCheckBox->setChecked(settings->get("LaunchMaximized").toBool());
     m_ui->windowWidthSpinBox->setValue(settings->get("MinecraftWinWidth").toInt());
     m_ui->windowHeightSpinBox->setValue(settings->get("MinecraftWinHeight").toInt());
+    m_ui->closeAfterLaunchCheck->setChecked(settings->get("CloseAfterLaunch").toBool());
+    m_ui->quitAfterGameStopCheck->setChecked(settings->get("QuitAfterGameStop").toBool());
 
     // Game Time
     m_ui->gameTimeGroupBox->setChecked(m_instance == nullptr || settings->get("OverrideGameTime").toBool());
@@ -157,11 +155,6 @@ void MinecraftSettingsWidget::loadSettings()
     m_ui->showConsoleCheck->setChecked(settings->get("ShowConsole").toBool());
     m_ui->autoCloseConsoleCheck->setChecked(settings->get("AutoCloseConsole").toBool());
     m_ui->showConsoleErrorCheck->setChecked(settings->get("ShowConsoleOnError").toBool());
-
-    // Miscellaneous
-    m_ui->miscellaneousSettingsBox->setChecked(settings->get("OverrideMiscellaneous").toBool());
-    m_ui->closeAfterLaunchCheck->setChecked(settings->get("CloseAfterLaunch").toBool());
-    m_ui->quitAfterGameStopCheck->setChecked(settings->get("QuitAfterGameStop").toBool());
 
     if (m_javaSettings != nullptr)
         m_javaSettings->loadSettings();
@@ -245,19 +238,6 @@ void MinecraftSettingsWidget::saveSettings()
     {
         SettingsObject::Lock lock(settings);
 
-        // Miscellaneous
-        bool miscellaneous = m_instance == nullptr || m_ui->miscellaneousSettingsBox->isChecked();
-
-        if (m_instance != nullptr)
-            settings->set("OverrideMiscellaneous", miscellaneous);
-
-        if (miscellaneous) {
-            settings->set("CloseAfterLaunch", m_ui->closeAfterLaunchCheck->isChecked());
-            settings->set("QuitAfterGameStop", m_ui->quitAfterGameStopCheck->isChecked());
-        } else {
-            settings->reset("CloseAfterLaunch");
-            settings->reset("QuitAfterGameStop");
-        }
 
         // Console
         bool console = m_instance == nullptr || m_ui->consoleSettingsBox->isChecked();
@@ -275,20 +255,26 @@ void MinecraftSettingsWidget::saveSettings()
             settings->reset("ShowConsoleOnError");
         }
 
-        // Window Size
+        // Game Window
         bool window = m_instance == nullptr || m_ui->windowSizeGroupBox->isChecked();
 
-        if (m_instance != nullptr)
+        if (m_instance != nullptr) {
             settings->set("OverrideWindow", window);
+            settings->set("OverrideMiscellaneous", window);
+        }
 
         if (window) {
             settings->set("LaunchMaximized", m_ui->maximizedCheckBox->isChecked());
             settings->set("MinecraftWinWidth", m_ui->windowWidthSpinBox->value());
             settings->set("MinecraftWinHeight", m_ui->windowHeightSpinBox->value());
+                        settings->set("CloseAfterLaunch", m_ui->closeAfterLaunchCheck->isChecked());
+            settings->set("QuitAfterGameStop", m_ui->quitAfterGameStopCheck->isChecked());
         } else {
             settings->reset("LaunchMaximized");
             settings->reset("MinecraftWinWidth");
             settings->reset("MinecraftWinHeight");
+            settings->reset("CloseAfterLaunch");
+            settings->reset("QuitAfterGameStop");
         }
 
         // Custom Commands
