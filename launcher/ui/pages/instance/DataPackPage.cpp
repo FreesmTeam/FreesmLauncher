@@ -68,10 +68,6 @@ void DataPackPage::downloadDataPacks()
         return;  // this is a null instance or a legacy instance
 
     auto profile = static_cast<MinecraftInstance*>(m_instance)->getPackProfile();
-    if (!profile->getModLoaders().has_value()) {
-        QMessageBox::critical(this, tr("Error"), tr("Please install a mod loader first!"));
-        return;
-    }
 
     m_downloadDialog = new ResourceDownload::DataPackDownloadDialog(this, m_model, m_instance);
     connect(this, &QObject::destroyed, m_downloadDialog, &QDialog::close);
