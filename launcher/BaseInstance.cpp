@@ -69,6 +69,7 @@ BaseInstance::BaseInstance(SettingsObjectPtr globalSettings, SettingsObjectPtr s
     m_settings->registerSetting("lastTimePlayed", 0);
 
     m_settings->registerSetting("linkedInstances", "[]");
+    m_settings->registerSetting("shortcuts", QString());
 
     // Game time override
     auto gameTimeOverride = m_settings->registerSetting("OverrideGameTime", false);
@@ -396,6 +397,57 @@ bool BaseInstance::syncInstanceDirName(const QString& newRoot) const
 {
     auto oldRoot = instanceRoot();
     return oldRoot == newRoot || QFile::rename(oldRoot, newRoot);
+}
+
+void BaseInstance::registerShortcut(const ShortcutData& data)
+{
+    auto currentShortcuts = shortcuts();
+    currentShortcuts.append(data);
+    qDebug() << "Registering shortcut for instance" << id() << "with name" << data.name << "and path" << data.filePath;
+    setShortcuts(currentShortcuts);
+}
+
+void BaseInstance::setShortcuts(const QList<ShortcutData>& shortcuts)
+{
+    // FIXME: if no change, do not set. setting involves saving a file.
+    QJsonArray array;
+    for (const auto& elem : shortcuts) {
+        array.append(QJsonObject{ { "name", elem.name }, { "filePath", elem.filePath }, { "target", static_cast<int>(elem.target) } });
+    }
+
+    QJsonDocument document;
+    document.setArray(array);
+    m_settings->set("shortcuts", QString::fromUtf8(document.toJson(QJsonDocument::Compact)));
+}
+
+QList<ShortcutData> BaseInstance::shortcuts() const
+{
+    auto data = m_settings->get("shortcuts").toString().toUtf8();
+    QJsonParseError parseError;
+    auto document = QJsonDocument::fromJson(data, &parseError);
+    if (parseError.error != QJsonParseError::NoError || !document.isArray())
+        return {};
+
+    QList<ShortcutData> results;
+    for (const auto& elem : document.array()) {
+        if (!elem.isObject())
+            continue;
+        auto dict = elem.toObject();
+        if (!dict.contains("name") || !dict.contains("filePath") || !dict.contains("target"))
+            continue;
+        int value = dict["target"].toInt(-1);
+        if (!dict["name"].isString() || !dict["filePath"].isString() || value < 0 || value >= 3)
+            continue;
+
+        QString shortcutName = dict["name"].toString();
+        QString filePath = dict["filePath"].toString();
+        if (!QDir(filePath).exists()) {
+            qWarning() << "Shortcut" << shortcutName << "for instance" << name() << "have non-existent path" << filePath;
+            continue;
+        }
+        results.append({ shortcutName, filePath, static_cast<ShortcutTarget>(value) });
+    }
+    return results;
 }
 
 QString BaseInstance::name() const

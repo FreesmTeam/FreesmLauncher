@@ -2,7 +2,6 @@
 /*
  *  Prism Launcher - Minecraft Launcher
  *  Copyright (c) 2022 Jamie Mansfield <jmansfield@cadixdev.org>
- *  Copyright (C) 2024 TheKodeToad <TheKodeToad@proton.me>
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -36,33 +35,33 @@
 
 #pragma once
 
-#include <QWidget>
-#include "JavaSettingsWidget.h"
-#include "minecraft/MinecraftInstance.h"
+#include <QDialog>
+#include <QLayout>
+#include "Application.h"
+#include "java/JavaChecker.h"
+#include "translations/TranslationsModel.h"
+#include "ui/pages/BasePage.h"
+#include "ui/widgets/AppearanceWidget.h"
 
-namespace Ui {
-class MinecraftSettingsWidget;
-}
+class QTextCharFormat;
+class SettingsObject;
 
-class MinecraftSettingsWidget : public QWidget {
+class AppearancePage : public AppearanceWidget, public BasePage {
+    Q_OBJECT
+
    public:
-    MinecraftSettingsWidget(MinecraftInstancePtr instance, QWidget* parent = nullptr);
-    ~MinecraftSettingsWidget() override;
+    explicit AppearancePage(QWidget* parent = nullptr) : AppearanceWidget(false, parent) { layout()->setContentsMargins(0, 0, 6, 0); }
 
-    void loadSettings();
-    void saveSettings();
+    QString displayName() const override { return tr("Appearance"); }
+    QIcon icon() const override { return APPLICATION->getThemedIcon("appearance"); }
+    QString id() const override { return "appearance-settings"; }
+    QString helpPage() const override { return "Launcher-settings"; }
 
-   private:
-    void openGlobalSettings();
-    void updateAccountsMenu(const SettingsObject& settings);
-    bool isQuickPlaySupported();
-   private slots:
-    void selectedLoadersChanged();
-    void editedDataPacksPath();
-    void selectDataPacksFolder();
+    bool apply() override
+    {
+        applySettings();
+        return true;
+    }
 
-    MinecraftInstancePtr m_instance;
-    Ui::MinecraftSettingsWidget* m_ui;
-    JavaSettingsWidget* m_javaSettings = nullptr;
-    bool m_quickPlaySingleplayer = false;
+    void retranslate() override { retranslateUi(); }
 };

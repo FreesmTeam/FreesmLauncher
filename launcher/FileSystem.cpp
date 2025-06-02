@@ -898,26 +898,26 @@ QString getApplicationsDir()
 }
 
 // Cross-platform Shortcut creation
-bool createShortcut(QString destination, QString target, QStringList args, QString name, QString icon)
+QString createShortcut(QString destination, QString target, QStringList args, QString name, QString icon)
 {
     if (destination.isEmpty()) {
         destination = PathCombine(getDesktopDir(), RemoveInvalidFilenameChars(name));
     }
     if (!ensureFilePathExists(destination)) {
         qWarning() << "Destination path can't be created!";
-        return false;
+        return QString();
     }
 #if defined(Q_OS_MACOS)
     QDir application = destination + ".app/";
 
     if (application.exists()) {
         qWarning() << "Application already exists!";
-        return false;
+        return QString();
     }
 
     if (!application.mkpath(".")) {
         qWarning() << "Couldn't create application";
-        return false;
+        return QString();
     }
 
     QDir content = application.path() + "/Contents/";
@@ -927,7 +927,7 @@ bool createShortcut(QString destination, QString target, QStringList args, QStri
 
     if (!(content.mkpath(".") && resources.mkpath(".") && binaryDir.mkpath("."))) {
         qWarning() << "Couldn't create directories within application";
-        return false;
+        return QString();
     }
     info.open(QIODevice::WriteOnly | QIODevice::Text);
 
@@ -976,7 +976,7 @@ bool createShortcut(QString destination, QString target, QStringList args, QStri
                   "</dict>\n"
                   "</plist>";
 
-    return true;
+    return application.path();
 #elif defined(Q_OS_LINUX) || defined(Q_OS_FREEBSD) || defined(Q_OS_OPENBSD)
     if (!destination.endsWith(".desktop"))  // in case of isFlatpak destination is already populated
         destination += ".desktop";
@@ -1002,32 +1002,32 @@ bool createShortcut(QString destination, QString target, QStringList args, QStri
 
     f.setPermissions(f.permissions() | QFileDevice::ExeOwner | QFileDevice::ExeGroup | QFileDevice::ExeOther);
 
-    return true;
+    return destination;
 #elif defined(Q_OS_WIN)
     QFileInfo targetInfo(target);
 
     if (!targetInfo.exists()) {
         qWarning() << "Target file does not exist!";
-        return false;
+        return QString();
     }
 
     target = targetInfo.absoluteFilePath();
 
     if (target.length() >= MAX_PATH) {
         qWarning() << "Target file path is too long!";
-        return false;
+        return QString();
     }
 
     if (!icon.isEmpty() && icon.length() >= MAX_PATH) {
         qWarning() << "Icon path is too long!";
-        return false;
+        return QString();
     }
 
     destination += ".lnk";
 
     if (destination.length() >= MAX_PATH) {
         qWarning() << "Destination path is too long!";
-        return false;
+        return QString();
     }
 
     QString argStr;
@@ -1046,7 +1046,7 @@ bool createShortcut(QString destination, QString target, QStringList args, QStri
 
     if (argStr.length() >= MAX_PATH) {
         qWarning() << "Arguments string is too long!";
-        return false;
+        return QString();
     }
 
     HRESULT hres;
@@ -1055,7 +1055,7 @@ bool createShortcut(QString destination, QString target, QStringList args, QStri
     hres = CoInitialize(nullptr);
     if (FAILED(hres)) {
         qWarning() << "Failed to initialize COM!";
-        return false;
+        return QString();
     }
 
     WCHAR wsz[MAX_PATH];
@@ -1109,10 +1109,12 @@ bool createShortcut(QString destination, QString target, QStringList args, QStri
     // go away COM, nobody likes you
     CoUninitialize();
 
-    return SUCCEEDED(hres);
+    if (SUCCEEDED(hres))
+        return destination;
+    return QString();
 #else
     qWarning("Desktop Shortcuts not supported on your platform!");
-    return false;
+    return QString();
 #endif
 }
 

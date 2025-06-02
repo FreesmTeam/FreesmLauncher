@@ -111,7 +111,7 @@ InstanceWindow::InstanceWindow(InstancePtr instance, QWidget* parent) : QMainWin
         m_container->addButtons(horizontalLayout);
 
         connect(m_instance.get(), &BaseInstance::profilerChanged, this, &InstanceWindow::updateButtons);
-        connect(APPLICATION, &Application::globalSettingsClosed, this, &InstanceWindow::updateButtons);
+        connect(APPLICATION, &Application::globalSettingsApplied, this, &InstanceWindow::updateButtons);
     }
 
     // restore window state

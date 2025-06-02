@@ -196,7 +196,7 @@ class Application : public QApplication {
    signals:
     void updateAllowedChanged(bool status);
     void globalSettingsAboutToOpen();
-    void globalSettingsClosed();
+    void globalSettingsApplied();
     int currentCatChanged(int index);
 
     void oauthReplyRecieved(QVariantMap);

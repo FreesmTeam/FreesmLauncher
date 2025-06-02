@@ -256,6 +256,10 @@ void MinecraftInstance::loadSpecificSettings()
     connect(dataPacksEnabled.get(), &Setting::SettingChanged, this, [this] { m_data_pack_list.reset(); });
     connect(dataPacksPath.get(), &Setting::SettingChanged, this, [this] { m_data_pack_list.reset(); });
 
+    // Join server on launch, this does not have a global override
+    m_settings->registerSetting("OverrideModDownloadLoaders", false);
+    m_settings->registerSetting("ModDownloadLoaders", "[]");
+
     qDebug() << "Instance-type specific settings were loaded!";
 
     setSpecificSettingsLoaded(true);
