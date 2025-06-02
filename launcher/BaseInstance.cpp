@@ -423,15 +423,21 @@ void BaseInstance::setShortcuts(const QList<ShortcutData>& shortcuts)
 QList<ShortcutData> BaseInstance::shortcuts() const
 {
     auto data = m_settings->get("shortcuts").toString().toUtf8();
-    auto document = QJsonDocument::fromJson(data);
+    QJsonParseError parseError;
+    auto document = QJsonDocument::fromJson(data, &parseError);
+    if (parseError.error != QJsonParseError::NoError || !document.isArray())
+        return {};
+
     QList<ShortcutData> results;
     for (const auto& elem : document.array()) {
+        if (!elem.isObject())
+            continue;
         auto dict = elem.toObject();
         if (!dict.contains("name") || !dict.contains("filePath") || !dict.contains("target"))
-            return {};
+            continue;
         int value = dict["target"].toInt(-1);
         if (!dict["name"].isString() || !dict["filePath"].isString() || value < 0 || value >= 3)
-            return {};
+            continue;
 
         QString shortcutName = dict["name"].toString();
         QString filePath = dict["filePath"].toString();
