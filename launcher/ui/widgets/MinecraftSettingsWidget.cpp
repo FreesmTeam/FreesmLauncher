@@ -39,6 +39,8 @@
 
 #include "Application.h"
 #include "BuildConfig.h"
+#include "Json.h"
+#include "minecraft/PackProfile.h"
 #include "minecraft/WorldList.h"
 #include "minecraft/auth/AccountList.h"
 #include "settings/Setting.h"
@@ -55,6 +57,7 @@ MinecraftSettingsWidget::MinecraftSettingsWidget(MinecraftInstancePtr instance, 
         m_ui->openGlobalSettingsButton->setVisible(false);
         m_ui->instanceAccountGroupBox->hide();
         m_ui->serverJoinGroupBox->hide();
+        m_ui->loaderGroup->hide();
     } else {
         m_javaSettings = new JavaSettingsWidget(m_instance, this);
         m_ui->javaScrollArea->setWidget(m_javaSettings);
@@ -93,6 +96,17 @@ MinecraftSettingsWidget::MinecraftSettingsWidget(MinecraftInstancePtr instance, 
         connect(m_ui->openGlobalSettingsButton, &QCommandLinkButton::clicked, this, &MinecraftSettingsWidget::openGlobalSettings);
         connect(m_ui->serverJoinAddressButton, &QAbstractButton::toggled, m_ui->serverJoinAddress, &QWidget::setEnabled);
         connect(m_ui->worldJoinButton, &QAbstractButton::toggled, m_ui->worldsCb, &QWidget::setEnabled);
+
+        connect(m_ui->loaderGroup, &QGroupBox::toggled, this, [this](bool value) {
+            m_instance->settings()->set("OverrideModDownloadLoaders", value);
+            if (!value)
+                m_instance->settings()->reset("ModDownloadLoaders");
+        });
+        connect(m_ui->neoForge, &QCheckBox::stateChanged, this, &MinecraftSettingsWidget::selectedLoadersChanged);
+        connect(m_ui->forge, &QCheckBox::stateChanged, this, &MinecraftSettingsWidget::selectedLoadersChanged);
+        connect(m_ui->fabric, &QCheckBox::stateChanged, this, &MinecraftSettingsWidget::selectedLoadersChanged);
+        connect(m_ui->quilt, &QCheckBox::stateChanged, this, &MinecraftSettingsWidget::selectedLoadersChanged);
+        connect(m_ui->liteLoader, &QCheckBox::stateChanged, this, &MinecraftSettingsWidget::selectedLoadersChanged);
     }
 
     m_ui->maximizedWarning->hide();
@@ -220,6 +234,35 @@ void MinecraftSettingsWidget::loadSettings()
 
         m_ui->instanceAccountGroupBox->setChecked(settings->get("UseAccountForInstance").toBool());
         updateAccountsMenu(*settings);
+
+        m_ui->loaderGroup->blockSignals(true);
+        m_ui->neoForge->blockSignals(true);
+        m_ui->forge->blockSignals(true);
+        m_ui->fabric->blockSignals(true);
+        m_ui->quilt->blockSignals(true);
+        m_ui->liteLoader->blockSignals(true);
+        auto instLoaders = m_instance->getPackProfile()->getSupportedModLoaders().value();
+        m_ui->loaderGroup->setChecked(settings->get("OverrideModDownloadLoaders").toBool());
+        auto loaders = Json::toStringList(settings->get("ModDownloadLoaders").toString());
+        if (loaders.isEmpty()) {
+            m_ui->neoForge->setChecked(instLoaders & ModPlatform::NeoForge);
+            m_ui->forge->setChecked(instLoaders & ModPlatform::Forge);
+            m_ui->fabric->setChecked(instLoaders & ModPlatform::Fabric);
+            m_ui->quilt->setChecked(instLoaders & ModPlatform::Quilt);
+            m_ui->liteLoader->setChecked(instLoaders & ModPlatform::LiteLoader);
+        } else {
+            m_ui->neoForge->setChecked(loaders.contains(getModLoaderAsString(ModPlatform::NeoForge)));
+            m_ui->forge->setChecked(loaders.contains(getModLoaderAsString(ModPlatform::Forge)));
+            m_ui->fabric->setChecked(loaders.contains(getModLoaderAsString(ModPlatform::Fabric)));
+            m_ui->quilt->setChecked(loaders.contains(getModLoaderAsString(ModPlatform::Quilt)));
+            m_ui->liteLoader->setChecked(loaders.contains(getModLoaderAsString(ModPlatform::LiteLoader)));
+        }
+        m_ui->loaderGroup->blockSignals(false);
+        m_ui->neoForge->blockSignals(false);
+        m_ui->forge->blockSignals(false);
+        m_ui->fabric->blockSignals(false);
+        m_ui->quilt->blockSignals(false);
+        m_ui->liteLoader->blockSignals(false);
     }
 
     m_ui->legacySettingsGroupBox->setChecked(settings->get("OverrideLegacySettings").toBool());
@@ -237,7 +280,6 @@ void MinecraftSettingsWidget::saveSettings()
 
     {
         SettingsObject::Lock lock(settings);
-
 
         // Console
         bool console = m_instance == nullptr || m_ui->consoleSettingsBox->isChecked();
@@ -267,7 +309,7 @@ void MinecraftSettingsWidget::saveSettings()
             settings->set("LaunchMaximized", m_ui->maximizedCheckBox->isChecked());
             settings->set("MinecraftWinWidth", m_ui->windowWidthSpinBox->value());
             settings->set("MinecraftWinHeight", m_ui->windowHeightSpinBox->value());
-                        settings->set("CloseAfterLaunch", m_ui->closeAfterLaunchCheck->isChecked());
+            settings->set("CloseAfterLaunch", m_ui->closeAfterLaunchCheck->isChecked());
             settings->set("QuitAfterGameStop", m_ui->quitAfterGameStopCheck->isChecked());
         } else {
             settings->reset("LaunchMaximized");
@@ -443,4 +485,20 @@ void MinecraftSettingsWidget::updateAccountsMenu(const SettingsObject& settings)
 bool MinecraftSettingsWidget::isQuickPlaySupported()
 {
     return m_instance->traits().contains("feature:is_quick_play_singleplayer");
+}
+
+void MinecraftSettingsWidget::selectedLoadersChanged()
+{
+    QStringList loaders;
+    if (m_ui->neoForge->isChecked())
+        loaders << getModLoaderAsString(ModPlatform::NeoForge);
+    if (m_ui->forge->isChecked())
+        loaders << getModLoaderAsString(ModPlatform::Forge);
+    if (m_ui->fabric->isChecked())
+        loaders << getModLoaderAsString(ModPlatform::Fabric);
+    if (m_ui->quilt->isChecked())
+        loaders << getModLoaderAsString(ModPlatform::Quilt);
+    if (m_ui->liteLoader->isChecked())
+        loaders << getModLoaderAsString(ModPlatform::LiteLoader);
+    m_instance->settings()->set("ModDownloadLoaders", Json::fromStringList(loaders));
 }

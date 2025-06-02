@@ -250,6 +250,10 @@ void MinecraftInstance::loadSpecificSettings()
     m_settings->registerSetting("ExportOptionalFiles", true);
     m_settings->registerSetting("ExportRecommendedRAM");
 
+    // Join server on launch, this does not have a global override
+    m_settings->registerSetting("OverrideModDownloadLoaders", false);
+    m_settings->registerSetting("ModDownloadLoaders", "[]");
+
     qDebug() << "Instance-type specific settings were loaded!";
 
     setSpecificSettingsLoaded(true);
