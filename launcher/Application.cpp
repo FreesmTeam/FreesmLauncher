@@ -63,6 +63,7 @@
 #include "ui/pages/global/ExternalToolsPage.h"
 #include "ui/pages/global/JavaPage.h"
 #include "ui/pages/global/LanguagePage.h"
+#include "ui/pages/global/LauncherLogPage.h"
 #include "ui/pages/global/LauncherPage.h"
 #include "ui/pages/global/MinecraftPage.h"
 #include "ui/pages/global/ProxyPage.h"
@@ -244,8 +245,11 @@ void appDebugOutput(QtMsgType type, const QMessageLogContext& context, const QSt
     }
 
     QString out = qFormatLogMessage(type, context, msg);
-    out += QChar::LineFeed;
+    if (APPLICATION->logModel) {
+        APPLICATION->logModel->append(MessageLevel::getLevel(type), out);
+    }
 
+    out += QChar::LineFeed;
     APPLICATION->logFile->write(out.toUtf8());
     APPLICATION->logFile->flush();
 
@@ -538,6 +542,8 @@ Application::Application(int& argc, char** argv) : QApplication(argc, argv)
         qInstallMessageHandler(appDebugOutput);
         qSetMessagePattern(defaultLogFormat);
 
+        logModel.reset(new LogModel(this));
+
         bool foundLoggingRules = false;
 
         auto logRulesFile = QStringLiteral("qtlogging.ini");
@@ -690,6 +696,17 @@ Application::Application(int& argc, char** argv) : QApplication(argc, argv)
         m_settings->registerSetting("ConsoleFontSize", defaultSize);
         m_settings->registerSetting("ConsoleMaxLines", 100000);
         m_settings->registerSetting("ConsoleOverflowStop", true);
+
+        auto lineSetting = settings()->getSetting("ConsoleMaxLines");
+        bool conversionOk = false;
+        int maxLines = lineSetting->get().toInt(&conversionOk);
+        if (!conversionOk) {
+            maxLines = lineSetting->defValue().toInt();
+            qWarning() << "ConsoleMaxLines has nonsensical value, defaulting to" << maxLines;
+        }
+        logModel->setMaxLines(maxLines);
+        logModel->setStopOnOverflow(settings()->get("ConsoleOverflowStop").toBool());
+        logModel->setOverflowMessage(tr("Cannot display this log since the log length surpassed %1 lines.").arg(maxLines));
 
         // Folders
         m_settings->registerSetting("InstanceDir", "instances");
@@ -895,6 +912,7 @@ Application::Application(int& argc, char** argv) : QApplication(argc, argv)
             m_globalSettingsProvider->addPage<APIPage>();
             m_globalSettingsProvider->addPage<ExternalToolsPage>();
             m_globalSettingsProvider->addPage<ProxyPage>();
+            m_globalSettingsProvider->addPage<LauncherLogPage>();
         }
 
         PixmapCache::setInstance(new PixmapCache(this));

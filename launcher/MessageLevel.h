@@ -1,6 +1,7 @@
 #pragma once
 
 #include <QString>
+#include <QtLogging>
 
 /**
  * @brief the MessageLevel Enum
@@ -21,6 +22,7 @@ enum Enum {
     Fatal,    /**< Fatal Errors */
 };
 MessageLevel::Enum getLevel(const QString& levelName);
+MessageLevel::Enum getLevel(QtMsgType type);
 
 /* Get message level from a line. Line is modified if it was successful. */
 MessageLevel::Enum fromLine(QString& line);

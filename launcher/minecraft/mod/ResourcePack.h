@@ -24,5 +24,5 @@ class ResourcePack : public DataPack {
     /** Gets, respectively, the lower and upper versions supported by the set pack format. */
     [[nodiscard]] std::pair<Version, Version> compatibleVersions() const override;
 
-    virtual QString directory() { return "/assets"; }
+    QString directory() override { return "/assets"; }
 };

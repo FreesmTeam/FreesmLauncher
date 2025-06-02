@@ -48,6 +48,7 @@
 
 #include <BaseInstance.h>
 
+#include "launch/LogModel.h"
 #include "minecraft/launch/MinecraftTarget.h"
 
 class LaunchController;
@@ -307,6 +308,7 @@ class Application : public QApplication {
     QList<QUrl> m_urlsToImport;
     QString m_instanceIdToShowWindowOf;
     std::unique_ptr<QFile> logFile;
+    shared_qobject_ptr<LogModel> logModel;
 
    public:
     void addQSavePath(QString);
