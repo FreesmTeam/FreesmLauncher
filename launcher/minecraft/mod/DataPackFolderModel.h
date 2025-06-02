@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: GPL-3.0-only
 /*
  *  Prism Launcher - Minecraft Launcher
- *  Copyright (c) 2022 Jamie Mansfield <jmansfield@cadixdev.org>
- *  Copyright (C) 2024 TheKodeToad <TheKodeToad@proton.me>
+ *  Copyright (c) 2022 flowln <flowlnlnln@gmail.com>
+ *  Copyright (C) 2023 TheKodeToad <TheKodeToad@proton.me>
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -36,33 +36,27 @@
 
 #pragma once
 
-#include <QWidget>
-#include "JavaSettingsWidget.h"
-#include "minecraft/MinecraftInstance.h"
+#include "ResourceFolderModel.h"
 
-namespace Ui {
-class MinecraftSettingsWidget;
-}
+#include "DataPack.h"
+#include "ResourcePack.h"
 
-class MinecraftSettingsWidget : public QWidget {
+class DataPackFolderModel : public ResourceFolderModel {
+    Q_OBJECT
    public:
-    MinecraftSettingsWidget(MinecraftInstancePtr instance, QWidget* parent = nullptr);
-    ~MinecraftSettingsWidget() override;
+    enum Columns { ActiveColumn = 0, ImageColumn, NameColumn, PackFormatColumn, DateColumn, NUM_COLUMNS };
 
-    void loadSettings();
-    void saveSettings();
+    explicit DataPackFolderModel(const QString& dir, BaseInstance* instance, bool is_indexed, bool create_dir, QObject* parent = nullptr);
 
-   private:
-    void openGlobalSettings();
-    void updateAccountsMenu(const SettingsObject& settings);
-    bool isQuickPlaySupported();
-   private slots:
-    void selectedLoadersChanged();
-    void editedDataPacksPath();
-    void selectDataPacksFolder();
+    virtual QString id() const override { return "datapacks"; }
 
-    MinecraftInstancePtr m_instance;
-    Ui::MinecraftSettingsWidget* m_ui;
-    JavaSettingsWidget* m_javaSettings = nullptr;
-    bool m_quickPlaySingleplayer = false;
+    [[nodiscard]] QVariant data(const QModelIndex& index, int role = Qt::DisplayRole) const override;
+
+    [[nodiscard]] QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const override;
+    [[nodiscard]] int columnCount(const QModelIndex& parent) const override;
+
+    [[nodiscard]] Resource* createResource(const QFileInfo& file) override;
+    [[nodiscard]] Task* createParseTask(Resource&) override;
+
+    RESOURCE_HELPERS(DataPack)
 };

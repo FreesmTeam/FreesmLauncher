@@ -29,13 +29,21 @@ class QIODevice;
 
 namespace ModPlatform {
 
-enum ModLoaderType { NeoForge = 1 << 0, Forge = 1 << 1, Cauldron = 1 << 2, LiteLoader = 1 << 3, Fabric = 1 << 4, Quilt = 1 << 5 };
+enum ModLoaderType {
+    NeoForge = 1 << 0,
+    Forge = 1 << 1,
+    Cauldron = 1 << 2,
+    LiteLoader = 1 << 3,
+    Fabric = 1 << 4,
+    Quilt = 1 << 5,
+    DataPack = 1 << 6
+};
 Q_DECLARE_FLAGS(ModLoaderTypes, ModLoaderType)
 QList<ModLoaderType> modLoaderTypesToList(ModLoaderTypes flags);
 
 enum class ResourceProvider { MODRINTH, FLAME };
 
-enum class ResourceType { MOD, RESOURCE_PACK, SHADER_PACK, MODPACK };
+enum class ResourceType { MOD, RESOURCE_PACK, SHADER_PACK, MODPACK, DATA_PACK };
 
 enum class DependencyType { REQUIRED, OPTIONAL, INCOMPATIBLE, EMBEDDED, TOOL, INCLUDE, UNKNOWN };
 

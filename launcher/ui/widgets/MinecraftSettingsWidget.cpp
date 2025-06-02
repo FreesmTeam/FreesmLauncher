@@ -36,7 +36,9 @@
  */
 
 #include "MinecraftSettingsWidget.h"
+#include "ui_MinecraftSettingsWidget.h"
 
+#include <QFileDialog>
 #include "Application.h"
 #include "BuildConfig.h"
 #include "Json.h"
@@ -44,7 +46,6 @@
 #include "minecraft/WorldList.h"
 #include "minecraft/auth/AccountList.h"
 #include "settings/Setting.h"
-#include "ui_MinecraftSettingsWidget.h"
 
 MinecraftSettingsWidget::MinecraftSettingsWidget(MinecraftInstancePtr instance, QWidget* parent)
     : QWidget(parent), m_instance(std::move(instance)), m_ui(new Ui::MinecraftSettingsWidget)
@@ -57,6 +58,7 @@ MinecraftSettingsWidget::MinecraftSettingsWidget(MinecraftInstancePtr instance, 
         m_ui->openGlobalSettingsButton->setVisible(false);
         m_ui->instanceAccountGroupBox->hide();
         m_ui->serverJoinGroupBox->hide();
+        m_ui->globalDataPacksGroupBox->hide();
         m_ui->loaderGroup->hide();
     } else {
         m_javaSettings = new JavaSettingsWidget(m_instance, this);
@@ -96,6 +98,14 @@ MinecraftSettingsWidget::MinecraftSettingsWidget(MinecraftInstancePtr instance, 
         connect(m_ui->openGlobalSettingsButton, &QCommandLinkButton::clicked, this, &MinecraftSettingsWidget::openGlobalSettings);
         connect(m_ui->serverJoinAddressButton, &QAbstractButton::toggled, m_ui->serverJoinAddress, &QWidget::setEnabled);
         connect(m_ui->worldJoinButton, &QAbstractButton::toggled, m_ui->worldsCb, &QWidget::setEnabled);
+
+        connect(m_ui->globalDataPacksGroupBox, &QGroupBox::toggled, this, [this](bool value) {
+            m_instance->settings()->set("GlobalDataPacksEnabled", value);
+            if (!value)
+                m_instance->settings()->reset("GlobalDataPacksPath");
+        });
+        connect(m_ui->dataPacksPathEdit, &QLineEdit::editingFinished, this, &MinecraftSettingsWidget::editedDataPacksPath);
+        connect(m_ui->dataPacksPathBrowse, &QPushButton::clicked, this, &MinecraftSettingsWidget::selectDataPacksFolder);
 
         connect(m_ui->loaderGroup, &QGroupBox::toggled, this, [this](bool value) {
             m_instance->settings()->set("OverrideModDownloadLoaders", value);
@@ -267,6 +277,13 @@ void MinecraftSettingsWidget::loadSettings()
 
     m_ui->legacySettingsGroupBox->setChecked(settings->get("OverrideLegacySettings").toBool());
     m_ui->onlineFixes->setChecked(settings->get("OnlineFixes").toBool());
+
+    m_ui->globalDataPacksGroupBox->blockSignals(true);
+    m_ui->dataPacksPathEdit->blockSignals(true);
+    m_ui->globalDataPacksGroupBox->setChecked(settings->get("GlobalDataPacksEnabled").toBool());
+    m_ui->dataPacksPathEdit->setText(settings->get("GlobalDataPacksPath").toString());
+    m_ui->globalDataPacksGroupBox->blockSignals(false);
+    m_ui->dataPacksPathEdit->blockSignals(false);
 }
 
 void MinecraftSettingsWidget::saveSettings()
@@ -485,6 +502,34 @@ void MinecraftSettingsWidget::updateAccountsMenu(const SettingsObject& settings)
 bool MinecraftSettingsWidget::isQuickPlaySupported()
 {
     return m_instance->traits().contains("feature:is_quick_play_singleplayer");
+}
+
+void MinecraftSettingsWidget::editedDataPacksPath()
+{
+    if (QDir::separator() != '/')
+        m_ui->dataPacksPathEdit->setText(m_ui->dataPacksPathEdit->text().replace(QDir::separator(), '/'));
+
+    m_instance->settings()->set("GlobalDataPacksPath", m_ui->dataPacksPathEdit->text());
+}
+
+void MinecraftSettingsWidget::selectDataPacksFolder()
+{
+    QString path = QFileDialog::getExistingDirectory(this, tr("Select Global Data Packs Folder"), m_instance->gameRoot());
+
+    if (path.isEmpty())
+        return;
+
+    // if it's inside the instance dir, set path relative to .minecraft
+    // (so that if it's directly in instance dir it will still lead with .. but more than two levels up are kept absolute)
+
+    const QUrl instanceRootUrl = QUrl::fromLocalFile(m_instance->instanceRoot());
+    const QUrl pathUrl = QUrl::fromLocalFile(path);
+
+    if (instanceRootUrl.isParentOf(pathUrl))
+        path = QDir(m_instance->gameRoot()).relativeFilePath(path);
+
+    m_ui->dataPacksPathEdit->setText(path);
+    m_instance->settings()->set("GlobalDataPacksPath", path);
 }
 
 void MinecraftSettingsWidget::selectedLoadersChanged()
