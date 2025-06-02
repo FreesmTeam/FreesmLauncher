@@ -54,3 +54,18 @@ MessageLevel::Enum MessageLevel::fromLine(QString& line)
     }
     return MessageLevel::Unknown;
 }
+
+MessageLevel::Enum MessageLevel::fromLauncherLine(QString& line)
+{
+    // Level prefix
+    int startMark = 0;
+    while (startMark < line.size() && (line[startMark].isDigit() || line[startMark].isSpace() || line[startMark] == '.'))
+        ++startMark;
+    int endmark = line.indexOf(":");
+    if (startMark < line.size() && endmark != -1) {
+        auto level = MessageLevel::getLevel(line.left(endmark).mid(startMark));
+        line = line.mid(endmark + 2);
+        return level;
+    }
+    return MessageLevel::Unknown;
+}

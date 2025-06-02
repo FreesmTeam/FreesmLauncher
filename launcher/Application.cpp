@@ -697,16 +697,9 @@ Application::Application(int& argc, char** argv) : QApplication(argc, argv)
         m_settings->registerSetting("ConsoleMaxLines", 100000);
         m_settings->registerSetting("ConsoleOverflowStop", true);
 
-        auto lineSetting = settings()->getSetting("ConsoleMaxLines");
-        bool conversionOk = false;
-        int maxLines = lineSetting->get().toInt(&conversionOk);
-        if (!conversionOk) {
-            maxLines = lineSetting->defValue().toInt();
-            qWarning() << "ConsoleMaxLines has nonsensical value, defaulting to" << maxLines;
-        }
-        logModel->setMaxLines(maxLines);
-        logModel->setStopOnOverflow(settings()->get("ConsoleOverflowStop").toBool());
-        logModel->setOverflowMessage(tr("Cannot display this log since the log length surpassed %1 lines.").arg(maxLines));
+        logModel->setMaxLines(getConsoleMaxLines());
+        logModel->setStopOnOverflow(shouldStopOnConsoleOverflow());
+        logModel->setOverflowMessage(tr("Cannot display this log since the log length surpassed %1 lines.").arg(logModel->getMaxLines()));
 
         // Folders
         m_settings->registerSetting("InstanceDir", "instances");
@@ -1612,6 +1605,23 @@ bool Application::updatesAreAllowed()
 void Application::updateIsRunning(bool running)
 {
     m_updateRunning = running;
+}
+
+int Application::getConsoleMaxLines() const
+{
+    auto lineSetting = settings()->getSetting("ConsoleMaxLines");
+    bool conversionOk = false;
+    int maxLines = lineSetting->get().toInt(&conversionOk);
+    if (!conversionOk) {
+        maxLines = lineSetting->defValue().toInt();
+        qWarning() << "ConsoleMaxLines has nonsensical value, defaulting to" << maxLines;
+    }
+    return maxLines;
+}
+
+bool Application::shouldStopOnConsoleOverflow() const
+{
+    return settings()->get("ConsoleOverflowStop").toBool();
 }
 
 void Application::controllerSucceeded()

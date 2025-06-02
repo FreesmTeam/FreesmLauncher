@@ -211,7 +211,8 @@ void OtherLogsPage::on_btnReload_clicked()
             MessageLevel::Enum level = MessageLevel::Unknown;
 
             // if the launcher part set a log level, use it
-            auto innerLevel = MessageLevel::fromLine(line);
+            QString lineTemp = line;  // don't edit out the time and level for clarity
+            auto innerLevel = MessageLevel::fromLine(lineTemp);
             if (innerLevel != MessageLevel::Unknown) {
                 level = innerLevel;
             }

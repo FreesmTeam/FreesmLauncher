@@ -36,6 +36,7 @@
 
 #pragma once
 
+#include <QFileSystemWatcher>
 #include <QIdentityProxyModel>
 #include <QWidget>
 
@@ -48,6 +49,7 @@ namespace Ui {
 class LauncherLogPage;
 }
 class QTextCharFormat;
+class RecursiveFileSystemWatcher;
 
 class LogFormatProxyModel : public QIdentityProxyModel {
    public:
@@ -74,10 +76,17 @@ class LauncherLogPage : public QWidget, public BasePage {
     QString helpPage() const override { return "Launcher-Logs"; }
     void retranslate() override;
 
+    void openedImpl() override;
+    void closedImpl() override;
+
    private slots:
+    void populateSelectLogBox();
+    void on_selectLogBox_currentIndexChanged(int index);
+    void on_btnReload_clicked();
     void on_btnPaste_clicked();
     void on_btnCopy_clicked();
-    void on_btnClear_clicked();
+    void on_btnDelete_clicked();
+    void on_btnClean_clicked();
     void on_btnBottom_clicked();
 
     void on_trackLogCheckbox_clicked(bool checked);
@@ -90,10 +99,21 @@ class LauncherLogPage : public QWidget, public BasePage {
     void findPreviousActivated();
 
    private:
+    void reload();
     void modelStateToUI();
     void UIToModelState();
+    void setControlsEnabled(bool enabled);
+
+    QStringList getPaths();
 
    private:
     Ui::LauncherLogPage* ui;
     LogFormatProxyModel* m_proxy;
+    shared_qobject_ptr<LogModel> m_model;
+
+    /** Path to display log paths relative to. */
+    QString m_basePath;
+    QStringList m_logSearchPaths;
+    QString m_currentFile;
+    QFileSystemWatcher m_watcher;
 };
