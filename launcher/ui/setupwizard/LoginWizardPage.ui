@@ -17,10 +17,12 @@
    <item>
     <widget class="QLabel" name="label">
      <property name="text">
-      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:14pt; font-weight:600;&quot;&gt;Add Microsoft account&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:14pt; font-weight:600;&quot;&gt;Add
+       account&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;
+      </string>
      </property>
      <property name="textFormat">
-      <enum>Qt::RichText</enum>
+      <enum>Qt::TextFormat::RichText</enum>
      </property>
      <property name="wordWrap">
       <bool>true</bool>
@@ -30,7 +32,8 @@
    <item>
     <widget class="QLabel" name="label_2">
      <property name="text">
-      <string>In order to play Minecraft, you must have at least one Microsoft account logged in. Do you want to log in now?</string>
+      <string>In order to play Minecraft, you must have at least one account logged in. Do you want to log in now?
+      </string>
      </property>
      <property name="wordWrap">
       <bool>true</bool>
@@ -40,21 +43,35 @@
    <item>
     <widget class="Line" name="line">
      <property name="orientation">
-      <enum>Qt::Horizontal</enum>
+      <enum>Qt::Orientation::Horizontal</enum>
      </property>
     </widget>
    </item>
    <item>
-    <widget class="QPushButton" name="pushButton">
+    <widget class="QPushButton" name="addMicrosoftButton">
      <property name="text">
       <string>Add Microsoft account</string>
      </property>
     </widget>
    </item>
    <item>
+    <widget class="QPushButton" name="addElybyButton">
+     <property name="text">
+      <string>Add Ely.by account</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QPushButton" name="addOfflineButton">
+     <property name="text">
+      <string>Add Offline account</string>
+     </property>
+    </widget>
+   </item>
+   <item>
     <spacer name="verticalSpacer">
      <property name="orientation">
-      <enum>Qt::Vertical</enum>
+      <enum>Qt::Orientation::Vertical</enum>
      </property>
      <property name="sizeHint" stdset="0">
       <size>
@@ -68,7 +85,4 @@
  </widget>
  <resources/>
  <connections/>
- <buttongroups>
-  <buttongroup name="buttonGroup"/>
- </buttongroups>
 </ui>
