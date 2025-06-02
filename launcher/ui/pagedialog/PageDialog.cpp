@@ -53,7 +53,7 @@ PageDialog::PageDialog(BasePageProvider* pageProvider, QString defaultId, QWidge
     connect(buttons->button(QDialogButtonBox::Cancel), &QPushButton::clicked, this, &PageDialog::reject);
     connect(buttons->button(QDialogButtonBox::Help), &QPushButton::clicked, m_container, &PageContainer::help);
 
-    restoreGeometry(QByteArray::fromBase64(APPLICATION->settings()->get("PagedGeometry").toByteArray()));
+    restoreGeometry(QByteArray::fromBase64(APPLICATION->settings()->get("PagedGeometry").toString().toUtf8()));
 }
 
 void PageDialog::accept()
@@ -75,7 +75,7 @@ bool PageDialog::handleClose()
         return false;
 
     qDebug() << "Paged dialog close approved";
-    APPLICATION->settings()->set("PagedGeometry", saveGeometry().toBase64());
+    APPLICATION->settings()->set("PagedGeometry", QString::fromUtf8(saveGeometry().toBase64()));
     qDebug() << "Paged dialog geometry saved";
 
     emit applied();

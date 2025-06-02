@@ -84,7 +84,7 @@ ResourceDownloadDialog::ResourceDownloadDialog(QWidget* parent, const std::share
 void ResourceDownloadDialog::accept()
 {
     if (!geometrySaveKey().isEmpty())
-        APPLICATION->settings()->set(geometrySaveKey(), saveGeometry().toBase64());
+        APPLICATION->settings()->set(geometrySaveKey(), QString::fromUtf8(saveGeometry().toBase64()));
 
     QDialog::accept();
 }
@@ -105,7 +105,7 @@ void ResourceDownloadDialog::reject()
     }
 
     if (!geometrySaveKey().isEmpty())
-        APPLICATION->settings()->set(geometrySaveKey(), saveGeometry().toBase64());
+        APPLICATION->settings()->set(geometrySaveKey(), QString::fromUtf8(saveGeometry().toBase64()));
 
     QDialog::reject();
 }
@@ -275,7 +275,7 @@ ModDownloadDialog::ModDownloadDialog(QWidget* parent, const std::shared_ptr<ModF
     connectButtons();
 
     if (!geometrySaveKey().isEmpty())
-        restoreGeometry(QByteArray::fromBase64(APPLICATION->settings()->get(geometrySaveKey()).toByteArray()));
+        restoreGeometry(QByteArray::fromBase64(APPLICATION->settings()->get(geometrySaveKey()).toString().toUtf8()));
 }
 
 QList<BasePage*> ModDownloadDialog::getPages()
@@ -318,7 +318,7 @@ ResourcePackDownloadDialog::ResourcePackDownloadDialog(QWidget* parent,
     connectButtons();
 
     if (!geometrySaveKey().isEmpty())
-        restoreGeometry(QByteArray::fromBase64(APPLICATION->settings()->get(geometrySaveKey()).toByteArray()));
+        restoreGeometry(QByteArray::fromBase64(APPLICATION->settings()->get(geometrySaveKey()).toString().toUtf8()));
 }
 
 QList<BasePage*> ResourcePackDownloadDialog::getPages()
@@ -343,7 +343,7 @@ TexturePackDownloadDialog::TexturePackDownloadDialog(QWidget* parent,
     connectButtons();
 
     if (!geometrySaveKey().isEmpty())
-        restoreGeometry(QByteArray::fromBase64(APPLICATION->settings()->get(geometrySaveKey()).toByteArray()));
+        restoreGeometry(QByteArray::fromBase64(APPLICATION->settings()->get(geometrySaveKey()).toString().toUtf8()));
 }
 
 QList<BasePage*> TexturePackDownloadDialog::getPages()
@@ -368,7 +368,7 @@ ShaderPackDownloadDialog::ShaderPackDownloadDialog(QWidget* parent,
     connectButtons();
 
     if (!geometrySaveKey().isEmpty())
-        restoreGeometry(QByteArray::fromBase64(APPLICATION->settings()->get(geometrySaveKey()).toByteArray()));
+        restoreGeometry(QByteArray::fromBase64(APPLICATION->settings()->get(geometrySaveKey()).toString().toUtf8()));
 }
 
 QList<BasePage*> ShaderPackDownloadDialog::getPages()
