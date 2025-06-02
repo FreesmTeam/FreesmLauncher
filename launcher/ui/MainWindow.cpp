@@ -1207,7 +1207,10 @@ void MainWindow::renameGroup(QString group)
 
 void MainWindow::undoTrashInstance()
 {
-    APPLICATION->instances()->undoTrashInstance();
+    if (!APPLICATION->instances()->undoTrashInstance())
+        QMessageBox::warning(
+            this, tr("Failed to undo trashing instance"),
+            tr("Some instances and shortcuts could not be restored.\nPlease check your trashbin to manually restore them."));
     ui->actionUndoTrashInstance->setEnabled(APPLICATION->instances()->trashedSomething());
 }
 
@@ -1406,11 +1409,15 @@ void MainWindow::on_actionDeleteInstance_triggered()
     }
     auto id = m_selectedInstance->id();
 
+    QString shortcutStr;
+    auto shortcuts = m_selectedInstance->shortcuts();
+    if (!shortcuts.isEmpty())
+        shortcutStr = tr(" and its %n registered shortcut(s)", "", shortcuts.size());
     auto response = CustomMessageBox::selectable(this, tr("Confirm Deletion"),
-                                                 tr("You are about to delete \"%1\".\n"
+                                                 tr("You are about to delete \"%1\"%2.\n"
                                                     "This may be permanent and will completely delete the instance.\n\n"
                                                     "Are you sure?")
-                                                     .arg(m_selectedInstance->name()),
+                                                     .arg(m_selectedInstance->name(), shortcutStr),
                                                  QMessageBox::Warning, QMessageBox::Yes | QMessageBox::No, QMessageBox::No)
                         ->exec();
 
