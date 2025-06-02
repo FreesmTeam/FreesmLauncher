@@ -104,19 +104,21 @@ MinecraftSettingsWidget::MinecraftSettingsWidget(MinecraftInstancePtr instance, 
             if (!value)
                 m_instance->settings()->reset("GlobalDataPacksPath");
         });
-        connect(m_ui->dataPacksPathEdit, &QLineEdit::editingFinished, this, &MinecraftSettingsWidget::editedDataPacksPath);
+        connect(m_ui->dataPacksPathEdit, &QLineEdit::editingFinished, this, &MinecraftSettingsWidget::saveDataPacksPath);
         connect(m_ui->dataPacksPathBrowse, &QPushButton::clicked, this, &MinecraftSettingsWidget::selectDataPacksFolder);
 
         connect(m_ui->loaderGroup, &QGroupBox::toggled, this, [this](bool value) {
             m_instance->settings()->set("OverrideModDownloadLoaders", value);
-            if (!value)
+            if (value)
+                saveSelectedLoaders();
+            else
                 m_instance->settings()->reset("ModDownloadLoaders");
         });
-        connect(m_ui->neoForge, &QCheckBox::stateChanged, this, &MinecraftSettingsWidget::selectedLoadersChanged);
-        connect(m_ui->forge, &QCheckBox::stateChanged, this, &MinecraftSettingsWidget::selectedLoadersChanged);
-        connect(m_ui->fabric, &QCheckBox::stateChanged, this, &MinecraftSettingsWidget::selectedLoadersChanged);
-        connect(m_ui->quilt, &QCheckBox::stateChanged, this, &MinecraftSettingsWidget::selectedLoadersChanged);
-        connect(m_ui->liteLoader, &QCheckBox::stateChanged, this, &MinecraftSettingsWidget::selectedLoadersChanged);
+        connect(m_ui->neoForge, &QCheckBox::stateChanged, this, &MinecraftSettingsWidget::saveSelectedLoaders);
+        connect(m_ui->forge, &QCheckBox::stateChanged, this, &MinecraftSettingsWidget::saveSelectedLoaders);
+        connect(m_ui->fabric, &QCheckBox::stateChanged, this, &MinecraftSettingsWidget::saveSelectedLoaders);
+        connect(m_ui->quilt, &QCheckBox::stateChanged, this, &MinecraftSettingsWidget::saveSelectedLoaders);
+        connect(m_ui->liteLoader, &QCheckBox::stateChanged, this, &MinecraftSettingsWidget::saveSelectedLoaders);
     }
 
     m_ui->maximizedWarning->hide();
@@ -251,22 +253,28 @@ void MinecraftSettingsWidget::loadSettings()
         m_ui->fabric->blockSignals(true);
         m_ui->quilt->blockSignals(true);
         m_ui->liteLoader->blockSignals(true);
-        auto instLoaders = m_instance->getPackProfile()->getSupportedModLoaders().value();
-        m_ui->loaderGroup->setChecked(settings->get("OverrideModDownloadLoaders").toBool());
-        auto loaders = Json::toStringList(settings->get("ModDownloadLoaders").toString());
-        if (loaders.isEmpty()) {
-            m_ui->neoForge->setChecked(instLoaders & ModPlatform::NeoForge);
-            m_ui->forge->setChecked(instLoaders & ModPlatform::Forge);
-            m_ui->fabric->setChecked(instLoaders & ModPlatform::Fabric);
-            m_ui->quilt->setChecked(instLoaders & ModPlatform::Quilt);
-            m_ui->liteLoader->setChecked(instLoaders & ModPlatform::LiteLoader);
-        } else {
+
+        const bool overrideLoaders = settings->get("OverrideModDownloadLoaders").toBool();
+        const QStringList loaders = Json::toStringList(settings->get("ModDownloadLoaders").toString());
+
+        m_ui->loaderGroup->setChecked(overrideLoaders);
+
+        if (overrideLoaders) {
             m_ui->neoForge->setChecked(loaders.contains(getModLoaderAsString(ModPlatform::NeoForge)));
             m_ui->forge->setChecked(loaders.contains(getModLoaderAsString(ModPlatform::Forge)));
             m_ui->fabric->setChecked(loaders.contains(getModLoaderAsString(ModPlatform::Fabric)));
             m_ui->quilt->setChecked(loaders.contains(getModLoaderAsString(ModPlatform::Quilt)));
             m_ui->liteLoader->setChecked(loaders.contains(getModLoaderAsString(ModPlatform::LiteLoader)));
+        } else {
+            auto instLoaders = m_instance->getPackProfile()->getSupportedModLoaders().value_or(ModPlatform::ModLoaderTypes(0));
+
+            m_ui->neoForge->setChecked(instLoaders & ModPlatform::NeoForge);
+            m_ui->forge->setChecked(instLoaders & ModPlatform::Forge);
+            m_ui->fabric->setChecked(instLoaders & ModPlatform::Fabric);
+            m_ui->quilt->setChecked(instLoaders & ModPlatform::Quilt);
+            m_ui->liteLoader->setChecked(instLoaders & ModPlatform::LiteLoader);
         }
+
         m_ui->loaderGroup->blockSignals(false);
         m_ui->neoForge->blockSignals(false);
         m_ui->forge->blockSignals(false);
@@ -504,7 +512,29 @@ bool MinecraftSettingsWidget::isQuickPlaySupported()
     return m_instance->traits().contains("feature:is_quick_play_singleplayer");
 }
 
-void MinecraftSettingsWidget::editedDataPacksPath()
+void MinecraftSettingsWidget::saveSelectedLoaders()
+{
+    QStringList loaders;
+
+    if (m_ui->neoForge->isChecked())
+        loaders << getModLoaderAsString(ModPlatform::NeoForge);
+
+    if (m_ui->forge->isChecked())
+        loaders << getModLoaderAsString(ModPlatform::Forge);
+
+    if (m_ui->fabric->isChecked())
+        loaders << getModLoaderAsString(ModPlatform::Fabric);
+
+    if (m_ui->quilt->isChecked())
+        loaders << getModLoaderAsString(ModPlatform::Quilt);
+
+    if (m_ui->liteLoader->isChecked())
+        loaders << getModLoaderAsString(ModPlatform::LiteLoader);
+
+    m_instance->settings()->set("ModDownloadLoaders", Json::fromStringList(loaders));
+}
+
+void MinecraftSettingsWidget::saveDataPacksPath()
 {
     if (QDir::separator() != '/')
         m_ui->dataPacksPathEdit->setText(m_ui->dataPacksPathEdit->text().replace(QDir::separator(), '/'));
@@ -530,20 +560,4 @@ void MinecraftSettingsWidget::selectDataPacksFolder()
 
     m_ui->dataPacksPathEdit->setText(path);
     m_instance->settings()->set("GlobalDataPacksPath", path);
-}
-
-void MinecraftSettingsWidget::selectedLoadersChanged()
-{
-    QStringList loaders;
-    if (m_ui->neoForge->isChecked())
-        loaders << getModLoaderAsString(ModPlatform::NeoForge);
-    if (m_ui->forge->isChecked())
-        loaders << getModLoaderAsString(ModPlatform::Forge);
-    if (m_ui->fabric->isChecked())
-        loaders << getModLoaderAsString(ModPlatform::Fabric);
-    if (m_ui->quilt->isChecked())
-        loaders << getModLoaderAsString(ModPlatform::Quilt);
-    if (m_ui->liteLoader->isChecked())
-        loaders << getModLoaderAsString(ModPlatform::LiteLoader);
-    m_instance->settings()->set("ModDownloadLoaders", Json::fromStringList(loaders));
 }
