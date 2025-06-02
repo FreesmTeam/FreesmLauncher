@@ -40,6 +40,7 @@
 #include <algorithm>
 #include <list>
 #include "BaseVersionList.h"
+#include "Json.h"
 #include "Version.h"
 #include "meta/Index.h"
 #include "modplatform/ModIndex.h"
@@ -220,7 +221,7 @@ void ModFilterWidget::prepareBasicFilter()
         m_filter->side = "";  // or "both"
         ModPlatform::ModLoaderTypes loaders;
         if (m_instance->settings()->get("OverrideModDownloadLoaders").toBool()) {
-            for (auto loader : m_instance->settings()->get("ModDownloadLoaders").toStringList()) {
+            for (auto loader : Json::toStringList(m_instance->settings()->get("ModDownloadLoaders").toString())) {
                 loaders |= ModPlatform::getModLoaderFromString(loader);
             }
         } else {

@@ -39,6 +39,7 @@
 
 #include "Application.h"
 #include "BuildConfig.h"
+#include "Json.h"
 #include "minecraft/PackProfile.h"
 #include "minecraft/WorldList.h"
 #include "minecraft/auth/AccountList.h"
@@ -242,7 +243,7 @@ void MinecraftSettingsWidget::loadSettings()
         m_ui->liteLoader->blockSignals(true);
         auto instLoaders = m_instance->getPackProfile()->getSupportedModLoaders().value();
         m_ui->loaderGroup->setChecked(settings->get("OverrideModDownloadLoaders").toBool());
-        auto loaders = settings->get("ModDownloadLoaders").toStringList();
+        auto loaders = Json::toStringList(settings->get("ModDownloadLoaders").toString());
         if (loaders.isEmpty()) {
             m_ui->neoForge->setChecked(instLoaders & ModPlatform::NeoForge);
             m_ui->forge->setChecked(instLoaders & ModPlatform::Forge);
@@ -499,5 +500,5 @@ void MinecraftSettingsWidget::selectedLoadersChanged()
         loaders << getModLoaderAsString(ModPlatform::Quilt);
     if (m_ui->liteLoader->isChecked())
         loaders << getModLoaderAsString(ModPlatform::LiteLoader);
-    m_instance->settings()->set("ModDownloadLoaders", loaders);
+    m_instance->settings()->set("ModDownloadLoaders", Json::fromStringList(loaders));
 }
