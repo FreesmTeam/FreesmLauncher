@@ -6,6 +6,7 @@
 
 #include <QList>
 #include <memory>
+#include "BuildConfig.h"
 #include "modplatform/ModIndex.h"
 #include "modplatform/ResourceAPI.h"
 #include "modplatform/helpers/NetworkResourceAPI.h"
@@ -112,18 +113,19 @@ class FlameAPI : public NetworkResourceAPI {
         if (args.versions.has_value() && !args.versions.value().empty())
             get_arguments.append(QString("gameVersion=%1").arg(args.versions.value().front().toString()));
 
-        return "https://api.curseforge.com/v1/mods/search?gameId=432&" + get_arguments.join('&');
+        return BuildConfig.FLAME_BASE_URL + "/mods/search?gameId=432&" + get_arguments.join('&');
     }
 
     [[nodiscard]] std::optional<QString> getVersionsURL(VersionSearchArgs const& args) const override
     {
         auto addonId = args.pack.addonId.toString();
-        QString url = QString("https://api.curseforge.com/v1/mods/%1/files?pageSize=10000").arg(addonId);
+        QString url = QString(BuildConfig.FLAME_BASE_URL + "/mods/%1/files?pageSize=10000").arg(addonId);
 
         if (args.mcVersions.has_value())
             url += QString("&gameVersion=%1").arg(args.mcVersions.value().front().toString());
 
-        if (args.loaders.has_value() && args.loaders.value() != ModPlatform::ModLoaderType::DataPack && ModPlatform::hasSingleModLoaderSelected(args.loaders.value())) {
+        if (args.loaders.has_value() && args.loaders.value() != ModPlatform::ModLoaderType::DataPack &&
+            ModPlatform::hasSingleModLoaderSelected(args.loaders.value())) {
             int mappedModLoader = getMappedModLoader(static_cast<ModPlatform::ModLoaderType>(static_cast<int>(args.loaders.value())));
             url += QString("&modLoaderType=%1").arg(mappedModLoader);
         }
@@ -133,13 +135,13 @@ class FlameAPI : public NetworkResourceAPI {
    private:
     [[nodiscard]] std::optional<QString> getInfoURL(QString const& id) const override
     {
-        return QString("https://api.curseforge.com/v1/mods/%1").arg(id);
+        return QString(BuildConfig.FLAME_BASE_URL + "/mods/%1").arg(id);
     }
     [[nodiscard]] std::optional<QString> getDependencyURL(DependencySearchArgs const& args) const override
     {
         auto addonId = args.dependency.addonId.toString();
         auto url =
-            QString("https://api.curseforge.com/v1/mods/%1/files?pageSize=10000&gameVersion=%2").arg(addonId, args.mcVersion.toString());
+            QString(BuildConfig.FLAME_BASE_URL + "/mods/%1/files?pageSize=10000&gameVersion=%2").arg(addonId, args.mcVersion.toString());
         if (args.loader && ModPlatform::hasSingleModLoaderSelected(args.loader)) {
             int mappedModLoader = getMappedModLoader(static_cast<ModPlatform::ModLoaderType>(static_cast<int>(args.loader)));
             url += QString("&modLoaderType=%1").arg(mappedModLoader);
