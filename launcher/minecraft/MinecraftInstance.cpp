@@ -105,7 +105,7 @@
 
 #define IBUS "@im=ibus"
 
-static bool switcherooSetupGPU(QProcessEnvironment& env)
+[[maybe_unused]] static bool switcherooSetupGPU(QProcessEnvironment& env)
 {
 #ifdef WITH_QTDBUS
     if (!QDBusConnection::systemBus().isConnected())

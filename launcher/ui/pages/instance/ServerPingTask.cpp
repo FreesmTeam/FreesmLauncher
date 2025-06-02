@@ -16,7 +16,7 @@ void ServerPingTask::executeTask()
 
     // Resolve the actual IP and port for the server
     McResolver* resolver = new McResolver(nullptr, m_domain, m_port);
-    QObject::connect(resolver, &McResolver::succeeded, this, [this, resolver](QString ip, int port) {
+    QObject::connect(resolver, &McResolver::succeeded, this, [this](QString ip, int port) {
         qDebug() << "Resolved Address for" << m_domain << ": " << ip << ":" << port;
 
         // Now that we have the IP and port, query the server
@@ -30,7 +30,7 @@ void ServerPingTask::executeTask()
         QObject::connect(client, &McClient::failed, this, [this](QString error) { emitFailed(error); });
 
         // Delete McClient object when done
-        QObject::connect(client, &McClient::finished, this, [this, client]() { client->deleteLater(); });
+        QObject::connect(client, &McClient::finished, this, [client]() { client->deleteLater(); });
         client->getStatusData();
     });
     QObject::connect(resolver, &McResolver::failed, this, [this](QString error) { emitFailed(error); });
