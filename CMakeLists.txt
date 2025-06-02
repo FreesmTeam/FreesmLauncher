@@ -338,6 +338,9 @@ if(NOT Launcher_FORCE_BUNDLED_LIBS)
 
     # Find cmark
     find_package(cmark QUIET)
+
+    # Find qrcodegencpp-cmake
+    find_package(qrcodegencpp QUIET)
 endif()
 
 include(ECMQtDeclareLoggingCategory)
@@ -528,18 +531,21 @@ if(NOT cmark_FOUND)
 else()
     message(STATUS "Using system cmark")
 endif()
+if(NOT qrcodegencpp_FOUND)
+    set(QRCODE_SOURCES
+        libraries/qrcodegenerator/cpp/qrcodegen.cpp
+        libraries/qrcodegenerator/cpp/qrcodegen.hpp
+    )
+    add_library(qrcodegenerator STATIC ${QRCODE_SOURCES})
+    target_include_directories(qrcodegenerator PUBLIC "libraries/qrcodegenerator/cpp/" )
+    generate_export_header(qrcodegenerator)
+else()
+    add_library(qrcodegenerator ALIAS qrcodegencpp::qrcodegencpp)
+    message(STATUS "Using system qrcodegencpp-cmake")
+endif()
 add_subdirectory(libraries/gamemode)
 add_subdirectory(libraries/murmur2) # Hash for usage with the CurseForge API
 add_subdirectory(libraries/qdcss) # css parser
-
-# qr code generator
-set(QRCODE_SOURCES
-    libraries/qrcodegenerator/cpp/qrcodegen.cpp 
-    libraries/qrcodegenerator/cpp/qrcodegen.hpp
-)
-add_library(qrcodegenerator STATIC ${QRCODE_SOURCES})
-target_include_directories(qrcodegenerator PUBLIC "libraries/qrcodegenerator/cpp/" )
-generate_export_header(qrcodegenerator)
 
 ############################### Built Artifacts ###############################
 
