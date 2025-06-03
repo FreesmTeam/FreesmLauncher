@@ -40,6 +40,7 @@
 #include <QMessageBox>
 
 #include "ui/GuiUtil.h"
+#include "ui/themes/ThemeManager.h"
 
 #include <FileSystem.h>
 #include <GZip.h>
@@ -49,18 +50,26 @@
 #include <QShortcut>
 #include <QUrl>
 
-OtherLogsPage::OtherLogsPage(InstancePtr instance, QWidget* parent)
+OtherLogsPage::OtherLogsPage(QString id, QString displayName, QString helpPage, InstancePtr instance, QWidget* parent)
     : QWidget(parent)
+    , m_id(id)
+    , m_displayName(displayName)
+    , m_helpPage(helpPage)
     , ui(new Ui::OtherLogsPage)
     , m_instance(instance)
-    , m_basePath(instance->gameRoot())
-    , m_logSearchPaths(instance->getLogFileSearchPaths())
-    , m_model(new LogModel(this))
+    , m_basePath(instance ? instance->gameRoot() : APPLICATION->dataRoot())
+    , m_logSearchPaths(instance ? instance->getLogFileSearchPaths() : QStringList{ "logs" })
 {
     ui->setupUi(this);
     ui->tabWidget->tabBar()->hide();
 
     m_proxy = new LogFormatProxyModel(this);
+    if (m_instance) {
+        m_model.reset(new LogModel(this));
+        ui->trackLogCheckbox->setVisible(false);
+    } else {
+        m_model = APPLICATION->logModel;
+    }
 
     // set up fonts in the log proxy
     {
@@ -75,9 +84,13 @@ OtherLogsPage::OtherLogsPage(InstancePtr instance, QWidget* parent)
 
     ui->text->setModel(m_proxy);
 
-    m_model->setMaxLines(m_instance->getConsoleMaxLines());
-    m_model->setStopOnOverflow(m_instance->shouldStopOnConsoleOverflow());
-    m_model->setOverflowMessage(tr("Cannot display this log since the log length surpassed %1 lines.").arg(m_model->getMaxLines()));
+    if (m_instance) {
+        m_model->setMaxLines(m_instance->getConsoleMaxLines());
+        m_model->setStopOnOverflow(m_instance->shouldStopOnConsoleOverflow());
+        m_model->setOverflowMessage(tr("Cannot display this log since the log length surpassed %1 lines.").arg(m_model->getMaxLines()));
+    } else {
+        modelStateToUI();
+    }
     m_proxy->setSourceModel(m_model.get());
 
     connect(&m_watcher, &QFileSystemWatcher::directoryChanged, this, &OtherLogsPage::populateSelectLogBox);
@@ -97,6 +110,39 @@ OtherLogsPage::OtherLogsPage(InstancePtr instance, QWidget* parent)
 OtherLogsPage::~OtherLogsPage()
 {
     delete ui;
+}
+
+void OtherLogsPage::modelStateToUI()
+{
+    if (m_model->wrapLines()) {
+        ui->text->setWordWrap(true);
+        ui->wrapCheckbox->setCheckState(Qt::Checked);
+    } else {
+        ui->text->setWordWrap(false);
+        ui->wrapCheckbox->setCheckState(Qt::Unchecked);
+    }
+    if (m_model->colorLines()) {
+        ui->text->setColorLines(true);
+        ui->colorCheckbox->setCheckState(Qt::Checked);
+    } else {
+        ui->text->setColorLines(false);
+        ui->colorCheckbox->setCheckState(Qt::Unchecked);
+    }
+    if (m_model->suspended()) {
+        ui->trackLogCheckbox->setCheckState(Qt::Unchecked);
+    } else {
+        ui->trackLogCheckbox->setCheckState(Qt::Checked);
+    }
+}
+
+void OtherLogsPage::UIToModelState()
+{
+    if (!m_model) {
+        return;
+    }
+    m_model->setLineWrap(ui->wrapCheckbox->checkState() == Qt::Checked);
+    m_model->setColorLines(ui->colorCheckbox->checkState() == Qt::Checked);
+    m_model->suspend(ui->trackLogCheckbox->checkState() != Qt::Checked);
 }
 
 void OtherLogsPage::retranslate()
@@ -136,6 +182,8 @@ void OtherLogsPage::populateSelectLogBox()
 
     ui->selectLogBox->blockSignals(true);
     ui->selectLogBox->clear();
+    if (!m_instance)
+        ui->selectLogBox->addItem("Current logs");
     ui->selectLogBox->addItems(getPaths());
     ui->selectLogBox->blockSignals(false);
 
@@ -151,6 +199,9 @@ void OtherLogsPage::populateSelectLogBox()
         } else {
             setControlsEnabled(false);
         }
+    } else if (!m_instance) {
+        ui->selectLogBox->setCurrentIndex(0);
+        setControlsEnabled(true);
     }
 
     on_selectLogBox_currentIndexChanged(ui->selectLogBox->currentIndex());
@@ -159,27 +210,49 @@ void OtherLogsPage::populateSelectLogBox()
 void OtherLogsPage::on_selectLogBox_currentIndexChanged(const int index)
 {
     QString file;
-    if (index != -1) {
+    if (index > 0 || (index == 0 && m_instance)) {
         file = ui->selectLogBox->itemText(index);
     }
 
-    if (file.isEmpty() || !QFile::exists(FS::PathCombine(m_basePath, file))) {
+    if ((index != 0 || m_instance) && (file.isEmpty() || !QFile::exists(FS::PathCombine(m_basePath, file)))) {
         m_currentFile = QString();
         ui->text->clear();
         setControlsEnabled(false);
     } else {
         m_currentFile = file;
-        on_btnReload_clicked();
+        reload();
         setControlsEnabled(true);
     }
 }
 
 void OtherLogsPage::on_btnReload_clicked()
 {
+    if (!m_instance && m_currentFile.isEmpty()) {
+        if (!m_model)
+            return;
+        m_model->clear();
+        m_container->refreshContainer();
+    } else {
+        reload();
+    }
+}
+
+void OtherLogsPage::reload()
+{
     if (m_currentFile.isEmpty()) {
-        setControlsEnabled(false);
+        if (m_instance) {
+            setControlsEnabled(false);
+        } else {
+            m_model = APPLICATION->logModel;
+            m_proxy->setSourceModel(m_model.get());
+            ui->text->setModel(m_proxy);
+            ui->text->scrollToBottom();
+            UIToModelState();
+            setControlsEnabled(true);
+        }
         return;
     }
+
     QFile file(FS::PathCombine(m_basePath, m_currentFile));
     if (!file.open(QFile::ReadOnly)) {
         setControlsEnabled(false);
@@ -210,16 +283,20 @@ void OtherLogsPage::on_btnReload_clicked()
                 line = line.remove(line.size() - 1, 1);
             MessageLevel::Enum level = MessageLevel::Unknown;
 
-            // if the launcher part set a log level, use it
             QString lineTemp = line;  // don't edit out the time and level for clarity
-            auto innerLevel = MessageLevel::fromLine(lineTemp);
-            if (innerLevel != MessageLevel::Unknown) {
-                level = innerLevel;
-            }
+            if (!m_instance) {
+                level = MessageLevel::fromLauncherLine(lineTemp);
+            } else {
+                // if the launcher part set a log level, use it
+                auto innerLevel = MessageLevel::fromLine(lineTemp);
+                if (innerLevel != MessageLevel::Unknown) {
+                    level = innerLevel;
+                }
 
-            // If the level is still undetermined, guess level
-            if (level == MessageLevel::StdErr || level == MessageLevel::StdOut || level == MessageLevel::Unknown) {
-                level = LogParser::guessLevel(line, last);
+                // If the level is still undetermined, guess level
+                if (level == MessageLevel::StdErr || level == MessageLevel::StdOut || level == MessageLevel::Unknown) {
+                    level = LogParser::guessLevel(line, last);
+                }
             }
 
             last = level;
@@ -230,6 +307,12 @@ void OtherLogsPage::on_btnReload_clicked()
         // Try to determine a level for each line
         ui->text->clear();
         ui->text->setModel(nullptr);
+        if (!m_instance) {
+            m_model.reset(new LogModel(this));
+            m_model->setMaxLines(APPLICATION->getConsoleMaxLines());
+            m_model->setStopOnOverflow(APPLICATION->shouldStopOnConsoleOverflow());
+            m_model->setOverflowMessage(tr("Cannot display this log since the log length surpassed %1 lines.").arg(m_model->getMaxLines()));
+        }
         m_model->clear();
         if (file.fileName().endsWith(".gz")) {
             QString line;
@@ -259,8 +342,17 @@ void OtherLogsPage::on_btnReload_clicked()
             while (!file.atEnd() && !handleLine(QString::fromUtf8(file.readLine()))) {
             }
         }
-        ui->text->setModel(m_proxy);
-        ui->text->scrollToBottom();
+
+        if (m_instance) {
+            ui->text->setModel(m_proxy);
+            ui->text->scrollToBottom();
+        } else {
+            m_proxy->setSourceModel(m_model.get());
+            ui->text->setModel(m_proxy);
+            ui->text->scrollToBottom();
+            UIToModelState();
+            setControlsEnabled(true);
+        }
     }
 }
 
@@ -277,6 +369,13 @@ void OtherLogsPage::on_btnCopy_clicked()
 void OtherLogsPage::on_btnBottom_clicked()
 {
     ui->text->scrollToBottom();
+}
+
+void OtherLogsPage::on_trackLogCheckbox_clicked(bool checked)
+{
+    if (!m_model)
+        return;
+    m_model->suspend(!checked);
 }
 
 void OtherLogsPage::on_btnDelete_clicked()
@@ -377,12 +476,27 @@ void OtherLogsPage::on_colorCheckbox_clicked(bool checked)
 
 void OtherLogsPage::setControlsEnabled(const bool enabled)
 {
+    if (m_instance) {
+        ui->btnDelete->setEnabled(enabled);
+        ui->btnClean->setEnabled(enabled);
+    } else if (!m_currentFile.isEmpty()) {
+        ui->btnReload->setText("&Reload");
+        ui->btnReload->setToolTip("Reload the contents of the log from the disk");
+        ui->btnDelete->setEnabled(enabled);
+        ui->btnClean->setEnabled(enabled);
+        ui->trackLogCheckbox->setEnabled(false);
+    } else {
+        ui->btnReload->setText("Clear");
+        ui->btnReload->setToolTip("Clear the log");
+        ui->btnDelete->setEnabled(false);
+        ui->btnClean->setEnabled(false);
+        ui->trackLogCheckbox->setEnabled(enabled);
+    }
+
     ui->btnReload->setEnabled(enabled);
-    ui->btnDelete->setEnabled(enabled);
     ui->btnCopy->setEnabled(enabled);
     ui->btnPaste->setEnabled(enabled);
     ui->text->setEnabled(enabled);
-    ui->btnClean->setEnabled(enabled);
 }
 
 QStringList OtherLogsPage::getPaths()

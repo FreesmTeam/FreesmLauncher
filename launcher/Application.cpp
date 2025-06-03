@@ -63,10 +63,10 @@
 #include "ui/pages/global/ExternalToolsPage.h"
 #include "ui/pages/global/JavaPage.h"
 #include "ui/pages/global/LanguagePage.h"
-#include "ui/pages/global/LauncherLogPage.h"
 #include "ui/pages/global/LauncherPage.h"
 #include "ui/pages/global/MinecraftPage.h"
 #include "ui/pages/global/ProxyPage.h"
+#include "ui/pages/instance/OtherLogsPage.h"
 
 #include "ui/setupwizard/AutoJavaWizardPage.h"
 #include "ui/setupwizard/JavaWizardPage.h"
@@ -905,7 +905,7 @@ Application::Application(int& argc, char** argv) : QApplication(argc, argv)
             m_globalSettingsProvider->addPage<APIPage>();
             m_globalSettingsProvider->addPage<ExternalToolsPage>();
             m_globalSettingsProvider->addPage<ProxyPage>();
-            m_globalSettingsProvider->addPage<LauncherLogPage>();
+            m_globalSettingsProvider->addPageCreator([]() { return new OtherLogsPage("launcher-logs", tr("Logs"), "Launcher-Logs"); });
         }
 
         PixmapCache::setInstance(new PixmapCache(this));
