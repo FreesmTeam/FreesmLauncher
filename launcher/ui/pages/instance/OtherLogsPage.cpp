@@ -231,7 +231,8 @@ void OtherLogsPage::on_btnReload_clicked()
         if (!m_model)
             return;
         m_model->clear();
-        m_container->refreshContainer();
+        if (m_container)
+            m_container->refreshContainer();
     } else {
         reload();
     }
@@ -358,7 +359,8 @@ void OtherLogsPage::reload()
 
 void OtherLogsPage::on_btnPaste_clicked()
 {
-    GuiUtil::uploadPaste(m_currentFile, ui->text->toPlainText(), this);
+    QString name = m_currentFile.isEmpty() ? displayName() : m_currentFile;
+    GuiUtil::uploadPaste(name, ui->text->toPlainText(), this);
 }
 
 void OtherLogsPage::on_btnCopy_clicked()

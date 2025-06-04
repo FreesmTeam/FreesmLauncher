@@ -103,6 +103,7 @@
 #include "ui/dialogs/NewInstanceDialog.h"
 #include "ui/dialogs/NewsDialog.h"
 #include "ui/dialogs/ProgressDialog.h"
+#include "ui/dialogs/ViewLogDialog.h"
 #include "ui/instanceview/InstanceDelegate.h"
 #include "ui/instanceview/InstanceProxyModel.h"
 #include "ui/instanceview/InstanceView.h"
@@ -238,14 +239,11 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent), ui(new Ui::MainWi
         ui->actionViewJavaFolder->setEnabled(BuildConfig.JAVA_DOWNLOADER_ENABLED);
     }
 
-    {  // logs upload
-
-        auto menu = new QMenu(this);
-        for (auto file : QDir("logs").entryInfoList(QDir::Files)) {
-            auto action = menu->addAction(file.fileName());
-            connect(action, &QAction::triggered, this, [this, file] { GuiUtil::uploadPaste(file.fileName(), file, this); });
-        }
-        ui->actionUploadLog->setMenu(menu);
+    {  // logs viewing
+        connect(ui->actionViewLog, &QAction::triggered, this, [this] {
+            ViewLogDialog dialog(this);
+            dialog.exec();
+        });
     }
 
     // add the toolbar toggles to the view menu

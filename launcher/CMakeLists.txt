@@ -1098,6 +1098,8 @@ SET(LAUNCHER_SOURCES
     ui/dialogs/ResourceUpdateDialog.h
     ui/dialogs/InstallLoaderDialog.cpp
     ui/dialogs/InstallLoaderDialog.h
+    ui/dialogs/ViewLogDialog.cpp
+    ui/dialogs/ViewLogDialog.h
 
     ui/dialogs/skins/SkinManageDialog.cpp
     ui/dialogs/skins/SkinManageDialog.h
@@ -1256,6 +1258,7 @@ qt_wrap_ui(LAUNCHER_UI
     ui/dialogs/ScrollMessageBox.ui
     ui/dialogs/BlockedModsDialog.ui
     ui/dialogs/ChooseProviderDialog.ui
+    ui/dialogs/ViewLogDialog.ui
     ui/dialogs/skins/SkinManageDialog.ui
 )
 
