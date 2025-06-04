@@ -41,7 +41,7 @@
 #include <QUuid>
 
 namespace {
-void tokenToJSONV3(QJsonObject& parent, Token t, const char* tokenName)
+void tokenToJSONV3(QJsonObject& parent, const Token& t, const char* tokenName)
 {
     if (!t.persistent) {
         return;
