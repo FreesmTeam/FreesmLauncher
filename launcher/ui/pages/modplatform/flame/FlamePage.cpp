@@ -166,7 +166,9 @@ void FlamePage::onSelectionChanged(QModelIndex curr, [[maybe_unused]] QModelInde
         return;
     }
 
-    current = listModel->data(curr, Qt::UserRole).value<Flame::IndexedPack>();
+    QVariant raw = listModel->data(curr, Qt::UserRole);
+    Q_ASSERT(raw.canConvert<Flame::IndexedPack>());
+    current = raw.value<Flame::IndexedPack>();
 
     if (!current.versionsLoaded || m_filterWidget->changed()) {
         qDebug() << "Loading flame modpack versions";

@@ -50,3 +50,4 @@ void loadIndexedPackVersions(IndexedPack& m, QJsonArray& arr);
 }  // namespace Flame
 
 Q_DECLARE_METATYPE(Flame::IndexedPack)
+Q_DECLARE_METATYPE(QList<Flame::IndexedVersion>)

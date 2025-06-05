@@ -121,6 +121,7 @@ bool ModpackListModel::setData(const QModelIndex& index, const QVariant& value, 
     if (pos >= modpacks.size() || pos < 0 || !index.isValid())
         return false;
 
+    Q_ASSERT(value.canConvert<Modrinth::Modpack>());
     modpacks[pos] = value.value<Modrinth::Modpack>();
 
     return true;
@@ -137,7 +138,7 @@ void ModpackListModel::performPaginatedSearch()
             ResourceAPI::ProjectInfoCallbacks callbacks;
 
             callbacks.on_fail = [this](QString reason) { searchRequestFailed(reason); };
-            callbacks.on_succeed = [this](auto& doc, auto& pack) { searchRequestForOneSucceeded(doc); };
+            callbacks.on_succeed = [this](auto& doc, auto&) { searchRequestForOneSucceeded(doc); };
             callbacks.on_abort = [this] {
                 qCritical() << "Search task aborted by an unknown reason!";
                 searchRequestFailed("Aborted");
@@ -345,7 +346,7 @@ void ModpackListModel::searchRequestForOneSucceeded(QJsonDocument& doc)
     endInsertRows();
 }
 
-void ModpackListModel::searchRequestFailed(QString reason)
+void ModpackListModel::searchRequestFailed(QString)
 {
     auto failed_action = dynamic_cast<NetJob*>(jobPtr.get())->getFailedActions().at(0);
     if (failed_action->replyStatusCode() == -1) {

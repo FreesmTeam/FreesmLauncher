@@ -135,7 +135,9 @@ void TechnicPage::onSelectionChanged(QModelIndex first, [[maybe_unused]] QModelI
         return;
     }
 
-    current = model->data(first, Qt::UserRole).value<Technic::Modpack>();
+    QVariant raw = model->data(first, Qt::UserRole);
+    Q_ASSERT(raw.canConvert<Technic::Modpack>());
+    current = raw.value<Technic::Modpack>();
     suggestCurrent();
 }
 
