@@ -1120,8 +1120,6 @@ SET(LAUNCHER_SOURCES
     ui/widgets/CustomCommands.h
     ui/widgets/EnvironmentVariables.cpp
     ui/widgets/EnvironmentVariables.h
-    ui/widgets/FocusLineEdit.cpp
-    ui/widgets/FocusLineEdit.h
     ui/widgets/IconLabel.cpp
     ui/widgets/IconLabel.h
     ui/widgets/JavaWizardWidget.cpp
@@ -1130,8 +1128,6 @@ SET(LAUNCHER_SOURCES
     ui/widgets/LabeledToolButton.h
     ui/widgets/LanguageSelectionWidget.cpp
     ui/widgets/LanguageSelectionWidget.h
-    ui/widgets/LineSeparator.cpp
-    ui/widgets/LineSeparator.h
     ui/widgets/LogView.cpp
     ui/widgets/LogView.h
     ui/widgets/InfoFrame.cpp
@@ -1229,7 +1225,6 @@ qt_wrap_ui(LAUNCHER_UI
     ui/pages/modplatform/OptionalModDialog.ui
     ui/pages/modplatform/modrinth/ModrinthPage.ui
     ui/pages/modplatform/technic/TechnicPage.ui
-    ui/widgets/InstanceCardWidget.ui
     ui/widgets/CustomCommands.ui
     ui/widgets/EnvironmentVariables.ui
     ui/widgets/InfoFrame.ui
