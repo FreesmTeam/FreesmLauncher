@@ -53,6 +53,23 @@
 #include "Commandline.h"
 #include "FileSystem.h"
 
+int getConsoleMaxLines(SettingsObjectPtr settings)
+{
+    auto lineSetting = settings->getSetting("ConsoleMaxLines");
+    bool conversionOk = false;
+    int maxLines = lineSetting->get().toInt(&conversionOk);
+    if (!conversionOk) {
+        maxLines = lineSetting->defValue().toInt();
+        qWarning() << "ConsoleMaxLines has nonsensical value, defaulting to" << maxLines;
+    }
+    return maxLines;
+}
+
+bool shouldStopOnConsoleOverflow(SettingsObjectPtr settings)
+{
+    return settings->get("ConsoleOverflowStop").toBool();
+}
+
 BaseInstance::BaseInstance(SettingsObjectPtr globalSettings, SettingsObjectPtr settings, const QString& rootDir) : QObject()
 {
     m_settings = settings;
@@ -182,23 +199,6 @@ void BaseInstance::copyManagedPack(BaseInstance& other)
         m_settings->set("OverrideJavaLocation", false);
         m_settings->set("JavaPath", "");
     }
-}
-
-int BaseInstance::getConsoleMaxLines() const
-{
-    auto lineSetting = m_settings->getSetting("ConsoleMaxLines");
-    bool conversionOk = false;
-    int maxLines = lineSetting->get().toInt(&conversionOk);
-    if (!conversionOk) {
-        maxLines = lineSetting->defValue().toInt();
-        qWarning() << "ConsoleMaxLines has nonsensical value, defaulting to" << maxLines;
-    }
-    return maxLines;
-}
-
-bool BaseInstance::shouldStopOnConsoleOverflow() const
-{
-    return m_settings->get("ConsoleOverflowStop").toBool();
 }
 
 QStringList BaseInstance::getLinkedInstances() const

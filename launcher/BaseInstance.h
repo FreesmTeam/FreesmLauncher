@@ -78,6 +78,10 @@ struct ShortcutData {
     ShortcutTarget target = ShortcutTarget::Other;
 };
 
+/// Console settings
+int getConsoleMaxLines(SettingsObjectPtr settings);
+bool shouldStopOnConsoleOverflow(SettingsObjectPtr settings);
+
 /*!
  * \brief Base class for instances.
  * This class implements many functions that are common between instances and
@@ -271,9 +275,6 @@ class BaseInstance : public QObject, public std::enable_shared_from_this<BaseIns
     virtual QStringList verboseDescription(AuthSessionPtr session, MinecraftTarget::Ptr targetToJoin) = 0;
 
     Status currentStatus() const;
-
-    int getConsoleMaxLines() const;
-    bool shouldStopOnConsoleOverflow() const;
 
     QStringList getLinkedInstances() const;
     void setLinkedInstances(const QStringList& list);

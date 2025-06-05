@@ -66,7 +66,7 @@ OtherLogsPage::OtherLogsPage(QString id, QString displayName, QString helpPage, 
     m_proxy = new LogFormatProxyModel(this);
     if (m_instance) {
         m_model.reset(new LogModel(this));
-        ui->trackLogCheckbox->setVisible(false);
+        ui->trackLogCheckbox->hide();
     } else {
         m_model = APPLICATION->logModel;
     }
@@ -85,8 +85,8 @@ OtherLogsPage::OtherLogsPage(QString id, QString displayName, QString helpPage, 
     ui->text->setModel(m_proxy);
 
     if (m_instance) {
-        m_model->setMaxLines(m_instance->getConsoleMaxLines());
-        m_model->setStopOnOverflow(m_instance->shouldStopOnConsoleOverflow());
+        m_model->setMaxLines(getConsoleMaxLines(m_instance->settings()));
+        m_model->setStopOnOverflow(shouldStopOnConsoleOverflow(m_instance->settings()));
         m_model->setOverflowMessage(tr("Cannot display this log since the log length surpassed %1 lines.").arg(m_model->getMaxLines()));
     } else {
         modelStateToUI();
@@ -310,8 +310,8 @@ void OtherLogsPage::reload()
         ui->text->setModel(nullptr);
         if (!m_instance) {
             m_model.reset(new LogModel(this));
-            m_model->setMaxLines(APPLICATION->getConsoleMaxLines());
-            m_model->setStopOnOverflow(APPLICATION->shouldStopOnConsoleOverflow());
+            m_model->setMaxLines(getConsoleMaxLines(APPLICATION->settings()));
+            m_model->setStopOnOverflow(shouldStopOnConsoleOverflow(APPLICATION->settings()));
             m_model->setOverflowMessage(tr("Cannot display this log since the log length surpassed %1 lines.").arg(m_model->getMaxLines()));
         }
         m_model->clear();
