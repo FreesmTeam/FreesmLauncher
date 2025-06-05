@@ -1760,6 +1760,10 @@ void Application::on_windowClose()
     if (mainWindow) {
         m_mainWindow = nullptr;
     }
+    auto logWindow = qobject_cast<ViewLogWindow*>(sender());
+    if (logWindow) {
+        m_viewLogWindow = nullptr;
+    }
     // quit when there are no more windows.
     if (shouldExitNow()) {
         exit(0);
