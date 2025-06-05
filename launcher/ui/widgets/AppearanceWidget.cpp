@@ -68,12 +68,12 @@ AppearanceWidget::AppearanceWidget(bool themesOnly, QWidget* parent)
         updateCatPreview();
     }
 
-    connect(m_ui->fontSizeBox, QOverload<int>::of(&QSpinBox::valueChanged), this, &AppearanceWidget::updateConsolePreview);
+    connect(m_ui->fontSizeBox, &QSpinBox::valueChanged, this, &AppearanceWidget::updateConsolePreview);
     connect(m_ui->consoleFont, &QFontComboBox::currentFontChanged, this, &AppearanceWidget::updateConsolePreview);
 
-    connect(m_ui->iconsComboBox, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &AppearanceWidget::applyIconTheme);
-    connect(m_ui->widgetStyleComboBox, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &AppearanceWidget::applyWidgetTheme);
-    connect(m_ui->catPackComboBox, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &AppearanceWidget::applyCatTheme);
+    connect(m_ui->iconsComboBox, &QComboBox::currentIndexChanged, this, &AppearanceWidget::applyIconTheme);
+    connect(m_ui->widgetStyleComboBox, &QComboBox::currentIndexChanged, this, &AppearanceWidget::applyWidgetTheme);
+    connect(m_ui->catPackComboBox, &QComboBox::currentIndexChanged, this, &AppearanceWidget::applyCatTheme);
     connect(m_ui->catOpacitySlider, &QAbstractSlider::valueChanged, this, &AppearanceWidget::updateCatPreview);
 
     connect(m_ui->iconsFolder, &QPushButton::clicked, this,

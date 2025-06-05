@@ -86,9 +86,9 @@ ModrinthPage::ModrinthPage(NewInstanceDialog* dialog, QWidget* parent)
     ui->sortByBox->addItem(tr("Sort by Newest"));
     ui->sortByBox->addItem(tr("Sort by Last Updated"));
 
-    connect(ui->sortByBox, SIGNAL(currentIndexChanged(int)), this, SLOT(triggerSearch()));
+    connect(ui->sortByBox, &QComboBox::currentIndexChanged, this, &ModrinthPage::triggerSearch);
     connect(ui->packView->selectionModel(), &QItemSelectionModel::currentChanged, this, &ModrinthPage::onSelectionChanged);
-    connect(ui->versionSelectionBox, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &ModrinthPage::onVersionSelectionChanged);
+    connect(ui->versionSelectionBox, &QComboBox::currentIndexChanged, this, &ModrinthPage::onVersionSelectionChanged);
 
     ui->packView->setItemDelegate(new ProjectItemDelegate(this));
     ui->packDescription->setMetaEntry(metaEntryBase());
@@ -163,7 +163,7 @@ void ModrinthPage::onSelectionChanged(QModelIndex curr, [[maybe_unused]] QModelI
 
         netJob->addNetAction(Net::ApiDownload::makeByteArray(QString("%1/project/%2").arg(BuildConfig.MODRINTH_PROD_URL, id), response));
 
-        QObject::connect(netJob, &NetJob::succeeded, this, [this, response, id, curr] {
+        connect(netJob, &NetJob::succeeded, this, [this, response, id, curr] {
             if (id != current.id) {
                 return;  // wrong request?
             }
@@ -196,7 +196,7 @@ void ModrinthPage::onSelectionChanged(QModelIndex curr, [[maybe_unused]] QModelI
 
             suggestCurrent();
         });
-        QObject::connect(netJob, &NetJob::finished, this, [response, netJob] { netJob->deleteLater(); });
+        connect(netJob, &NetJob::finished, this, [response, netJob] { netJob->deleteLater(); });
         connect(netJob, &NetJob::failed,
                 [this](QString reason) { CustomMessageBox::selectable(this, tr("Error"), reason, QMessageBox::Critical)->exec(); });
         netJob->start();
@@ -214,7 +214,7 @@ void ModrinthPage::onSelectionChanged(QModelIndex curr, [[maybe_unused]] QModelI
         netJob->addNetAction(
             Net::ApiDownload::makeByteArray(QString("%1/project/%2/version").arg(BuildConfig.MODRINTH_PROD_URL, id), response));
 
-        QObject::connect(netJob, &NetJob::succeeded, this, [this, response, id, curr] {
+        connect(netJob, &NetJob::succeeded, this, [this, response, id, curr] {
             if (id != current.id) {
                 return;  // wrong request?
             }
@@ -262,7 +262,7 @@ void ModrinthPage::onSelectionChanged(QModelIndex curr, [[maybe_unused]] QModelI
 
             suggestCurrent();
         });
-        QObject::connect(netJob, &NetJob::finished, this, [response, netJob] { netJob->deleteLater(); });
+        connect(netJob, &NetJob::finished, this, [response, netJob] { netJob->deleteLater(); });
         connect(netJob, &NetJob::failed,
                 [this](QString reason) { CustomMessageBox::selectable(this, tr("Error"), reason, QMessageBox::Critical)->exec(); });
         netJob->start();
@@ -404,7 +404,7 @@ void ModrinthPage::createFilterWidget()
     connect(m_filterWidget.get(), &ModFilterWidget::filterChanged, this, &ModrinthPage::triggerSearch);
     auto response = std::make_shared<QByteArray>();
     m_categoriesTask = ModrinthAPI::getModCategories(response);
-    QObject::connect(m_categoriesTask.get(), &Task::succeeded, [this, response]() {
+    connect(m_categoriesTask.get(), &Task::succeeded, [this, response]() {
         auto categories = ModrinthAPI::loadCategories(response, "modpack");
         m_filterWidget->setCategories(categories);
     });

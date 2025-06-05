@@ -320,9 +320,8 @@ class FileSystemTest : public QObject {
 
             LinkTask lnk_tsk(folder, target_dir.path());
             lnk_tsk.linkRecursively(false);
-            QObject::connect(&lnk_tsk, &Task::finished, [&lnk_tsk] {
-                QVERIFY2(lnk_tsk.wasSuccessful(), "Task finished but was not successful when it should have been.");
-            });
+            connect(&lnk_tsk, &Task::finished,
+                    [&lnk_tsk] { QVERIFY2(lnk_tsk.wasSuccessful(), "Task finished but was not successful when it should have been."); });
             lnk_tsk.start();
 
             QVERIFY2(QTest::qWaitFor([&lnk_tsk]() { return lnk_tsk.isFinished(); }, 100000), "Task didn't finish as it should.");
@@ -417,9 +416,8 @@ class FileSystemTest : public QObject {
             RegexpMatcher::Ptr re = std::make_shared<RegexpMatcher>("[.]?mcmeta");
             lnk_tsk.matcher(re);
             lnk_tsk.linkRecursively(true);
-            QObject::connect(&lnk_tsk, &Task::finished, [&lnk_tsk] {
-                QVERIFY2(lnk_tsk.wasSuccessful(), "Task finished but was not successful when it should have been.");
-            });
+            connect(&lnk_tsk, &Task::finished,
+                    [&lnk_tsk] { QVERIFY2(lnk_tsk.wasSuccessful(), "Task finished but was not successful when it should have been."); });
             lnk_tsk.start();
 
             QVERIFY2(QTest::qWaitFor([&lnk_tsk]() { return lnk_tsk.isFinished(); }, 100000), "Task didn't finish as it should.");
@@ -465,9 +463,8 @@ class FileSystemTest : public QObject {
             lnk_tsk.matcher(re);
             lnk_tsk.linkRecursively(true);
             lnk_tsk.whitelist(true);
-            QObject::connect(&lnk_tsk, &Task::finished, [&lnk_tsk] {
-                QVERIFY2(lnk_tsk.wasSuccessful(), "Task finished but was not successful when it should have been.");
-            });
+            connect(&lnk_tsk, &Task::finished,
+                    [&lnk_tsk] { QVERIFY2(lnk_tsk.wasSuccessful(), "Task finished but was not successful when it should have been."); });
             lnk_tsk.start();
 
             QVERIFY2(QTest::qWaitFor([&lnk_tsk]() { return lnk_tsk.isFinished(); }, 100000), "Task didn't finish as it should.");
@@ -510,9 +507,8 @@ class FileSystemTest : public QObject {
 
             LinkTask lnk_tsk(folder, target_dir.path());
             lnk_tsk.linkRecursively(true);
-            QObject::connect(&lnk_tsk, &Task::finished, [&lnk_tsk] {
-                QVERIFY2(lnk_tsk.wasSuccessful(), "Task finished but was not successful when it should have been.");
-            });
+            connect(&lnk_tsk, &Task::finished,
+                    [&lnk_tsk] { QVERIFY2(lnk_tsk.wasSuccessful(), "Task finished but was not successful when it should have been."); });
             lnk_tsk.start();
 
             QVERIFY2(QTest::qWaitFor([&lnk_tsk]() { return lnk_tsk.isFinished(); }, 100000), "Task didn't finish as it should.");
@@ -559,9 +555,8 @@ class FileSystemTest : public QObject {
             qDebug() << target_dir.path();
 
             LinkTask lnk_tsk(file, target_dir.filePath("pack.mcmeta"));
-            QObject::connect(&lnk_tsk, &Task::finished, [&lnk_tsk] {
-                QVERIFY2(lnk_tsk.wasSuccessful(), "Task finished but was not successful when it should have been.");
-            });
+            connect(&lnk_tsk, &Task::finished,
+                    [&lnk_tsk] { QVERIFY2(lnk_tsk.wasSuccessful(), "Task finished but was not successful when it should have been."); });
             lnk_tsk.start();
 
             QVERIFY2(QTest::qWaitFor([&lnk_tsk]() { return lnk_tsk.isFinished(); }, 100000), "Task didn't finish as it should.");
@@ -595,9 +590,8 @@ class FileSystemTest : public QObject {
             LinkTask lnk_tsk(folder, target_dir.path());
             lnk_tsk.linkRecursively(true);
             lnk_tsk.setMaxDepth(0);
-            QObject::connect(&lnk_tsk, &Task::finished, [&lnk_tsk] {
-                QVERIFY2(lnk_tsk.wasSuccessful(), "Task finished but was not successful when it should have been.");
-            });
+            connect(&lnk_tsk, &Task::finished,
+                    [&lnk_tsk] { QVERIFY2(lnk_tsk.wasSuccessful(), "Task finished but was not successful when it should have been."); });
             lnk_tsk.start();
 
             QVERIFY2(QTest::qWaitFor([&lnk_tsk]() { return lnk_tsk.isFinished(); }, 100000), "Task didn't finish as it should.");
@@ -646,9 +640,8 @@ class FileSystemTest : public QObject {
             LinkTask lnk_tsk(folder, target_dir.path());
             lnk_tsk.linkRecursively(true);
             lnk_tsk.setMaxDepth(-1);
-            QObject::connect(&lnk_tsk, &Task::finished, [&lnk_tsk] {
-                QVERIFY2(lnk_tsk.wasSuccessful(), "Task finished but was not successful when it should have been.");
-            });
+            connect(&lnk_tsk, &Task::finished,
+                    [&lnk_tsk] { QVERIFY2(lnk_tsk.wasSuccessful(), "Task finished but was not successful when it should have been."); });
             lnk_tsk.start();
 
             QVERIFY2(QTest::qWaitFor([&lnk_tsk]() { return lnk_tsk.isFinished(); }, 100000), "Task didn't finish as it should.");

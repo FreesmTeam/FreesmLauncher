@@ -87,10 +87,9 @@ SkinManageDialog::SkinManageDialog(QWidget* parent, MinecraftAccountPtr acct)
     contentsWidget->installEventFilter(this);
     contentsWidget->setModel(&m_list);
 
-    connect(contentsWidget, SIGNAL(doubleClicked(QModelIndex)), SLOT(activated(QModelIndex)));
+    connect(contentsWidget, &QAbstractItemView::doubleClicked, this, &SkinManageDialog::activated);
 
-    connect(contentsWidget->selectionModel(), SIGNAL(selectionChanged(QItemSelection, QItemSelection)),
-            SLOT(selectionChanged(QItemSelection, QItemSelection)));
+    connect(contentsWidget->selectionModel(), &QItemSelectionModel::selectionChanged, this, &SkinManageDialog::selectionChanged);
     connect(m_ui->listView, &QListView::customContextMenuRequested, this, &SkinManageDialog::show_context_menu);
     connect(m_ui->elytraCB, &QCheckBox::stateChanged, this, [this]() {
         m_skinPreview->setElytraVisible(m_ui->elytraCB->isChecked());
