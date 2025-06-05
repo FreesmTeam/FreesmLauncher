@@ -92,6 +92,7 @@
 #include "InstanceWindow.h"
 
 #include "ui/GuiUtil.h"
+#include "ui/ViewLogWindow.h"
 #include "ui/dialogs/AboutDialog.h"
 #include "ui/dialogs/CopyInstanceDialog.h"
 #include "ui/dialogs/CreateShortcutDialog.h"
@@ -103,7 +104,6 @@
 #include "ui/dialogs/NewInstanceDialog.h"
 #include "ui/dialogs/NewsDialog.h"
 #include "ui/dialogs/ProgressDialog.h"
-#include "ui/dialogs/ViewLogDialog.h"
 #include "ui/instanceview/InstanceDelegate.h"
 #include "ui/instanceview/InstanceProxyModel.h"
 #include "ui/instanceview/InstanceView.h"
@@ -240,10 +240,7 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent), ui(new Ui::MainWi
     }
 
     {  // logs viewing
-        connect(ui->actionViewLog, &QAction::triggered, this, [this] {
-            ViewLogDialog dialog(this);
-            dialog.exec();
-        });
+        connect(ui->actionViewLog, &QAction::triggered, this, [] { APPLICATION->showLogWindow(); });
     }
 
     // add the toolbar toggles to the view menu

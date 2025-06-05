@@ -15,7 +15,7 @@ MessageLevel::Enum MessageLevel::getLevel(const QString& levelName)
         return MessageLevel::Message;
     else if (name == "WARNING" || name == "WARN")
         return MessageLevel::Warning;
-    else if (name == "ERROR")
+    else if (name == "ERROR" || name == "CRITICAL")
         return MessageLevel::Error;
     else if (name == "FATAL")
         return MessageLevel::Fatal;

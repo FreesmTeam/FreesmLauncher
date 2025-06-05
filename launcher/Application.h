@@ -55,6 +55,7 @@ class LaunchController;
 class LocalPeer;
 class InstanceWindow;
 class MainWindow;
+class ViewLogWindow;
 class SetupWizard;
 class GenericPageProvider;
 class QFile;
@@ -183,6 +184,7 @@ class Application : public QApplication {
 
     InstanceWindow* showInstanceWindow(InstancePtr instance, QString page = QString());
     MainWindow* showMainWindow(bool minimized = false);
+    ViewLogWindow* showLogWindow();
 
     void updateIsRunning(bool running);
     bool updatesAreAllowed();
@@ -289,6 +291,9 @@ class Application : public QApplication {
 
     // main window, if any
     MainWindow* m_mainWindow = nullptr;
+
+    // log window, if any
+    ViewLogWindow* m_viewLogWindow = nullptr;
 
     // peer launcher instance connector - used to implement single instance launcher and signalling
     LocalPeer* m_peerInstance = nullptr;
