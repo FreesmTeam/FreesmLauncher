@@ -57,6 +57,7 @@ void ElybyAuthStep::onRequestDone()
     if (m_request->error() != QNetworkReply::NoError) {
         qWarning() << "Reply error:" << m_request->error();
         emit finished(AccountTaskState::STATE_OFFLINE, tr("Failed to get authorization for Elyby: %1").arg(m_request->errorString()));
+        return;
     }
 
     auto jsonResponse = QJsonDocument::fromJson(*m_response);
