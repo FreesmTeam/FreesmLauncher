@@ -38,9 +38,8 @@ ImportResourceDialog::ImportResourceDialog(QString file_path, PackedResourceType
     proxyModel->sort(0);
     contentsWidget->setModel(proxyModel);
 
-    connect(contentsWidget, SIGNAL(doubleClicked(QModelIndex)), SLOT(activated(QModelIndex)));
-    connect(contentsWidget->selectionModel(), SIGNAL(selectionChanged(QItemSelection, QItemSelection)),
-            SLOT(selectionChanged(QItemSelection, QItemSelection)));
+    connect(contentsWidget, &QAbstractItemView::doubleClicked, this, &ImportResourceDialog::activated);
+    connect(contentsWidget->selectionModel(), &QItemSelectionModel::selectionChanged, this, &ImportResourceDialog::selectionChanged);
 
     ui->label->setText(
         tr("Choose the instance you would like to import this %1 to.").arg(ResourceUtils::getPackedTypeName(m_resource_type)));

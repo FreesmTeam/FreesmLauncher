@@ -568,7 +568,7 @@ void MainWindow::showInstanceContextMenu(const QPoint& pos)
             actionCreateInstance->setData(instance_action_data);
         }
 
-        connect(actionCreateInstance, SIGNAL(triggered(bool)), SLOT(on_actionAddInstance_triggered()));
+        connect(actionCreateInstance, &QAction::triggered, this, &MainWindow::on_actionAddInstance_triggered);
 
         actions.prepend(actionSep);
         actions.prepend(actionVoid);
@@ -698,7 +698,7 @@ void MainWindow::repopulateAccountsMenu()
             }
 
             ui->accountsMenu->addAction(action);
-            connect(action, SIGNAL(triggered(bool)), SLOT(changeActiveAccount()));
+            connect(action, &QAction::triggered, this, &MainWindow::changeActiveAccount);
         }
     }
 
@@ -710,7 +710,7 @@ void MainWindow::repopulateAccountsMenu()
 
     ui->accountsMenu->addAction(ui->actionNoDefaultAccount);
 
-    connect(ui->actionNoDefaultAccount, SIGNAL(triggered(bool)), SLOT(changeActiveAccount()));
+    connect(ui->actionNoDefaultAccount, &QAction::triggered, this, &MainWindow::changeActiveAccount);
 
     ui->accountsMenu->addSeparator();
     ui->accountsMenu->addAction(ui->actionManageAccounts);
@@ -1559,8 +1559,8 @@ void MainWindow::taskEnd()
 
 void MainWindow::startTask(Task* task)
 {
-    connect(task, SIGNAL(succeeded()), SLOT(taskEnd()));
-    connect(task, SIGNAL(failed(QString)), SLOT(taskEnd()));
+    connect(task, &Task::succeeded, this, &MainWindow::taskEnd);
+    connect(task, &Task::failed, this, &MainWindow::taskEnd);
     task->start();
 }
 
