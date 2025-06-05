@@ -266,7 +266,7 @@ void ListModel::requestLogo(QString file)
     job->addNetAction(Net::ApiDownload::makeCached(QUrl(QString(BuildConfig.LEGACY_FTB_CDN_BASE_URL + "static/%1").arg(file)), entry));
 
     auto fullPath = entry->getFullPath();
-    QObject::connect(job, &NetJob::finished, this, [this, file, fullPath, job] {
+    connect(job, &NetJob::finished, this, [this, file, fullPath, job] {
         job->deleteLater();
         emit logoLoaded(file, QIcon(fullPath));
         if (waitingCallbacks.contains(file)) {
@@ -274,7 +274,7 @@ void ListModel::requestLogo(QString file)
         }
     });
 
-    QObject::connect(job, &NetJob::failed, this, [this, file, job] {
+    connect(job, &NetJob::failed, this, [this, file, job] {
         job->deleteLater();
         emit logoFailed(file);
     });

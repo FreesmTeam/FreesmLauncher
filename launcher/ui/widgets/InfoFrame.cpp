@@ -323,7 +323,7 @@ void InfoFrame::setDescription(QString text)
         cursor.insertHtml("<a href=\"#mod_desc\">...</a>");
 
         labeltext.append(doc.toHtml());
-        QObject::connect(ui->descriptionLabel, &QLabel::linkActivated, this, &InfoFrame::descriptionEllipsisHandler);
+        connect(ui->descriptionLabel, &QLabel::linkActivated, this, &InfoFrame::descriptionEllipsisHandler);
     } else {
         ui->descriptionLabel->setTextFormat(Qt::TextFormat::AutoText);
         labeltext.append(finaltext);
@@ -362,7 +362,7 @@ void InfoFrame::setLicense(QString text)
         m_license = text;
         // This allows injecting HTML here.
         labeltext.append("<html><body>" + finaltext.left(287) + "<a href=\"#mod_desc\">...</a></body></html>");
-        QObject::connect(ui->licenseLabel, &QLabel::linkActivated, this, &InfoFrame::licenseEllipsisHandler);
+        connect(ui->licenseLabel, &QLabel::linkActivated, this, &InfoFrame::licenseEllipsisHandler);
     } else {
         ui->licenseLabel->setTextFormat(Qt::TextFormat::AutoText);
         labeltext.append(finaltext);

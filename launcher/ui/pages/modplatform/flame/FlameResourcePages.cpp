@@ -251,7 +251,7 @@ void FlameModPage::prepareProviderCategories()
 {
     auto response = std::make_shared<QByteArray>();
     m_categoriesTask = FlameAPI::getModCategories(response);
-    QObject::connect(m_categoriesTask.get(), &Task::succeeded, [this, response]() {
+    connect(m_categoriesTask.get(), &Task::succeeded, [this, response]() {
         auto categories = FlameAPI::loadModCategories(response);
         m_filter_widget->setCategories(categories);
     });

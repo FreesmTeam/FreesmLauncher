@@ -162,7 +162,7 @@ void TechnicPage::suggestCurrent()
     QString slug = current.slug;
     netJob->addNetAction(Net::ApiDownload::makeByteArray(
         QString("%1modpack/%2?build=%3").arg(BuildConfig.TECHNIC_API_BASE_URL, slug, BuildConfig.TECHNIC_API_BUILD), response));
-    QObject::connect(netJob.get(), &NetJob::succeeded, this, [this, slug] {
+    connect(netJob.get(), &NetJob::succeeded, this, [this, slug] {
         jobPtr.reset();
 
         if (current.slug != slug) {
@@ -260,7 +260,7 @@ void TechnicPage::metadataLoaded()
         auto url = QString("%1/modpack/%2").arg(current.url, current.slug);
         netJob->addNetAction(Net::ApiDownload::makeByteArray(QUrl(url), response));
 
-        QObject::connect(netJob.get(), &NetJob::succeeded, this, &TechnicPage::onSolderLoaded);
+        connect(netJob.get(), &NetJob::succeeded, this, &TechnicPage::onSolderLoaded);
         connect(jobPtr.get(), &NetJob::failed,
                 [this](QString reason) { CustomMessageBox::selectable(this, tr("Error"), reason, QMessageBox::Critical)->exec(); });
 
