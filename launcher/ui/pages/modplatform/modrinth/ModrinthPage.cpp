@@ -244,14 +244,8 @@ void ModrinthPage::onSelectionChanged(QModelIndex curr, [[maybe_unused]] QModelI
         else
             ++it;
 #endif
-            for (auto version : current.versions) {
-                auto release_type = version.version_type.isValid() ? QString(" [%1]").arg(version.version_type.toString()) : "";
-                auto mcVersion = !version.gameVersion.isEmpty() && !version.name.contains(version.gameVersion)
-                                     ? QString(" for %1").arg(version.gameVersion)
-                                     : "";
-                auto versionStr = !version.name.contains(version.version) ? version.version : "";
-                ui->versionSelectionBox->addItem(QString("%1%2 — %3%4").arg(version.name, mcVersion, versionStr, release_type),
-                                                 QVariant(version.id));
+            for (const auto& version : current.versions) {
+                ui->versionSelectionBox->addItem(Modrinth::getVersionDisplayString(version), QVariant(version.id));
             }
 
             QVariant current_updated;
