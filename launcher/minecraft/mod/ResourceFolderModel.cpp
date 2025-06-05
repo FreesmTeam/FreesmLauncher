@@ -175,9 +175,9 @@ void ResourceFolderModel::installResourceWithFlameMetadata(QString path, ModPlat
 
         auto response = std::make_shared<QByteArray>();
         auto job = FlameAPI().getProject(vers.addonId.toString(), response);
-        QObject::connect(job.get(), &Task::failed, this, install);
-        QObject::connect(job.get(), &Task::aborted, this, install);
-        QObject::connect(job.get(), &Task::succeeded, [response, this, &vers, install, &pack] {
+        connect(job.get(), &Task::failed, this, install);
+        connect(job.get(), &Task::aborted, this, install);
+        connect(job.get(), &Task::succeeded, [response, this, &vers, install, &pack] {
             QJsonParseError parse_error{};
             QJsonDocument doc = QJsonDocument::fromJson(*response, &parse_error);
             if (parse_error.error != QJsonParseError::NoError) {
@@ -194,7 +194,7 @@ void ResourceFolderModel::installResourceWithFlameMetadata(QString path, ModPlat
                 qWarning() << "Error while reading mod info: " << e.cause();
             }
             LocalResourceUpdateTask update_metadata(indexDir(), pack, vers);
-            QObject::connect(&update_metadata, &Task::finished, this, install);
+            connect(&update_metadata, &Task::finished, this, install);
             update_metadata.start();
         });
 

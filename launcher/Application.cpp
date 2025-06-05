@@ -1608,7 +1608,7 @@ void Application::updateIsRunning(bool running)
 
 void Application::controllerSucceeded()
 {
-    auto controller = qobject_cast<LaunchController*>(QObject::sender());
+    auto controller = qobject_cast<LaunchController*>(sender());
     if (!controller)
         return;
     auto id = controller->id();
@@ -1635,7 +1635,7 @@ void Application::controllerSucceeded()
 void Application::controllerFailed(const QString& error)
 {
     Q_UNUSED(error);
-    auto controller = qobject_cast<LaunchController*>(QObject::sender());
+    auto controller = qobject_cast<LaunchController*>(sender());
     if (!controller)
         return;
     auto id = controller->id();
@@ -1747,7 +1747,7 @@ InstanceWindow* Application::showInstanceWindow(InstancePtr instance, QString pa
 void Application::on_windowClose()
 {
     m_openWindows--;
-    auto instWindow = qobject_cast<InstanceWindow*>(QObject::sender());
+    auto instWindow = qobject_cast<InstanceWindow*>(sender());
     if (instWindow) {
         QMutexLocker locker(&m_instanceExtrasMutex);
         auto& extras = m_instanceExtras[instWindow->instanceId()];
@@ -1756,7 +1756,7 @@ void Application::on_windowClose()
             extras.controller->setParentWidget(m_mainWindow);
         }
     }
-    auto mainWindow = qobject_cast<MainWindow*>(QObject::sender());
+    auto mainWindow = qobject_cast<MainWindow*>(sender());
     if (mainWindow) {
         m_mainWindow = nullptr;
     }

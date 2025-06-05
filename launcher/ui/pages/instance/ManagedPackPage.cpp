@@ -239,7 +239,7 @@ ModrinthManagedPackPage::ModrinthManagedPackPage(BaseInstance* inst, InstanceWin
     : ManagedPackPage(inst, instance_window, parent)
 {
     Q_ASSERT(inst->isManagedPack());
-    connect(ui->versionsComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(suggestVersion()));
+    connect(ui->versionsComboBox, &QComboBox::currentIndexChanged, this, &ModrinthManagedPackPage::suggestVersion);
     connect(ui->updateButton, &QPushButton::clicked, this, &ModrinthManagedPackPage::update);
     connect(ui->updateFromFileButton, &QPushButton::clicked, this, &ModrinthManagedPackPage::updateFromFile);
 }
@@ -264,7 +264,7 @@ void ModrinthManagedPackPage::parseManagedPack()
     m_fetch_job->addNetAction(
         Net::ApiDownload::makeByteArray(QString("%1/project/%2/version").arg(BuildConfig.MODRINTH_PROD_URL, id), response));
 
-    QObject::connect(m_fetch_job.get(), &NetJob::succeeded, this, [this, response, id] {
+    connect(m_fetch_job.get(), &NetJob::succeeded, this, [this, response, id] {
         QJsonParseError parse_error{};
         QJsonDocument doc = QJsonDocument::fromJson(*response, &parse_error);
         if (parse_error.error != QJsonParseError::NoError) {
@@ -310,8 +310,8 @@ void ModrinthManagedPackPage::parseManagedPack()
 
         m_loaded = true;
     });
-    QObject::connect(m_fetch_job.get(), &NetJob::failed, this, &ModrinthManagedPackPage::setFailState);
-    QObject::connect(m_fetch_job.get(), &NetJob::aborted, this, &ModrinthManagedPackPage::setFailState);
+    connect(m_fetch_job.get(), &NetJob::failed, this, &ModrinthManagedPackPage::setFailState);
+    connect(m_fetch_job.get(), &NetJob::aborted, this, &ModrinthManagedPackPage::setFailState);
 
     ui->changelogTextBrowser->setText(tr("Fetching changelogs..."));
 
@@ -418,7 +418,7 @@ FlameManagedPackPage::FlameManagedPackPage(BaseInstance* inst, InstanceWindow* i
     : ManagedPackPage(inst, instance_window, parent)
 {
     Q_ASSERT(inst->isManagedPack());
-    connect(ui->versionsComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(suggestVersion()));
+    connect(ui->versionsComboBox, &QComboBox::currentIndexChanged, this, &FlameManagedPackPage::suggestVersion);
     connect(ui->updateButton, &QPushButton::clicked, this, &FlameManagedPackPage::update);
     connect(ui->updateFromFileButton, &QPushButton::clicked, this, &FlameManagedPackPage::updateFromFile);
 }
@@ -459,7 +459,7 @@ void FlameManagedPackPage::parseManagedPack()
 
     m_fetch_job->addNetAction(Net::ApiDownload::makeByteArray(QString("%1/mods/%2/files").arg(BuildConfig.FLAME_BASE_URL, id), response));
 
-    QObject::connect(m_fetch_job.get(), &NetJob::succeeded, this, [this, response, id] {
+    connect(m_fetch_job.get(), &NetJob::succeeded, this, [this, response, id] {
         QJsonParseError parse_error{};
         QJsonDocument doc = QJsonDocument::fromJson(*response, &parse_error);
         if (parse_error.error != QJsonParseError::NoError) {
@@ -502,8 +502,8 @@ void FlameManagedPackPage::parseManagedPack()
 
         m_loaded = true;
     });
-    QObject::connect(m_fetch_job.get(), &NetJob::failed, this, &FlameManagedPackPage::setFailState);
-    QObject::connect(m_fetch_job.get(), &NetJob::aborted, this, &FlameManagedPackPage::setFailState);
+    connect(m_fetch_job.get(), &NetJob::failed, this, &FlameManagedPackPage::setFailState);
+    connect(m_fetch_job.get(), &NetJob::aborted, this, &FlameManagedPackPage::setFailState);
 
     m_fetch_job->start();
 }

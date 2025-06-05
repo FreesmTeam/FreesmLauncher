@@ -91,9 +91,9 @@ void PackInstallTask::executeTask()
         QString(BuildConfig.ATL_DOWNLOAD_SERVER_URL + "packs/%1/versions/%2/Configs.json").arg(m_pack_safe_name).arg(m_version_name);
     netJob->addNetAction(Net::ApiDownload::makeByteArray(QUrl(searchUrl), response));
 
-    QObject::connect(netJob.get(), &NetJob::succeeded, this, &PackInstallTask::onDownloadSucceeded);
-    QObject::connect(netJob.get(), &NetJob::failed, this, &PackInstallTask::onDownloadFailed);
-    QObject::connect(netJob.get(), &NetJob::aborted, this, &PackInstallTask::onDownloadAborted);
+    connect(netJob.get(), &NetJob::succeeded, this, &PackInstallTask::onDownloadSucceeded);
+    connect(netJob.get(), &NetJob::failed, this, &PackInstallTask::onDownloadFailed);
+    connect(netJob.get(), &NetJob::aborted, this, &PackInstallTask::onDownloadAborted);
 
     jobPtr = netJob;
     jobPtr->start();

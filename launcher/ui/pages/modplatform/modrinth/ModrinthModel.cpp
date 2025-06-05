@@ -158,7 +158,7 @@ void ModpackListModel::performPaginatedSearch()
     auto netJob = makeShared<NetJob>("Modrinth::SearchModpack", APPLICATION->network());
     netJob->addNetAction(Net::ApiDownload::makeByteArray(QUrl(searchUrl.value()), m_allResponse));
 
-    QObject::connect(netJob.get(), &NetJob::succeeded, this, [this] {
+    connect(netJob.get(), &NetJob::succeeded, this, [this] {
         QJsonParseError parseError{};
 
         QJsonDocument doc = QJsonDocument::fromJson(*m_allResponse, &parseError);
@@ -171,7 +171,7 @@ void ModpackListModel::performPaginatedSearch()
 
         searchRequestFinished(doc);
     });
-    QObject::connect(netJob.get(), &NetJob::failed, this, &ModpackListModel::searchRequestFailed);
+    connect(netJob.get(), &NetJob::failed, this, &ModpackListModel::searchRequestFailed);
 
     jobPtr = netJob;
     jobPtr->start();
@@ -253,7 +253,7 @@ void ModpackListModel::requestLogo(QString logo, QString url)
     job->addNetAction(Net::ApiDownload::makeCached(QUrl(url), entry));
 
     auto fullPath = entry->getFullPath();
-    QObject::connect(job, &NetJob::succeeded, this, [this, logo, fullPath, job] {
+    connect(job, &NetJob::succeeded, this, [this, logo, fullPath, job] {
         job->deleteLater();
         emit logoLoaded(logo, QIcon(fullPath));
         if (waitingCallbacks.contains(logo)) {
@@ -261,7 +261,7 @@ void ModpackListModel::requestLogo(QString logo, QString url)
         }
     });
 
-    QObject::connect(job, &NetJob::failed, this, [this, logo, job] {
+    connect(job, &NetJob::failed, this, [this, logo, job] {
         job->deleteLater();
         emit logoFailed(logo);
     });
