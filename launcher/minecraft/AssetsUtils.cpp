@@ -159,7 +159,7 @@ bool loadAssetsIndexJson(const QString& assetsId, const QString& path, AssetsInd
             if (key == "hash") {
                 object.hash = value.toString();
             } else if (key == "size") {
-                object.size = value.toDouble();
+                object.size = value.toLongLong();
             }
         }
 

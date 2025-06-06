@@ -87,7 +87,7 @@ ModPlatform::Dependency GetModDependenciesTask::getOverride(const ModPlatform::D
 {
     if (auto isQuilt = m_loaderType & ModPlatform::Quilt; isQuilt || m_loaderType & ModPlatform::Fabric) {
         auto overide = ModPlatform::getOverrideDeps();
-        auto over = std::find_if(overide.cbegin(), overide.cend(), [dep, providerName, isQuilt](auto o) {
+        auto over = std::find_if(overide.cbegin(), overide.cend(), [dep, providerName, isQuilt](const auto& o) {
             return o.provider == providerName && dep.addonId == (isQuilt ? o.fabric : o.quilt);
         });
         if (over != overide.cend()) {
@@ -207,8 +207,9 @@ Task::Ptr GetModDependenciesTask::prepareDependencyTask(const ModPlatform::Depen
             if (!pDep->version.addonId.isValid()) {
                 if (m_loaderType & ModPlatform::Quilt) {  // falback for quilt
                     auto overide = ModPlatform::getOverrideDeps();
-                    auto over = std::find_if(overide.cbegin(), overide.cend(),
-                                             [dep, provider](auto o) { return o.provider == provider.name && dep.addonId == o.quilt; });
+                    auto over = std::find_if(overide.cbegin(), overide.cend(), [dep, provider](const auto& o) {
+                        return o.provider == provider.name && dep.addonId == o.quilt;
+                    });
                     if (over != overide.cend()) {
                         removePack(dep.addonId);
                         addTask(prepareDependencyTask({ over->fabric, dep.type }, provider.name, level));
