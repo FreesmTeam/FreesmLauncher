@@ -120,6 +120,8 @@ auto loadIndexedVersion(QJsonObject&) -> ModpackVersion;
 
 auto validateDownloadUrl(QUrl) -> bool;
 
+auto getVersionDisplayString(const ModpackVersion&) -> QString;
+
 }  // namespace Modrinth
 
 Q_DECLARE_METATYPE(Modrinth::Modpack)
