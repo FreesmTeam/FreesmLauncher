@@ -52,6 +52,7 @@
 #include "tools/GenericProfiler.h"
 #include "ui/InstanceWindow.h"
 #include "ui/MainWindow.h"
+#include "ui/ViewLogWindow.h"
 
 #include "ui/dialogs/ProgressDialog.h"
 #include "ui/instanceview/AccessibleInstanceView.h"
@@ -244,8 +245,11 @@ void appDebugOutput(QtMsgType type, const QMessageLogContext& context, const QSt
     }
 
     QString out = qFormatLogMessage(type, context, msg);
-    out += QChar::LineFeed;
+    if (APPLICATION->logModel) {
+        APPLICATION->logModel->append(MessageLevel::getLevel(type), out);
+    }
 
+    out += QChar::LineFeed;
     APPLICATION->logFile->write(out.toUtf8());
     APPLICATION->logFile->flush();
 
@@ -538,6 +542,8 @@ Application::Application(int& argc, char** argv) : QApplication(argc, argv)
         qInstallMessageHandler(appDebugOutput);
         qSetMessagePattern(defaultLogFormat);
 
+        logModel.reset(new LogModel(this));
+
         bool foundLoggingRules = false;
 
         auto logRulesFile = QStringLiteral("qtlogging.ini");
@@ -690,6 +696,10 @@ Application::Application(int& argc, char** argv) : QApplication(argc, argv)
         m_settings->registerSetting("ConsoleFontSize", defaultSize);
         m_settings->registerSetting("ConsoleMaxLines", 100000);
         m_settings->registerSetting("ConsoleOverflowStop", true);
+
+        logModel->setMaxLines(getConsoleMaxLines(settings()));
+        logModel->setStopOnOverflow(shouldStopOnConsoleOverflow(settings()));
+        logModel->setOverflowMessage(tr("Cannot display this log since the log length surpassed %1 lines.").arg(logModel->getMaxLines()));
 
         // Folders
         m_settings->registerSetting("InstanceDir", "instances");
@@ -1683,6 +1693,20 @@ MainWindow* Application::showMainWindow(bool minimized)
     return m_mainWindow;
 }
 
+ViewLogWindow* Application::showLogWindow()
+{
+    if (m_viewLogWindow) {
+        m_viewLogWindow->setWindowState(m_viewLogWindow->windowState() & ~Qt::WindowMinimized);
+        m_viewLogWindow->raise();
+        m_viewLogWindow->activateWindow();
+    } else {
+        m_viewLogWindow = new ViewLogWindow();
+        connect(m_viewLogWindow, &ViewLogWindow::isClosing, this, &Application::on_windowClose);
+        m_openWindows++;
+    }
+    return m_viewLogWindow;
+}
+
 InstanceWindow* Application::showInstanceWindow(InstancePtr instance, QString page)
 {
     if (!instance)
@@ -1736,6 +1760,10 @@ void Application::on_windowClose()
     auto mainWindow = qobject_cast<MainWindow*>(sender());
     if (mainWindow) {
         m_mainWindow = nullptr;
+    }
+    auto logWindow = qobject_cast<ViewLogWindow*>(sender());
+    if (logWindow) {
+        m_viewLogWindow = nullptr;
     }
     // quit when there are no more windows.
     if (shouldExitNow()) {

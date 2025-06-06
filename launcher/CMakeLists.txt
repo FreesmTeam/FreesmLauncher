@@ -847,6 +847,8 @@ SET(LAUNCHER_SOURCES
     ui/MainWindow.cpp
     ui/InstanceWindow.h
     ui/InstanceWindow.cpp
+    ui/ViewLogWindow.h
+    ui/ViewLogWindow.cpp
 
     # FIXME: maybe find a better home for this.
     FileIgnoreProxy.cpp
