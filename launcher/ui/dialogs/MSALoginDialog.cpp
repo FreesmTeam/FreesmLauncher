@@ -139,6 +139,9 @@ void MSALoginDialog::onTaskFailed(QString reason)
 void MSALoginDialog::authorizeWithBrowser(const QUrl& url)
 {
     ui->stackedWidget2->setCurrentIndex(1);
+    ui->stackedWidget2->adjustSize();
+    ui->stackedWidget2->updateGeometry();
+    this->adjustSize();
     ui->loginButton->setToolTip(QString("<div style='width: 200px;'>%1</div>").arg(url.toString()));
     m_url = url;
 }
@@ -173,6 +176,9 @@ void paintQR(QPainter& painter, const QSize sz, const QString& data, QColor fg)
 void MSALoginDialog::authorizeWithBrowserWithExtra(QString url, QString code, [[maybe_unused]] int expiresIn)
 {
     ui->stackedWidget->setCurrentIndex(1);
+    ui->stackedWidget->adjustSize();
+    ui->stackedWidget->updateGeometry();
+    this->adjustSize();
 
     const auto linkString = QString("<a href=\"%1\">%2</a>").arg(url, url);
     if (url == "https://www.microsoft.com/link" && !code.isEmpty()) {
@@ -196,12 +202,18 @@ void MSALoginDialog::authorizeWithBrowserWithExtra(QString url, QString code, [[
 void MSALoginDialog::onDeviceFlowStatus(QString status)
 {
     ui->stackedWidget->setCurrentIndex(0);
+    ui->stackedWidget->adjustSize();
+    ui->stackedWidget->updateGeometry();
+    this->adjustSize();
     ui->status->setText(status);
 }
 
 void MSALoginDialog::onAuthFlowStatus(QString status)
 {
     ui->stackedWidget2->setCurrentIndex(0);
+    ui->stackedWidget2->adjustSize();
+    ui->stackedWidget2->updateGeometry();
+    this->adjustSize();
     ui->status2->setText(status);
 }
 

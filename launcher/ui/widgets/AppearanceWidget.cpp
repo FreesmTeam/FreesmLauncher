@@ -97,22 +97,28 @@ void AppearanceWidget::applySettings()
     settings->set("ConsoleFont", consoleFontFamily);
     settings->set("ConsoleFontSize", m_ui->fontSizeBox->value());
     settings->set("CatOpacity", m_ui->catOpacitySlider->value());
+    auto catFit = m_ui->catFitComboBox->currentIndex();
+    settings->set("CatFit", catFit == 0 ? "fit" : catFit == 1 ? "fill" : "strech");
 }
 
 void AppearanceWidget::loadSettings()
 {
-    QString fontFamily = APPLICATION->settings()->get("ConsoleFont").toString();
+    SettingsObjectPtr settings = APPLICATION->settings();
+    QString fontFamily = settings->get("ConsoleFont").toString();
     QFont consoleFont(fontFamily);
     m_ui->consoleFont->setCurrentFont(consoleFont);
 
     bool conversionOk = true;
-    int fontSize = APPLICATION->settings()->get("ConsoleFontSize").toInt(&conversionOk);
+    int fontSize = settings->get("ConsoleFontSize").toInt(&conversionOk);
     if (!conversionOk) {
         fontSize = 11;
     }
     m_ui->fontSizeBox->setValue(fontSize);
 
-    m_ui->catOpacitySlider->setValue(APPLICATION->settings()->get("CatOpacity").toInt());
+    m_ui->catOpacitySlider->setValue(settings->get("CatOpacity").toInt());
+
+    auto catFit = settings->get("CatFit").toString();
+    m_ui->catFitComboBox->setCurrentIndex(catFit == "fit" ? 0 : catFit == "fill" ? 1 : 2);
 }
 
 void AppearanceWidget::retranslateUi()
@@ -245,9 +251,7 @@ void AppearanceWidget::updateConsolePreview()
         workCursor.insertBlock();
     };
 
-    print(QString("%1 version: %2\n")
-              .arg(BuildConfig.LAUNCHER_DISPLAYNAME, BuildConfig.printableVersionString()),
-          MessageLevel::Launcher);
+    print(QString("%1 version: %2\n").arg(BuildConfig.LAUNCHER_DISPLAYNAME, BuildConfig.printableVersionString()), MessageLevel::Launcher);
 
     QDate today = QDate::currentDate();
 

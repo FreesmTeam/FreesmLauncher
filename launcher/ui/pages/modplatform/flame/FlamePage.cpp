@@ -166,7 +166,9 @@ void FlamePage::onSelectionChanged(QModelIndex curr, [[maybe_unused]] QModelInde
         return;
     }
 
-    current = listModel->data(curr, Qt::UserRole).value<Flame::IndexedPack>();
+    QVariant raw = listModel->data(curr, Qt::UserRole);
+    Q_ASSERT(raw.canConvert<Flame::IndexedPack>());
+    current = raw.value<Flame::IndexedPack>();
 
     if (!current.versionsLoaded || m_filterWidget->changed()) {
         qDebug() << "Loading flame modpack versions";
@@ -206,13 +208,8 @@ void FlamePage::onSelectionChanged(QModelIndex curr, [[maybe_unused]] QModelInde
         else
             ++it;
 #endif
-            for (auto version : current.versions) {
-                auto release_type = version.version_type.isValid() ? QString(" [%1]").arg(version.version_type.toString()) : "";
-                auto mcVersion = !version.mcVersion.isEmpty() && !version.version.contains(version.mcVersion)
-                                     ? QString(" for %1").arg(version.mcVersion)
-                                     : "";
-                ui->versionSelectionBox->addItem(QString("%1%2%3").arg(version.version, mcVersion, release_type),
-                                                 QVariant(version.downloadUrl));
+            for (const auto& version : current.versions) {
+                ui->versionSelectionBox->addItem(Flame::getVersionDisplayString(version), QVariant(version.downloadUrl));
             }
 
             QVariant current_updated;

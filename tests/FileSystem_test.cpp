@@ -69,7 +69,9 @@ class LinkTask : public Task {
     }
 
     FS::create_link* m_lnk;
-    [[maybe_unused]] bool m_useHard = false;
+#if defined Q_OS_WIN32
+    bool m_useHard = false;
+#endif
     bool m_linkRecursive = true;
 };
 

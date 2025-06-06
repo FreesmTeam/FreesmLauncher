@@ -893,6 +893,8 @@ SET(LAUNCHER_SOURCES
     ui/themes/ThemeManager.h
     ui/themes/CatPack.cpp
     ui/themes/CatPack.h
+    ui/themes/CatPainter.cpp
+    ui/themes/CatPainter.h
 
     # Processes
     LaunchController.h

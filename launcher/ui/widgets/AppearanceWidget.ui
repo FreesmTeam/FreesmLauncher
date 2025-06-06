@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>600</width>
-    <height>700</height>
+    <height>711</height>
    </rect>
   </property>
   <property name="minimumSize">
@@ -204,6 +204,53 @@
        </spacer>
       </item>
       <item>
+       <widget class="QLabel" name="catFitLabel">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="text">
+         <string>Fit</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QComboBox" name="catFitComboBox">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>77</width>
+          <height>30</height>
+         </size>
+        </property>
+        <property name="currentIndex">
+         <number>0</number>
+        </property>
+        <item>
+         <property name="text">
+          <string>Fit</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Fill</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Stretch</string>
+         </property>
+        </item>
+       </widget>
+      </item>
+      <item>
        <widget class="QLabel" name="catOpacityLabel">
         <property name="text">
          <string>Cat Opacity</string>
@@ -372,8 +419,7 @@
                <string/>
               </property>
               <property name="icon">
-               <iconset theme="new">
-                <normaloff>.</normaloff>.</iconset>
+               <iconset theme="new"/>
               </property>
               <property name="flat">
                <bool>true</bool>
@@ -389,8 +435,7 @@
                <string/>
               </property>
               <property name="icon">
-               <iconset theme="centralmods">
-                <normaloff>.</normaloff>.</iconset>
+               <iconset theme="centralmods"/>
               </property>
               <property name="flat">
                <bool>true</bool>
@@ -406,8 +451,7 @@
                <string/>
               </property>
               <property name="icon">
-               <iconset theme="viewfolder">
-                <normaloff>.</normaloff>.</iconset>
+               <iconset theme="viewfolder"/>
               </property>
               <property name="flat">
                <bool>true</bool>
@@ -423,8 +467,7 @@
                <string/>
               </property>
               <property name="icon">
-               <iconset theme="launch">
-                <normaloff>.</normaloff>.</iconset>
+               <iconset theme="launch"/>
               </property>
               <property name="flat">
                <bool>true</bool>
@@ -440,8 +483,7 @@
                <string/>
               </property>
               <property name="icon">
-               <iconset theme="copy">
-                <normaloff>.</normaloff>.</iconset>
+               <iconset theme="copy"/>
               </property>
               <property name="flat">
                <bool>true</bool>
@@ -457,8 +499,7 @@
                <string/>
               </property>
               <property name="icon">
-               <iconset theme="export">
-                <normaloff>.</normaloff>.</iconset>
+               <iconset theme="export"/>
               </property>
               <property name="flat">
                <bool>true</bool>
@@ -474,8 +515,7 @@
                <string/>
               </property>
               <property name="icon">
-               <iconset theme="delete">
-                <normaloff>.</normaloff>.</iconset>
+               <iconset theme="delete"/>
               </property>
               <property name="flat">
                <bool>true</bool>
@@ -491,8 +531,7 @@
                <string/>
               </property>
               <property name="icon">
-               <iconset theme="about">
-                <normaloff>.</normaloff>.</iconset>
+               <iconset theme="about"/>
               </property>
               <property name="flat">
                <bool>true</bool>
@@ -508,8 +547,7 @@
                <string/>
               </property>
               <property name="icon">
-               <iconset theme="settings">
-                <normaloff>.</normaloff>.</iconset>
+               <iconset theme="settings"/>
               </property>
               <property name="flat">
                <bool>true</bool>
@@ -525,8 +563,7 @@
                <string/>
               </property>
               <property name="icon">
-               <iconset theme="cat">
-                <normaloff>.</normaloff>.</iconset>
+               <iconset theme="cat"/>
               </property>
               <property name="flat">
                <bool>true</bool>
@@ -586,6 +623,7 @@
   <tabstop>reloadThemesButton</tabstop>
   <tabstop>consoleFont</tabstop>
   <tabstop>fontSizeBox</tabstop>
+  <tabstop>catFitComboBox</tabstop>
   <tabstop>catOpacitySlider</tabstop>
   <tabstop>consolePreview</tabstop>
  </tabstops>

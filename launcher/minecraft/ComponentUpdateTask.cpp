@@ -570,7 +570,7 @@ void ComponentUpdateTask::performUpdateActions()
                               component->setVersion(cv.targetVersion);
                               component->waitLoadMeta();
                           },
-                          [&component, &instance](const UpdateActionLatestRecommendedCompatible lrc) {
+                          [&component, &instance](const UpdateActionLatestRecommendedCompatible& lrc) {
                               qCDebug(instanceProfileResolveC)
                                   << instance->name() << "|"
                                   << "UpdateActionLatestRecommendedCompatible" << component->getID() << ":" << component->getVersion()

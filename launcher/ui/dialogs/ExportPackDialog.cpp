@@ -102,9 +102,10 @@ ExportPackDialog::ExportPackDialog(MinecraftInstancePtr instance, QWidget* paren
 
     MinecraftInstance* mcInstance = dynamic_cast<MinecraftInstance*>(instance.get());
     if (mcInstance) {
-        for (auto& resourceModel : mcInstance->resourceLists())
-            if (resourceModel->indexDir().exists())
+        for (auto resourceModel : mcInstance->resourceLists()) {
+            if (resourceModel && resourceModel->indexDir().exists())
                 m_proxy->ignoreFilesWithPath().insert(instanceRoot.relativeFilePath(resourceModel->indexDir().absolutePath()));
+        }
     }
 
     m_ui->files->setModel(m_proxy);
