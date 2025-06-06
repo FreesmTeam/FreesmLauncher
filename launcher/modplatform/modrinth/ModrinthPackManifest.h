@@ -126,3 +126,4 @@ auto getVersionDisplayString(const ModpackVersion&) -> QString;
 
 Q_DECLARE_METATYPE(Modrinth::Modpack)
 Q_DECLARE_METATYPE(Modrinth::ModpackVersion)
+Q_DECLARE_METATYPE(QList<Modrinth::ModpackVersion>)

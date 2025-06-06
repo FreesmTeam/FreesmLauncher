@@ -79,6 +79,7 @@ bool ListModel::setData(const QModelIndex& index, const QVariant& value, [[maybe
     if (pos >= modpacks.size() || pos < 0 || !index.isValid())
         return false;
 
+    Q_ASSERT(value.canConvert<Flame::IndexedPack>());
     modpacks[pos] = value.value<Flame::IndexedPack>();
 
     return true;

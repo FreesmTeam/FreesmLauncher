@@ -150,7 +150,9 @@ void ModrinthPage::onSelectionChanged(QModelIndex curr, [[maybe_unused]] QModelI
         return;
     }
 
-    current = m_model->data(curr, Qt::UserRole).value<Modrinth::Modpack>();
+    QVariant raw = m_model->data(curr, Qt::UserRole);
+    Q_ASSERT(raw.canConvert<Modrinth::Modpack>());
+    current = raw.value<Modrinth::Modpack>();
     auto name = current.name;
 
     if (!current.extraInfoLoaded) {
