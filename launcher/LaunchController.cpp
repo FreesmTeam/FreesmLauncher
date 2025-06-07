@@ -299,16 +299,10 @@ void LaunchController::login()
                 progDialog.setSkipButton(true, tr("Abort"));
 
                 auto task = accountToCheck->currentTask();
-
-                bool aborted = false;
-                auto abortListener = connect(task.get(), &Task::aborted, [&aborted] { aborted = true; });
-
                 progDialog.execWithTask(task.get());
 
-                disconnect(abortListener);
-
                 // don't retry if aborted
-                if (aborted)
+                if (task->getState() == Task::State::AbortedByUser)
                     tryagain = false;
 
                 continue;
