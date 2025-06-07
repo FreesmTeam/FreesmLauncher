@@ -200,7 +200,7 @@ void LaunchController::login()
     if ((m_accountToUse->accountType() != AccountType::Offline && m_accountToUse->accountState() == AccountState::Offline) ||
         m_accountToUse->shouldRefresh()) {
         // Force account refresh on the account used to launch the instance updating the AccountState
-        //  only on first try and if it is not meant to be offline
+        // only on first try and if it is not meant to be offline
         m_accountToUse->refresh();
     }
     while (tryagain) {
@@ -296,11 +296,21 @@ void LaunchController::login()
             case AccountState::Working: {
                 // refresh is in progress, we need to wait for it to finish to proceed.
                 ProgressDialog progDialog(m_parentWidget);
-                if (m_online) {
-                    progDialog.setSkipButton(true, tr("Play Offline"));
-                }
+                progDialog.setSkipButton(true, tr("Abort"));
+
                 auto task = accountToCheck->currentTask();
+
+                bool aborted = false;
+                auto abortListener = connect(task.get(), &Task::aborted, [&aborted] { aborted = true; });
+
                 progDialog.execWithTask(task.get());
+
+                disconnect(abortListener);
+
+                // don't retry if aborted
+                if (aborted)
+                    tryagain = false;
+
                 continue;
             }
             case AccountState::Expired: {
