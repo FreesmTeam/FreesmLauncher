@@ -1,7 +1,7 @@
 #pragma once
 
+#include <qlogging.h>
 #include <QString>
-#include <QtLogging>
 
 /**
  * @brief the MessageLevel Enum
