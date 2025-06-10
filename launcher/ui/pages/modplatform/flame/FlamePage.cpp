@@ -176,7 +176,7 @@ void FlamePage::onSelectionChanged(QModelIndex curr, [[maybe_unused]] QModelInde
         auto response = std::make_shared<QByteArray>();
         int addonId = current.addonId;
         netJob->addNetAction(
-            Net::ApiDownload::makeByteArray(QString("https://api.curseforge.com/v1/mods/%1/files").arg(addonId), response));
+            Net::ApiDownload::makeByteArray(QString(BuildConfig.FLAME_BASE_URL + "/mods/%1/files").arg(addonId), response));
 
         connect(netJob, &NetJob::succeeded, this, [this, response, addonId, curr] {
             if (addonId != current.addonId) {
