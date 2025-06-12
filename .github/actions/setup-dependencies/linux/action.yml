@@ -8,7 +8,10 @@ runs:
       shell: bash
       run: |
         sudo apt-get -y update
-        sudo apt-get -y install ninja-build extra-cmake-modules scdoc appstream libxcb-cursor-dev
+        sudo apt-get -y install \
+          dpkg-dev \
+          ninja-build extra-cmake-modules scdoc \
+          appstream libxcb-cursor-dev
 
     - name: Setup AppImage tooling
       shell: bash

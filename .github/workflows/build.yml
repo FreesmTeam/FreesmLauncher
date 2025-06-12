@@ -164,6 +164,7 @@ jobs:
         with:
           version: ${{ steps.short-version.outputs.version }}
           build-type: ${{ steps.setup-dependencies.outputs.build-type }}
+          artifact-name: ${{ matrix.artifact-name }}
           cmake-preset: ${{ steps.cmake-preset.outputs.preset }}
           qt-version: ${{ steps.setup-dependencies.outputs.qt-version }}
 
