@@ -8,6 +8,7 @@
 			"binaryDir": "build",
 			"installDir": "install",
 			"cacheVariables": {
+				"Launcher_BUILD_ARTIFACT": "$penv{ARTIFACT_NAME}",
 				"Launcher_BUILD_PLATFORM": "custom"
 			}
 		},

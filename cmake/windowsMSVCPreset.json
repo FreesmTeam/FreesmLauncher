@@ -12,9 +12,6 @@
 				"type": "equals",
 				"lhs": "${hostSystemName}",
 				"rhs": "Windows"
-			},
-			"cacheVariables": {
-				"Launcher_BUILD_ARTIFACT": "Windows-MSVC-Qt6"
 			}
 		},
 		{
@@ -23,10 +20,7 @@
 			"inherits": [
 				"windows_msvc_base"
 			],
-			"architecture": "arm64",
-			"cacheVariables": {
-				"Launcher_BUILD_ARTIFACT": "Windows-MSVC-arm64-Qt6"
-			}
+			"architecture": "arm64"
 		},
 		{
 			"name": "windows_msvc_debug",
@@ -67,10 +61,7 @@
 				"base_ci",
 				"windows_msvc_base"
 			],
-			"displayName": "Windows MSVC (CI)",
-			"cacheVariables": {
-				"Launcher_BUILD_ARTIFACT": "Windows-MSVC-Qt6"
-			}
+			"displayName": "Windows MSVC (CI)"
 		},
 		{
 			"name": "windows_msvc_arm64_cross_ci",
@@ -78,10 +69,7 @@
 				"base_ci",
 				"windows_msvc_arm64_cross_base"
 			],
-			"displayName": "Windows MSVC (ARM64 cross, CI)",
-			"cacheVariables": {
-				"Launcher_BUILD_ARTIFACT": "Windows-MSVC-arm64-Qt6"
-			}
+			"displayName": "Windows MSVC (ARM64 cross, CI)"
 		}
 	],
 	"buildPresets": [

@@ -146,6 +146,7 @@ jobs:
       - name: Run CMake workflow
         env:
           CMAKE_PRESET: ${{ steps.cmake-preset.outputs.preset }}
+          ARTIFACT_NAME: ${{ matrix.artifact-name }}-Qt6
         run: |
           cmake --workflow --preset "$CMAKE_PRESET"
 
