@@ -2,8 +2,9 @@ name: Build
 
 on:
   push:
-    branches-ignore:
-      - "renovate/**"
+    branches:
+      - "develop"
+      - "release-*"
     paths:
       # File types
       - "**.cpp"

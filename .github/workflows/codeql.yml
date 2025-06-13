@@ -2,6 +2,9 @@ name: "CodeQL Code Scanning"
 
 on:
   push:
+    branches:
+      - "develop"
+      - "release-*"
     paths:
       # File types
       - "**.cpp"
