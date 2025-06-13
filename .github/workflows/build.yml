@@ -126,6 +126,7 @@ jobs:
         uses: ./.github/actions/setup-dependencies
         with:
           build-type: ${{ inputs.build-type || 'Debug' }}
+          artifact-name: ${{ matrix.artifact-name }}
           msystem: ${{ matrix.msystem }}
           vcvars-arch: ${{ matrix.vcvars-arch }}
           qt-architecture: ${{ matrix.qt-architecture }}
