@@ -2,6 +2,9 @@ name: Flatpak
 
 on:
   push:
+    branches:
+      - "develop"
+      - "release-*"
     # We don't do anything with these artifacts on releases. They go to Flathub
     tags-ignore:
       - "*"

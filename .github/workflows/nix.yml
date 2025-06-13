@@ -2,6 +2,9 @@ name: Nix
 
 on:
   push:
+    branches:
+      - "develop"
+      - "release-*"
     tags:
       - "*"
     paths:
