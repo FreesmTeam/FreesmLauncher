@@ -298,7 +298,12 @@ QString AssetObject::getLocalPath()
 
 QUrl AssetObject::getUrl()
 {
-    return BuildConfig.RESOURCE_BASE + getRelPath();
+    auto s = APPLICATION->settings();
+    auto resourceURL = s->get("ResourceURLOverride").toString();
+    if (resourceURL.isEmpty()) {
+        return BuildConfig.DEFAULT_RESOURCE_BASE + getRelPath();
+    }
+    return resourceURL + getRelPath();
 }
 
 QString AssetObject::getRelPath()
