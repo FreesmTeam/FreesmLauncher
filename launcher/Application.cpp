@@ -866,13 +866,13 @@ Application::Application(int& argc, char** argv) : QApplication(argc, argv)
                 m_settings->reset("MetaURLOverride");
 
             // Resource URL
-            m_settings->registerSetting("ResourceURLOverride", "");
+            m_settings->registerSetting("ResourceURL", BuildConfig.DEFAULT_RESOURCE_BASE);
 
-            QUrl resourceUrl(m_settings->get("ResourceURLOverride").toString());
+            QUrl resourceUrl(m_settings->get("ResourceURL").toString());
 
             // get rid of invalid resource urls
             if (!resourceUrl.isValid() || (resourceUrl.scheme() != "http" && resourceUrl.scheme() != "https"))
-                m_settings->reset("ResourceURLOverride");
+                m_settings->reset("ResourceURL");
         }
 
         m_settings->registerSetting("CloseAfterLaunch", false);

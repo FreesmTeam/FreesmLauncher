@@ -1,5 +1,6 @@
 #include "AssetUpdateTask.h"
 
+#include "BuildConfig.h"
 #include "launch/LaunchStep.h"
 #include "minecraft/AssetsUtils.h"
 #include "minecraft/MinecraftInstance.h"
@@ -71,15 +72,12 @@ void AssetUpdateTask::assetIndexFinished()
 
     auto job = index.getDownloadJob();
     if (job) {
-        QString resourceURLRaw;
-        auto statusText = tr("Getting the assets files from Mojang...");
-        resourceURLRaw = APPLICATION->settings()->get("ResourceURLOverride").toString();
-        // FIXME: Need translation
-        if (!resourceURLRaw.isEmpty()) {
-            QUrl resourceURL = QUrl(resourceURLRaw);
-            statusText.replace("Mojang", resourceURL.host());
+        QString resourceURL = APPLICATION->settings()->get("ResourceURL").toString();
+        QString source = tr("Mojang");
+        if (resourceURL != BuildConfig.DEFAULT_RESOURCE_BASE) {
+            source = QUrl(resourceURL).host();
         }
-        setStatus(statusText);
+        setStatus(tr("Getting the assets files from %1...").arg(source));
         downloadJob = job;
         connect(downloadJob.get(), &NetJob::succeeded, this, &AssetUpdateTask::emitSucceeded);
         connect(downloadJob.get(), &NetJob::failed, this, &AssetUpdateTask::assetsFailed);

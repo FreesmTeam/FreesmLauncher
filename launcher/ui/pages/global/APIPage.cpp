@@ -138,7 +138,7 @@ void APIPage::loadSettings()
     ui->msaClientID->setText(msaClientID);
     QString metaURL = s->get("MetaURLOverride").toString();
     ui->metaURL->setText(metaURL);
-    QString resourceURL = s->get("ResourceURLOverride").toString();
+    QString resourceURL = s->get("ResourceURL").toString();
     ui->resourceURL->setText(resourceURL);
     QString flameKey = s->get("FlameKeyOverride").toString();
     ui->flameKey->setText(flameKey);
@@ -183,7 +183,7 @@ void APIPage::applySettings()
     }
 
     s->set("MetaURLOverride", metaURL.toString());
-    s->set("ResourceURLOverride", resourceURL.toString());
+    s->set("ResourceURL", resourceURL.toString());
     QString flameKey = ui->flameKey->text();
     s->set("FlameKeyOverride", flameKey);
     QString modrinthToken = ui->modrinthToken->text();
