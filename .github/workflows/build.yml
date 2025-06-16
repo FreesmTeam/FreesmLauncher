@@ -74,6 +74,14 @@ jobs:
             artifact-name: Linux
             base-cmake-preset: linux
 
+            # NOTE(@getchoo): Yes, we're intentionally using 24.04 here!!!
+            #
+            # It's not really documented anywhere AFAICT, but upstream Qt binaries
+            # *for the same version* are compiled against 24.04 on ARM, and *not* 22.04 like x64
+          - os: ubuntu-24.04-arm
+            artifact-name: Linux-aarch64
+            base-cmake-preset: linux
+
           - os: windows-2022
             artifact-name: Windows-MinGW-w64
             base-cmake-preset: windows_mingw
@@ -127,6 +135,7 @@ jobs:
         uses: ./.github/actions/setup-dependencies
         with:
           build-type: ${{ inputs.build-type || 'Debug' }}
+          artifact-name: ${{ matrix.artifact-name }}
           msystem: ${{ matrix.msystem }}
           vcvars-arch: ${{ matrix.vcvars-arch }}
           qt-architecture: ${{ matrix.qt-architecture }}
@@ -146,6 +155,9 @@ jobs:
       - name: Run CMake workflow
         env:
           CMAKE_PRESET: ${{ steps.cmake-preset.outputs.preset }}
+
+          ARTIFACT_NAME: ${{ matrix.artifact-name }}-Qt6
+          BUILD_PLATFORM: official
         run: |
           cmake --workflow --preset "$CMAKE_PRESET"
 
@@ -165,6 +177,7 @@ jobs:
         with:
           version: ${{ steps.short-version.outputs.version }}
           build-type: ${{ steps.setup-dependencies.outputs.build-type }}
+          artifact-name: ${{ matrix.artifact-name }}
           cmake-preset: ${{ steps.cmake-preset.outputs.preset }}
           qt-version: ${{ steps.setup-dependencies.outputs.qt-version }}
 
