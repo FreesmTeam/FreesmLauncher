@@ -434,14 +434,15 @@ bool PackInstallTask::createLibrariesComponent(QString instanceRoot, std::shared
     QList<GradleSpecifier> exempt;
     for (const auto& componentUid : componentsToInstall.keys()) {
         auto componentVersion = componentsToInstall.value(componentUid);
-
-        for (const auto& library : componentVersion->data()->libraries) {
-            GradleSpecifier lib(library->rawName());
-            exempt.append(lib);
+        if (componentVersion->data()) {
+            for (const auto& library : componentVersion->data()->libraries) {
+                GradleSpecifier lib(library->rawName());
+                exempt.append(lib);
+            }
         }
     }
 
-    {
+    if (minecraftVersion->data()) {
         for (const auto& library : minecraftVersion->data()->libraries) {
             GradleSpecifier lib(library->rawName());
             exempt.append(lib);
@@ -582,10 +583,12 @@ bool PackInstallTask::createPackComponent(QString instanceRoot, std::shared_ptr<
     for (const auto& componentUid : componentsToInstall.keys()) {
         auto componentVersion = componentsToInstall.value(componentUid);
 
-        if (componentVersion->data()->mainClass != QString("")) {
-            mainClasses.append(componentVersion->data()->mainClass);
+        if (componentVersion->data()) {
+            if (componentVersion->data()->mainClass != QString("")) {
+                mainClasses.append(componentVersion->data()->mainClass);
+            }
+            tweakers.append(componentVersion->data()->addTweakers);
         }
-        tweakers.append(componentVersion->data()->addTweakers);
     }
 
     auto f = std::make_shared<VersionFile>();
