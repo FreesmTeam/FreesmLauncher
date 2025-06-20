@@ -108,10 +108,10 @@
   </action>
   <action name="actionAddElyby">
    <property name="text">
-    <string>Add Elyby</string>
+    <string>Add Ely.by</string>
    </property>
    <property name="toolTip">
-    <string>Add Elyby</string>
+    <string>Add Ely.by account</string>
    </property>
   </action>
  </widget>
