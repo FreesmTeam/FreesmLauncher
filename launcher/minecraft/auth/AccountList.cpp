@@ -310,7 +310,7 @@ QVariant AccountList::data(const QModelIndex& index, int role) const
                             return tr("Offline", "Account type");
                         }
                         case AccountType::Elyby: {
-                            return tr("Elyby", "Account type");
+                            return tr("Ely.by", "Account type");
                         }
                     }
                     return tr("Unknown", "Account type");

@@ -393,7 +393,7 @@ QString AccountData::accountDisplayString() const
             return "Xbox profile missing";
         }
         case AccountType::Elyby: {
-        return "Elyby";
+            return "Ely.by";
         }
         default: {
             return "Invalid Account";
