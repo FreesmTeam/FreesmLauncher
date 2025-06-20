@@ -18,26 +18,24 @@
 
 #pragma once
 
-#include "minecraft/auth/AuthStep.h"
-#include "net/NetJob.h"
-#include "net/Upload.h"
+#include "minecraft/auth/custom/steps/CustomRefreshStep.h"
 
-class ElybyRefreshStep : public AuthStep {
+class ElybyRefreshStep : public CustomRefreshStep {
     Q_OBJECT
 
    public:
     explicit ElybyRefreshStep(AccountData* data);
-    virtual ~ElybyRefreshStep() noexcept = default;
+    virtual ~ElybyRefreshStep() = default;
 
-    void perform() override;
+    QString describe() override { return tr("Ely.by account refreshing"); }
 
-    QString describe() override { return tr("Elyby refreshing"); }
+   protected:
+    QString authType() override { return "Ely.by"; }
 
-    private slots:
-     void onRequestDone();
+    QString authUrl() override { return "https://authserver.ely.by"; }
 
-private:
-    std::shared_ptr<QByteArray> m_response;
-    Net::Upload::Ptr m_request;
-    NetJob::Ptr m_task;
+    void setSkin();
+
+   protected slots:
+    void onRequestDone() override;
 };

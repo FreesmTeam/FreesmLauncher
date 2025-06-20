@@ -312,6 +312,9 @@ QVariant AccountList::data(const QModelIndex& index, int role) const
                         case AccountType::Elyby: {
                             return tr("Ely.by", "Account type");
                         }
+                        case AccountType::Custom: {
+                            return tr("Custom", "Account type");
+                        }
                     }
                     return tr("Unknown", "Account type");
                 }

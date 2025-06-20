@@ -19,9 +19,10 @@
 #include <QPainter>
 
 #include "BaseAccount.h"
+
+#include "minecraft/auth/elyby/ElybyAccount.h"
 #include "minecraft/auth/msa/MSAAccount.h"
 #include "minecraft/auth/offline/OfflineAccount.h"
-#include "msa/MSAAccount.h"
 
 BaseAccount::BaseAccount(QObject* parent) : QObject(parent)
 {
@@ -30,7 +31,20 @@ BaseAccount::BaseAccount(QObject* parent) : QObject(parent)
 
 BaseAccountPtr BaseAccount::loadFromJsonV3(const QJsonObject& json)
 {
-    BaseAccountPtr account(new MSAAccount());
+    BaseAccountPtr account;
+    auto type = json["type"].toString();
+    if (type == "MSA") {
+        account = makeShared<MSAAccount>();
+    } else if (type == "Offline") {
+        account = makeShared<OfflineAccount>();
+    } else if (type == "Elyby") {
+        account = makeShared<ElybyAccount>();
+    } else if (type == "Custom") {
+        account = makeShared<CustomAccount>(json["authUrl"].toString());
+    } else {
+        qDebug() << "Unrecognized account type, skipped";
+        return nullptr;
+    }
     if (account->data.resumeStateFromV3(json)) {
         return account;
     }
@@ -57,6 +71,21 @@ QUuid BaseAccount::uuidFromUsername(QString username)
     bOr(digest, 8, (char)0x80);   // set to IETF variant
 
     return QUuid::fromRfc4122(digest);
+}
+
+shared_qobject_ptr<AuthFlow> BaseAccount::refresh()
+{
+    if (m_currentTask) {
+        return m_currentTask;
+    }
+
+    m_currentTask.reset(new AuthFlow(&data, AuthFlow::Action::Refresh));
+
+    connect(m_currentTask.get(), &Task::succeeded, this, &BaseAccount::authSucceeded);
+    connect(m_currentTask.get(), &Task::failed, this, &BaseAccount::authFailed);
+    connect(m_currentTask.get(), &Task::aborted, this, [this] { authFailed(tr("Aborted")); });
+    emit activityChanged(true);
+    return m_currentTask;
 }
 
 QPixmap BaseAccount::getFace() const
@@ -111,6 +140,7 @@ bool BaseAccount::shouldRefresh() const
     }
     return false;
 }
+
 void BaseAccount::fillSession(AuthSessionPtr session, SettingsObjectPtr instanceSettings)
 {
     if (ownsMinecraft() && !hasProfile()) {
@@ -150,7 +180,7 @@ void BaseAccount::fillSession(AuthSessionPtr session, SettingsObjectPtr instance
     }
 
     const auto useAuthlibInjector = instanceSettings->get("UseElyAuthlibInjector").toBool();
-    if (accountType() == AccountType::Elyby && useAuthlibInjector) {
+    if ((accountType() == AccountType::Elyby && useAuthlibInjector) || accountType() == AccountType::Custom) {
         session->wants_authlib_injector = true;
     }
 
@@ -195,5 +225,42 @@ void BaseAccount::authSucceeded()
 {
     m_currentTask.reset();
     emit changed();
+    emit activityChanged(false);
+}
+
+void BaseAccount::authFailed(QString reason)
+{
+    switch (m_currentTask->taskState()) {
+        case AccountTaskState::STATE_OFFLINE:
+        case AccountTaskState::STATE_DISABLED: {
+            // NOTE: user will need to fix this themselves.
+        }
+        case AccountTaskState::STATE_FAILED_SOFT: {
+            // NOTE: this doesn't do much. There was an error of some sort.
+        } break;
+        case AccountTaskState::STATE_FAILED_HARD: {
+            if (accountType() == AccountType::MSA) {
+                data.msaToken.token = QString();
+                data.msaToken.refresh_token = QString();
+                data.msaToken.validity = Validity::None;
+                data.validity_ = Validity::None;
+            } else {
+                data.yggdrasilToken.token = QString();
+                data.yggdrasilToken.validity = Validity::None;
+                data.validity_ = Validity::None;
+            }
+            emit changed();
+        } break;
+        case AccountTaskState::STATE_FAILED_GONE: {
+            data.validity_ = Validity::None;
+            emit changed();
+        } break;
+        case AccountTaskState::STATE_CREATED:
+        case AccountTaskState::STATE_WORKING:
+        case AccountTaskState::STATE_SUCCEEDED: {
+            // Not reachable here, as they are not failures.
+        }
+    }
+    m_currentTask.reset();
     emit activityChanged(false);
 }

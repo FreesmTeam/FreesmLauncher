@@ -18,27 +18,22 @@
 
 #pragma once
 
-#include "minecraft/auth/AuthStep.h"
-#include "net/NetJob.h"
-#include "net/Upload.h"
+#include "minecraft/auth/custom/steps/CustomAuthStep.h"
 
-class ElybyAuthStep : public AuthStep {
+class ElybyAuthStep : public CustomAuthStep {
     Q_OBJECT
 
    public:
-    explicit ElybyAuthStep(AccountData* data, QString password);
+    ElybyAuthStep(AccountData* data, QString password);
     virtual ~ElybyAuthStep() noexcept = default;
 
-    void perform() override;
+    QString describe() override { return tr("Ely.by account authentication"); }
 
-    QString describe() override { return tr("Elyby authentication"); }
+   protected:
+    QString authType() override { return "Ely.by"; }
 
-   private slots:
-    void onRequestDone();
+    void setSkin();
 
-   private:
-    std::shared_ptr<QByteArray> m_response;
-    Net::Upload::Ptr m_request;
-    NetJob::Ptr m_task;
-    QString m_password;
+   protected slots:
+    void onRequestDone() override;
 };

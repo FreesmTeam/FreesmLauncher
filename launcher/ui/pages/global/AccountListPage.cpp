@@ -44,6 +44,7 @@
 
 #include <QDebug>
 
+#include "ui/dialogs/CustomLoginDialog.h"
 #include "ui/dialogs/CustomMessageBox.h"
 #include "ui/dialogs/ElybyLoginDialog.h"
 #include "ui/dialogs/MSALoginDialog.h"
@@ -165,6 +166,17 @@ void AccountListPage::on_actionAddOffline_triggered()
 void AccountListPage::on_actionAddElyby_triggered()
 {
     auto account = ElybyLoginDialog::newAccount(this, tr("Please enter your username and password of Ely.by account."));
+    if (account) {
+        m_accounts->addAccount(account);
+        if (m_accounts->count() == 1) {
+            m_accounts->setDefaultAccount(account);
+        }
+    }
+}
+
+void AccountListPage::on_actionAddCustom_triggered()
+{
+    auto account = CustomLoginDialog::newAccount(this, "Please enter authentication server URL, your username and password.");
     if (account) {
         m_accounts->addAccount(account);
         if (m_accounts->count() == 1) {
