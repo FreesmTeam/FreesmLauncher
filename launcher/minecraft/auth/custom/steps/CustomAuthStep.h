@@ -18,6 +18,8 @@
 
 #pragma once
 
+#include "BuildConfig.h"
+#include "minecraft/auth/AuthFlow.h"
 #include "minecraft/auth/AuthStep.h"
 #include "net/NetJob.h"
 #include "net/Upload.h"
@@ -26,7 +28,7 @@ class CustomAuthStep : public AuthStep {
     Q_OBJECT
 
    public:
-    CustomAuthStep(AccountData* data, QString password);
+    CustomAuthStep(AccountData* data, AuthFlow::Action action, QString password);
     virtual ~CustomAuthStep() noexcept = default;
 
     void perform() override;
@@ -35,6 +37,16 @@ class CustomAuthStep : public AuthStep {
 
    protected:
     virtual QString authType() { return "Custom"; }
+
+    virtual QString authUrl() { return m_data->authUrl; }
+
+    virtual QString clientID() { return BuildConfig.LAUNCHER_NAME; }
+
+    virtual QString requestUrl();
+
+    QString requestTemplate();
+
+    QString fillRequest();
 
     bool parseResponse();
 
@@ -47,4 +59,5 @@ class CustomAuthStep : public AuthStep {
     NetJob::Ptr m_task;
 
     const QString m_password;
+    const AuthFlow::Action m_action;
 };

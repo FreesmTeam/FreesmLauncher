@@ -18,19 +18,25 @@
 
 #pragma once
 
+#include "Application.h"
+#include "minecraft/auth/AuthFlow.h"
 #include "minecraft/auth/custom/steps/CustomAuthStep.h"
 
 class ElybyAuthStep : public CustomAuthStep {
     Q_OBJECT
 
    public:
-    ElybyAuthStep(AccountData* data, QString password);
+    ElybyAuthStep(AccountData* data, AuthFlow::Action action, QString password);
     virtual ~ElybyAuthStep() noexcept = default;
 
     QString describe() override { return tr("Ely.by account authentication"); }
 
    protected:
     QString authType() override { return "Ely.by"; }
+
+    QString authUrl() override { return "https://authserver.ely.by"; }
+
+    QString clientID() override { return APPLICATION->getElybyClientID(); }
 
     void setSkin();
 
