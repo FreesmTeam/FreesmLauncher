@@ -20,14 +20,21 @@
 
 #include "minecraft/auth/BaseAccount.h"
 
-class OfflineAccount;
+class CustomAccount;
 
-using OfflineAccountPtr = shared_qobject_ptr<OfflineAccount>;
-Q_DECLARE_METATYPE(OfflineAccountPtr)
+using CustomAccountPtr = shared_qobject_ptr<CustomAccount>;
+Q_DECLARE_METATYPE(CustomAccountPtr)
 
-class OfflineAccount : public BaseAccount {
-   public:
-    static OfflineAccountPtr createOffline(const QString& username);
+class CustomAccount : public BaseAccount {
+    Q_OBJECT
+   public: /*constructions*/
+    explicit CustomAccount(QObject* parent = 0);
 
-    shared_qobject_ptr<AuthFlow> login();
+    explicit CustomAccount(const QString& authUrl, QObject* parent = 0);
+
+   public: /* static methods */
+    static CustomAccountPtr createCustom(const QString& login, const QString& authUrl);
+
+   public: /* methods */
+    shared_qobject_ptr<AuthFlow> login(QString password);
 };

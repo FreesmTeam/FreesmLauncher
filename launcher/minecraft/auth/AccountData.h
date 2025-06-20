@@ -88,7 +88,7 @@ struct MinecraftProfile {
     Validity validity = Validity::None;
 };
 
-enum class AccountType { MSA, Offline, Elyby };
+enum class AccountType { MSA, Offline, Elyby, Custom };
 
 enum class AccountState { Unchecked, Offline, Working, Online, Disabled, Errored, Expired, Gone };
 
@@ -115,6 +115,9 @@ struct AccountData {
     Token userToken;
     Token xboxApiToken;
     Token mojangservicesToken;
+
+    //! Custom accounts only
+    QString authUrl;
 
     Token yggdrasilToken;
     MinecraftProfile minecraftProfile;

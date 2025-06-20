@@ -18,7 +18,7 @@
 
 #include "ElybyAccount.h"
 
-ElybyAccount::ElybyAccount(QObject* parent) {}
+ElybyAccount::ElybyAccount(QObject* parent) : CustomAccount("https://authserver.ely.by", parent) {}
 
 ElybyAccountPtr ElybyAccount::createElyby(const QString& login)
 {
@@ -26,65 +26,4 @@ ElybyAccountPtr ElybyAccount::createElyby(const QString& login)
     account->data.type = AccountType::Elyby;
     account->data.accountLogin = login;
     return account;
-}
-
-shared_qobject_ptr<AuthFlow> ElybyAccount::login(QString password)
-{
-    Q_ASSERT(m_currentTask.get() == nullptr);
-
-    m_currentTask.reset(new AuthFlow(&data, AuthFlow::Action::Login, password));
-    connect(m_currentTask.get(), &Task::succeeded, this, &ElybyAccount::authSucceeded);
-    connect(m_currentTask.get(), &Task::failed, this, &ElybyAccount::authFailed);
-    connect(m_currentTask.get(), &Task::aborted, this, [this] { authFailed(tr("Aborted")); });
-    emit activityChanged(true);
-
-    return m_currentTask;
-}
-
-shared_qobject_ptr<AuthFlow> ElybyAccount::refresh()
-{
-    if (m_currentTask) {
-        return m_currentTask;
-    }
-
-    m_currentTask.reset(new AuthFlow(&data, AuthFlow::Action::Refresh));
-
-    connect(m_currentTask.get(), &Task::succeeded, this, &ElybyAccount::authSucceeded);
-    connect(m_currentTask.get(), &Task::failed, this, &ElybyAccount::authFailed);
-    connect(m_currentTask.get(), &Task::aborted, this, [this] { authFailed(tr("Aborted")); });
-    emit activityChanged(true);
-    return m_currentTask;
-}
-
-void ElybyAccount::authFailed(QString reason)
-{
-    switch (m_currentTask->taskState()) {
-        case AccountTaskState::STATE_OFFLINE:
-        case AccountTaskState::STATE_DISABLED: {
-            // NOTE: user will need to fix this themselves.
-        }
-        case AccountTaskState::STATE_FAILED_SOFT: {
-            // NOTE: this doesn't do much. There was an error of some sort.
-        } break;
-        case AccountTaskState::STATE_FAILED_HARD: {
-            data.yggdrasilToken = Token();
-            data.clientID = QString();
-            data.accountLogin = QString();
-
-            data.validity_ = Validity::None;
-
-            emit changed();
-        } break;
-        case AccountTaskState::STATE_FAILED_GONE: {
-            data.validity_ = Validity::None;
-            emit changed();
-        } break;
-        case AccountTaskState::STATE_CREATED:
-        case AccountTaskState::STATE_WORKING:
-        case AccountTaskState::STATE_SUCCEEDED: {
-            // Not reachable here, as they are not failures.
-        }
-    }
-    m_currentTask.reset();
-    emit activityChanged(false);
 }

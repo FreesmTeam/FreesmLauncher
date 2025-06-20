@@ -18,16 +18,33 @@
 
 #pragma once
 
-#include "minecraft/auth/BaseAccount.h"
+#include "minecraft/auth/AuthStep.h"
+#include "net/NetJob.h"
+#include "net/Upload.h"
 
-class OfflineAccount;
+class CustomAuthStep : public AuthStep {
+    Q_OBJECT
 
-using OfflineAccountPtr = shared_qobject_ptr<OfflineAccount>;
-Q_DECLARE_METATYPE(OfflineAccountPtr)
-
-class OfflineAccount : public BaseAccount {
    public:
-    static OfflineAccountPtr createOffline(const QString& username);
+    CustomAuthStep(AccountData* data, QString password);
+    virtual ~CustomAuthStep() noexcept = default;
 
-    shared_qobject_ptr<AuthFlow> login();
+    void perform() override;
+
+    QString describe() override { return tr("Custom account authentication"); }
+
+   protected:
+    virtual QString authType() { return "Custom"; }
+
+    bool parseResponse();
+
+   protected slots:
+    virtual void onRequestDone();
+
+   protected:
+    std::shared_ptr<QByteArray> m_response;
+    Net::Upload::Ptr m_request;
+    NetJob::Ptr m_task;
+
+    const QString m_password;
 };

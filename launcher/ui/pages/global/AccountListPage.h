@@ -73,6 +73,7 @@ class AccountListPage : public QMainWindow, public BasePage {
     void on_actionAddMicrosoft_triggered();
     void on_actionAddOffline_triggered();
     void on_actionAddElyby_triggered();
+    void on_actionAddCustom_triggered();
     void on_actionRemove_triggered();
     void on_actionRefresh_triggered();
     void on_actionSetDefault_triggered();
