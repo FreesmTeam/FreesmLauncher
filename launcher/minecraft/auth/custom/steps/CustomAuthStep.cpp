@@ -24,22 +24,15 @@
 
 #include <utility>
 
-CustomAuthStep::CustomAuthStep(AccountData* data, QString password) : AuthStep(data), m_password(std::move(password)) {}
+CustomAuthStep::CustomAuthStep(AccountData* data, AuthFlow::Action action, QString password)
+    : AuthStep(data), m_password(std::move(password)), m_action(action)
+{}
 
 void CustomAuthStep::perform()
 {
-    const QString requestUrl("/auth/authenticate");
-    const QUrl url(m_data->authUrl + requestUrl);
+    const QUrl url(authUrl() + requestUrl());
+    const QString requestData = fillRequest();
 
-    const QString requestTemplate = R"XXX(
-{
-    "username": "%1",
-    "password": "%2",
-    "clientToken": "%3",
-    "requestUser": false
-}
-)XXX";
-    const QString requestData = requestTemplate.arg(m_data->accountLogin, m_password, QString::number(0));
     m_response.reset(new QByteArray());
     m_request = Net::Upload::makeByteArray(url, m_response, requestData.toUtf8());
 
@@ -51,6 +44,42 @@ void CustomAuthStep::perform()
 
     m_task->start();
     qDebug() << "Getting authorization token for " + authType() + " account";
+}
+
+QString CustomAuthStep::requestUrl()
+{
+    return m_action == AuthFlow::Action::Login ? "/auth/authenticate" : "/auth/refresh";
+}
+
+QString CustomAuthStep::requestTemplate()
+{
+    if (m_action == AuthFlow::Action::Login) {
+        return R"XXX(
+{
+    "username": "%1",
+    "password": "%2",
+    "clientToken": "%3",
+    "requestUser": false
+}
+)XXX";
+    } else {
+        return R"XXX(
+{
+    "accessToken": "%1",
+    "clientToken": "%2",
+    "requestUser": false
+}
+)XXX";
+    }
+}
+
+QString CustomAuthStep::fillRequest()
+{
+    if (m_action == AuthFlow::Action::Login) {
+        return requestTemplate().arg(m_data->accountLogin, m_password, clientID());
+    } else {
+        return requestTemplate().arg(m_data->yggdrasilToken.token, m_data->clientID);
+    }
 }
 
 bool CustomAuthStep::parseResponse()

@@ -232,8 +232,8 @@ set(MINECRAFT_SOURCES
     minecraft/auth/offline/OfflineAccount.h
     minecraft/auth/elyby/ElybyAccount.cpp
     minecraft/auth/elyby/ElybyAccount.h
-        minecraft/auth/custom/CustomAccount.cpp
-        minecraft/auth/custom/CustomAccount.h
+    minecraft/auth/custom/CustomAccount.cpp
+    minecraft/auth/custom/CustomAccount.h
 
     minecraft/auth/Parsers.cpp
     minecraft/auth/Parsers.h
@@ -262,13 +262,9 @@ set(MINECRAFT_SOURCES
 
     minecraft/auth/elyby/steps/ElybyAuthStep.cpp
     minecraft/auth/elyby/steps/ElybyAuthStep.h
-    minecraft/auth/elyby/steps/ElybyRefreshStep.cpp
-    minecraft/auth/elyby/steps/ElybyRefreshStep.h
 
-        minecraft/auth/custom/steps/CustomAuthStep.cpp
-        minecraft/auth/custom/steps/CustomAuthStep.h
-        minecraft/auth/custom/steps/CustomRefreshStep.cpp
-        minecraft/auth/custom/steps/CustomRefreshStep.h
+    minecraft/auth/custom/steps/CustomAuthStep.cpp
+    minecraft/auth/custom/steps/CustomAuthStep.h
 
     minecraft/gameoptions/GameOptions.h
     minecraft/gameoptions/GameOptions.cpp
@@ -284,8 +280,8 @@ set(MINECRAFT_SOURCES
 
     minecraft/launch/ApplyLibraryOverrides.cpp
     minecraft/launch/ApplyLibraryOverrides.h
-        minecraft/launch/ApplyAuthlibInjector.cpp
-        minecraft/launch/ApplyAuthlibInjector.h
+    minecraft/launch/ApplyAuthlibInjector.cpp
+    minecraft/launch/ApplyAuthlibInjector.h
     minecraft/launch/ClaimAccount.cpp
     minecraft/launch/ClaimAccount.h
     minecraft/launch/CreateGameFolders.cpp
@@ -332,8 +328,8 @@ set(MINECRAFT_SOURCES
     minecraft/ParseUtils.h
     minecraft/ProfileUtils.cpp
     minecraft/ProfileUtils.h
-        minecraft/ScreenshotsWatcher.cpp
-        minecraft/ScreenshotsWatcher.h
+    minecraft/ScreenshotsWatcher.cpp
+    minecraft/ScreenshotsWatcher.h
     minecraft/Library.cpp
     minecraft/Library.h
     minecraft/MojangDownloadInfo.h
@@ -1083,8 +1079,8 @@ SET(LAUNCHER_SOURCES
     ui/dialogs/OfflineLoginDialog.h
     ui/dialogs/ElybyLoginDialog.cpp
     ui/dialogs/ElybyLoginDialog.h
-        ui/dialogs/CustomLoginDialog.cpp
-        ui/dialogs/CustomLoginDialog.h
+    ui/dialogs/CustomLoginDialog.cpp
+    ui/dialogs/CustomLoginDialog.h
     ui/dialogs/NewComponentDialog.cpp
     ui/dialogs/NewComponentDialog.h
     ui/dialogs/NewInstanceDialog.cpp

@@ -18,7 +18,8 @@
 
 #include "ElybyAuthStep.h"
 
-ElybyAuthStep::ElybyAuthStep(AccountData* data, QString password) : CustomAuthStep(data, std::move(password))
+ElybyAuthStep::ElybyAuthStep(AccountData* data, AuthFlow::Action action, QString password)
+    : CustomAuthStep(data, action, std::move(password))
 {}
 
 void ElybyAuthStep::setSkin()
@@ -29,7 +30,8 @@ void ElybyAuthStep::setSkin()
 void ElybyAuthStep::onRequestDone()
 {
     if (!parseResponse()) {
-        emit finished(AccountTaskState::STATE_OFFLINE, tr("Failed to get authorization for %1 account: %2").arg(authType(), m_request->errorString()));
+        emit finished(AccountTaskState::STATE_OFFLINE,
+                      tr("Failed to get authorization for %1 account: %2").arg(authType(), m_request->errorString()));
         return;
     }
     setSkin();
