@@ -92,6 +92,8 @@ class LaunchProfile : public ProblemProvider {
     ProblemSeverity getProblemSeverity() const override;
     const QList<PatchProblem> getProblems() const override;
 
+    QList<LibraryPtr>& libraries();
+
    private:
     /// the version of Minecraft - jar to use
     QString m_minecraftVersion;
