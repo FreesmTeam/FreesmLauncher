@@ -953,7 +953,7 @@ SET(LAUNCHER_SOURCES
     ui/pages/instance/McResolver.h
     ui/pages/instance/ServerPingTask.cpp
     ui/pages/instance/ServerPingTask.h
-    
+
     # GUI - global settings pages
     ui/pages/global/AccountListPage.cpp
     ui/pages/global/AccountListPage.h
@@ -1314,6 +1314,7 @@ target_link_libraries(Launcher_logic
     systeminfo
     Launcher_murmur2
     nbt++
+    discord-rpc
     ${ZLIB_LIBRARIES}
     tomlplusplus::tomlplusplus
     qdcss
