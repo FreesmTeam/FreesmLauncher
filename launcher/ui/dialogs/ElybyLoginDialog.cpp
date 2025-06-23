@@ -23,6 +23,7 @@ ElybyLoginDialog::ElybyLoginDialog(QWidget *parent) : QDialog(parent), ui(new Ui
     ui->setupUi(this);
     ui->progressBar->setVisible(false);
     ui->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(false);
+    ui->twoFactorAuthTextBox->setVisible(false);
 
     connect(ui->buttonBox, &QDialogButtonBox::accepted, this, &QDialog::accept);
     connect(ui->buttonBox, &QDialogButtonBox::rejected, this, &QDialog::reject);
@@ -41,7 +42,11 @@ void ElybyLoginDialog::accept()
 
     // Setup the login task and start it
     m_account = ElybyAccount::createElyby(ui->userTextBox->text());
-    m_loginTask = m_account->login(ui->passTextBox->text());
+    auto pass = ui->passTextBox->text();
+    if (!ui->twoFactorAuthTextBox->text().isEmpty()) {
+        pass += ':' + ui->twoFactorAuthTextBox->text();
+    }
+    m_loginTask = m_account->login(pass);
     connect(m_loginTask.get(), &Task::failed, this, &ElybyLoginDialog::onTaskFailed);
     connect(m_loginTask.get(), &Task::succeeded, this, &ElybyLoginDialog::onTaskSucceeded);
     connect(m_loginTask.get(), &Task::status, this, &ElybyLoginDialog::onTaskStatus);
@@ -86,6 +91,9 @@ void ElybyLoginDialog::onTaskFailed(const QString &reason)
     // Re-enable user-interaction
     setUserInputsEnabled(true);
     ui->progressBar->setVisible(false);
+    if (reason == "Account protected with two factor auth.") {
+        ui->twoFactorAuthTextBox->setVisible(true);
+    }
 }
 
 void ElybyLoginDialog::onTaskSucceeded()
