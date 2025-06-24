@@ -22,16 +22,17 @@
 
 CustomAccount::CustomAccount(QObject* parent) : BaseAccount(parent) {}
 
-CustomAccount::CustomAccount(const QString& authUrl, QObject* parent) : CustomAccount(parent)
+CustomAccountPtr CustomAccount::createCustom(const QString& login,
+                                             const QString& authUrl,
+                                             const QString& loginUrl,
+                                             const QString& refreshUrl)
 {
-    data.authUrl = authUrl;
-}
-
-CustomAccountPtr CustomAccount::createCustom(const QString& login, const QString& authUrl)
-{
-    CustomAccountPtr account(new CustomAccount(authUrl));
+    CustomAccountPtr account(new CustomAccount);
     account->data.type = AccountType::Custom;
     account->data.accountLogin = login;
+    account->data.authUrl = authUrl;
+    account->data.loginUrl = loginUrl;
+    account->data.refreshUrl = refreshUrl;
     return account;
 }
 

@@ -22,6 +22,11 @@ ElybyAuthStep::ElybyAuthStep(AccountData* data, AuthFlow::Action action, QString
     : CustomAuthStep(data, action, std::move(password))
 {}
 
+QString ElybyAuthStep::requestUrl()
+{
+    return m_action == AuthFlow::Action::Login ? "/auth/authenticate" : "/auth/refresh";
+}
+
 void ElybyAuthStep::setSkin()
 {
     m_data->minecraftProfile.skin.url = "http://skinsystem.ely.by/skins/" + m_data->minecraftProfile.name + ".png";

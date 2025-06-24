@@ -27,6 +27,14 @@ CustomLoginDialog::CustomLoginDialog(QWidget* parent) : QDialog(parent), ui(new 
 
     connect(ui->buttonBox, &QDialogButtonBox::accepted, this, &QDialog::accept);
     connect(ui->buttonBox, &QDialogButtonBox::rejected, this, &QDialog::reject);
+
+    connect(ui->userTextBox, &QLineEdit::textChanged, this, &CustomLoginDialog::onTextBoxesChanged);
+    connect(ui->passTextBox, &QLineEdit::textChanged, this, &CustomLoginDialog::onTextBoxesChanged);
+    connect(ui->authUrlTextBox, &QLineEdit::textChanged, this, &CustomLoginDialog::onTextBoxesChanged);
+    connect(ui->loginUrlTextBox, &QLineEdit::textChanged, this, &CustomLoginDialog::onTextBoxesChanged);
+    connect(ui->refreshUrlTextBox, &QLineEdit::textChanged, this, &CustomLoginDialog::onTextBoxesChanged);
+
+    connect(ui->authUrlTextBox, &QLineEdit::textChanged, this, &CustomLoginDialog::onAuthUrlTextBoxChanged);
 }
 
 CustomLoginDialog::~CustomLoginDialog()
@@ -51,7 +59,8 @@ void CustomLoginDialog::accept()
     ui->progressBar->setVisible(true);
 
     // Setup the login task and start it
-    m_account = CustomAccount::createCustom(ui->userTextBox->text(), url.toString(QUrl::StripTrailingSlash));
+    m_account = CustomAccount::createCustom(ui->userTextBox->text(), url.toString(QUrl::StripTrailingSlash), ui->loginUrlTextBox->text(),
+                                            ui->refreshUrlTextBox->text());
     m_loginTask = m_account->login(ui->passTextBox->text());
     connect(m_loginTask.get(), &Task::failed, this, &CustomLoginDialog::onTaskFailed);
     connect(m_loginTask.get(), &Task::succeeded, this, &CustomLoginDialog::onTaskSucceeded);
@@ -69,20 +78,11 @@ void CustomLoginDialog::setUserInputsEnabled(bool enable)
 }
 
 // Enable the OK button only when both textboxes contain something.
-void CustomLoginDialog::on_authUrlTextBox_textEdited(const QString& newText)
+void CustomLoginDialog::onTextBoxesChanged()
 {
     ui->buttonBox->button(QDialogButtonBox::Ok)
-        ->setEnabled(!newText.isEmpty() && !ui->userTextBox->text().isEmpty() && !ui->passTextBox->text().isEmpty());
-}
-void CustomLoginDialog::on_userTextBox_textEdited(const QString& newText)
-{
-    ui->buttonBox->button(QDialogButtonBox::Ok)
-        ->setEnabled(!newText.isEmpty() && !ui->passTextBox->text().isEmpty() && !ui->authUrlTextBox->text().isEmpty());
-}
-void CustomLoginDialog::on_passTextBox_textEdited(const QString& newText)
-{
-    ui->buttonBox->button(QDialogButtonBox::Ok)
-        ->setEnabled(!newText.isEmpty() && !ui->userTextBox->text().isEmpty() && !ui->authUrlTextBox->text().isEmpty());
+        ->setEnabled(!ui->userTextBox->text().isEmpty() && !ui->passTextBox->text().isEmpty() && !ui->authUrlTextBox->text().isEmpty() &&
+                     !ui->loginUrlTextBox->text().isEmpty() && !ui->refreshUrlTextBox->text().isEmpty());
 }
 
 void CustomLoginDialog::onTaskFailed(const QString& reason)
@@ -118,6 +118,12 @@ void CustomLoginDialog::onTaskProgress(qint64 current, qint64 total)
 {
     ui->progressBar->setMaximum(total);
     ui->progressBar->setValue(current);
+}
+
+void CustomLoginDialog::onAuthUrlTextBoxChanged()
+{
+    ui->loginUrlTextBox->setText("/authserver/authenticate");
+    ui->refreshUrlTextBox->setText("/authserver/refresh");
 }
 
 // Public interface

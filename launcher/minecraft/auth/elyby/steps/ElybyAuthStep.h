@@ -38,6 +38,8 @@ class ElybyAuthStep : public CustomAuthStep {
 
     QString clientID() override { return APPLICATION->getElybyClientID(); }
 
+    QString requestUrl() override;
+
     void setSkin();
 
    protected slots:

@@ -118,6 +118,8 @@ struct AccountData {
 
     //! Custom accounts only
     QString authUrl;
+    QString loginUrl;
+    QString refreshUrl;
 
     Token yggdrasilToken;
     MinecraftProfile minecraftProfile;

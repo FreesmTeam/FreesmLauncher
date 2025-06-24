@@ -30,10 +30,8 @@ class CustomAccount : public BaseAccount {
    public: /*constructions*/
     explicit CustomAccount(QObject* parent = 0);
 
-    explicit CustomAccount(const QString& authUrl, QObject* parent = 0);
-
    public: /* static methods */
-    static CustomAccountPtr createCustom(const QString& login, const QString& authUrl);
+    static CustomAccountPtr createCustom(const QString& login, const QString& authUrl, const QString& loginUrl, const QString& refreshUrl);
 
    public: /* methods */
     shared_qobject_ptr<AuthFlow> login(QString password);

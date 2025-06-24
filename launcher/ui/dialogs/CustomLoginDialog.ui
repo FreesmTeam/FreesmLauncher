@@ -1,86 +1,98 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
-    <class>CustomLoginDialog</class>
-    <widget class="QDialog" name="CustomLoginDialog">
-        <property name="geometry">
-            <rect>
-                <x>0</x>
-                <y>0</y>
-                <width>420</width>
-                <height>197</height>
-            </rect>
-        </property>
-        <property name="sizePolicy">
-            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                <horstretch>0</horstretch>
-                <verstretch>0</verstretch>
-            </sizepolicy>
-        </property>
-        <property name="windowTitle">
-            <string>Add Account</string>
-        </property>
-        <layout class="QVBoxLayout" name="verticalLayout">
-            <item>
-                <widget class="QLabel" name="label">
-                    <property name="text">
-                        <string notr="true">Message label placeholder.</string>
-                    </property>
-                    <property name="textFormat">
-                        <enum>Qt::TextFormat::RichText</enum>
-                    </property>
-                    <property name="textInteractionFlags">
-                        <set>
-                            Qt::TextInteractionFlag::LinksAccessibleByKeyboard|Qt::TextInteractionFlag::LinksAccessibleByMouse|Qt::TextInteractionFlag::TextBrowserInteraction|Qt::TextInteractionFlag::TextSelectableByKeyboard|Qt::TextInteractionFlag::TextSelectableByMouse
-                        </set>
-                    </property>
-                </widget>
-            </item>
-            <item>
-                <widget class="QLineEdit" name="authUrlTextBox">
-                    <property name="placeholderText">
-                        <string>Auth URL</string>
-                    </property>
-                </widget>
-            </item>
-            <item>
-                <widget class="QLineEdit" name="userTextBox">
-                    <property name="placeholderText">
-                        <string>Email</string>
-                    </property>
-                </widget>
-            </item>
-            <item>
-                <widget class="QLineEdit" name="passTextBox">
-                    <property name="echoMode">
-                        <enum>QLineEdit::EchoMode::Password</enum>
-                    </property>
-                    <property name="placeholderText">
-                        <string>Password</string>
-                    </property>
-                </widget>
-            </item>
-            <item>
-                <widget class="QProgressBar" name="progressBar">
-                    <property name="value">
-                        <number>24</number>
-                    </property>
-                    <property name="textVisible">
-                        <bool>false</bool>
-                    </property>
-                </widget>
-            </item>
-            <item>
-                <widget class="QDialogButtonBox" name="buttonBox">
-                    <property name="orientation">
-                        <enum>Qt::Orientation::Horizontal</enum>
-                    </property>
-                    <property name="standardButtons">
-                        <set>QDialogButtonBox::StandardButton::Cancel|QDialogButtonBox::StandardButton::Ok</set>
-                    </property>
-                </widget>
-            </item>
-        </layout>
+ <class>CustomLoginDialog</class>
+ <widget class="QDialog" name="CustomLoginDialog">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>419</width>
+    <height>259</height>
+   </rect>
+  </property>
+  <property name="sizePolicy">
+   <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+    <horstretch>0</horstretch>
+    <verstretch>0</verstretch>
+   </sizepolicy>
+  </property>
+  <property name="windowTitle">
+   <string>Add Account</string>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout">
+   <item>
+    <widget class="QLabel" name="label">
+     <property name="text">
+      <string notr="true">Message label placeholder.</string>
+     </property>
+     <property name="textFormat">
+      <enum>Qt::TextFormat::RichText</enum>
+     </property>
+     <property name="textInteractionFlags">
+      <set>Qt::TextInteractionFlag::NoTextInteraction</set>
+     </property>
     </widget>
-    <resources/>
-    <connections/>
+   </item>
+   <item>
+    <widget class="QLineEdit" name="userTextBox">
+     <property name="placeholderText">
+      <string>Email</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QLineEdit" name="passTextBox">
+     <property name="echoMode">
+      <enum>QLineEdit::EchoMode::Password</enum>
+     </property>
+     <property name="placeholderText">
+      <string>Password</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QLineEdit" name="authUrlTextBox">
+     <property name="placeholderText">
+      <string>Auth URL</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QLineEdit" name="loginUrlTextBox">
+     <property name="placeholderText">
+      <string>Login URL (Leave the default value if you're not sure)</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QLineEdit" name="refreshUrlTextBox">
+     <property name="placeholderText">
+      <string>Refresh URL (Leave the default value if you're not sure)</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QProgressBar" name="progressBar">
+     <property name="value">
+      <number>24</number>
+     </property>
+     <property name="textVisible">
+      <bool>false</bool>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QDialogButtonBox" name="buttonBox">
+     <property name="orientation">
+      <enum>Qt::Orientation::Horizontal</enum>
+     </property>
+     <property name="standardButtons">
+      <set>QDialogButtonBox::StandardButton::Cancel|QDialogButtonBox::StandardButton::Ok</set>
+     </property>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections/>
 </ui>

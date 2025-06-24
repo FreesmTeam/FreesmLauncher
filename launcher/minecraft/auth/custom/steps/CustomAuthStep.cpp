@@ -48,7 +48,7 @@ void CustomAuthStep::perform()
 
 QString CustomAuthStep::requestUrl()
 {
-    return m_action == AuthFlow::Action::Login ? "/auth/authenticate" : "/auth/refresh";
+    return m_action == AuthFlow::Action::Login ? m_data->loginUrl : m_data->refreshUrl;
 }
 
 QString CustomAuthStep::requestTemplate()
