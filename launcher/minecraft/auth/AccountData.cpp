@@ -412,7 +412,11 @@ QString AccountData::accountDisplayString() const
         }
         case AccountType::Custom: {
             // return auth URL without "https://" prefix
-            return authUrl.mid(8);
+            const auto url = authUrl.split('/');
+            if (url.size() < 2) {
+                return "Invalid URL";
+            }
+            return url[2];
         }
         default: {
             return "Invalid Account";
