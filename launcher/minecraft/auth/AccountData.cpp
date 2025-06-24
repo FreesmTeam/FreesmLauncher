@@ -318,6 +318,8 @@ bool AccountData::resumeStateFromV3(QJsonObject data)
         case AccountType::Custom: {
             clientID = data.value("custom-client-id").toString();
             authUrl = data.value("auth-url").toString();
+            loginUrl = data.value("login-url").toString();
+            refreshUrl = data.value("refresh-url").toString();
         }
     }
 
@@ -363,6 +365,8 @@ QJsonObject AccountData::saveState() const
             output["type"] = "Custom";
             output["custom-client-id"] = clientID;
             output["auth-url"] = authUrl;
+            output["login-url"] = loginUrl;
+            output["refresh-url"] = refreshUrl;
         }
     }
 

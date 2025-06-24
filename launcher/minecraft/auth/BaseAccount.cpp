@@ -40,7 +40,7 @@ BaseAccountPtr BaseAccount::loadFromJsonV3(const QJsonObject& json)
     } else if (type == "Elyby") {
         account = makeShared<ElybyAccount>();
     } else if (type == "Custom") {
-        account = makeShared<CustomAccount>(json["authUrl"].toString());
+        account = makeShared<CustomAccount>();
     } else {
         qDebug() << "Unrecognized account type, skipped";
         return nullptr;
@@ -182,6 +182,17 @@ void BaseAccount::fillSession(AuthSessionPtr session, SettingsObjectPtr instance
     const auto useAuthlibInjector = instanceSettings->get("UseElyAuthlibInjector").toBool();
     if ((accountType() == AccountType::Elyby && useAuthlibInjector) || accountType() == AccountType::Custom) {
         session->wants_authlib_injector = true;
+    }
+
+    switch (accountType()) {
+        case AccountType::Elyby: {
+            session->authlib_injector_auth_url = "https://account.ely.by/api/authlib-injector";
+        } break;
+        case AccountType::Custom: {
+            session->authlib_injector_auth_url = data.authUrl;
+        } break;
+        default:
+            break;
     }
 
     // volatile auth token

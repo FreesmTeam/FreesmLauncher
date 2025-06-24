@@ -18,7 +18,7 @@
 
 #include "ElybyAccount.h"
 
-ElybyAccount::ElybyAccount(QObject* parent) : CustomAccount("https://authserver.ely.by", parent) {}
+ElybyAccount::ElybyAccount(QObject* parent) : CustomAccount(parent) {}
 
 ElybyAccountPtr ElybyAccount::createElyby(const QString& login)
 {
