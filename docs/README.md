@@ -2,6 +2,10 @@
   <img alt="DRM Free" src="https://img.shields.io/badge/drm-free-brightgreen?style=for-the-badge" />
   <img alt="built with garnix" src="https://img.shields.io/endpoint.svg?url=https%3A%2F%2Fgarnix.io%2Fapi%2Fbadges%2FFreesmTeam%2FFreesmLauncher" />
 </div>
+<br>
+<p align="center">
+  <a href="README_ru.md">🇷🇺 Русский</a> | <a href="README.md">🇬🇧 English</a>
+</p>
 
 # 🚀 Introduction
 
