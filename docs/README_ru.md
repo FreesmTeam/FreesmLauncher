@@ -56,9 +56,19 @@ Freesm — это **независимый форк Prism Launcher**, не св�
 
 ## 📊 Сравнение
 
-<div align="center">
-  <img src="https://eniuu.debil.club/downloads/mclaunchercomparisontable.jpg" alt="Сравнительная таблица лаунчеров" height="500px" />
-</div>
+| Функция                                       | Freesm  Launcher | Shattered  Prism | HMCL | Fjord   | PollyMC       | ElyPrism      | UltimMC | Prism-Cracked | Prism Launcher |
+|----------------------------------------------|------------------|------------------|------|---------|---------------|---------------|---------|---------------|----------------|
+| Оффлайн режим без аккаунта                      | ✅               | ✅               | ✅   | ❌      | ✅            | ✅            | ✅      | ✅            | ❌             |
+| Установка FTB мод-паков через лаунчер           | ✅               | ✅               | ❌   | ✅      | ✅            | ✅            | ❌      | ✅            | ✅             |
+| Поддержка ely.by                                | ✅               | ✅               | ✅   | ✅      | ✅            | ✅            | ✅      | ❌            | ❌             |
+| Поддержка Authlib-injector                      | ✅               | ✅               | ✅   | ✅      | ✅            | ❌            | ❌      | ❌            | ❌             |
+| Поддержка кастомного Authlib-injector           | ✅               | ✅               | ✅   | ✅      | ❌            | ❌            | ❌      | ❌            | ❌             |
+| Различия между серверами аутентификации         | ✅               | ✅               | ✅   | ✅      | ❌            | ❌            | ❌      | ❌            | ❌             |
+| Поддержка гифок для CatPack-ов                  | ✅               | ❌               | ❌   | ❌      | ❌            | ❌            | ❌      | ❌            | ❌             |
+| Обрезка CatPack-ов                              | ✅               | ❌               | ❌   | ❌      | ❌            | ❌            | ❌      | ❌            | ❌             |
+| Проверка Java выключена по умолчанию            | ✅               | ❌               | ❌   | ❌      | ❌            | ❌            | ❌      | ❌            | ❌             |
+| Форк                                            | PrismLauncher    | FjordLauncher    | ❌   | PollyMC | PrismLauncher | PrismLauncher | MultiMC| PrismLauncher | PolyMC         |
+
 
 ---
 
