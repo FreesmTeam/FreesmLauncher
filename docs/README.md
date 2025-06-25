@@ -56,9 +56,19 @@ All of its code is open source under GPL-3.0 (you can verify it yourself).
 
 ## 📊 Comparison
 
-<div align="center">
-  <img src="https://eniuu.debil.club/downloads/mclaunchercomparisontable.jpg" alt="Comparison table" height="738px" />
-</div>
+
+| Feature                                       | Freesm  Launcher | Shattered  Prism | HMCL | Fjord   | PollyMC       | ElyPrism      | UltimMC | Prism-Cracked | Prism Launcher |
+|----------------------------------------------|------------------|------------------|------|---------|---------------|---------------|---------|---------------|----------------|
+| Offline Mode without a Microsoft account      | ✅               | ✅               | ✅   | ❌      | ✅            | ✅            | ✅      | ✅            | ❌             |
+| Installing FTB packs using the launcher       | ✅               | ✅               | ❌   | ✅      | ✅            | ✅            | ❌      | ✅            | ✅             |
+| Ely.by support                                | ✅               | ✅               | ✅   | ✅      | ✅            | ✅            | ✅      | ❌            | ❌             |
+| Authlib-injector support                      | ✅               | ✅               | ✅   | ✅      | ✅            | ❌            | ❌      | ❌            | ❌             |
+| Custom Authlib-injector jar support           | ✅               | ✅               | ✅   | ✅      | ❌            | ❌            | ❌      | ❌            | ❌             |
+| Differentiating between auth servers          | ✅               | ✅               | ✅   | ✅      | ❌            | ❌            | ❌      | ❌            | ❌             |
+| GIF support for Cat Packs                     | ✅               | ❌               | ❌   | ❌      | ❌            | ❌            | ❌      | ❌            | ❌             |
+| Image Cropping for Cat Packs                  | ✅               | ❌               | ❌   | ❌      | ❌            | ❌            | ❌      | ❌            | ❌             |
+| Java Compatibility Checks disabled by default | ✅               | ❌               | ❌   | ❌      | ❌            | ❌            | ❌      | ❌            | ❌             |
+| Fork                                          | PrismLauncher    | FjordLauncher    | ❌   | PollyMC | PrismLauncher | PrismLauncher | MultiMC| PrismLauncher | PolyMC         |
 
 ---
 
