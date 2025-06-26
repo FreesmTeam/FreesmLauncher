@@ -67,9 +67,4 @@ class MSAAccount : public BaseAccount {
 
    public: /* methods */
     shared_qobject_ptr<AuthFlow> login(bool useDeviceCode = false);
-
-    shared_qobject_ptr<AuthFlow> refresh() override;
-
-   private slots:
-    void authFailed(QString reason) override;
 };

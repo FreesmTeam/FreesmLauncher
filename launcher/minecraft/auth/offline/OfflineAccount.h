@@ -26,14 +26,8 @@ using OfflineAccountPtr = shared_qobject_ptr<OfflineAccount>;
 Q_DECLARE_METATYPE(OfflineAccountPtr)
 
 class OfflineAccount : public BaseAccount {
-   public: /* static methods */
+   public:
     static OfflineAccountPtr createOffline(const QString& username);
 
-   public: /*methods*/
-    shared_qobject_ptr<AuthFlow> refresh() override { return m_currentTask; }
-
     shared_qobject_ptr<AuthFlow> login();
-
-   protected slots:
-    void authFailed(QString reason) override {}
 };

@@ -320,6 +320,11 @@ const QList<LibraryPtr>& LaunchProfile::getLibraries() const
     return m_libraries;
 }
 
+QList<LibraryPtr>& LaunchProfile::libraries()
+{
+    return m_libraries;
+}
+
 const QList<LibraryPtr>& LaunchProfile::getNativeLibraries() const
 {
     return m_nativeLibraries;
