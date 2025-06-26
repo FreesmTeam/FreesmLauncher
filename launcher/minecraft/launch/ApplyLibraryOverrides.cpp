@@ -18,7 +18,7 @@ void ApplyLibraryOverrides::executeTask()
 void ApplyLibraryOverrides::downloadLibraryOverrideList()
 {
     const auto libraryOverrideListUrl =
-        QUrl("https://raw.githubusercontent.com/ElyPrismLauncher/ElyPrismLauncher/refs/heads/develop/epl_metadata.json");
+        QUrl("https://raw.githubusercontent.com/FreesmTeam/FreesmLauncher/refs/heads/develop/epl_metadata.json");
     m_response = std::make_shared<QByteArray>();
     m_request = Net::Download::makeByteArray(libraryOverrideListUrl, m_response);
 
