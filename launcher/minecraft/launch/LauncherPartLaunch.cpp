@@ -94,8 +94,7 @@ void LauncherPartLaunch::executeTask()
     m_launchScript = instance->createLaunchScript(m_session, m_targetToJoin);
     QStringList args = instance->javaArguments();
     if (m_session->authlib_injector_ready) {
-        args.append("-javaagent:" + QDir::current().absoluteFilePath("authlib-injector.jar") +
-                    "=https://account.ely.by/api/authlib-injector");
+        args.append("-javaagent:" + QDir::current().absoluteFilePath("authlib-injector.jar") + '=' + m_session->authlib_injector_auth_url);
         args.append("-Dauthlibinjector.noShowServerName");
     }
     QString allArgs = args.join(", ");

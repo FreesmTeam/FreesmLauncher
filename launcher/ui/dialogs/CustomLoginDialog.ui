@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>ElybyLoginDialog</class>
- <widget class="QDialog" name="ElybyLoginDialog">
+ <class>CustomLoginDialog</class>
+ <widget class="QDialog" name="CustomLoginDialog">
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>427</width>
-    <height>197</height>
+    <width>419</width>
+    <height>259</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -29,7 +29,7 @@
       <enum>Qt::TextFormat::RichText</enum>
      </property>
      <property name="textInteractionFlags">
-      <set>Qt::TextInteractionFlag::LinksAccessibleByKeyboard|Qt::TextInteractionFlag::LinksAccessibleByMouse|Qt::TextInteractionFlag::TextBrowserInteraction|Qt::TextInteractionFlag::TextSelectableByKeyboard|Qt::TextInteractionFlag::TextSelectableByMouse</set>
+      <set>Qt::TextInteractionFlag::NoTextInteraction</set>
      </property>
     </widget>
    </item>
@@ -51,21 +51,23 @@
     </widget>
    </item>
    <item>
-    <widget class="QLineEdit" name="twoFactorAuthTextBox">
-     <property name="enabled">
-      <bool>true</bool>
-     </property>
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
-     </property>
-     <property name="text">
-      <string/>
-     </property>
+    <widget class="QLineEdit" name="authUrlTextBox">
      <property name="placeholderText">
-      <string>2FA code</string>
+      <string>Auth URL</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QLineEdit" name="loginUrlTextBox">
+     <property name="placeholderText">
+      <string>Login URL (Leave the default value if you're not sure)</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QLineEdit" name="refreshUrlTextBox">
+     <property name="placeholderText">
+      <string>Refresh URL (Leave the default value if you're not sure)</string>
      </property>
     </widget>
    </item>

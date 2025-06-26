@@ -41,6 +41,8 @@ struct AuthSession {
     bool wants_authlib_injector = false;
     // Was the authlib injector downloaded?
     bool authlib_injector_ready = false;
+    // URL for authlib injector
+    QString authlib_injector_auth_url;
 
     // Is this a demo session?
     bool demo = false;
