@@ -170,7 +170,7 @@
           <item>
            <widget class="QLabel" name="msaClientIDLabel">
             <property name="text">
-             <string>&amp;Microsoft Authentation</string>
+             <string>&amp;Microsoft Authentication</string>
             </property>
             <property name="textFormat">
              <enum>Qt::RichText</enum>
