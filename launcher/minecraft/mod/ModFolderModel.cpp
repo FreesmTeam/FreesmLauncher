@@ -383,3 +383,20 @@ bool ModFolderModel::setResourceEnabled(const QModelIndexList& indexes, EnableAc
     auto affected = getAffectedMods(indexes, action);
     return ResourceFolderModel::setResourceEnabled(indexes + affected, action);
 }
+
+QStringList reqToList(QList<Mod*> l)
+{
+    QStringList req;
+    for (auto m : l) {
+        req << m->name();
+    }
+    return req;
+}
+QStringList ModFolderModel::requiresList(QString id)
+{
+    return reqToList(m_requires[id]);
+}
+QStringList ModFolderModel::requiredByList(QString id)
+{
+    return reqToList(m_requiredBy[id]);
+}

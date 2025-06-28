@@ -54,28 +54,34 @@ void setupLinkToolTip(QLabel* label)
     });
 }
 
-InfoFrame::InfoFrame(QWidget* parent) : QFrame(parent), ui(new Ui::InfoFrame)
+InfoFrame::InfoFrame(QWidget* parent) : QFrame(parent), m_ui(new Ui::InfoFrame)
 {
-    ui->setupUi(this);
-    ui->descriptionLabel->setHidden(true);
-    ui->nameLabel->setHidden(true);
-    ui->licenseLabel->setHidden(true);
-    ui->issueTrackerLabel->setHidden(true);
+    m_ui->setupUi(this);
+    m_ui->descriptionLabel->setHidden(true);
+    m_ui->nameLabel->setHidden(true);
+    m_ui->licenseLabel->setHidden(true);
+    m_ui->issueTrackerLabel->setHidden(true);
 
-    setupLinkToolTip(ui->iconLabel);
-    setupLinkToolTip(ui->descriptionLabel);
-    setupLinkToolTip(ui->nameLabel);
-    setupLinkToolTip(ui->licenseLabel);
-    setupLinkToolTip(ui->issueTrackerLabel);
+    setupLinkToolTip(m_ui->iconLabel);
+    setupLinkToolTip(m_ui->descriptionLabel);
+    setupLinkToolTip(m_ui->nameLabel);
+    setupLinkToolTip(m_ui->licenseLabel);
+    setupLinkToolTip(m_ui->issueTrackerLabel);
     updateHiddenState();
+    connect(m_ui->moreInfoBtn, &QPushButton::clicked, this, [this]() {
+        auto nextIndex = (m_ui->infoStacked->currentIndex() + 1) % 2;
+        m_ui->infoStacked->setCurrentIndex(nextIndex);
+        m_ui->moreInfoBtn->setText(nextIndex == 0 ? ">" : "<");
+    });
+    m_ui->moreInfoBtn->hide();
 }
 
 InfoFrame::~InfoFrame()
 {
-    delete ui;
+    delete m_ui;
 }
 
-void InfoFrame::updateWithMod(Mod const& m)
+void InfoFrame::updateWithMod(Mod const& m, QStringList requiresList, QStringList requiredByList)
 {
     if (m.type() == ResourceType::FOLDER) {
         clear();
@@ -141,6 +147,26 @@ void InfoFrame::updateWithMod(Mod const& m)
         issueTracker += "<a href=\"" + m.issueTracker() + "\">" + m.issueTracker() + "</a>";
     }
     setIssueTracker(issueTracker);
+    if (requiredByList.isEmpty()) {
+        m_ui->requiredGB->hide();
+    } else {
+        m_ui->requiredGB->show();
+        m_ui->requiredView->clear();
+        m_ui->requiredView->addItems(requiredByList);
+    }
+
+    if (requiresList.isEmpty()) {
+        m_ui->requiresGB->hide();
+    } else {
+        m_ui->requiresGB->show();
+        m_ui->requiresView->clear();
+        m_ui->requiresView->addItems(requiresList);
+    }
+    if (requiresList.isEmpty() && requiredByList.isEmpty()) {
+        m_ui->infoStacked->setCurrentIndex(0);
+        m_ui->moreInfoBtn->setText(">");
+    }
+    m_ui->moreInfoBtn->setHidden(requiresList.isEmpty() && requiredByList.isEmpty());
 }
 
 void InfoFrame::updateWithResource(const Resource& resource)
@@ -255,12 +281,13 @@ void InfoFrame::clear()
     setImage();
     setLicense();
     setIssueTracker();
+    m_ui->moreInfoBtn->hide();
 }
 
 void InfoFrame::updateHiddenState()
 {
-    if (ui->descriptionLabel->isHidden() && ui->nameLabel->isHidden() && ui->licenseLabel->isHidden() &&
-        ui->issueTrackerLabel->isHidden()) {
+    if (m_ui->descriptionLabel->isHidden() && m_ui->nameLabel->isHidden() && m_ui->licenseLabel->isHidden() &&
+        m_ui->issueTrackerLabel->isHidden()) {
         setHidden(true);
     } else {
         setHidden(false);
@@ -270,10 +297,10 @@ void InfoFrame::updateHiddenState()
 void InfoFrame::setName(QString text)
 {
     if (text.isEmpty()) {
-        ui->nameLabel->setHidden(true);
+        m_ui->nameLabel->setHidden(true);
     } else {
-        ui->nameLabel->setText(text);
-        ui->nameLabel->setHidden(false);
+        m_ui->nameLabel->setText(text);
+        m_ui->nameLabel->setHidden(false);
     }
     updateHiddenState();
 }
@@ -281,14 +308,14 @@ void InfoFrame::setName(QString text)
 void InfoFrame::setDescription(QString text)
 {
     if (text.isEmpty()) {
-        ui->descriptionLabel->setHidden(true);
+        m_ui->descriptionLabel->setHidden(true);
         updateHiddenState();
         return;
     } else {
-        ui->descriptionLabel->setHidden(false);
+        m_ui->descriptionLabel->setHidden(false);
         updateHiddenState();
     }
-    ui->descriptionLabel->setToolTip("");
+    m_ui->descriptionLabel->setToolTip("");
     QString intermediatetext = text.trimmed();
     bool prev(false);
     QChar rem('\n');
@@ -310,8 +337,8 @@ void InfoFrame::setDescription(QString text)
     doc.setHtml(text);
 
     if (doc.characterCount() > maxCharacterElide) {
-        ui->descriptionLabel->setOpenExternalLinks(false);
-        ui->descriptionLabel->setTextFormat(Qt::TextFormat::RichText);  // This allows injecting HTML here.
+        m_ui->descriptionLabel->setOpenExternalLinks(false);
+        m_ui->descriptionLabel->setTextFormat(Qt::TextFormat::RichText);  // This allows injecting HTML here.
         m_description = text;
 
         // move the cursor to the character elide, doesn't see html
@@ -324,25 +351,25 @@ void InfoFrame::setDescription(QString text)
         cursor.insertHtml("<a href=\"#mod_desc\">...</a>");
 
         labeltext.append(doc.toHtml());
-        connect(ui->descriptionLabel, &QLabel::linkActivated, this, &InfoFrame::descriptionEllipsisHandler);
+        connect(m_ui->descriptionLabel, &QLabel::linkActivated, this, &InfoFrame::descriptionEllipsisHandler);
     } else {
-        ui->descriptionLabel->setTextFormat(Qt::TextFormat::AutoText);
+        m_ui->descriptionLabel->setTextFormat(Qt::TextFormat::AutoText);
         labeltext.append(finaltext);
     }
-    ui->descriptionLabel->setText(labeltext);
+    m_ui->descriptionLabel->setText(labeltext);
 }
 
 void InfoFrame::setLicense(QString text)
 {
     if (text.isEmpty()) {
-        ui->licenseLabel->setHidden(true);
+        m_ui->licenseLabel->setHidden(true);
         updateHiddenState();
         return;
     } else {
-        ui->licenseLabel->setHidden(false);
+        m_ui->licenseLabel->setHidden(false);
         updateHiddenState();
     }
-    ui->licenseLabel->setToolTip("");
+    m_ui->licenseLabel->setToolTip("");
     QString intermediatetext = text.trimmed();
     bool prev(false);
     QChar rem('\n');
@@ -358,26 +385,26 @@ void InfoFrame::setLicense(QString text)
     QString labeltext;
     labeltext.reserve(300);
     if (finaltext.length() > 290) {
-        ui->licenseLabel->setOpenExternalLinks(false);
-        ui->licenseLabel->setTextFormat(Qt::TextFormat::RichText);
+        m_ui->licenseLabel->setOpenExternalLinks(false);
+        m_ui->licenseLabel->setTextFormat(Qt::TextFormat::RichText);
         m_license = text;
         // This allows injecting HTML here.
         labeltext.append("<html><body>" + finaltext.left(287) + "<a href=\"#mod_desc\">...</a></body></html>");
-        connect(ui->licenseLabel, &QLabel::linkActivated, this, &InfoFrame::licenseEllipsisHandler);
+        connect(m_ui->licenseLabel, &QLabel::linkActivated, this, &InfoFrame::licenseEllipsisHandler);
     } else {
-        ui->licenseLabel->setTextFormat(Qt::TextFormat::AutoText);
+        m_ui->licenseLabel->setTextFormat(Qt::TextFormat::AutoText);
         labeltext.append(finaltext);
     }
-    ui->licenseLabel->setText(labeltext);
+    m_ui->licenseLabel->setText(labeltext);
 }
 
 void InfoFrame::setIssueTracker(QString text)
 {
     if (text.isEmpty()) {
-        ui->issueTrackerLabel->setHidden(true);
+        m_ui->issueTrackerLabel->setHidden(true);
     } else {
-        ui->issueTrackerLabel->setText(text);
-        ui->issueTrackerLabel->setHidden(false);
+        m_ui->issueTrackerLabel->setText(text);
+        m_ui->issueTrackerLabel->setHidden(false);
     }
     updateHiddenState();
 }
@@ -385,10 +412,10 @@ void InfoFrame::setIssueTracker(QString text)
 void InfoFrame::setImage(QPixmap img)
 {
     if (img.isNull()) {
-        ui->iconLabel->setHidden(true);
+        m_ui->iconLabel->setHidden(true);
     } else {
-        ui->iconLabel->setHidden(false);
-        ui->iconLabel->setPixmap(img);
+        m_ui->iconLabel->setHidden(false);
+        m_ui->iconLabel->setPixmap(img);
     }
 }
 

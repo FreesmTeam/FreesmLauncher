@@ -61,7 +61,7 @@ class InfoFrame : public QFrame {
 
     void clear();
 
-    void updateWithMod(Mod const& m);
+    void updateWithMod(Mod const& m, QStringList requiresList = {}, QStringList requiredByList = {});
     void updateWithResource(Resource const& resource);
     void updateWithResourcePack(ResourcePack& rp);
     void updateWithDataPack(DataPack& rp);
@@ -78,7 +78,7 @@ class InfoFrame : public QFrame {
     void updateHiddenState();
 
    private:
-    Ui::InfoFrame* ui;
+    Ui::InfoFrame* m_ui;
     QString m_description;
     QString m_license;
     class QMessageBox* m_current_box = nullptr;

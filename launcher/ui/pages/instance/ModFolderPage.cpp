@@ -122,7 +122,7 @@ void ModFolderPage::updateFrame(const QModelIndex& current, [[maybe_unused]] con
     auto sourceCurrent = m_filterModel->mapToSource(current);
     int row = sourceCurrent.row();
     const Mod& mod = m_model->at(row);
-    ui->frame->updateWithMod(mod);
+    ui->frame->updateWithMod(mod, m_model->requiresList(mod.mod_id()), m_model->requiredByList(mod.mod_id()));
 }
 
 void ModFolderPage::removeItems(const QItemSelection& selection)
