@@ -33,6 +33,10 @@ class OfflineLoginDialog : public QDialog {
     void on_userTextBox_textEdited(const QString& newText);
     void on_allowLongUsernames_stateChanged(int value);
 
+   private slots:
+    void on_randomCharUser_clicked();
+    void on_randomFullUser_clicked();
+
    private:
     Ui::OfflineLoginDialog* ui;
     OfflineAccountPtr m_account;
