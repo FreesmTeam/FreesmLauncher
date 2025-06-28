@@ -263,9 +263,9 @@ void InstanceImportTask::extractFinished()
     }
 }
 
-bool installIcon(QString root, QString instIcon)
+bool installIcon(QString root, QString instIconKey)
 {
-    auto importIconPath = IconUtils::findBestIconIn(root, instIcon);
+    auto importIconPath = IconUtils::findBestIconIn(root, instIconKey);
     if (importIconPath.isNull() || !QFile::exists(importIconPath))
         importIconPath = IconUtils::findBestIconIn(root, "icon.png");
     if (importIconPath.isNull() || !QFile::exists(importIconPath))
@@ -273,10 +273,10 @@ bool installIcon(QString root, QString instIcon)
     if (!importIconPath.isNull() && QFile::exists(importIconPath)) {
         // import icon
         auto iconList = APPLICATION->icons();
-        if (iconList->iconFileExists(instIcon)) {
-            iconList->deleteIcon(instIcon);
+        if (iconList->iconFileExists(instIconKey)) {
+            iconList->deleteIcon(instIconKey);
         }
-        iconList->installIcon(importIconPath, instIcon);
+        iconList->installIcon(importIconPath, instIconKey + ".png");
         return true;
     }
     return false;
