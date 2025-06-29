@@ -1,9 +1,9 @@
 #include "LoginWizardPage.h"
 #include "minecraft/auth/AccountList.h"
+#include "ui/dialogs/CustomLoginDialog.h"
 #include "ui/dialogs/ElybyLoginDialog.h"
 #include "ui/dialogs/MSALoginDialog.h"
 #include "ui/dialogs/OfflineLoginDialog.h"
-#include "ui/dialogs/CustomLoginDialog.h"
 #include "ui_LoginWizardPage.h"
 
 #include "Application.h"
@@ -81,7 +81,7 @@ void LoginWizardPage::on_addOfflineButton_clicked()
 void LoginWizardPage::on_addCustomButton_clicked()
 {
     wizard()->hide();
-    auto account =  CustomLoginDialog::newAccount(nullptr, "Please enter authentication server URL, your username and password.");
+    auto account = CustomLoginDialog::newAccount(nullptr, "Please enter authentication server URL, your username and password.");
     wizard()->show();
     if (account) {
         APPLICATION->accounts()->addAccount(account);
