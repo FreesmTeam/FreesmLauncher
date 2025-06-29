@@ -21,6 +21,7 @@ class LoginWizardPage : public BaseWizardPage {
     void on_addMicrosoftButton_clicked();
     void on_addElybyButton_clicked();
     void on_addOfflineButton_clicked();
+    void on_addCustomButton_clicked();
 
    private:
     Ui::LoginWizardPage* ui;
