@@ -99,7 +99,7 @@
 <h2>Installation</h2>
 
 <ul>
-  <li>All downloads and instructions for Freesm Launcher can be found on our <a href="https://freesmlauncher.windstone.space">Website</a>.</li>
+  <li>All downloads and instructions for Freesm Launcher can be found on our <a href="https://freesmlauncher.org">Website</a>.</li>
   <li>Release builds are located in the <a href="https://github.com/FreesmTeam/FreesmLauncher/releases">GitHub Releases</a> tab.</li>
   <li>You can also install development builds.</li>
 </ul>

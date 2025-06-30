@@ -98,7 +98,7 @@ class MainWindow : public QMainWindow {
 
     void on_actionREDDIT_triggered();
 
-    void on_actionMATRIX_triggered();
+    void on_actionTELEGRAM_triggered();
 
     void on_actionDISCORD_triggered();
 
