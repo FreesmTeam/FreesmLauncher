@@ -96,7 +96,7 @@
 <h2>Установка</h2>
 
 <ul>
-  <li>Все ссылки на скачивание и инструкции для Freesm Launcher можно найти на нашем <a href="https://freesmlauncher.windstone.space">сайте</a>.</li>
+  <li>Все ссылки на скачивание и инструкции для Freesm Launcher можно найти на нашем <a href="https://freesmlauncher.org">сайте</a>.</li>
   <li>Релизные сборки можно найти на вкладке <a href="https://github.com/FreesmTeam/FreesmLauncher/releases">GitHub Releases</a>.</li>
   <li>Вы также можете установить сборки разработчика.</li>
 </ul>

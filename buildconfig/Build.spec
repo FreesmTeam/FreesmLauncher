@@ -37,7 +37,7 @@ Release:        0
 Summary:        An open source launcher for Minecraft
 License:        GPL-3.0-only
 Group:          Amusements/Games/Other
-URL:            https://freesmlauncher.windstone.space/
+URL:            https://freesmlauncher.org/
 Source:         %{name}-%{version}.tar.xz
 BuildRequires:  cmake >= 3.15
 BuildRequires:  extra-cmake-modules

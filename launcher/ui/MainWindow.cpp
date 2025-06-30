@@ -214,7 +214,7 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent), ui(new Ui::MainWi
     // hide, disable and show stuff
     {
         ui->actionReportBug->setVisible(!BuildConfig.BUG_TRACKER_URL.isEmpty());
-        ui->actionMATRIX->setVisible(!BuildConfig.MATRIX_URL.isEmpty());
+        ui->actionTELEGRAM->setVisible(!BuildConfig.TELEGRAM_URL.isEmpty());
         ui->actionDISCORD->setVisible(!BuildConfig.DISCORD_URL.isEmpty());
         ui->actionREDDIT->setVisible(!BuildConfig.SUBREDDIT_URL.isEmpty());
 
@@ -1100,9 +1100,9 @@ void MainWindow::on_actionDISCORD_triggered()
     DesktopServices::openUrl(QUrl(BuildConfig.DISCORD_URL));
 }
 
-void MainWindow::on_actionMATRIX_triggered()
+void MainWindow::on_actionTELEGRAM_triggered()
 {
-    DesktopServices::openUrl(QUrl(BuildConfig.MATRIX_URL));
+    DesktopServices::openUrl(QUrl(BuildConfig.TELEGRAM_URL));
 }
 
 void MainWindow::on_actionChangeInstIcon_triggered()
