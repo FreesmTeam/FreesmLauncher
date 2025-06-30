@@ -245,8 +245,8 @@
         <!-- placeholder when loading screenshot images -->
         <file>scalable/screenshot-placeholder.svg</file>
 
-        <!-- matrix logo -->
-        <file>scalable/matrix.svg</file>
+        <!-- telegram logo -->
+        <file>scalable/telegram.svg</file>
         
         <!-- discord logo icon thing. from discord. traced from bitmap -->
         <file>scalable/discord.svg</file>
