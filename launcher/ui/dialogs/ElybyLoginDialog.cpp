@@ -75,25 +75,27 @@ void ElybyLoginDialog::on_passTextBox_textEdited(const QString &newText)
 
 void ElybyLoginDialog::onTaskFailed(const QString &reason)
 {
-    // Set message
-    auto lines = reason.split('\n');
-    QString processed;
-    for(auto line: lines) {
-        if(line.size()) {
-            processed += "<font color='red'>" + line + "</font><br />";
+    if (reason.contains("Account protected with two factor auth.")) {
+        ui->label->setText("Account protected with two factor auth.");
+        ui->twoFactorAuthTextBox->setVisible(true);
+        ui->twoFactorAuthTextBox->setFocus();
+    } else {
+        // Set message
+        auto lines = reason.split('\n');
+        QString processed;
+        for (auto line : lines) {
+            if (line.size()) {
+                processed += "<font color='red'>" + line + "</font><br />";
+            } else {
+                processed += "<br />";
+            }
         }
-        else {
-            processed += "<br />";
-        }
+        ui->label->setText(processed);
     }
-    ui->label->setText(processed);
 
     // Re-enable user-interaction
     setUserInputsEnabled(true);
     ui->progressBar->setVisible(false);
-    if (reason == "Account protected with two factor auth.") {
-        ui->twoFactorAuthTextBox->setVisible(true);
-    }
 }
 
 void ElybyLoginDialog::onTaskSucceeded()
