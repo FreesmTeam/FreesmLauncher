@@ -79,6 +79,15 @@ else()
     if(WIN32)
         set(CMAKE_EXE_LINKER_FLAGS "-Wl,--stack,8388608 ${CMAKE_EXE_LINKER_FLAGS}")
 
+        # Emit PDBs for WinDbg, etc.
+        if(CMAKE_BUILD_TYPE STREQUAL "Debug" OR CMAKE_BUILD_TYPE STREQUAL "RelWithDebInfo")
+            set(CMAKE_EXE_LINKER_FLAGS "-Wl,--pdb= ${CMAKE_EXE_LINKER_FLAGS}")
+
+            foreach(lang C CXX)
+                set("CMAKE_${lang}_FLAGS" "-gcodeview ${CMAKE_${lang}_FLAGS}")
+            endforeach()
+        endif()
+
         # -ffunction-sections and -fdata-sections help reduce binary size
         # -mguard=cf enables Control Flow Guard
         # TODO: Look into -gc-sections to further reduce binary size
