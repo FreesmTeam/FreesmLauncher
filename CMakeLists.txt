@@ -85,6 +85,10 @@ else()
 
             foreach(lang C CXX)
                 set("CMAKE_${lang}_FLAGS" "-gcodeview ${CMAKE_${lang}_FLAGS}")
+
+                # Force-enabling this to use generator expressions like TARGET_PDB_FILE
+                # (and because we can actually emit PDBs)
+                set("CMAKE_${lang}_LINKER_SUPPORTS_PDB" ON)
             endforeach()
         endif()
 
