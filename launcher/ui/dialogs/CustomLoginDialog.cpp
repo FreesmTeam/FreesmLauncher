@@ -72,6 +72,8 @@ void CustomLoginDialog::accept()
 void CustomLoginDialog::setUserInputsEnabled(bool enable)
 {
     ui->authUrlTextBox->setEnabled(enable);
+    ui->loginUrlTextBox->setEnabled(enable);
+    ui->refreshUrlTextBox->setEnabled(enable);
     ui->userTextBox->setEnabled(enable);
     ui->passTextBox->setEnabled(enable);
     ui->buttonBox->setEnabled(enable);
