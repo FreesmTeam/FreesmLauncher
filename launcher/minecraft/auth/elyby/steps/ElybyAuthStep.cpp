@@ -35,12 +35,14 @@ void ElybyAuthStep::setSkin()
 void ElybyAuthStep::onRequestDone()
 {
     if (!parseResponse()) {
-        if (m_request->error() == QNetworkReply::AuthenticationRequiredError) {
-            emit finished(AccountTaskState::STATE_OFFLINE, QJsonDocument::fromJson(*m_response)["errorMessage"].toString());
+        if (m_response->isEmpty()) {
+            emit finished(AccountTaskState::STATE_OFFLINE,
+                          tr("Failed to get authorization for %1 account: %2").arg(authType(), m_request->errorString()));
             return;
         }
         emit finished(AccountTaskState::STATE_OFFLINE,
-                      tr("Failed to get authorization for %1 account: %2").arg(authType(), m_request->errorString()));
+                      tr("Failed to get authorization for %1 account: %2")
+                          .arg(authType(), QJsonDocument::fromJson(*m_response)["errorMessage"].toString()));
         return;
     }
     setSkin();
