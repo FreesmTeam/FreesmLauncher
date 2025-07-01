@@ -18,8 +18,4 @@
   <a href="https://github.com/so5iso4ka">
     <br><strong>so5iso4ka</strong>
   </a>
-  <br> <!-- add desc -->
-  <a href="https://github.com/m3oweezed">
-    <br><strong>m3oweezed</strong>
-  </a>
 </div>
