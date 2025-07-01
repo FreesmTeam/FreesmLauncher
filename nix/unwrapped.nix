@@ -94,7 +94,7 @@ assert lib.assertMsg (
 
     meta = {
       description = "Prism Launcher fork aimed to provide a free way to play Minecraft";
-      homepage = "https://freesmlauncher.windstone.space/";
+      homepage = "https://freesmlauncher.org/";
       platforms = lib.platforms.linux ++ lib.platforms.darwin;
       mainProgram = "freesmlauncher";
       license = lib.licenses.gpl3Only;

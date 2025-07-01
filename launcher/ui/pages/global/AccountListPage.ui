@@ -55,6 +55,7 @@
    <addaction name="actionAddMicrosoft"/>
    <addaction name="actionAddOffline"/>
    <addaction name="actionAddElyby"/>
+   <addaction name="actionAddCustom"/>
    <addaction name="actionRefresh"/>
    <addaction name="actionRemove"/>
    <addaction name="actionSetDefault"/>
@@ -108,10 +109,18 @@
   </action>
   <action name="actionAddElyby">
    <property name="text">
-    <string>Add Elyby</string>
+    <string>Add Ely.by</string>
    </property>
    <property name="toolTip">
-    <string>Add Elyby</string>
+    <string>Add Ely.by account</string>
+   </property>
+  </action>
+  <action name="actionAddCustom">
+   <property name="text">
+    <string>Add Custom</string>
+   </property>
+   <property name="toolTip">
+    <string>Add custom authentication system account</string>
    </property>
   </action>
  </widget>

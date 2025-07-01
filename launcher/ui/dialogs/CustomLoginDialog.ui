@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>OfflineLoginDialog</class>
- <widget class="QDialog" name="OfflineLoginDialog">
+ <class>CustomLoginDialog</class>
+ <widget class="QDialog" name="CustomLoginDialog">
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>400</width>
-    <height>150</height>
+    <width>419</width>
+    <height>259</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -26,37 +26,55 @@
       <string notr="true">Message label placeholder.</string>
      </property>
      <property name="textFormat">
-      <enum>Qt::RichText</enum>
+      <enum>Qt::TextFormat::RichText</enum>
      </property>
      <property name="textInteractionFlags">
-      <set>Qt::LinksAccessibleByKeyboard|Qt::LinksAccessibleByMouse|Qt::TextBrowserInteraction|Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse</set>
+      <set>Qt::TextInteractionFlag::NoTextInteraction</set>
      </property>
     </widget>
    </item>
    <item>
     <widget class="QLineEdit" name="userTextBox">
-     <property name="maxLength">
-      <number>16</number>
-     </property>
      <property name="placeholderText">
-      <string>Username</string>
+      <string>Email</string>
      </property>
     </widget>
    </item>
    <item>
-    <widget class="QCheckBox" name="allowLongUsernames">
-     <property name="toolTip">
-      <string>Usernames longer than 16 characters cannot be used for LAN games or offline-mode servers.</string>
+    <widget class="QLineEdit" name="passTextBox">
+     <property name="echoMode">
+      <enum>QLineEdit::EchoMode::Password</enum>
      </property>
-     <property name="text">
-      <string>Allow long usernames</string>
+     <property name="placeholderText">
+      <string>Password</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QLineEdit" name="authUrlTextBox">
+     <property name="placeholderText">
+      <string>Auth URL</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QLineEdit" name="loginUrlTextBox">
+     <property name="placeholderText">
+      <string>Login URL (Leave the default value if you're not sure)</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QLineEdit" name="refreshUrlTextBox">
+     <property name="placeholderText">
+      <string>Refresh URL (Leave the default value if you're not sure)</string>
      </property>
     </widget>
    </item>
    <item>
     <widget class="QProgressBar" name="progressBar">
      <property name="value">
-      <number>69</number>
+      <number>24</number>
      </property>
      <property name="textVisible">
       <bool>false</bool>
@@ -64,26 +82,12 @@
     </widget>
    </item>
    <item>
-    <widget class="QPushButton" name="randomCharUser">
-     <property name="text">
-      <string>Random Characters</string>
-     </property>
-    </widget>
-   </item>
-   <item>
-    <widget class="QPushButton" name="randomFullUser">
-     <property name="text">
-      <string>Random Username</string>
-     </property>
-    </widget>
-   </item>
-   <item>
     <widget class="QDialogButtonBox" name="buttonBox">
      <property name="orientation">
-      <enum>Qt::Horizontal</enum>
+      <enum>Qt::Orientation::Horizontal</enum>
      </property>
      <property name="standardButtons">
-      <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
+      <set>QDialogButtonBox::StandardButton::Cancel|QDialogButtonBox::StandardButton::Ok</set>
      </property>
     </widget>
    </item>

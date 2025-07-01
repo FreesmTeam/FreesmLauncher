@@ -224,7 +224,7 @@
     <addaction name="actionReportBug"/>
     <addaction name="actionAddToPATH"/>
     <addaction name="separator"/>
-    <addaction name="actionMATRIX"/>
+    <addaction name="actionTELEGRAM"/>
     <addaction name="actionDISCORD"/>
     <addaction name="actionREDDIT"/>
     <addaction name="separator"/>
@@ -622,15 +622,15 @@
     <string>Open %1 Discord guild.</string>
    </property>
   </action>
-  <action name="actionMATRIX">
+  <action name="actionTELEGRAM">
    <property name="icon">
-    <iconset theme="matrix"/>
+    <iconset theme="telegram"/>
    </property>
    <property name="text">
-    <string>&amp;Matrix Space</string>
+    <string>&amp;Telegram Chat</string>
    </property>
    <property name="toolTip">
-    <string>Open %1 Matrix space.</string>
+    <string>Open %1 Telegram chat.</string>
    </property>
   </action>
   <action name="actionREDDIT">

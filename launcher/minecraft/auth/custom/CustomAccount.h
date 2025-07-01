@@ -18,26 +18,21 @@
 
 #pragma once
 
-#include "minecraft/auth/AuthStep.h"
-#include "net/NetJob.h"
-#include "net/Upload.h"
+#include "minecraft/auth/BaseAccount.h"
 
-class ElybyRefreshStep : public AuthStep {
+class CustomAccount;
+
+using CustomAccountPtr = shared_qobject_ptr<CustomAccount>;
+Q_DECLARE_METATYPE(CustomAccountPtr)
+
+class CustomAccount : public BaseAccount {
     Q_OBJECT
+   public: /*constructions*/
+    explicit CustomAccount(QObject* parent = 0);
 
-   public:
-    explicit ElybyRefreshStep(AccountData* data);
-    virtual ~ElybyRefreshStep() noexcept = default;
+   public: /* static methods */
+    static CustomAccountPtr createCustom(const QString& login, const QString& authUrl, const QString& loginUrl, const QString& refreshUrl);
 
-    void perform() override;
-
-    QString describe() override { return tr("Elyby refreshing"); }
-
-    private slots:
-     void onRequestDone();
-
-private:
-    std::shared_ptr<QByteArray> m_response;
-    Net::Upload::Ptr m_request;
-    NetJob::Ptr m_task;
+   public: /* methods */
+    shared_qobject_ptr<AuthFlow> login(QString password);
 };

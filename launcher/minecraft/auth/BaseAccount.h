@@ -52,10 +52,10 @@ class BaseAccount : public QObject, public Usable {
     static QUuid uuidFromUsername(QString username);
 
    public: /*methods*/
-    //! Saves an MSAAccountaccount to a JSON object and returns it.
+    //! Saves an account to a JSON object and returns it.
     QJsonObject saveToJson() const { return data.saveState(); }
 
-    virtual shared_qobject_ptr<AuthFlow> refresh() = 0;
+    virtual shared_qobject_ptr<AuthFlow> refresh();
 
     shared_qobject_ptr<AuthFlow> currentTask() { return m_currentTask; }
 
@@ -132,5 +132,5 @@ class BaseAccount : public QObject, public Usable {
 
    protected slots:
     void authSucceeded();
-    virtual void authFailed(QString reason) = 0;
+    void authFailed(QString reason);
 };
