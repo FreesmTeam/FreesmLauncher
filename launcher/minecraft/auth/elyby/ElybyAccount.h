@@ -18,26 +18,17 @@
 
 #pragma once
 
-#include "minecraft/auth/BaseAccount.h"
+#include "minecraft/auth/custom/CustomAccount.h"
 
 class ElybyAccount;
 
 using ElybyAccountPtr = shared_qobject_ptr<ElybyAccount>;
 Q_DECLARE_METATYPE(ElybyAccountPtr)
 
-class ElybyAccount : public BaseAccount {
+class ElybyAccount : public CustomAccount {
     Q_OBJECT
-   public: /*constructions*/
+   public:
     explicit ElybyAccount(QObject* parent = 0);
 
-   public: /* static methods */
     static ElybyAccountPtr createElyby(const QString& login);
-
-   public: /* methods */
-    shared_qobject_ptr<AuthFlow> login(QString password);
-
-    shared_qobject_ptr<AuthFlow> refresh() override;
-
-   private slots:
-    void authFailed(QString reason) override;
 };

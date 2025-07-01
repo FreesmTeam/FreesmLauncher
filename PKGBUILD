@@ -1,8 +1,9 @@
 # Maintainer: windstone
 # Maintainer: hand7s
+# Maintainer: so5iso4ka
+# Maintainer: kaeeraa
 # Contributor: sophrtemin
 # Contributor: foxy_chipher
-# Contributor: kaeeraa
 
 pkgname=freesmlauncher
 pkgver=1.1.0

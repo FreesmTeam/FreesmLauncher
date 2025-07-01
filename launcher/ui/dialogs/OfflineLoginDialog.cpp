@@ -1,6 +1,7 @@
 #include "OfflineLoginDialog.h"
 #include "ui_OfflineLoginDialog.h"
 
+#include <QtCore/QRandomGenerator>
 #include <QtWidgets/QPushButton>
 
 OfflineLoginDialog::OfflineLoginDialog(QWidget* parent) : QDialog(parent), ui(new Ui::OfflineLoginDialog)
@@ -91,6 +92,35 @@ void OfflineLoginDialog::onTaskProgress(qint64 current, qint64 total)
 {
     ui->progressBar->setMaximum(total);
     ui->progressBar->setValue(current);
+}
+
+void OfflineLoginDialog::on_randomCharUser_clicked()
+{
+    const QString possibleCharacters("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789");
+    const int randomStringLength = 14;
+    QString randomString;
+    for (int i = 0; i < randomStringLength; ++i) {
+        int index = QRandomGenerator::global()->generate() % possibleCharacters.length();
+        QChar nextChar = possibleCharacters.at(index);
+        randomString.append(nextChar);
+    }
+    ui->userTextBox->setText(randomString);
+    ui->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(true);
+}
+
+void OfflineLoginDialog::on_randomFullUser_clicked()
+{
+    // TODO: maybe make this words configurable and not hardcoded, smh.
+    QList<QString> possibleUsernameHalves = { "Cookie",   "Clicker",  "Licker",  "Lenny",    "Super",   "Sakupen", "Sonic",
+                                              "Geometry", "Mining",   "Chicken", "Sculpted", "Random",  "Painted", "Fainted",
+                                              "MadeIn",   "Chinese",  "Bing",    "Hell",     "Circles", "Wave",    "Dash",
+                                              "Crafting", "Smelting", "Jockey",  "Vase",     "Heaven",  "Pudding", "Chilling" };
+    int usernameArrayLength = possibleUsernameHalves.count();
+    int indexFirstPossibleHalf = QRandomGenerator::global()->bounded(usernameArrayLength);
+    int indexSecondPossibleHalf = QRandomGenerator::global()->bounded(usernameArrayLength);
+    QString generatedUsername = possibleUsernameHalves[indexFirstPossibleHalf] + possibleUsernameHalves[indexSecondPossibleHalf];
+    ui->userTextBox->setText(generatedUsername);
+    ui->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(true);
 }
 
 // Public interface

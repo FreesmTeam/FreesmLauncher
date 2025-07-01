@@ -18,7 +18,9 @@
 
 // Elyby
 #include "elyby/steps/ElybyAuthStep.h"
-#include "elyby/steps/ElybyRefreshStep.h"
+
+// Custom
+#include "custom/steps/CustomAuthStep.h"
 
 #include "tasks/Task.h"
 
@@ -50,16 +52,15 @@ AuthFlow::AuthFlow(AccountData* data, Action action, QString password) : Task(),
             m_steps.append(makeShared<MinecraftProfileStep>(m_data));
             m_steps.append(makeShared<GetSkinStep>(m_data));
         } break;
-        case AccountType::Offline:
-            break;
         case AccountType::Elyby: {
-            if (action == Action::Login) {
-                m_steps.append(makeShared<ElybyAuthStep>(m_data, password));
-            } else {
-                m_steps.append(makeShared<ElybyRefreshStep>(m_data));
-            }
+            m_steps.append(makeShared<ElybyAuthStep>(m_data, action, std::move(password)));
             m_steps.append(makeShared<GetSkinStep>(m_data));
         } break;
+        case AccountType::Custom: {
+            m_steps.append(makeShared<CustomAuthStep>(m_data, action, std::move(password)));
+        } break;
+        default:
+            break;
     }
 
     changeState(AccountTaskState::STATE_CREATED);

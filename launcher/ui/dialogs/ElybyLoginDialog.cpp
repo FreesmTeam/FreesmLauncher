@@ -23,6 +23,7 @@ ElybyLoginDialog::ElybyLoginDialog(QWidget *parent) : QDialog(parent), ui(new Ui
     ui->setupUi(this);
     ui->progressBar->setVisible(false);
     ui->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(false);
+    ui->twoFactorAuthTextBox->setVisible(false);
 
     connect(ui->buttonBox, &QDialogButtonBox::accepted, this, &QDialog::accept);
     connect(ui->buttonBox, &QDialogButtonBox::rejected, this, &QDialog::reject);
@@ -41,7 +42,11 @@ void ElybyLoginDialog::accept()
 
     // Setup the login task and start it
     m_account = ElybyAccount::createElyby(ui->userTextBox->text());
-    m_loginTask = m_account->login(ui->passTextBox->text());
+    auto pass = ui->passTextBox->text();
+    if (!ui->twoFactorAuthTextBox->text().isEmpty()) {
+        pass += ':' + ui->twoFactorAuthTextBox->text();
+    }
+    m_loginTask = m_account->login(pass);
     connect(m_loginTask.get(), &Task::failed, this, &ElybyLoginDialog::onTaskFailed);
     connect(m_loginTask.get(), &Task::succeeded, this, &ElybyLoginDialog::onTaskSucceeded);
     connect(m_loginTask.get(), &Task::status, this, &ElybyLoginDialog::onTaskStatus);
@@ -70,18 +75,23 @@ void ElybyLoginDialog::on_passTextBox_textEdited(const QString &newText)
 
 void ElybyLoginDialog::onTaskFailed(const QString &reason)
 {
-    // Set message
-    auto lines = reason.split('\n');
-    QString processed;
-    for(auto line: lines) {
-        if(line.size()) {
-            processed += "<font color='red'>" + line + "</font><br />";
+    if (reason.contains("Account protected with two factor auth.")) {
+        ui->label->setText("Account protected with two factor auth.");
+        ui->twoFactorAuthTextBox->setVisible(true);
+        ui->twoFactorAuthTextBox->setFocus();
+    } else {
+        // Set message
+        auto lines = reason.split('\n');
+        QString processed;
+        for (auto line : lines) {
+            if (line.size()) {
+                processed += "<font color='red'>" + line + "</font><br />";
+            } else {
+                processed += "<br />";
+            }
         }
-        else {
-            processed += "<br />";
-        }
+        ui->label->setText(processed);
     }
-    ui->label->setText(processed);
 
     // Re-enable user-interaction
     setUserInputsEnabled(true);

@@ -292,6 +292,8 @@ bool AccountData::resumeStateFromV3(QJsonObject data)
         type = AccountType::Offline;
     } else if (typeS == "Elyby") {
         type = AccountType::Elyby;
+    } else if (typeS == "Custom") {
+        type = AccountType::Custom;
     } else {
         qWarning() << "Failed to parse account data: type is not recognized.";
         return false;
@@ -312,6 +314,12 @@ bool AccountData::resumeStateFromV3(QJsonObject data)
             break;
         case AccountType::Elyby: {
             clientID = data.value("elyby-client-id").toString();
+        } break;
+        case AccountType::Custom: {
+            clientID = data.value("custom-client-id").toString();
+            authUrl = data.value("auth-url").toString();
+            loginUrl = data.value("login-url").toString();
+            refreshUrl = data.value("refresh-url").toString();
         }
     }
 
@@ -353,6 +361,13 @@ QJsonObject AccountData::saveState() const
             output["type"] = "Elyby";
             output["elyby-client-id"] = clientID;
         } break;
+        case AccountType::Custom: {
+            output["type"] = "Custom";
+            output["custom-client-id"] = clientID;
+            output["auth-url"] = authUrl;
+            output["login-url"] = loginUrl;
+            output["refresh-url"] = refreshUrl;
+        }
     }
 
     tokenToJSONV3(output, yggdrasilToken, "ygg");
@@ -393,7 +408,15 @@ QString AccountData::accountDisplayString() const
             return "Xbox profile missing";
         }
         case AccountType::Elyby: {
-        return "Elyby";
+            return "Ely.by";
+        }
+        case AccountType::Custom: {
+            // return auth URL without "https://" prefix
+            const auto url = authUrl.split('/');
+            if (url.size() < 2) {
+                return "Invalid URL";
+            }
+            return url[2];
         }
         default: {
             return "Invalid Account";

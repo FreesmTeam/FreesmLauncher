@@ -18,58 +18,33 @@
 
 #include "ElybyAuthStep.h"
 
-#include "Application.h"
-#include "ElybyRefreshStep.h"
-#include "Logging.h"
-#include "net/NetUtils.h"
+ElybyAuthStep::ElybyAuthStep(AccountData* data, AuthFlow::Action action, QString password)
+    : CustomAuthStep(data, action, std::move(password))
+{}
 
-ElybyAuthStep::ElybyAuthStep(AccountData* data, QString password) : AuthStep(data), m_password(password) {}
-
-void ElybyAuthStep::perform()
+QString ElybyAuthStep::requestUrl()
 {
-    QUrl url("https://authserver.ely.by/auth/authenticate");
-    QString elybyAuthTemplate = R"XXX(
-{
-    "username": "%1",
-    "password": "%2",
-    "clientToken": "%3",
-    "requestUser": false
+    return m_action == AuthFlow::Action::Login ? "/auth/authenticate" : "/auth/refresh";
 }
-)XXX";
 
-    auto elybyAuthData = elybyAuthTemplate.arg(m_data->accountLogin, m_password, APPLICATION->getElybyClientID());
-    m_response.reset(new QByteArray());
-    m_request = Net::Upload::makeByteArray(url, m_response, elybyAuthData.toUtf8());
-
-    m_task.reset(new NetJob("ElybyAuthStep", APPLICATION->network()));
-    m_task->setAskRetry(false);
-    m_task->addNetAction(m_request);
-
-    connect(m_task.get(), &Task::finished, this, &ElybyAuthStep::onRequestDone);
-
-    m_task->start();
-    qDebug() << "Getting authorization token for Elyby account";
+void ElybyAuthStep::setSkin()
+{
+    m_data->minecraftProfile.skin.url = "http://skinsystem.ely.by/skins/" + m_data->minecraftProfile.name + ".png";
 }
 
 void ElybyAuthStep::onRequestDone()
 {
-    qCDebug(authCredentials()) << *m_response;
-    if (m_request->error() != QNetworkReply::NoError) {
-        qWarning() << "Reply error:" << m_request->error();
-        emit finished(AccountTaskState::STATE_OFFLINE, tr("Failed to get authorization for Elyby: %1").arg(m_request->errorString()));
+    if (!parseResponse()) {
+        if (m_response->isEmpty()) {
+            emit finished(AccountTaskState::STATE_OFFLINE,
+                          tr("Failed to get authorization for %1 account: %2").arg(authType(), m_request->errorString()));
+            return;
+        }
+        emit finished(AccountTaskState::STATE_OFFLINE,
+                      tr("Failed to get authorization for %1 account: %2")
+                          .arg(authType(), QJsonDocument::fromJson(*m_response)["errorMessage"].toString()));
         return;
     }
-
-    auto jsonResponse = QJsonDocument::fromJson(*m_response);
-
-    m_data->yggdrasilToken.token = jsonResponse["accessToken"].toString();
-
-    m_data->clientID = jsonResponse["clientToken"].toString();
-
-    auto profile = jsonResponse["selectedProfile"].toObject();
-    m_data->minecraftProfile.id = profile["id"].toString();
-    m_data->minecraftProfile.name = profile["name"].toString();
-    m_data->minecraftProfile.skin.url = "http://skinsystem.ely.by/skins/" + m_data->minecraftProfile.name + ".png";
-
-    emit finished(AccountTaskState::STATE_WORKING, tr("Got authorization for Elyby"));
+    setSkin();
+    emit finished(AccountTaskState::STATE_WORKING, tr("Got authorization for %1 account").arg(authType()));
 }
