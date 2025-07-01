@@ -1,4 +1,30 @@
 <div align="center">
+
+<img width="160" height="160" align="center" src="./favicon.webp" alt="Favicon">
+
+<h1>
+<a style="color:#f5c2e7" href="https://freesmlauncher.org">Freesm Launcher</a>
+</h1>
+
+A Prism Launcher fork that **removes offline account restrictions**, adds custom auth servers support and provides more customization
+
+<p align="center">
+<strong>English</strong> | <a href="./README_ru.md">$\color{Green}{\textsf{Русский}}$</a>
+</p>
+
+<div>
+
+[![GitHub Repo stars](https://img.shields.io/github/stars/freesmteam/freesmlauncher?label=Stars&style=for-the-badge&color=%23f5c2e7&logo=data%3Aimage%2Fsvg%2Bxml%3Bbase64%2CPD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz4KPHN2ZyBoZWlnaHQ9IjI0IiB2aWV3Qm94PSIwIC05NjAgOTYwIDk2MCIgd2lkdGg9IjI0IiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPgogIDxwYXRoIGQ9Im0zNTQtMjQ3IDEyNi03NiAxMjYgNzctMzMtMTQ0IDExMS05Ni0xNDYtMTMtNTgtMTM2LTU4IDEzNS0xNDYgMTMgMTExIDk3LTMzIDE0M1pNMjMzLTgwbDY1LTI4MUw4MC01NTBsMjg4LTI1IDExMi0yNjUgMTEyIDI2NSAyODggMjUtMjE4IDE4OSA2NSAyODEtMjQ3LTE0OUwyMzMtODBabTI0Ny0zNTBaIiBzdHlsZT0iZmlsbDogcmdiKDI0NSwgMTk0LCAyMzEpOyIvPgo8L3N2Zz4%3D)](https://github.com/freesmteam/freesmlauncher/stargazers)
+![DRM Free Badge](https://img.shields.io/badge/drm-free-%23f5c2e7?style=for-the-badge)
+![Garnix Badge](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fgarnix.io%2Fapi%2Fbadges%2FFreesmTeam%2FFreesmLauncher&query=%24.message&style=for-the-badge&label=%20&color=white&logo=data%3Aimage%2Fsvg%2Bxml%3Bbase64%2CPHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI5NnB0IiBoZWlnaHQ9Ijk2cHQiIHZpZXdCb3g9IjAgMCAzNCAzNCIgZmlsbD0id2hpdGUiPjxwYXRoIGQ9Ik0zMyAxSDFWMzNIMzNWMVoiIGZpbGw9IndoaXRlIiBzdHJva2U9ImJsYWNrIiBzdHJva2Utd2lkdGg9IjIiIHN0cm9rZS1taXRlcmxpbWl0PSIxMCIgLz48cGF0aCBkPSJNMzIuOTkzNyAxNi45OTcxSDE3LjAwMzJWMjQuNzgyNCIgc3Ryb2tlPSJibGFjayIgc3Ryb2tlLXdpZHRoPSIyIiBzdHJva2UtbWl0ZXJsaW1pdD0iMTAiIC8%2BPC9zdmc%2B)
+
+</div>
+
+</div>
+
+// old
+
+<div align="center">
   <img alt="DRM Free" src="https://img.shields.io/badge/drm-free-brightgreen?style=for-the-badge" />
   <img alt="built with garnix" src="https://img.shields.io/endpoint.svg?url=https%3A%2F%2Fgarnix.io%2Fapi%2Fbadges%2FFreesmTeam%2FFreesmLauncher" />
 </div>
@@ -101,8 +127,7 @@ If you find bugs or want to suggest features, please open an issue on our [GitHu
 
 ## 🌐 Translations
 
-Freesm Launcher supports community translations via [Weblate](https://hosted.weblate.org/projects/freesmlauncher/).  
-Help us translate or improve existing translations by visiting our [Weblate page](https://hosted.weblate.org/projects/freesmlauncher/) or our [GitHub Translations guide](https://github.com/FreesmTeam/Translations).
+<!-- Freesm Launcher supports community translations via [Weblate](https://hosted.weblate.org/projects/freesmlauncher/). Help us translate or improve existing translations by visiting our [Weblate page](https://hosted.weblate.org/projects/freesmlauncher/) or our [GitHub Translations guide](https://github.com/FreesmTeam/Translations). -->
 
 ---
 
