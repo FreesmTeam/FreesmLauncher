@@ -15,9 +15,7 @@
 
 #include <QFileDialog>
 #include <QKeyEvent>
-#include <QLineEdit>
 #include <QPushButton>
-#include <QSortFilterProxyModel>
 
 #include "Application.h"
 
@@ -29,20 +27,12 @@
 #include <DesktopServices.h>
 #include "icons/IconList.h"
 #include "icons/IconUtils.h"
+#include <QRandomGenerator>
 
 IconPickerDialog::IconPickerDialog(QWidget* parent) : QDialog(parent), ui(new Ui::IconPickerDialog)
 {
     ui->setupUi(this);
     setWindowModality(Qt::WindowModal);
-
-    searchBar = new QLineEdit(this);
-    searchBar->setPlaceholderText(tr("Search..."));
-    ui->verticalLayout->insertWidget(0, searchBar);
-
-    proxyModel = new QSortFilterProxyModel(this);
-    proxyModel->setSourceModel(APPLICATION->icons().get());
-    proxyModel->setFilterCaseSensitivity(Qt::CaseInsensitive);
-    ui->iconView->setModel(proxyModel);
 
     auto contentsWidget = ui->iconView;
     contentsWidget->setViewMode(QListView::IconMode);
@@ -68,7 +58,7 @@ IconPickerDialog::IconPickerDialog(QWidget* parent) : QDialog(parent), ui(new Ui
 
     contentsWidget->installEventFilter(this);
 
-    contentsWidget->setModel(proxyModel);
+    contentsWidget->setModel(APPLICATION->icons().get());
 
     // NOTE: ResetRole forces the button to be on the left, while the OK/Cancel ones are on the right. We win.
     auto buttonAdd = ui->buttonBox->addButton(tr("Add Icon"), QDialogButtonBox::ResetRole);
@@ -87,9 +77,8 @@ IconPickerDialog::IconPickerDialog(QWidget* parent) : QDialog(parent), ui(new Ui
 
     auto buttonFolder = ui->buttonBox->addButton(tr("Open Folder"), QDialogButtonBox::ResetRole);
     connect(buttonFolder, &QPushButton::clicked, this, &IconPickerDialog::openFolder);
-    connect(searchBar, &QLineEdit::textChanged, this, &IconPickerDialog::filterIcons);
-    // Prevent incorrect indices from e.g. filesystem changes
-    connect(APPLICATION->icons().get(), &IconList::iconUpdated, this, [this]() { proxyModel->invalidate(); });
+    auto buttonRandom = ui->buttonBox->addButton(tr("Random Icon"), QDialogButtonBox::ResetRole);
+    connect(buttonRandom, &QPushButton::clicked, this, &IconPickerDialog::on_randomIcon_Pushed);
 }
 
 bool IconPickerDialog::eventFilter(QObject* obj, QEvent* evt)
@@ -174,12 +163,22 @@ IconPickerDialog::~IconPickerDialog()
     delete ui;
 }
 
-void IconPickerDialog::openFolder()
+void IconPickerDialog::on_randomIcon_Pushed()
 {
-    DesktopServices::openPath(APPLICATION->icons()->iconDirectory(selectedIconKey), true);
+    int rowAmount = ui->iconView->model()->rowCount();
+    int randomRowNum = QRandomGenerator::global()->bounded(rowAmount);
+    QModelIndex index = ui->iconView->model()->index(randomRowNum, 0);
+
+    ui->iconView->selectionModel()->select(index, QItemSelectionModel::QItemSelectionModel::Current | QItemSelectionModel::Select);
+    ui->iconView->setCurrentIndex(index);
+    ui->iconView->scrollTo(index);
+
+    selectedIconKey = index.data(Qt::UserRole).toString();
+    buttonRemove->setEnabled(APPLICATION->icons()->iconFileExists(selectedIconKey));
+    
 }
 
-void IconPickerDialog::filterIcons(const QString& query)
+void IconPickerDialog::openFolder()
 {
-    proxyModel->setFilterFixedString(query);
+    DesktopServices::openPath(APPLICATION->icons()->getDirectory(), true);
 }
