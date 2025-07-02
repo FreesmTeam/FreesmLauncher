@@ -53,7 +53,7 @@ This fork is **not** endorsed by Prism Launcher
 - Animated GIF cat packs with image cropping support
 - In-game screenshots copying to the buffer history support
 - Animated snow effect for those who love... snow?
-- Random username and instance icon selection with ultra super advanced and cryptographically secure, absolutely random number generator based on the [lavarand](https://en.wikipedia.org/wiki/Lavarand)
+- Random username and instance icon selection with ultra super advanced and cryptographically secure, absolutely random number generator based on the [lavarand](https://www.youtube.com/watch?v=dQw4w9WgXcQ)
 - FLOSS
 - ...all the Prism Launcher's features
 
@@ -64,46 +64,53 @@ This fork is **not** endorsed by Prism Launcher
 |-----------------------------------------------------------|------------------|------------------|------|---------|---------------|---------------|---------|---------------|----------------|
 | Offline Mode without a Microsoft account                  | ✅                | ✅                | ✅    | ❌       | ✅             | ✅             | ✅       | ✅             | ❌              |
 | FTB packs                                                 | ✅                | ✅                | ❌    | ✅       | ✅             | ✅             | ❌       | ✅             | ✅              |
-| Ely.by support¹                                           | ✅                | 🟨               | 🟨   | 🟨      | 🟨            | ✅             | 🟨      | ❌             | ❌              |
-| Authlib-injector support²                                 | ✅                | ✅                | ✅    | ✅       | ✅             | ❌             | ❌       | ❌             | ❌              |
-| Custom Authlib-injector jar support²                      | ❌                | ✅                | ❌    | ✅       | ❌             | ❌             | ❌       | ❌             | ❌              |
+| Ely.by support                                            | ✅                | 🟨¹              | 🟨¹  | 🟨¹     | 🟨¹           | ✅             | 🟨¹     | ❌             | ❌              |
+| Authlib-injector support                                  | ✅                | ✅                | ✅    | ✅       | ✅             | ❌²            | ❌²      | ❌²            | ❌²             |
+| Custom Authlib-injector jar support                       | ❌²               | ✅                | ❌²   | ✅       | ❌²            | ❌²            | ❌²      | ❌²            | ❌²             |
 | Differentiating between auth servers                      | ✅                | ✅                | ✅    | ✅       | ❌             | ❌             | ❌       | ❌             | ❌              |
 | Animated Cat Packs & Cropping                             | ✅                | ❌                | ❌    | ❌       | ❌             | ❌             | ❌       | ❌             | ❌              |
 | Screenshots saving to the buffer history without any mods | ✅                | ❌                | ❌    | ❌       | ❌             | ❌             | ❌       | ❌             | ❌              |
 | Fork                                                      | PrismLauncher    | FjordLauncher    | ❌    | PollyMC | PrismLauncher | PrismLauncher | MultiMC | PrismLauncher | PolyMC         |
 
-¹ If it is marked as "🟨", then skins won't work in many cases, because the provided launcher doesn't use official Ely.by authlib patches
+¹ doesn't use official Ely.by authlib patches
 
-² If it is marked as "❌", you can still change a `javaagent` JVM argument to use your `authlib-injector` jar file as an auth server
+² you can still change a `javaagent` JVM argument to use your `authlib-injector` jar file as an auth server
 
-// old
+## ⬇️ Installation
 
----
+### Stable Releases
 
-## 📥 Installation
+Download Freesm Launcher from our [official website](https://freesmlauncher.org/) or the [GitHub Releases](https://github.com/FreesmTeam/FreesmLauncher/releases) page. Packages available for **Linux, Windows, and macOS**.
 
-### 🏷️ Stable Releases
+### Development builds
 
-Download Freesm Launcher from our [official website](https://freesmlauncher.org) or the [GitHub Releases](https://github.com/FreesmTeam/FreesmLauncher/releases) page. Packages available for **Windows, macOS, and Linux (x86-64)**.
+Please understand that these builds are not intended for most users. There may be bugs and other instabilities. You have been warned.
 
-### 🌙 Development Builds
+There are development builds available through:
 
-For the latest features, check out the [GitHub Actions](https://github.com/FreesmTeam/FreesmLauncher/actions) artifacts or [Nightly Builds](https://nightly.link/FreesmTeam/FreesmLauncher/workflows/develop) (not recommended for most users).
+* [GitHub Actions](https://github.com/FreesmTeam/FreesmLauncher/actions) (includes builds from pull requests opened by contributors).
+* [nightly.link](https://nightly.link/FreesmTeam/FreesmLauncher/workflows/trigger_builds/develop) (this will always point only to the latest version of the `develop` branch).
 
-> [!CAUTION]  
-> Development (nightly) builds may be unstable, larger, and contain debug info. Use **at your own risk**.
-
----
+These builds contain debug information in the binaries, so their file sizes are relatively larger. Prebuilt Development builds are provided for **Linux, Windows, and macOS**.
 
 ## 💬 Community & Support
 
-If you find bugs or want to suggest features, please open an issue on our [GitHub repository](https://github.com/FreesmTeam/FreesmLauncher). Pull requests and contributions (code, docs, translations) are welcome!
+If you found a bug or want to suggest a feature, please open an issue in [GitHub Issues](https://github.com/FreesmTeam/FreesmLauncher/issues). Pull requests and contributions (code, docs, translations) are welcome!
 
-> [!CAUTION]  
-> Do not mention Freesm Launcher on Prism Launcher’s Discord, forums, or other channels. Freesm is a standalone project and has its own community.
+### Discord
 
-> [!NOTE]  
-> Freesm does **not collect any personal data** or usage information. All features run locally. The source code is fully open under GPL-3.0 for your audit.
+[![Discord server](https://discordapp.com/api/guilds/1332079164341354506/widget.png?style=banner3)](https://freesmlauncher.org/discord)
+
+### Telegram
+
+[![Telegram News Group](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Ffreesmlauncher.org%2Fapi%2Fbadges%2Ftelegram&query=%24.news&suffix=%20members&style=for-the-badge&label=News%20group&color=%23f5c2e7)](https://freesmlauncher.org/telegram)
+[![Telegram Offtopic Chat](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Ffreesmlauncher.org%2Fapi%2Fbadges%2Ftelegram&query=%24.offtopic&suffix=%20members&style=for-the-badge&label=Offtopic&color=%23f5c2e7)](https://t.me/+_NOltEdtxPlkNGNi)
+
+### Subreddit
+
+[![r/FreesmLauncher](https://img.shields.io/reddit/subreddit-subscribers/freesmlauncher?style=for-the-badge&logo=reddit)](https://freesmlauncher.org/reddit)
+
+// old
 
 ---
 
