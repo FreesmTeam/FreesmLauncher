@@ -110,23 +110,17 @@ If you found a bug or want to suggest a feature, please open an issue in [GitHub
 
 [![r/FreesmLauncher](https://img.shields.io/reddit/subreddit-subscribers/freesmlauncher?style=for-the-badge&logo=reddit)](https://freesmlauncher.org/reddit)
 
-// old
-
----
-
 ## 🌐 Translations
+
+Freesm Launcher uses Prism Launcher's translations at the moment.
+The translation effort for Prism Launcher is hosted on Weblate and information about translating Prism Launcher is available at https://github.com/PrismLauncher/Translations.
 
 <!-- Freesm Launcher supports community translations via [Weblate](https://hosted.weblate.org/projects/freesmlauncher/). Help us translate or improve existing translations by visiting our [Weblate page](https://hosted.weblate.org/projects/freesmlauncher/) or our [GitHub Translations guide](https://github.com/FreesmTeam/Translations). -->
 
----
-
 ## 🛠️ Building from Source
 
-To build Freesm Launcher yourself, see the [Prism Launcher build instructions](https://prismlauncher.org/wiki/development/build-instructions/) (Freesm uses Garnix build system).  
-The source code is available on GitHub. Contributions to build scripts and packaging are welcome.
-
----
+To build Freesm Launcher yourself, see the [Prism Launcher build instructions](https://prismlauncher.org/wiki/development/build-instructions/) (Freesm uses Garnix build system).
 
 ## 📜 License
 
-Freesm Launcher is free software under the **GPL-3.0-only** license. See the [LICENSE](LICENSE) file for details.
+[![GitHub](https://img.shields.io/github/license/freesmteam/freesmlauncher?style=for-the-badge)](https://github.com/freesmteam/freesmlauncher/blob/main/LICENSE)
