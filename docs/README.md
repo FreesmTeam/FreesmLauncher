@@ -113,6 +113,7 @@ If you found a bug or want to suggest a feature, please open an issue in [GitHub
 ## 🌐 Translations
 
 Freesm Launcher uses Prism Launcher's translations at the moment.
+
 The translation effort for Prism Launcher is hosted on Weblate and information about translating Prism Launcher is available at https://github.com/PrismLauncher/Translations.
 
 <!-- Freesm Launcher supports community translations via [Weblate](https://hosted.weblate.org/projects/freesmlauncher/). Help us translate or improve existing translations by visiting our [Weblate page](https://hosted.weblate.org/projects/freesmlauncher/) or our [GitHub Translations guide](https://github.com/FreesmTeam/Translations). -->
@@ -120,6 +121,15 @@ The translation effort for Prism Launcher is hosted on Weblate and information a
 ## 🛠️ Building from Source
 
 To build Freesm Launcher yourself, see the [Prism Launcher build instructions](https://prismlauncher.org/wiki/development/build-instructions/) (Freesm uses Garnix build system).
+
+## ℹ️ Other
+
+<ul>
+  <li>We <strong>ARE NOT</strong> related to the <a href="https://prismlauncher.org">Prism Launcher</a> team.</li>
+  <li>We <strong>ARE NOT</strong> collecting your information. Don't trust us? Check it yourself.</li>
+  <li>We <strong>ARE</strong> providing <em>the</em> way to play Minecraft for free.</li>
+  <li>We <strong>ARE</strong> open to any contributions.</li>
+</ul>
 
 ## 📜 License
 
