@@ -80,7 +80,7 @@ This fork is **not** endorsed by Prism Launcher
 
 ### Stable Releases
 
-Download Freesm Launcher from our [official website](https://freesmlauncher.org/) or the [GitHub Releases](https://github.com/FreesmTeam/FreesmLauncher/releases) page. Packages available for **Linux, Windows, and macOS**.
+Download Freesm Launcher from our [official website](https://freesmlauncher.org/) or the [GitHub Releases](https://github.com/FreesmTeam/FreesmLauncher/releases) page. Packages are available for **Linux, Windows, and macOS**.
 
 ### Development builds
 
