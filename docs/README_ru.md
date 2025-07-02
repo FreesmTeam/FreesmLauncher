@@ -1,117 +1,136 @@
 <div align="center">
-  <img alt="DRM Free" src="https://img.shields.io/badge/drm-free-brightgreen?style=for-the-badge" />
-  <img alt="built with garnix" src="https://img.shields.io/endpoint.svg?url=https%3A%2F%2Fgarnix.io%2Fapi%2Fbadges%2FFreesmTeam%2FFreesmLauncher" />
-</div>
-<br>
+
+<img width="160" height="160" align="center" src="./favicon.webp" alt="Favicon">
+
+<h1>
+<a style="color:#f5c2e7" href="https://freesmlauncher.org/">Freesm Launcher</a>
+</h1>
+
+A Prism Launcher fork that **removes offline account restrictions**, adds custom auth server support and provides more customization
+
+This fork is **not** endorsed by Prism Launcher
+
 <p align="center">
-  <a href="README_ru.md">🇷🇺 Русский</a> | <a href="README.md">🇬🇧 English</a>
+<a style="color:#f5c2e7" href="./README.md">English</a> | <strong>Русский</strong>
 </p>
 
-# 🚀 Freesm Launcher
+<div>
 
-*Freesm Launcher* — это **кастомный лаунчер для Minecraft**, который позволяет управлять несколькими установками игры и **играть офлайн** без учетной записи Mojang/Microsoft.
-Он включает пользовательские темы интерфейса, анимированные «cat-pack» фоны и поддержку бесплатной аутентификации Ely.by.
-Freesm — это **независимый форк Prism Launcher**, не связанный с оригинальной командой Prism.
-Исходный код проекта открыт и распространяется под лицензией GPL-3.0.
+[![GitHub Repo stars](https://img.shields.io/github/stars/freesmteam/freesmlauncher?label=Stars&style=for-the-badge&color=%23f5c2e7&logo=data%3Aimage%2Fsvg%2Bxml%3Bbase64%2CPD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz4KPHN2ZyBoZWlnaHQ9IjI0IiB2aWV3Qm94PSIwIC05NjAgOTYwIDk2MCIgd2lkdGg9IjI0IiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPgogIDxwYXRoIGQ9Im0zNTQtMjQ3IDEyNi03NiAxMjYgNzctMzMtMTQ0IDExMS05Ni0xNDYtMTMtNTgtMTM2LTU4IDEzNS0xNDYgMTMgMTExIDk3LTMzIDE0M1pNMjMzLTgwbDY1LTI4MUw4MC01NTBsMjg4LTI1IDExMi0yNjUgMTEyIDI2NSAyODggMjUtMjE4IDE4OSA2NSAyODEtMjQ3LTE0OUwyMzMtODBabTI0Ny0zNTBaIiBzdHlsZT0iZmlsbDogcmdiKDI0NSwgMTk0LCAyMzEpOyIvPgo8L3N2Zz4%3D)](https://github.com/freesmteam/freesmlauncher/stargazers)
+![DRM Free Badge](https://img.shields.io/badge/drm-free-%23f5c2e7?style=for-the-badge)
+![Garnix Badge](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fgarnix.io%2Fapi%2Fbadges%2FFreesmTeam%2FFreesmLauncher&query=%24.message&style=for-the-badge&label=%20&color=white&logo=data%3Aimage%2Fsvg%2Bxml%3Bbase64%2CPHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI5NnB0IiBoZWlnaHQ9Ijk2cHQiIHZpZXdCb3g9IjAgMCAzNCAzNCIgZmlsbD0id2hpdGUiPjxwYXRoIGQ9Ik0zMyAxSDFWMzNIMzNWMVoiIGZpbGw9IndoaXRlIiBzdHJva2U9ImJsYWNrIiBzdHJva2Utd2lkdGg9IjIiIHN0cm9rZS1taXRlcmxpbWl0PSIxMCIgLz48cGF0aCBkPSJNMzIuOTkzNyAxNi45OTcxSDE3LjAwMzJWMjQuNzgyNCIgc3Ryb2tlPSJibGFjayIgc3Ryb2tlLXdpZHRoPSIyIiBzdHJva2UtbWl0ZXJsaW1pdD0iMTAiIC8%2BPC9zdmc%2B)
 
-> \[!NOTE]
-> Freesm Launcher — полностью автономный проект и **не аффилирован** с официальным Prism Launcher.
+</div>
 
----
+</div>
 
-## ✨ Основные возможности
-
-* 🎮 **Офлайн-режим**: играйте без онлайн-авторизации. Для локальных миров вход не требуется.
-* 🔑 **Поддержка Ely.by**: функция бесплатной аутентификации через [Ely.by](https://ely.by/).
-* 🎨 **Темы и иконки**: настраивайте интерфейс: светлые/тёмные режимы, цветовые схемы и наборы иконок.
-* 🐱 **Анимированные cat-packs**: GIF-фоны и кастомные иконки.
-* ✂️ **Обрезка фонов**: подгоняйте фоновые изображения под размер окна лаунчера.
-* 🔄 **Управление инстансами**: создавайте и управляйте несколькими установками и модпаками одновременно.
-* ☕ **Гибкая поддержка Java**: проверки версии Java по умолчанию отключены, но можно включить совместимость.
-* 🛡️ **Открытый код**: GPL-3.0, без DRM. Можно изучать, модифицировать и вносить вклад.
-
----
-
-## 📸 Скриншоты
+## 💻 Скриншоты
 
 <details>
-  <summary>Показать скриншоты</summary>
+  <summary>Show</summary>
 
   <div align="center">
-    <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px;">
-      <img src="screenshots/freesmlauncher_home_screenshot.png" alt="Панель с тёмной темой" width="512" />
-      <img src="screenshots/freesmlauncher_home_screenshot_opacity.png" alt="Панель с прозрачностью" width="512" />
-      <img src="screenshots/freesmlauncher_home_mita.gif" alt="Catpack Mita" width="512" />
-      <img src="screenshots/freesmlauncher_home_maxwell.gif" alt="Catpack Maxwell" width="512" />
-      <img src="screenshots/freesmlauncher_settings_accounts_screenshot.png" alt="Настройки аккаунтов" width="512" />
-      <img src="screenshots/freesmlauncher_instance_add_screenshot.png" alt="Создание инстанса" width="512" />
-      <img src="screenshots/freesmlauncher_instance_settings_screenshot.png" alt="Настройки инстанса" width="512" />
-      <img src="screenshots/freesmlauncher_settings_theme_screenshot.png" alt="Настройки темы" width="512" />
+    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;">
+      <img src="screenshots/freesmlauncher_home_screenshot.png" alt="Dark theme dashboard" width="512" />
+      <img src="screenshots/freesmlauncher_home_screenshot_opacity.png" alt="Dashboard with opacity" width="512" />
+      <img src="screenshots/freesmlauncher_home_mita.gif" alt="Mita catpack" width="512" />
+      <img src="screenshots/freesmlauncher_home_maxwell.gif" alt="Maxwell catpack" width="512" />
+      <img src="screenshots/freesmlauncher_settings_accounts_screenshot.png" alt="Accounts settings" width="512" />
+      <img src="screenshots/freesmlauncher_instance_add_screenshot.png" alt="Add instance" width="512" />
+      <img src="screenshots/freesmlauncher_instance_settings_screenshot.png" alt="Instance settings" width="512" />
+      <img src="screenshots/freesmlauncher_settings_theme_screenshot.png" alt="Theme settings" width="512" />
     </div>
   </div>
 
 </details>
 
----
+## ✨ Возможности
+
+- Offline mode doesn't require signing in with a microsoft account anymore
+- [Ely.by](https://ely.by/) can be used as an account auth option, providing a seamless integration with minecraft. You will see your minecraft skin anywhere without any mods or plugins
+- Custom authentication server support
+- Polished, minimalist dark and light themes based on a [Fluent-Dark](https://github.com/PrismLauncher/Themes/tree/main/themes/Fluent-Dark) theme with [catppuccin](https://catppuccin.com/)/[rosé pine](https://rosepinetheme.com/) colors and [Microsoft Fluent](https://fluent2.microsoft.design/iconography) icons
+- Animated GIF cat packs with image cropping support
+- In-game screenshots copying to the buffer history support
+- Animated snow effect for those who love... snow?
+- Random username and instance icon selection with ultra super advanced and cryptographically secure, absolutely random number generator based on the [lavarand](https://www.youtube.com/watch?v=dQw4w9WgXcQ)
+- FLOSS
+- ...all the Prism Launcher's features
 
 ## 📊 Сравнение
 
-| Функция                                       | Freesm  Launcher | Shattered  Prism | HMCL | Fjord   | PollyMC       | ElyPrism      | UltimMC | Prism-Cracked | Prism Launcher |
-|----------------------------------------------|------------------|------------------|------|---------|---------------|---------------|---------|---------------|----------------|
-| Оффлайн режим без аккаунта                      | ✅               | ✅               | ✅   | ❌      | ✅            | ✅            | ✅      | ✅            | ❌             |
-| Установка FTB мод-паков через лаунчер           | ✅               | ✅               | ❌   | ✅      | ✅            | ✅            | ❌      | ✅            | ✅             |
-| Поддержка ely.by                                | ✅               | ✅               | ✅   | ✅      | ✅            | ✅            | ✅      | ❌            | ❌             |
-| Поддержка Authlib-injector                      | ✅               | ✅               | ✅   | ✅      | ✅            | ❌            | ❌      | ❌            | ❌             |
-| Поддержка кастомного Authlib-injector           | ✅               | ✅               | ✅   | ✅      | ❌            | ❌            | ❌      | ❌            | ❌             |
-| Различия между серверами аутентификации         | ✅               | ✅               | ✅   | ✅      | ❌            | ❌            | ❌      | ❌            | ❌             |
-| Поддержка гифок для CatPack-ов                  | ✅               | ❌               | ❌   | ❌      | ❌            | ❌            | ❌      | ❌            | ❌             |
-| Обрезка CatPack-ов                              | ✅               | ❌               | ❌   | ❌      | ❌            | ❌            | ❌      | ❌            | ❌             |
-| Проверка Java выключена по умолчанию            | ✅               | ❌               | ❌   | ❌      | ❌            | ❌            | ❌      | ❌            | ❌             |
-| Форк                                            | PrismLauncher    | FjordLauncher    | ❌   | PollyMC | PrismLauncher | PrismLauncher | MultiMC| PrismLauncher | PolyMC         |
 
+| Feature                                                   | Freesm  Launcher | Shattered  Prism | HMCL | Fjord   | PollyMC       | ElyPrism      | UltimMC | Prism-Cracked | Prism Launcher |
+|-----------------------------------------------------------|------------------|------------------|------|---------|---------------|---------------|---------|---------------|----------------|
+| Offline Mode without a Microsoft account                  | ✅                | ✅                | ✅    | ❌       | ✅             | ✅             | ✅       | ✅             | ❌              |
+| FTB packs                                                 | ✅                | ✅                | ❌    | ✅       | ✅             | ✅             | ❌       | ✅             | ✅              |
+| Ely.by support                                            | ✅                | 🟨¹              | 🟨¹  | 🟨¹     | 🟨¹           | ✅             | 🟨¹     | ❌             | ❌              |
+| Authlib-injector support                                  | ✅                | ✅                | ✅    | ✅       | ✅             | ❌²            | ❌²      | ❌²            | ❌²             |
+| Custom Authlib-injector jar support                       | ❌²               | ✅                | ❌²   | ✅       | ❌²            | ❌²            | ❌²      | ❌²            | ❌²             |
+| Differentiating between auth servers                      | ✅                | ✅                | ✅    | ✅       | ❌             | ❌             | ❌       | ❌             | ❌              |
+| Animated Cat Packs & Cropping                             | ✅                | ❌                | ❌    | ❌       | ❌             | ❌             | ❌       | ❌             | ❌              |
+| Screenshots saving to the buffer history without any mods | ✅                | ❌                | ❌    | ❌       | ❌             | ❌             | ❌       | ❌             | ❌              |
+| Fork                                                      | PrismLauncher    | FjordLauncher    | ❌    | PollyMC | PrismLauncher | PrismLauncher | MultiMC | PrismLauncher | PolyMC         |
 
----
+¹ doesn't use official Ely.by authlib patches
 
-## 📥 Установка
+² you can still change a `javaagent` JVM argument to use your `authlib-injector` jar file as an auth server
 
-### 🏷️ Стабильные релизы
+## ⬇️ Установка
 
-Скачайте Freesm Launcher с [официального сайта](https://freesmlauncher.org) или со страницы [релизов на GitHub](https://github.com/FreesmTeam/FreesmLauncher/releases). Поддерживаются Windows, macOS и Linux (x86-64).
+### Стабильные версии
 
-### 🌙 Ночные сборки
+Download Freesm Launcher from our [official website](https://freesmlauncher.org/) or the [GitHub Releases](https://github.com/FreesmTeam/FreesmLauncher/releases) page. Packages are available for **Linux, Windows, and macOS**.
 
-Хотите самые свежие функции? Смотрите артефакты [GitHub Actions](https://github.com/FreesmTeam/FreesmLauncher/actions) и [ночные сборки](https://nightly.link/FreesmTeam/FreesmLauncher/workflows/develop). **Не рекомендуется** для обычных пользователей.
+### Нестабильные сборки
 
-> \[!CAUTION]
-> Ночные сборки могут быть нестабильными и содержать отладочную информацию.
+Please understand that these builds are not intended for most users. There may be bugs and other instabilities. You have been warned.
 
----
+There are development builds available through:
+
+* [GitHub Actions](https://github.com/FreesmTeam/FreesmLauncher/actions) (includes builds from pull requests opened by contributors).
+* [nightly.link](https://nightly.link/FreesmTeam/FreesmLauncher/workflows/trigger_builds/develop) (this will always point only to the latest version of the `develop` branch).
+
+These builds contain debug information in the binaries, so their file sizes are relatively larger. Prebuilt Development builds are provided for **Linux, Windows, and macOS**.
 
 ## 💬 Сообщество и поддержка
 
-Есть идеи или нашли баг? Откройте issue в нашем [репозитории GitHub](https://github.com/FreesmTeam/FreesmLauncher). Pull-реквесты и отзывы приветствуются!
+If you found a bug or want to suggest a feature, please open an issue in [GitHub Issues](https://github.com/FreesmTeam/FreesmLauncher/issues). Pull requests and contributions (code, docs, translations) are welcome!
 
-> \[!CAUTION]
-> Не обсуждайте Freesm Launcher в каналах Prism Launcher — у нас своё сообщество.
+### Discord
 
-> \[!NOTE]
-> Freesm не собирает персональные данные. Всё работает локально, под лицензией GPL-3.0.
+[![Discord server](https://discordapp.com/api/guilds/1332079164341354506/widget.png?style=banner3)](https://freesmlauncher.org/discord)
 
----
+### Telegram
+
+[![Telegram News Group](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Ffreesmlauncher.org%2Fapi%2Fbadges%2Ftelegram&query=%24.news&suffix=%20members&style=for-the-badge&label=News%20group&color=%23f5c2e7)](https://freesmlauncher.org/telegram)
+[![Telegram Offtopic Chat](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Ffreesmlauncher.org%2Fapi%2Fbadges%2Ftelegram&query=%24.offtopic&suffix=%20members&style=for-the-badge&label=Offtopic&color=%23f5c2e7)](https://t.me/+_NOltEdtxPlkNGNi)
+
+### Subreddit
+
+[![r/FreesmLauncher](https://img.shields.io/reddit/subreddit-subscribers/freesmlauncher?style=for-the-badge&logo=reddit)](https://freesmlauncher.org/reddit)
 
 ## 🌐 Переводы
 
-Сообщество переводит интерфейс через [Weblate](https://hosted.weblate.org/projects/freesmlauncher/).
-Присоединяйтесь и помогайте улучшать переводы!
+Freesm Launcher uses Prism Launcher's translations at the moment.
 
----
+The translation effort for Prism Launcher is hosted on Weblate and information about translating Prism Launcher is available at https://github.com/PrismLauncher/Translations.
 
-## 🛠️ Сборка из исходников
+<!-- Freesm Launcher supports community translations via [Weblate](https://hosted.weblate.org/projects/freesmlauncher/). Help us translate or improve existing translations by visiting our [Weblate page](https://hosted.weblate.org/projects/freesmlauncher/) or our [GitHub Translations guide](https://github.com/FreesmTeam/Translations). -->
 
-Инструкции по сборке взяты из [Prism Launcher](https://prismlauncher.org/wiki/development/build-instructions/), Freesm использует Garnix.
+## 🛠️ Сборка
 
----
+To build Freesm Launcher yourself, see the [Prism Launcher build instructions](https://prismlauncher.org/wiki/development/build-instructions/) (Freesm uses Garnix build system).
+
+## ℹ️ Прочее
+
+<ul>
+  <li>Мы <strong>НЕ</strong> связаны с командой <a href="https://prismlauncher.org">Prism Launcher</a>.</li>
+  <li>Мы <strong>НЕ</strong> собираем вашу информацию. Не верите? Проверьте сами.</li>
+  <li>Мы <strong>ПРЕДОСТАВЛЯЕМ</strong> возможность играть в Minecraft бесплатно.</li>
+  <li>Мы <strong>ОТКРЫТЫ</strong> для коммитов от сообщества.</li>
+</ul>
 
 ## 📜 Лицензия
 
-Проект распространяется под лицензией **GPL-3.0-only**. См. файл [LICENSE](LICENSE).
+[![GitHub](https://img.shields.io/github/license/freesmteam/freesmlauncher?style=for-the-badge)](https://github.com/freesmteam/freesmlauncher/blob/main/LICENSE)
