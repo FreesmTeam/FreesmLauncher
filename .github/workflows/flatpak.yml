@@ -13,6 +13,7 @@ on:
       - "**.cpp"
       - "**.h"
       - "**.java"
+      - "**.ui"
 
       # Build files
       - "flatpak/"

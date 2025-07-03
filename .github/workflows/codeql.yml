@@ -10,6 +10,7 @@ on:
       - "**.cpp"
       - "**.h"
       - "**.java"
+      - "**.ui"
 
       # Directories
       - "buildconfig/"
