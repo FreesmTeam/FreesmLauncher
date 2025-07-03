@@ -86,7 +86,7 @@
          <string>P&amp;ost-exit Command</string>
         </property>
         <property name="buddy">
-         <cstring>labelPostExitCmd</cstring>
+         <cstring>postExitCmdTextBox</cstring>
         </property>
        </widget>
       </item>
