@@ -111,17 +111,8 @@ runs:
 
         INSTALL_PORTABLE_DIR: install-portable
       run: |
-        cmake --preset "$CMAKE_PRESET" -DCMAKE_INSTALL_PREFIX=${{ env.INSTALL_PORTABLE_DIR }} -DINSTALL_BUNDLE=full
-        cmake --install ${{ env.BUILD_DIR }}
-        cmake --install ${{ env.BUILD_DIR }} --component portable
-
-        mkdir  ${{ env.INSTALL_PORTABLE_DIR }}/lib
-        cp /lib/"$DEB_HOST_MULTIARCH"/libbz2.so.1.0 ${{ env.INSTALL_PORTABLE_DIR }}/lib
-        cp /usr/lib/"$DEB_HOST_MULTIARCH"/libgobject-2.0.so.0 ${{ env.INSTALL_PORTABLE_DIR }}/lib
-        cp /usr/lib/"$DEB_HOST_MULTIARCH"/libcrypto.so.* ${{ env.INSTALL_PORTABLE_DIR }}/lib
-        cp /usr/lib/"$DEB_HOST_MULTIARCH"/libssl.so.* ${{ env.INSTALL_PORTABLE_DIR }}/lib
-        cp /usr/lib/"$DEB_HOST_MULTIARCH"/libffi.so.*.* ${{ env.INSTALL_PORTABLE_DIR }}/lib
-        mv ${{ env.INSTALL_PORTABLE_DIR }}/bin/*.so* ${{ env.INSTALL_PORTABLE_DIR }}/lib
+        cmake --install ${{ env.BUILD_DIR }} --prefix ${{ env.INSTALL_PORTABLE_DIR }}
+        cmake --install ${{ env.BUILD_DIR }} --prefix ${{ env.INSTALL_PORTABLE_DIR }} --component portable
 
         for l in $(find ${{ env.INSTALL_PORTABLE_DIR }} -type f); do l=${l#$(pwd)/}; l=${l#${{ env.INSTALL_PORTABLE_DIR }}/}; l=${l#./}; echo $l; done > ${{ env.INSTALL_PORTABLE_DIR }}/manifest.txt
         cd ${{ env.INSTALL_PORTABLE_DIR }}
