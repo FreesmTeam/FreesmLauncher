@@ -13,43 +13,45 @@ on:
       - "**.ui"
 
       # Directories
-      - "buildconfig/"
-      - "cmake/"
-      - "launcher/"
-      - "libraries/"
-      - "program_info/"
-      - "tests/"
+      - "buildconfig/**"
+      - "cmake/**"
+      - "launcher/**"
+      - "libraries/**"
+      - "program_info/**"
+      - "tests/**"
 
       # Files
       - "CMakeLists.txt"
       - "COPYING.md"
 
       # Workflows
-      - ".github/codeql"
+      - ".github/codeql/**"
       - ".github/workflows/codeql.yml"
-      - ".github/actions/setup-dependencies/"
+      - ".github/actions/setup-dependencies/**"
   pull_request:
     paths:
       # File types
       - "**.cpp"
       - "**.h"
+      - "**.java"
+      - "**.ui"
 
       # Directories
-      - "buildconfig/"
-      - "cmake/"
-      - "launcher/"
-      - "libraries/"
-      - "program_info/"
-      - "tests/"
+      - "buildconfig/**"
+      - "cmake/**"
+      - "launcher/**"
+      - "libraries/**"
+      - "program_info/**"
+      - "tests/**"
 
       # Files
       - "CMakeLists.txt"
       - "COPYING.md"
 
       # Workflows
-      - ".github/codeql"
+      - ".github/codeql/**"
       - ".github/workflows/codeql.yml"
-      - ".github/actions/setup-dependencies/"
+      - ".github/actions/setup-dependencies/**"
   workflow_dispatch:
 
 jobs:
