@@ -17,6 +17,7 @@
 #include <QKeyEvent>
 #include <QLineEdit>
 #include <QPushButton>
+#include <QRandomGenerator>
 #include <QSortFilterProxyModel>
 
 #include "Application.h"
@@ -90,6 +91,8 @@ IconPickerDialog::IconPickerDialog(QWidget* parent) : QDialog(parent), ui(new Ui
     connect(searchBar, &QLineEdit::textChanged, this, &IconPickerDialog::filterIcons);
     // Prevent incorrect indices from e.g. filesystem changes
     connect(APPLICATION->icons().get(), &IconList::iconUpdated, this, [this]() { proxyModel->invalidate(); });
+    auto randomButton = ui->buttonBox->addButton(tr("Random Icon"), QDialogButtonBox::ResetRole);
+    connect(randomButton, &QPushButton::clicked, this, &IconPickerDialog::selectRandomIcon);
 }
 
 bool IconPickerDialog::eventFilter(QObject* obj, QEvent* evt)
@@ -172,6 +175,20 @@ void IconPickerDialog::delayed_scroll(QModelIndex model_index)
 IconPickerDialog::~IconPickerDialog()
 {
     delete ui;
+}
+
+void IconPickerDialog::selectRandomIcon()
+{
+    int rowAmount = ui->iconView->model()->rowCount();
+    int randomRowNum = QRandomGenerator::global()->bounded(rowAmount);
+    QModelIndex index = ui->iconView->model()->index(randomRowNum, 0);
+
+    ui->iconView->selectionModel()->select(index, QItemSelectionModel::Current | QItemSelectionModel::Select);
+    ui->iconView->setCurrentIndex(index);
+    ui->iconView->scrollTo(index);
+
+    selectedIconKey = index.data(Qt::UserRole).toString();
+    buttonRemove->setEnabled(APPLICATION->icons()->iconFileExists(selectedIconKey));
 }
 
 void IconPickerDialog::openFolder()
