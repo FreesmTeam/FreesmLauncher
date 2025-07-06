@@ -46,12 +46,12 @@ This fork is **not** endorsed by Prism Launcher
 
 ## ✨ Features
 
-- Offline mode doesn't require signing in with a microsoft account anymore
-- [Ely.by](https://ely.by/) can be used as an account auth option, providing a seamless integration with minecraft. You will see your minecraft skin anywhere without any mods or plugins
+- Offline mode doesn't require signing in with a Microsoft account anymore
+- [Ely.by](https://ely.by/) can be used as an account auth option, providing a seamless integration with Minecraft. You will see your Minecraft skin anywhere without any mods or plugins
 - Custom authentication server support
 - Polished, minimalist dark and light themes based on a [Fluent-Dark](https://github.com/PrismLauncher/Themes/tree/main/themes/Fluent-Dark) theme with [catppuccin](https://catppuccin.com/)/[rosé pine](https://rosepinetheme.com/) colors and [Microsoft Fluent](https://fluent2.microsoft.design/iconography) icons
 - Animated GIF cat packs with image cropping support
-- In-game screenshots copying to the buffer history support
+- In-game screenshots copying to the buffer history without any mods support
 - Animated snow effect for those who love... snow?
 - Random username and instance icon selection with ultra super advanced and cryptographically secure, absolutely random number generator based on the [lavarand](https://www.youtube.com/watch?v=dQw4w9WgXcQ)
 - FLOSS
@@ -60,17 +60,16 @@ This fork is **not** endorsed by Prism Launcher
 ## 📊 Comparison
 
 
-| Feature                                                   | Freesm  Launcher | Shattered  Prism | HMCL | Fjord   | PollyMC       | ElyPrism      | UltimMC | Prism-Cracked | Prism Launcher |
-|-----------------------------------------------------------|------------------|------------------|------|---------|---------------|---------------|---------|---------------|----------------|
-| Offline Mode without a Microsoft account                  | ✅                | ✅                | ✅    | ❌       | ✅             | ✅             | ✅       | ✅             | ❌              |
-| FTB packs                                                 | ✅                | ✅                | ❌    | ✅       | ✅             | ✅             | ❌       | ✅             | ✅              |
-| Ely.by support                                            | ✅                | 🟨¹              | 🟨¹  | 🟨¹     | 🟨¹           | ✅             | 🟨¹     | ❌             | ❌              |
-| Authlib-injector support                                  | ✅                | ✅                | ✅    | ✅       | ✅             | ❌²            | ❌²      | ❌²            | ❌²             |
-| Custom Authlib-injector jar support                       | ❌²               | ✅                | ❌²   | ✅       | ❌²            | ❌²            | ❌²      | ❌²            | ❌²             |
-| Differentiating between auth servers                      | ✅                | ✅                | ✅    | ✅       | ❌             | ❌             | ❌       | ❌             | ❌              |
-| Animated Cat Packs & Cropping                             | ✅                | ❌                | ❌    | ❌       | ❌             | ❌             | ❌       | ❌             | ❌              |
-| Screenshots saving to the buffer history without any mods | ✅                | ❌                | ❌    | ❌       | ❌             | ❌             | ❌       | ❌             | ❌              |
-| Fork                                                      | PrismLauncher    | FjordLauncher    | ❌    | PollyMC | PrismLauncher | PrismLauncher | MultiMC | PrismLauncher | PolyMC         |
+| Feature                                  | Freesm  Launcher | Shattered  Prism | HMCL | Fjord   | PollyMC       | ElyPrism      | UltimMC | Prism-Cracked | Prism Launcher |
+|------------------------------------------|------------------|------------------|------|---------|---------------|---------------|---------|---------------|----------------|
+| Offline Mode without a Microsoft account | ✅                | ✅                | ✅    | ❌       | ✅             | ✅             | ✅       | ✅             | ❌              |
+| FTB packs                                | ✅                | ✅                | ❌    | ✅       | ✅             | ✅             | ❌       | ✅             | ✅              |
+| Ely.by support                           | ✅                | 🟨¹              | 🟨¹  | 🟨¹     | 🟨¹           | ✅             | 🟨¹     | ❌             | ❌              |
+| Authlib-injector support                 | ✅                | ✅                | ✅    | ✅       | ✅             | ❌²            | ❌²      | ❌²            | ❌²             |
+| Custom Authlib-injector jar support      | ❌²               | ✅                | ❌²   | ✅       | ❌²            | ❌²            | ❌²      | ❌²            | ❌²             |
+| Animated Cat Packs & Cropping            | ✅                | ❌                | ❌    | ❌       | ❌             | ❌             | ❌       | ❌             | ❌              |
+| Screenshots saving to the buffer history | ✅                | ❌                | ❌    | ❌       | ❌             | ❌             | ❌       | ❌             | ❌              |
+| Fork                                     | PrismLauncher    | FjordLauncher    | ❌    | PollyMC | PrismLauncher | PrismLauncher | MultiMC | PrismLauncher | PolyMC         |
 
 ¹ doesn't use official Ely.by authlib patches
 
