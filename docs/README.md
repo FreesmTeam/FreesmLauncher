@@ -105,7 +105,6 @@ If you found a bug or want to suggest a feature, please open an issue in [GitHub
 
 [![Telegram News Group](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Ffreesmlauncher.org%2Fapi%2Fbadges%2Ftelegram&query=%24.news&suffix=%20members&style=for-the-badge&label=News%20group&color=%23f5c2e7)](https://freesmlauncher.org/telegram)
 [![Telegram Support Chat](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Ffreesmlauncher.org%2Fapi%2Fbadges%2Ftelegram&query=%24.support&suffix=%20members&style=for-the-badge&label=Support&color=%23f5c2e7)](https://t.me/freesmsupport)
-[![Telegram Offtopic Chat](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Ffreesmlauncher.org%2Fapi%2Fbadges%2Ftelegram&query=%24.offtopic&suffix=%20members&style=for-the-badge&label=Offtopic&color=%23f5c2e7)](https://t.me/+_NOltEdtxPlkNGNi)
 
 ### Subreddit
 
