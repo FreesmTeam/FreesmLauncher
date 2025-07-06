@@ -6,7 +6,7 @@
 <a style="color:#f5c2e7" href="https://freesmlauncher.org/">Freesm Launcher</a>
 </h1>
 
-A Prism Launcher fork that **removes offline account restrictions**, adds custom auth server support and provides more customization
+A Prism Launcher fork that **removes offline account restrictions**, adds custom auth server support, and provides more customization
 
 This fork is **not** endorsed by Prism Launcher
 
@@ -53,7 +53,7 @@ This fork is **not** endorsed by Prism Launcher
 - Animated GIF cat packs with image cropping support
 - In-game screenshots copying to the buffer history without any mods support
 - Animated snow effect for those who love... snow?
-- Random username and instance icon selection with ultra super advanced and cryptographically secure, absolutely random number generator based on the [lavarand](https://www.youtube.com/watch?v=dQw4w9WgXcQ)
+- Random username and instance icon selection with ultra-super-advanced and cryptographically secure, absolutely random number generator based on the [lavarand](https://www.youtube.com/watch?v=dQw4w9WgXcQ)
 - FLOSS
 - ...all the Prism Launcher's features
 
@@ -113,13 +113,13 @@ If you found a bug or want to suggest a feature, please open an issue in [GitHub
 
 Freesm Launcher uses Prism Launcher's translations at the moment.
 
-The translation effort for Prism Launcher is hosted on Weblate and information about translating Prism Launcher is available at https://github.com/PrismLauncher/Translations.
+The translation effort for Prism Launcher is hosted on Weblate, and information about translating Prism Launcher is available at https://github.com/PrismLauncher/Translations.
 
 <!-- Freesm Launcher supports community translations via [Weblate](https://hosted.weblate.org/projects/freesmlauncher/). Help us translate or improve existing translations by visiting our [Weblate page](https://hosted.weblate.org/projects/freesmlauncher/) or our [GitHub Translations guide](https://github.com/FreesmTeam/Translations). -->
 
 ## 🛠️ Building from Source
 
-To build Freesm Launcher yourself, see the [Prism Launcher build instructions](https://prismlauncher.org/wiki/development/build-instructions/) (Freesm uses Garnix build system).
+To build Freesm Launcher yourself, see the [Prism Launcher build instructions](https://prismlauncher.org/wiki/development/build-instructions/) (Freesm uses the Garnix build system).
 
 ## ℹ️ Other
 
