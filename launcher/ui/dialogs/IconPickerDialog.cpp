@@ -17,6 +17,7 @@
 #include <QKeyEvent>
 #include <QLineEdit>
 #include <QPushButton>
+#include <QRandomGenerator>
 #include <QSortFilterProxyModel>
 
 #include "Application.h"
@@ -29,7 +30,6 @@
 #include <DesktopServices.h>
 #include "icons/IconList.h"
 #include "icons/IconUtils.h"
-#include <QRandomGenerator>
 
 IconPickerDialog::IconPickerDialog(QWidget* parent) : QDialog(parent), ui(new Ui::IconPickerDialog)
 {
@@ -91,8 +91,8 @@ IconPickerDialog::IconPickerDialog(QWidget* parent) : QDialog(parent), ui(new Ui
     connect(searchBar, &QLineEdit::textChanged, this, &IconPickerDialog::filterIcons);
     // Prevent incorrect indices from e.g. filesystem changes
     connect(APPLICATION->icons().get(), &IconList::iconUpdated, this, [this]() { proxyModel->invalidate(); });
-    auto buttonRandom = ui->buttonBox->addButton(tr("Random Icon"), QDialogButtonBox::ResetRole);
-    connect(buttonRandom, &QPushButton::clicked, this, &IconPickerDialog::on_randomIcon_Pushed);
+    auto randomButton = ui->buttonBox->addButton(tr("Random Icon"), QDialogButtonBox::ResetRole);
+    connect(randomButton, &QPushButton::clicked, this, &IconPickerDialog::selectRandomIcon);
 }
 
 bool IconPickerDialog::eventFilter(QObject* obj, QEvent* evt)
@@ -177,21 +177,19 @@ IconPickerDialog::~IconPickerDialog()
     delete ui;
 }
 
-void IconPickerDialog::on_randomIcon_Pushed()
+void IconPickerDialog::selectRandomIcon()
 {
     int rowAmount = ui->iconView->model()->rowCount();
     int randomRowNum = QRandomGenerator::global()->bounded(rowAmount);
     QModelIndex index = ui->iconView->model()->index(randomRowNum, 0);
 
-    ui->iconView->selectionModel()->select(index, QItemSelectionModel::QItemSelectionModel::Current | QItemSelectionModel::Select);
+    ui->iconView->selectionModel()->select(index, QItemSelectionModel::Current | QItemSelectionModel::Select);
     ui->iconView->setCurrentIndex(index);
     ui->iconView->scrollTo(index);
 
     selectedIconKey = index.data(Qt::UserRole).toString();
     buttonRemove->setEnabled(APPLICATION->icons()->iconFileExists(selectedIconKey));
-    
 }
-
 
 void IconPickerDialog::openFolder()
 {
