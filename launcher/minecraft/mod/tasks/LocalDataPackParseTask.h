@@ -61,7 +61,7 @@ class LocalDataPackParseTask : public Task {
 
     void executeTask() override;
 
-    [[nodiscard]] int token() const { return m_token; }
+    int token() const { return m_token; }
 
    private:
     int m_token;

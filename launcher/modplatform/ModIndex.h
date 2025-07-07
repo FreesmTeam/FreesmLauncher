@@ -155,14 +155,14 @@ struct IndexedPack {
     ExtraPackData extraData;
 
     // For internal use, not provided by APIs
-    [[nodiscard]] bool isVersionSelected(int index) const
+    bool isVersionSelected(int index) const
     {
         if (!versionsLoaded)
             return false;
 
         return versions.at(index).is_currently_selected;
     }
-    [[nodiscard]] bool isAnyVersionSelected() const
+    bool isAnyVersionSelected() const
     {
         if (!versionsLoaded)
             return false;

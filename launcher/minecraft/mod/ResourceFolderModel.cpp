@@ -709,7 +709,7 @@ SortType ResourceFolderModel::columnToSortKey(size_t column) const
 }
 
 /* Standard Proxy Model for createFilterProxyModel */
-[[nodiscard]] bool ResourceFolderModel::ProxyModel::filterAcceptsRow(int source_row,
+bool ResourceFolderModel::ProxyModel::filterAcceptsRow(int source_row,
                                                                      [[maybe_unused]] const QModelIndex& source_parent) const
 {
     auto* model = qobject_cast<ResourceFolderModel*>(sourceModel());
@@ -721,7 +721,7 @@ SortType ResourceFolderModel::columnToSortKey(size_t column) const
     return resource.applyFilter(filterRegularExpression());
 }
 
-[[nodiscard]] bool ResourceFolderModel::ProxyModel::lessThan(const QModelIndex& source_left, const QModelIndex& source_right) const
+bool ResourceFolderModel::ProxyModel::lessThan(const QModelIndex& source_left, const QModelIndex& source_right) const
 {
     auto* model = qobject_cast<ResourceFolderModel*>(sourceModel());
     if (!model || !source_left.isValid() || !source_right.isValid() || source_left.column() != source_right.column()) {

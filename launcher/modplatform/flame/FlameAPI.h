@@ -29,7 +29,7 @@ class FlameAPI : public NetworkResourceAPI {
     static Task::Ptr getModCategories(std::shared_ptr<QByteArray> response);
     static QList<ModPlatform::Category> loadModCategories(std::shared_ptr<QByteArray> response);
 
-    [[nodiscard]] QList<ResourceAPI::SortingMethod> getSortingMethods() const override;
+    QList<ResourceAPI::SortingMethod> getSortingMethods() const override;
 
     static inline bool validateModLoaders(ModPlatform::ModLoaderTypes loaders)
     {
@@ -90,7 +90,7 @@ class FlameAPI : public NetworkResourceAPI {
     static const QString getModLoaderFilters(ModPlatform::ModLoaderTypes types) { return "[" + getModLoaderStrings(types).join(',') + "]"; }
 
    public:
-    [[nodiscard]] std::optional<QString> getSearchURL(SearchArgs const& args) const override
+    std::optional<QString> getSearchURL(SearchArgs const& args) const override
     {
         QStringList get_arguments;
         get_arguments.append(QString("classId=%1").arg(getClassId(args.type)));
@@ -116,7 +116,7 @@ class FlameAPI : public NetworkResourceAPI {
         return BuildConfig.FLAME_BASE_URL + "/mods/search?gameId=432&" + get_arguments.join('&');
     }
 
-    [[nodiscard]] std::optional<QString> getVersionsURL(VersionSearchArgs const& args) const override
+    std::optional<QString> getVersionsURL(VersionSearchArgs const& args) const override
     {
         auto addonId = args.pack.addonId.toString();
         QString url = QString(BuildConfig.FLAME_BASE_URL + "/mods/%1/files?pageSize=10000").arg(addonId);
@@ -133,11 +133,11 @@ class FlameAPI : public NetworkResourceAPI {
     }
 
    private:
-    [[nodiscard]] std::optional<QString> getInfoURL(QString const& id) const override
+    std::optional<QString> getInfoURL(QString const& id) const override
     {
         return QString(BuildConfig.FLAME_BASE_URL + "/mods/%1").arg(id);
     }
-    [[nodiscard]] std::optional<QString> getDependencyURL(DependencySearchArgs const& args) const override
+    std::optional<QString> getDependencyURL(DependencySearchArgs const& args) const override
     {
         auto addonId = args.dependency.addonId.toString();
         auto url =

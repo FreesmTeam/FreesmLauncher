@@ -35,7 +35,7 @@ class ModrinthAPI : public NetworkResourceAPI {
     static QList<ModPlatform::Category> loadModCategories(std::shared_ptr<QByteArray> response);
 
    public:
-    [[nodiscard]] auto getSortingMethods() const -> QList<ResourceAPI::SortingMethod> override;
+    auto getSortingMethods() const -> QList<ResourceAPI::SortingMethod> override;
 
     inline auto getAuthorURL(const QString& name) const -> QString { return "https://modrinth.com/user/" + name; };
 
@@ -83,7 +83,7 @@ class ModrinthAPI : public NetworkResourceAPI {
         return {};
     }
 
-    [[nodiscard]] static inline QString mapMCVersionFromModrinth(QString v)
+    static inline QString mapMCVersionFromModrinth(QString v)
     {
         static const QString preString = " Pre-Release ";
         bool pre = false;
@@ -99,7 +99,7 @@ class ModrinthAPI : public NetworkResourceAPI {
     }
 
    private:
-    [[nodiscard]] static QString resourceTypeParameter(ModPlatform::ResourceType type)
+    static QString resourceTypeParameter(ModPlatform::ResourceType type)
     {
         switch (type) {
             case ModPlatform::ResourceType::MOD:
@@ -120,7 +120,7 @@ class ModrinthAPI : public NetworkResourceAPI {
         return "";
     }
 
-    [[nodiscard]] QString createFacets(SearchArgs const& args) const
+    QString createFacets(SearchArgs const& args) const
     {
         QStringList facets_list;
 
@@ -144,7 +144,7 @@ class ModrinthAPI : public NetworkResourceAPI {
     }
 
    public:
-    [[nodiscard]] inline auto getSearchURL(SearchArgs const& args) const -> std::optional<QString> override
+    inline auto getSearchURL(SearchArgs const& args) const -> std::optional<QString> override
     {
         if (args.loaders.has_value() && args.loaders.value() != 0) {
             if (!validateModLoaders(args.loaders.value())) {
@@ -203,7 +203,7 @@ class ModrinthAPI : public NetworkResourceAPI {
                           ModPlatform::DataPack);
     }
 
-    [[nodiscard]] std::optional<QString> getDependencyURL(DependencySearchArgs const& args) const override
+    std::optional<QString> getDependencyURL(DependencySearchArgs const& args) const override
     {
         return args.dependency.version.length() != 0 ? QString("%1/version/%2").arg(BuildConfig.MODRINTH_PROD_URL, args.dependency.version)
                                                      : QString("%1/project/%2/version?game_versions=[\"%3\"]&loaders=[\"%4\"]")
