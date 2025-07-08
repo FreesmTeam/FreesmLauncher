@@ -14,17 +14,17 @@ on:
 
 jobs:
   windows:
-    uses: ./.github/workflows/windows.yml
+    uses: ./.github/workflows/by-os/windows.yml
     with:
       is_qt_cached: ${{inputs.is_qt_cached}}
       build_type: ${{inputs.build_type}}
   linux:
-    uses: ./.github/workflows/linux.yml
+    uses: ./.github/workflows/by-os/linux.yml
     with:
       is_qt_cached: ${{inputs.is_qt_cached}}
       build_type: ${{inputs.build_type}}
   macos:
-    uses: ./.github/workflows/macos.yml
+    uses: ./.github/workflows/by-os/macos.yml
     with:
       is_qt_cached: ${{inputs.is_qt_cached}}
       build_type: ${{inputs.build_type}}
