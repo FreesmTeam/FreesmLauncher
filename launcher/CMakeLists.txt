@@ -1496,9 +1496,9 @@ if (UNIX AND APPLE AND Launcher_ENABLE_UPDATER)
 endif()
 
 #### The bundle mess! ####
-# Bundle utilities are used to complete the portable packages - they add all the libraries that would otherwise be missing on the target system.
+# Bundle utilities are used to complete packages for different platforms - they add all the libraries that would otherwise be missing on the target system.
 # NOTE: it seems that this absolutely has to be here, and nowhere else.
-if(INSTALL_BUNDLE STREQUAL "full")
+if(WIN32 OR (UNIX AND APPLE))
     if(WIN32)
         set(QT_DEPLOY_TOOL_OPTIONS "--no-opengl-sw --no-quick-import --no-system-d3d-compiler --no-system-dxc-compiler --skip-plugin-types generic,networkinformation")
     endif()
@@ -1521,7 +1521,9 @@ if(INSTALL_BUNDLE STREQUAL "full")
     )
 
     # Bundle our linked dependencies
-    install(RUNTIME_DEPENDENCY_SET LAUNCHER_DEPENDENCY_SET
+    install(
+        RUNTIME_DEPENDENCY_SET LAUNCHER_DEPENDENCY_SET
+        COMPONENT bundle
         DIRECTORIES
             ${CMAKE_SYSTEM_LIBRARY_PATH}
             ${QT_LIBS_DIR}
@@ -1538,17 +1540,20 @@ if(INSTALL_BUNDLE STREQUAL "full")
         FRAMEWORK DESTINATION ${FRAMEWORK_DEST_DIR}
     )
     # Deploy Qt plugins
-    install(SCRIPT ${QT_DEPLOY_SCRIPT})
+    install(
+        SCRIPT ${QT_DEPLOY_SCRIPT}
+        COMPONENT bundle
+    )
 
     # Add qt.conf - this makes Qt stop looking for things outside the bundle
     install(
         CODE "file(WRITE \"\${CMAKE_INSTALL_PREFIX}/${RESOURCES_DEST_DIR}/qt.conf\" \" \")"
-        COMPONENT Runtime
+        COMPONENT bundle
     )
     # Add qtlogging.ini as a config file
     install(
         FILES "qtlogging.ini"
         DESTINATION ${CMAKE_INSTALL_PREFIX}/${RESOURCES_DEST_DIR}
-        COMPONENT Runtime
+        COMPONENT bundle
     )
 endif()

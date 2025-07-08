@@ -405,9 +405,6 @@ if(UNIX AND APPLE)
         set(Launcher_ENABLE_UPDATER YES)
     endif()
 
-    # install as bundle
-    set(INSTALL_BUNDLE "full" CACHE STRING "Use fixup_bundle to bundle dependencies")
-
     # Add the icon
     install(FILES ${Launcher_Branding_ICNS} DESTINATION ${RESOURCES_DEST_DIR} RENAME ${Launcher_Name}.icns)
 
@@ -417,9 +414,6 @@ elseif(UNIX)
     set(BINARY_DEST_DIR "bin")
     set(LIBRARY_DEST_DIR "lib${LIB_SUFFIX}")
     set(JARS_DEST_DIR "share/${Launcher_Name}")
-
-    # install as bundle with no dependencies included
-    set(INSTALL_BUNDLE "nodeps" CACHE STRING "Use fixup_bundle to bundle dependencies")
 
     # Set RPATH
     SET(Launcher_BINARY_RPATH "$ORIGIN/")
@@ -431,11 +425,9 @@ elseif(UNIX)
 
     install(FILES "${CMAKE_CURRENT_SOURCE_DIR}/launcher/qtlogging.ini" DESTINATION "share/${Launcher_Name}")
 
-    if (INSTALL_BUNDLE STREQUAL full)
-        set(PLUGIN_DEST_DIR "plugins")
-        set(BUNDLE_DEST_DIR ".")
-        set(RESOURCES_DEST_DIR ".")
-    endif()
+    set(PLUGIN_DEST_DIR "plugins")
+    set(BUNDLE_DEST_DIR ".")
+    set(RESOURCES_DEST_DIR ".")
 
     if(Launcher_ManPage)
         install(FILES ${CMAKE_CURRENT_BINARY_DIR}/${Launcher_ManPage} DESTINATION "${KDE_INSTALL_MANDIR}/man6")
@@ -451,9 +443,6 @@ elseif(WIN32)
     set(PLUGIN_DEST_DIR ".")
     set(RESOURCES_DEST_DIR ".")
     set(JARS_DEST_DIR "jars")
-
-    # install as bundle
-    set(INSTALL_BUNDLE "full" CACHE STRING "Use fixup_bundle to bundle dependencies")
 else()
     message(FATAL_ERROR "Platform not supported")
 endif()
