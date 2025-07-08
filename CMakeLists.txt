@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.15)  # minimum version required by QuaZip
+cmake_minimum_required(VERSION 3.22)  # minimum version required by Qt
 
 project(Launcher)
 
