@@ -63,7 +63,7 @@ bool JavaVersion::isModular() const
     return m_parseable && m_major >= 9;
 }
 
-bool JavaVersion::operator<(const JavaVersion& rhs)
+bool JavaVersion::operator<(const JavaVersion& rhs) const
 {
     if (m_parseable && rhs.m_parseable) {
         auto major = m_major;
@@ -101,7 +101,7 @@ bool JavaVersion::operator<(const JavaVersion& rhs)
         return StringUtils::naturalCompare(m_string, rhs.m_string, Qt::CaseSensitive) < 0;
 }
 
-bool JavaVersion::operator==(const JavaVersion& rhs)
+bool JavaVersion::operator==(const JavaVersion& rhs) const
 {
     if (m_parseable && rhs.m_parseable) {
         return m_major == rhs.m_major && m_minor == rhs.m_minor && m_security == rhs.m_security && m_prerelease == rhs.m_prerelease;
@@ -109,7 +109,7 @@ bool JavaVersion::operator==(const JavaVersion& rhs)
     return m_string == rhs.m_string;
 }
 
-bool JavaVersion::operator>(const JavaVersion& rhs)
+bool JavaVersion::operator>(const JavaVersion& rhs) const
 {
     return (!operator<(rhs)) && (!operator==(rhs));
 }
