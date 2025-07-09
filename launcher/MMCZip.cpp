@@ -35,6 +35,7 @@
  */
 
 #include "MMCZip.h"
+#include <archive.h>
 #include <quazip/quazip.h>
 #include <quazip/quazipdir.h>
 #include <quazip/quazipfile.h>
@@ -47,19 +48,32 @@
 
 #if defined(LAUNCHER_APPLICATION)
 #include <QtConcurrentRun>
+#include "archive/ArchiveWriter.h"
 #endif
 
 namespace MMCZip {
 // ours
-bool mergeZipFiles(QuaZip* into, QFileInfo from, QSet<QString>& contained, const Filter& filter)
+using FilterFunction = std::function<bool(const QString&)>;
+#if defined(LAUNCHER_APPLICATION)
+bool mergeZipFiles(ArchiveWriter& into, QFileInfo from, QSet<QString>& contained, const FilterFunction& filter = nullptr)
 {
-    QuaZip modZip(from.filePath());
-    modZip.open(QuaZip::mdUnzip);
+    std::unique_ptr<struct archive, int (*)(struct archive*)> modZip(archive_read_new(), archive_read_free);
+    if (!modZip) {
+        qCritical() << "Failed to create archive";
+    }
+    archive_read_support_format_all(modZip.get());
 
-    QuaZipFile fileInsideMod(&modZip);
-    QuaZipFile zipOutFile(into);
-    for (bool more = modZip.goToFirstFile(); more; more = modZip.goToNextFile()) {
-        QString filename = modZip.getCurrentFileName();
+    auto fromUtf8 = from.absoluteFilePath().toUtf8();
+    if (archive_read_open_filename(modZip.get(), fromUtf8.constData(), 10240) != ARCHIVE_OK) {
+        qCritical() << "Failed to open file:" << from << ": " << archive_error_string(modZip.get());
+        return false;
+    }
+
+    archive_entry* entry;
+
+    while (archive_read_next_header(modZip.get(), &entry) == ARCHIVE_OK) {
+        auto name = archive_entry_pathname(entry);
+        auto filename = QString::fromStdString(name);
         if (filter && !filter(filename)) {
             qDebug() << "Skipping file " << filename << " from " << from.fileName() << " - filtered";
             continue;
@@ -69,32 +83,16 @@ bool mergeZipFiles(QuaZip* into, QFileInfo from, QSet<QString>& contained, const
             continue;
         }
         contained.insert(filename);
-
-        if (!fileInsideMod.open(QIODevice::ReadOnly)) {
-            qCritical() << "Failed to open " << filename << " from " << from.fileName();
-            return false;
-        }
-
-        QuaZipNewInfo info_out(fileInsideMod.getActualFileName());
-
-        if (!zipOutFile.open(QIODevice::WriteOnly, info_out)) {
-            qCritical() << "Failed to open " << filename << " in the jar";
-            fileInsideMod.close();
-            return false;
-        }
-        if (!JlCompress::copyData(fileInsideMod, zipOutFile)) {
-            zipOutFile.close();
-            fileInsideMod.close();
+        if (!into.addFile(modZip.get(), entry)) {
             qCritical() << "Failed to copy data of " << filename << " into the jar";
             return false;
         }
-        zipOutFile.close();
-        fileInsideMod.close();
     }
+
     return true;
 }
 
-bool compressDirFiles(QuaZip* zip, QString dir, QFileInfoList files, bool followSymlinks)
+bool compressDirFiles(ArchiveWriter& zip, QString dir, QFileInfoList files)
 {
     QDir directory(dir);
     if (!directory.exists())
@@ -103,48 +101,18 @@ bool compressDirFiles(QuaZip* zip, QString dir, QFileInfoList files, bool follow
     for (auto e : files) {
         auto filePath = directory.relativeFilePath(e.absoluteFilePath());
         auto srcPath = e.absoluteFilePath();
-        if (followSymlinks) {
-            if (e.isSymLink()) {
-                srcPath = e.symLinkTarget();
-            } else {
-                srcPath = e.canonicalFilePath();
-            }
-        }
-        if (!JlCompress::compressFile(zip, srcPath, filePath))
+        if (!zip.addFile(srcPath, filePath))
             return false;
     }
 
     return true;
 }
 
-bool compressDirFiles(QString fileCompressed, QString dir, QFileInfoList files, bool followSymlinks)
-{
-    QuaZip zip(fileCompressed);
-    zip.setUtf8Enabled(true);
-    QDir().mkpath(QFileInfo(fileCompressed).absolutePath());
-    if (!zip.open(QuaZip::mdCreate)) {
-        FS::deletePath(fileCompressed);
-        return false;
-    }
-
-    auto result = compressDirFiles(&zip, dir, files, followSymlinks);
-
-    zip.close();
-    if (zip.getZipError() != 0) {
-        FS::deletePath(fileCompressed);
-        return false;
-    }
-
-    return result;
-}
-
-#if defined(LAUNCHER_APPLICATION)
 // ours
 bool createModdedJar(QString sourceJarPath, QString targetJarPath, const QList<Mod*>& mods)
 {
-    QuaZip zipOut(targetJarPath);
-    zipOut.setUtf8Enabled(true);
-    if (!zipOut.open(QuaZip::mdCreate)) {
+    ArchiveWriter zipOut(targetJarPath);
+    if (!zipOut.open()) {
         FS::deletePath(targetJarPath);
         qCritical() << "Failed to open the minecraft.jar for modding";
         return false;
@@ -161,7 +129,7 @@ bool createModdedJar(QString sourceJarPath, QString targetJarPath, const QList<M
         if (!mod->enabled())
             continue;
         if (mod->type() == ResourceType::ZIPFILE) {
-            if (!mergeZipFiles(&zipOut, mod->fileinfo(), addedFiles)) {
+            if (!mergeZipFiles(zipOut, mod->fileinfo(), addedFiles)) {
                 zipOut.close();
                 FS::deletePath(targetJarPath);
                 qCritical() << "Failed to add" << mod->fileinfo().fileName() << "to the jar.";
@@ -170,7 +138,7 @@ bool createModdedJar(QString sourceJarPath, QString targetJarPath, const QList<M
         } else if (mod->type() == ResourceType::SINGLEFILE) {
             // FIXME: buggy - does not work with addedFiles
             auto filename = mod->fileinfo();
-            if (!JlCompress::compressFile(&zipOut, filename.absoluteFilePath(), filename.fileName())) {
+            if (!zipOut.addFile(filename.absoluteFilePath(), filename.fileName())) {
                 zipOut.close();
                 FS::deletePath(targetJarPath);
                 qCritical() << "Failed to add" << mod->fileinfo().fileName() << "to the jar.";
@@ -193,7 +161,7 @@ bool createModdedJar(QString sourceJarPath, QString targetJarPath, const QList<M
                     files.removeAll(e);
             }
 
-            if (!compressDirFiles(&zipOut, parent_dir, files)) {
+            if (!compressDirFiles(zipOut, parent_dir, files)) {
                 zipOut.close();
                 FS::deletePath(targetJarPath);
                 qCritical() << "Failed to add" << mod->fileinfo().fileName() << "to the jar.";
@@ -209,7 +177,7 @@ bool createModdedJar(QString sourceJarPath, QString targetJarPath, const QList<M
         }
     }
 
-    if (!mergeZipFiles(&zipOut, QFileInfo(sourceJarPath), addedFiles, [](const QString key) { return !key.contains("META-INF"); })) {
+    if (!mergeZipFiles(zipOut, QFileInfo(sourceJarPath), addedFiles, [](const QString key) { return !key.contains("META-INF"); })) {
         zipOut.close();
         FS::deletePath(targetJarPath);
         qCritical() << "Failed to insert minecraft.jar contents.";
@@ -217,8 +185,7 @@ bool createModdedJar(QString sourceJarPath, QString targetJarPath, const QList<M
     }
 
     // Recompress the jar
-    zipOut.close();
-    if (zipOut.getZipError() != 0) {
+    if (!zipOut.close()) {
         FS::deletePath(targetJarPath);
         qCritical() << "Failed to finalize minecraft.jar!";
         return false;
@@ -249,22 +216,6 @@ QString findFolderOfFileInZip(QuaZip* zip, const QString& what, const QStringLis
     }
 
     return {};
-}
-
-// ours
-bool findFilesInZip(QuaZip* zip, const QString& what, QStringList& result, const QString& root)
-{
-    QuaZipDir rootDir(zip, root);
-    for (auto fileName : rootDir.entryList(QDir::Files)) {
-        if (fileName == what) {
-            result.append(root);
-            return true;
-        }
-    }
-    for (auto fileName : rootDir.entryList(QDir::Dirs)) {
-        findFilesInZip(zip, what, result, root + fileName);
-    }
-    return !result.isEmpty();
 }
 
 // ours
@@ -455,84 +406,6 @@ bool collectFileListRecursively(const QString& rootDir, const QString& subDir, Q
 }
 
 #if defined(LAUNCHER_APPLICATION)
-void ExportToZipTask::executeTask()
-{
-    setStatus("Adding files...");
-    setProgress(0, m_files.length());
-    m_build_zip_future = QtConcurrent::run(QThreadPool::globalInstance(), [this]() { return exportZip(); });
-    connect(&m_build_zip_watcher, &QFutureWatcher<ZipResult>::finished, this, &ExportToZipTask::finish);
-    m_build_zip_watcher.setFuture(m_build_zip_future);
-}
-
-auto ExportToZipTask::exportZip() -> ZipResult
-{
-    if (!m_dir.exists()) {
-        return ZipResult(tr("Folder doesn't exist"));
-    }
-    if (!m_output.isOpen() && !m_output.open(QuaZip::mdCreate)) {
-        return ZipResult(tr("Could not create file"));
-    }
-
-    for (auto fileName : m_extra_files.keys()) {
-        if (m_build_zip_future.isCanceled())
-            return ZipResult();
-        QuaZipFile indexFile(&m_output);
-        if (!indexFile.open(QIODevice::WriteOnly, QuaZipNewInfo(fileName))) {
-            return ZipResult(tr("Could not create:") + fileName);
-        }
-        indexFile.write(m_extra_files[fileName]);
-    }
-
-    for (const QFileInfo& file : m_files) {
-        if (m_build_zip_future.isCanceled())
-            return ZipResult();
-
-        auto absolute = file.absoluteFilePath();
-        auto relative = m_dir.relativeFilePath(absolute);
-        setStatus("Compressing: " + relative);
-        setProgress(m_progress + 1, m_progressTotal);
-        if (m_follow_symlinks) {
-            if (file.isSymLink())
-                absolute = file.symLinkTarget();
-            else
-                absolute = file.canonicalFilePath();
-        }
-
-        if (!m_exclude_files.contains(relative) && !JlCompress::compressFile(&m_output, absolute, m_destination_prefix + relative)) {
-            return ZipResult(tr("Could not read and compress %1").arg(relative));
-        }
-    }
-
-    m_output.close();
-    if (m_output.getZipError() != 0) {
-        return ZipResult(tr("A zip error occurred"));
-    }
-    return ZipResult();
-}
-
-void ExportToZipTask::finish()
-{
-    if (m_build_zip_future.isCanceled()) {
-        FS::deletePath(m_output_path);
-        emitAborted();
-    } else if (auto result = m_build_zip_future.result(); result.has_value()) {
-        FS::deletePath(m_output_path);
-        emitFailed(result.value());
-    } else {
-        emitSucceeded();
-    }
-}
-
-bool ExportToZipTask::abort()
-{
-    if (m_build_zip_future.isRunning()) {
-        m_build_zip_future.cancel();
-        // NOTE: Here we don't do `emitAborted()` because it will be done when `m_build_zip_future` actually cancels, which may not occur
-        // immediately.
-        return true;
-    }
-    return false;
-}
 
 void ExtractZipTask::executeTask()
 {
