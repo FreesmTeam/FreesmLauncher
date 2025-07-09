@@ -20,7 +20,10 @@
 			"hidden": true,
 			"inherits": [
 				"windows_msvc_base"
-			]
+			],
+			"cacheVariables": {
+				"CMAKE_SYSTEM_NAME": "${hostSystemName}"
+			}
 		},
 		{
 			"name": "windows_msvc_debug",
