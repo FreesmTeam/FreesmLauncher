@@ -3,6 +3,7 @@
     "bzip2",
     "cmark",
     { "name": "ecm", "host": true },
+    "libqrencode",
     { "name": "pkgconf", "host": true },
     "tomlplusplus",
     "zlib"
