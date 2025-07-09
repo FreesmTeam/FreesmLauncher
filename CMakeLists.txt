@@ -348,6 +348,14 @@ endif()
 if(NOT Launcher_FORCE_BUNDLED_LIBS)
     # Find toml++
     find_package(tomlplusplus 3.2.0 QUIET)
+    # Fallback to pkg-config (if available) if CMake files aren't found
+    if(NOT tomlplusplus_FOUND)
+        find_package(PkgConfig)
+        if(PkgConfig_FOUND)
+            pkg_check_modules(tomlplusplus IMPORTED_TARGET tomlplusplus>=3.2.0)
+        endif()
+    endif()
+
 
     # Find cmark
     find_package(cmark QUIET)

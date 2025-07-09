@@ -1309,12 +1309,16 @@ target_link_libraries(Launcher_logic
     Launcher_murmur2
     nbt++
     ${ZLIB_LIBRARIES}
-    tomlplusplus::tomlplusplus
     qdcss
     BuildConfig
     Qt${QT_VERSION_MAJOR}::Widgets
     qrcodegenerator
 )
+if(TARGET PkgConfig::tomlplusplus)
+    target_link_libraries(Launcher_logic PkgConfig::tomlplusplus)
+else()
+    target_link_libraries(Launcher_logic tomlplusplus::tomlplusplus)
+endif()
 
 if (UNIX AND NOT CYGWIN AND NOT APPLE)
     target_link_libraries(Launcher_logic

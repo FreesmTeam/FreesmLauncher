@@ -25,6 +25,31 @@ runs:
         arch: ${{ inputs.vcvars-arch }}
         vsversion: 2022
 
+    - name: Setup vcpkg cache (MSVC)
+      if: ${{ inputs.msystem == '' && inputs.build-type == 'Debug' }}
+      shell: pwsh
+      env:
+        USERNAME: ${{ github.repository_owner }}
+        FEED_URL: https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json
+      run: |
+        .$(vcpkg fetch nuget) `
+          sources add `
+          -Source "$env:FEED_URL" `
+          -StorePasswordInClearText `
+          -Name GitHubPackages `
+          -UserName "$env:USERNAME" `
+          -Password "$env:GITHUB_TOKEN"
+        .$(vcpkg fetch nuget) `
+          setapikey "$env:GITHUB_TOKEN" `
+          -Source "$env:FEED_URL"
+        Write-Output "VCPKG_BINARY_SOURCES=clear;nuget,$env:FEED_URL,readwrite" >> "$GITHUB_ENV"
+
+    - name: Setup vcpkg environment (MSVC)
+      if: ${{ inputs.msystem == '' }}
+      shell: bash
+      run: |
+        echo "CMAKE_TOOLCHAIN_FILE=$VCPKG_INSTALLATION_ROOT/scripts/buildsystems/vcpkg.cmake" >> "$GITHUB_ENV"
+
     - name: Setup MSYS2 (MinGW)
       if: ${{ inputs.msystem != '' }}
       uses: msys2/setup-msys2@v2
