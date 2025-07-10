@@ -21,6 +21,8 @@ class ArchiveWriter {
     bool addFile(const QString& fileDest, const QByteArray& data);
     bool addFile(ArchiveReader::File* f);
 
+    static std::unique_ptr<archive, void (*)(archive*)> createDiskWriter();
+
    private:
     struct archive* m_archive = nullptr;
     QString m_filename;

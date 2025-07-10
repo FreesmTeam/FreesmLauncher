@@ -1,6 +1,4 @@
 #pragma once
-#include <quazip/quazip.h>
-#include <quazip/quazipdir.h>
 #include "InstanceTask.h"
 #include "PackHelpers.h"
 #include "meta/Index.h"

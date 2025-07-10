@@ -2,6 +2,7 @@
 #include <QtConcurrent>
 #include "FileSystem.h"
 #include "archive/ArchiveReader.h"
+#include "archive/ArchiveWriter.h"
 
 namespace MMCZip {
 
@@ -28,21 +29,8 @@ auto ExtractZipTask::extractZip() -> ZipResult
         return ZipResult();
     }
 
-    int flags;
-
-    /* Select which attributes we want to restore. */
-    flags = ARCHIVE_EXTRACT_TIME;
-    flags |= ARCHIVE_EXTRACT_PERM;
-    flags |= ARCHIVE_EXTRACT_ACL;
-    flags |= ARCHIVE_EXTRACT_FFLAGS;
-
-    std::unique_ptr<archive, void (*)(archive*)> extPtr(archive_write_disk_new(), [](archive* a) {
-        archive_write_close(a);
-        archive_write_free(a);
-    });
+    auto extPtr = ArchiveWriter::createDiskWriter();
     auto ext = extPtr.get();
-    archive_write_disk_set_options(ext, flags);
-    archive_write_disk_set_standard_lookup(ext);
 
     setStatus("Extracting files...");
     setProgress(0, m_input.getFiles().count());

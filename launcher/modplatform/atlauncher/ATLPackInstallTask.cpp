@@ -39,8 +39,6 @@
 #include <QtConcurrent>
 #include <algorithm>
 
-#include <quazip/quazip.h>
-
 #include "FileSystem.h"
 #include "Json.h"
 #include "MMCZip.h"

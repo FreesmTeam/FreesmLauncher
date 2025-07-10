@@ -16,7 +16,6 @@
  *  along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 #include "java/download/ArchiveDownloadTask.h"
-#include <quazip.h>
 #include <memory>
 
 #include "Application.h"

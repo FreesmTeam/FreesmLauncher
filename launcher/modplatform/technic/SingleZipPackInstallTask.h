@@ -19,8 +19,6 @@
 #include "archive/ArchiveReader.h"
 #include "net/NetJob.h"
 
-#include <quazip/quazip.h>
-
 #include <QFutureWatcher>
 #include <QStringList>
 #include <QUrl>

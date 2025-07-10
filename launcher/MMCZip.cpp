@@ -37,9 +37,6 @@
 #include "MMCZip.h"
 #include <archive.h>
 #include <qcontainerfwd.h>
-#include <quazip/quazip.h>
-#include <quazip/quazipdir.h>
-#include <quazip/quazipfile.h>
 #include "FileSystem.h"
 #include "archive/ArchiveReader.h"
 
@@ -201,21 +198,8 @@ std::optional<QStringList> extractSubDir(ArchiveReader* zip, const QString& subd
         return extracted;
     }
 
-    int flags;
-
-    /* Select which attributes we want to restore. */
-    flags = ARCHIVE_EXTRACT_TIME;
-    flags |= ARCHIVE_EXTRACT_PERM;
-    flags |= ARCHIVE_EXTRACT_ACL;
-    flags |= ARCHIVE_EXTRACT_FFLAGS;
-
-    std::unique_ptr<archive, void (*)(archive*)> extPtr(archive_write_disk_new(), [](archive* a) {
-        archive_write_close(a);
-        archive_write_free(a);
-    });
+    auto extPtr = ArchiveWriter::createDiskWriter();
     auto ext = extPtr.get();
-    archive_write_disk_set_options(ext, flags);
-    archive_write_disk_set_standard_lookup(ext);
 
     if (!zip->parse([&subdir, &target, &target_top_dir, ext, &extracted](ArchiveReader::File* f) {
             QString file_name = f->filename();
@@ -309,21 +293,8 @@ bool extractFile(QString fileCompressed, QString file, QString target)
     if (!f) {
         return false;
     }
-    int flags;
-
-    /* Select which attributes we want to restore. */
-    flags = ARCHIVE_EXTRACT_TIME;
-    flags |= ARCHIVE_EXTRACT_PERM;
-    flags |= ARCHIVE_EXTRACT_ACL;
-    flags |= ARCHIVE_EXTRACT_FFLAGS;
-
-    std::unique_ptr<archive, void (*)(archive*)> extPtr(archive_write_disk_new(), [](archive* a) {
-        archive_write_close(a);
-        archive_write_free(a);
-    });
+    auto extPtr = ArchiveWriter::createDiskWriter();
     auto ext = extPtr.get();
-    archive_write_disk_set_options(ext, flags);
-    archive_write_disk_set_standard_lookup(ext);
 
     return f->writeFile(ext, target);
 }

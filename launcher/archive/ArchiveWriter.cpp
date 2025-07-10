@@ -176,4 +176,21 @@ bool ArchiveWriter::addFile(ArchiveReader::File* f)
 {
     return f->writeFile(m_archive, "", true);
 }
+std::unique_ptr<archive, void (*)(archive*)> ArchiveWriter::createDiskWriter()
+{
+    int flags = ARCHIVE_EXTRACT_TIME | ARCHIVE_EXTRACT_PERM | ARCHIVE_EXTRACT_ACL | ARCHIVE_EXTRACT_FFLAGS;
+
+    std::unique_ptr<archive, void (*)(archive*)> extPtr(archive_write_disk_new(), [](archive* a) {
+        if (a) {
+            archive_write_close(a);
+            archive_write_free(a);
+        }
+    });
+
+    archive* ext = extPtr.get();
+    archive_write_disk_set_options(ext, flags);
+    archive_write_disk_set_standard_lookup(ext);
+
+    return extPtr;
+}
 }  // namespace MMCZip

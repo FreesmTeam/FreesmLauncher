@@ -16,6 +16,7 @@
   zlib,
   msaClientID ? null,
   gamemodeSupport ? stdenv.hostPlatform.isLinux,
+  libarchive,
 }:
 assert lib.assertMsg (
   gamemodeSupport -> stdenv.hostPlatform.isLinux
@@ -78,6 +79,7 @@ stdenv.mkDerivation {
     kdePackages.qtnetworkauth
     kdePackages.quazip
     qrencode
+    libarchive
     tomlplusplus
     zlib
   ]

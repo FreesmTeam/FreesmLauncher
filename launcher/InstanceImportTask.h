@@ -40,8 +40,6 @@
 #include <QUrl>
 #include "InstanceTask.h"
 
-class QuaZip;
-
 class InstanceImportTask : public InstanceTask {
     Q_OBJECT
    public:

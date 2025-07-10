@@ -43,9 +43,6 @@
 #include <FileSystem.h>
 #include <MMCZip.h>
 #include <io/stream_reader.h>
-#include <quazip/quazip.h>
-#include <quazip/quazipdir.h>
-#include <quazip/quazipfile.h>
 #include <tag_primitive.h>
 #include <tag_string.h>
 #include <sstream>

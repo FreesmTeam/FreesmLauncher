@@ -40,7 +40,6 @@ QByteArray ArchiveReader::File::readAll(int* outStatus)
     if (outStatus) {
         *outStatus = status;
     }
-    archive_read_close(m_archive.get());
     return data;
 }
 
@@ -131,7 +130,7 @@ bool ArchiveReader::File::writeFile(archive* out, QString targetFileName, bool n
     return (r > ARCHIVE_WARN);
 }
 
-bool ArchiveReader::parse(std::function<bool(File*)> doStuff)
+bool ArchiveReader::parse(std::function<bool(File*, bool&)> doStuff)
 {
     auto f = std::make_unique<File>();
     auto a = f->m_archive.get();
@@ -143,15 +142,23 @@ bool ArchiveReader::parse(std::function<bool(File*)> doStuff)
         return false;
     }
 
+    bool breakControl = false;
     while (f->readNextHeader() == ARCHIVE_OK) {
-        if (!doStuff(f.get())) {
+        if (!doStuff(f.get(), breakControl)) {
             qCritical() << "Failed to parse file:" << f->filename() << "-" << f->error();
             return false;
+        }
+        if (breakControl) {
+            break;
         }
     }
 
     archive_read_close(a);
     return true;
+}
+bool ArchiveReader::parse(std::function<bool(File*)> doStuff)
+{
+    return parse([doStuff](File* f, bool&) { return doStuff(f); });
 }
 
 bool ArchiveReader::File::isFile()

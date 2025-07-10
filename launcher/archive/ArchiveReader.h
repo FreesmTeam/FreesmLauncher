@@ -45,6 +45,7 @@ class ArchiveReader {
 
     std::unique_ptr<File> goToFile(QString filename);
     bool parse(std::function<bool(File*)>);
+    bool parse(std::function<bool(File*, bool&)>);
 
    private:
     QString m_archivePath;
