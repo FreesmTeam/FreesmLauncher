@@ -21,10 +21,6 @@ class ExportToZipTask : public Task {
         , m_follow_symlinks(followSymlinks)
     {
         setAbortable(true);
-        // m_output.setUtf8Enabled(utf8Enabled); // ignore for now
-        // need to test:
-        // - https://github.com/PrismLauncher/PrismLauncher/pull/2225
-        // - https://github.com/PrismLauncher/PrismLauncher/pull/2353
     };
     ExportToZipTask(QString outputPath, QString dir, QFileInfoList files, QString destinationPrefix = "", bool followSymlinks = false)
         : ExportToZipTask(outputPath, QDir(dir), files, destinationPrefix, followSymlinks) {};

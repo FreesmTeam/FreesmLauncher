@@ -5,20 +5,21 @@
 
 #include <QByteArray>
 #include <QFileDevice>
+#include "archive/ArchiveReader.h"
 
 namespace MMCZip {
 
 class ArchiveWriter {
    public:
     ArchiveWriter(const QString& archiveName);
-    ~ArchiveWriter();
+    virtual ~ArchiveWriter();
 
     bool open();
     bool close();
 
     bool addFile(const QString& fileName, const QString& fileDest);
     bool addFile(const QString& fileDest, const QByteArray& data);
-    bool addFile(archive* src, archive_entry* entry = nullptr);
+    bool addFile(ArchiveReader::File* f);
 
    private:
     struct archive* m_archive = nullptr;

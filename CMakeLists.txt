@@ -358,14 +358,13 @@ else()
 endif()
 
 if(NOT Launcher_FORCE_BUNDLED_LIBS)
+    find_package(PkgConfig REQUIRED)
+    pkg_check_modules(libarchive IMPORTED_TARGET libarchive)
     # Find toml++
     find_package(tomlplusplus 3.2.0 QUIET)
     # Fallback to pkg-config (if available) if CMake files aren't found
     if(NOT tomlplusplus_FOUND)
-        find_package(PkgConfig QUIET)
-        if(PkgConfig_FOUND)
-            pkg_check_modules(tomlplusplus IMPORTED_TARGET tomlplusplus>=3.2.0)
-        endif()
+        pkg_check_modules(tomlplusplus IMPORTED_TARGET tomlplusplus>=3.2.0)
     endif()
 
 
@@ -375,11 +374,12 @@ if(NOT Launcher_FORCE_BUNDLED_LIBS)
     find_package(LibArchive 3.7.8 QUIET)
     # Fallback to pkg-config (if available) if CMake files aren't found
     if(NOT LibArchive_FOUND)
-        find_package(PkgConfig)
-        if(PkgConfig_FOUND)
-            pkg_check_modules(LibArchive IMPORTED_TARGET LibArchive>=3.7.8)
-        endif()
+        pkg_check_modules(LibArchive IMPORTED_TARGET LibArchive>=3.7.8)
     endif()
+
+    # Find qrcodegencpp-cmake
+    find_package(qrcodegencpp QUIET)
+
 endif()
 
 include(ECMQtDeclareLoggingCategory)

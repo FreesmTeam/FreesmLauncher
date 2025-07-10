@@ -36,15 +36,18 @@
 
 #include "MMCZip.h"
 #include <archive.h>
+#include <qcontainerfwd.h>
 #include <quazip/quazip.h>
 #include <quazip/quazipdir.h>
 #include <quazip/quazipfile.h>
 #include "FileSystem.h"
+#include "archive/ArchiveReader.h"
 
 #include <QCoreApplication>
 #include <QDebug>
 #include <QFileInfo>
 #include <QUrl>
+#include <memory>
 
 #if defined(LAUNCHER_APPLICATION)
 #include <QtConcurrentRun>
@@ -57,39 +60,26 @@ using FilterFunction = std::function<bool(const QString&)>;
 #if defined(LAUNCHER_APPLICATION)
 bool mergeZipFiles(ArchiveWriter& into, QFileInfo from, QSet<QString>& contained, const FilterFunction& filter = nullptr)
 {
-    std::unique_ptr<struct archive, int (*)(struct archive*)> modZip(archive_read_new(), archive_read_free);
-    if (!modZip) {
-        qCritical() << "Failed to create archive";
-    }
-    archive_read_support_format_all(modZip.get());
-
-    auto fromUtf8 = from.absoluteFilePath().toUtf8();
-    if (archive_read_open_filename(modZip.get(), fromUtf8.constData(), 10240) != ARCHIVE_OK) {
-        qCritical() << "Failed to open file:" << from << ": " << archive_error_string(modZip.get());
-        return false;
-    }
-
-    archive_entry* entry;
-
-    while (archive_read_next_header(modZip.get(), &entry) == ARCHIVE_OK) {
-        auto name = archive_entry_pathname(entry);
-        auto filename = QString::fromStdString(name);
+    ArchiveReader r(from.absoluteFilePath());
+    return r.parse([&into, &contained, &filter, from](ArchiveReader::File* f) {
+        auto filename = f->filename();
         if (filter && !filter(filename)) {
             qDebug() << "Skipping file " << filename << " from " << from.fileName() << " - filtered";
-            continue;
+            f->skip();
+            return true;
         }
         if (contained.contains(filename)) {
             qDebug() << "Skipping already contained file " << filename << " from " << from.fileName();
-            continue;
+            f->skip();
+            return true;
         }
         contained.insert(filename);
-        if (!into.addFile(modZip.get(), entry)) {
+        if (!into.addFile(f)) {
             qCritical() << "Failed to copy data of " << filename << " into the jar";
             return false;
         }
-    }
-
-    return true;
+        return true;
+    });
 }
 
 bool compressDirFiles(ArchiveWriter& zip, QString dir, QFileInfoList files)
@@ -195,178 +185,147 @@ bool createModdedJar(QString sourceJarPath, QString targetJarPath, const QList<M
 #endif
 
 // ours
-QString findFolderOfFileInZip(QuaZip* zip, const QString& what, const QStringList& ignore_paths, const QString& root)
-{
-    QuaZipDir rootDir(zip, root);
-    for (auto&& fileName : rootDir.entryList(QDir::Files)) {
-        if (fileName == what)
-            return root;
-
-        QCoreApplication::processEvents();
-    }
-
-    // Recurse the search to non-ignored subfolders
-    for (auto&& fileName : rootDir.entryList(QDir::Dirs)) {
-        if (ignore_paths.contains(fileName))
-            continue;
-
-        QString result = findFolderOfFileInZip(zip, what, ignore_paths, root + fileName);
-        if (!result.isEmpty())
-            return result;
-    }
-
-    return {};
-}
-
-// ours
-std::optional<QStringList> extractSubDir(QuaZip* zip, const QString& subdir, const QString& target)
+std::optional<QStringList> extractSubDir(ArchiveReader* zip, const QString& subdir, const QString& target)
 {
     auto target_top_dir = QUrl::fromLocalFile(target);
 
     QStringList extracted;
 
     qDebug() << "Extracting subdir" << subdir << "from" << zip->getZipName() << "to" << target;
-    auto numEntries = zip->getEntriesCount();
-    if (numEntries < 0) {
+    if (!zip->collectFiles()) {
         qWarning() << "Failed to enumerate files in archive";
         return std::nullopt;
-    } else if (numEntries == 0) {
+    }
+    if (zip->getFiles().isEmpty()) {
         qDebug() << "Extracting empty archives seems odd...";
         return extracted;
-    } else if (!zip->goToFirstFile()) {
-        qWarning() << "Failed to seek to first file in zip";
-        return std::nullopt;
     }
 
-    do {
-        QString file_name = zip->getCurrentFileName();
-        file_name = FS::RemoveInvalidPathChars(file_name);
-        if (!file_name.startsWith(subdir))
-            continue;
+    int flags;
 
-        auto relative_file_name = QDir::fromNativeSeparators(file_name.mid(subdir.size()));
-        auto original_name = relative_file_name;
+    /* Select which attributes we want to restore. */
+    flags = ARCHIVE_EXTRACT_TIME;
+    flags |= ARCHIVE_EXTRACT_PERM;
+    flags |= ARCHIVE_EXTRACT_ACL;
+    flags |= ARCHIVE_EXTRACT_FFLAGS;
 
-        // Fix subdirs/files ending with a / getting transformed into absolute paths
-        if (relative_file_name.startsWith('/'))
-            relative_file_name = relative_file_name.mid(1);
+    std::unique_ptr<archive, void (*)(archive*)> extPtr(archive_write_disk_new(), [](archive* a) {
+        archive_write_close(a);
+        archive_write_free(a);
+    });
+    auto ext = extPtr.get();
+    archive_write_disk_set_options(ext, flags);
+    archive_write_disk_set_standard_lookup(ext);
 
-        // Fix weird "folders with a single file get squashed" thing
-        QString sub_path;
-        if (relative_file_name.contains('/') && !relative_file_name.endsWith('/')) {
-            sub_path = relative_file_name.section('/', 0, -2) + '/';
-            FS::ensureFolderPathExists(FS::PathCombine(target, sub_path));
-
-            relative_file_name = relative_file_name.split('/').last();
-        }
-
-        QString target_file_path;
-        if (relative_file_name.isEmpty()) {
-            target_file_path = target + '/';
-        } else {
-            target_file_path = FS::PathCombine(target_top_dir.toLocalFile(), sub_path, relative_file_name);
-            if (relative_file_name.endsWith('/') && !target_file_path.endsWith('/'))
-                target_file_path += '/';
-        }
-
-        if (!target_top_dir.isParentOf(QUrl::fromLocalFile(target_file_path))) {
-            qWarning() << "Extracting" << relative_file_name << "was cancelled, because it was effectively outside of the target path"
-                       << target;
-            return std::nullopt;
-        }
-
-        if (!JlCompress::extractFile(zip, "", target_file_path)) {
-            qWarning() << "Failed to extract file" << original_name << "to" << target_file_path;
-            JlCompress::removeFile(extracted);
-            return std::nullopt;
-        }
-
-        extracted.append(target_file_path);
-        auto fileInfo = QFileInfo(target_file_path);
-        if (fileInfo.isFile()) {
-            auto permissions = fileInfo.permissions();
-            auto maxPermisions = QFileDevice::Permission::ReadUser | QFileDevice::Permission::WriteUser | QFileDevice::Permission::ExeUser |
-                                 QFileDevice::Permission::ReadGroup | QFileDevice::Permission::ReadOther;
-            auto minPermisions = QFileDevice::Permission::ReadUser | QFileDevice::Permission::WriteUser;
-
-            auto newPermisions = (permissions & maxPermisions) | minPermisions;
-            if (newPermisions != permissions) {
-                if (!QFile::setPermissions(target_file_path, newPermisions)) {
-                    qWarning() << (QObject::tr("Could not fix permissions for %1").arg(target_file_path));
-                }
+    if (!zip->parse([&subdir, &target, &target_top_dir, ext, &extracted](ArchiveReader::File* f) {
+            QString file_name = f->filename();
+            file_name = FS::RemoveInvalidPathChars(file_name);
+            if (!file_name.startsWith(subdir)) {
+                f->skip();
+                return true;
             }
-        } else if (fileInfo.isDir()) {
-            // Ensure the folder has the minimal required permissions
-            QFile::Permissions minimalPermissions = QFile::ReadOwner | QFile::WriteOwner | QFile::ExeOwner | QFile::ReadGroup |
-                                                    QFile::ExeGroup | QFile::ReadOther | QFile::ExeOther;
 
-            QFile::Permissions currentPermissions = fileInfo.permissions();
-            if ((currentPermissions & minimalPermissions) != minimalPermissions) {
-                if (!QFile::setPermissions(target_file_path, minimalPermissions)) {
-                    qWarning() << (QObject::tr("Could not fix permissions for %1").arg(target_file_path));
-                }
+            auto relative_file_name = QDir::fromNativeSeparators(file_name.mid(subdir.size()));
+            auto original_name = relative_file_name;
+
+            // Fix subdirs/files ending with a / getting transformed into absolute paths
+            if (relative_file_name.startsWith('/'))
+                relative_file_name = relative_file_name.mid(1);
+
+            // Fix weird "folders with a single file get squashed" thing
+            QString sub_path;
+            if (relative_file_name.contains('/') && !relative_file_name.endsWith('/')) {
+                sub_path = relative_file_name.section('/', 0, -2) + '/';
+                FS::ensureFolderPathExists(FS::PathCombine(target, sub_path));
+
+                relative_file_name = relative_file_name.split('/').last();
             }
-        }
-        qDebug() << "Extracted file" << relative_file_name << "to" << target_file_path;
-    } while (zip->goToNextFile());
+            QString target_file_path;
+            if (relative_file_name.isEmpty()) {
+                target_file_path = target + '/';
+            } else {
+                target_file_path = FS::PathCombine(target_top_dir.toLocalFile(), sub_path, relative_file_name);
+                if (relative_file_name.endsWith('/') && !target_file_path.endsWith('/'))
+                    target_file_path += '/';
+            }
+
+            if (!target_top_dir.isParentOf(QUrl::fromLocalFile(target_file_path))) {
+                qWarning() << "Extracting" << relative_file_name << "was cancelled, because it was effectively outside of the target path"
+                           << target;
+                return false;
+            }
+            if (!f->writeFile(ext, target_file_path)) {
+                qWarning() << "Failed to extract file" << original_name << "to" << target_file_path;
+                return false;
+            }
+
+            extracted.append(target_file_path);
+
+            qDebug() << "Extracted file" << relative_file_name << "to" << target_file_path;
+            return true;
+        })) {
+        qWarning() << "Failed to parse file" << zip->getZipName();
+        JlCompress::removeFile(extracted);
+        return std::nullopt;
+    }
 
     return extracted;
 }
 
 // ours
-bool extractRelFile(QuaZip* zip, const QString& file, const QString& target)
-{
-    return JlCompress::extractFile(zip, file, target);
-}
-
-// ours
 std::optional<QStringList> extractDir(QString fileCompressed, QString dir)
 {
-    QuaZip zip(fileCompressed);
-    if (!zip.open(QuaZip::mdUnzip)) {
-        // check if this is a minimum size empty zip file...
-        QFileInfo fileInfo(fileCompressed);
-        if (fileInfo.size() == 22) {
-            return QStringList();
-        }
-        qWarning() << "Could not open archive for unpacking:" << fileCompressed << "Error:" << zip.getZipError();
-        ;
-        return std::nullopt;
+    // check if this is a minimum size empty zip file...
+    QFileInfo fileInfo(fileCompressed);
+    if (fileInfo.size() == 22) {
+        return QStringList();
     }
+    ArchiveReader zip(fileCompressed);
     return extractSubDir(&zip, "", dir);
 }
 
 // ours
 std::optional<QStringList> extractDir(QString fileCompressed, QString subdir, QString dir)
 {
-    QuaZip zip(fileCompressed);
-    if (!zip.open(QuaZip::mdUnzip)) {
-        // check if this is a minimum size empty zip file...
-        QFileInfo fileInfo(fileCompressed);
-        if (fileInfo.size() == 22) {
-            return QStringList();
-        }
-        qWarning() << "Could not open archive for unpacking:" << fileCompressed << "Error:" << zip.getZipError();
-        ;
-        return std::nullopt;
+    // check if this is a minimum size empty zip file...
+    QFileInfo fileInfo(fileCompressed);
+    if (fileInfo.size() == 22) {
+        return QStringList();
     }
+    ArchiveReader zip(fileCompressed);
     return extractSubDir(&zip, subdir, dir);
 }
 
 // ours
 bool extractFile(QString fileCompressed, QString file, QString target)
 {
-    QuaZip zip(fileCompressed);
-    if (!zip.open(QuaZip::mdUnzip)) {
-        // check if this is a minimum size empty zip file...
-        QFileInfo fileInfo(fileCompressed);
-        if (fileInfo.size() == 22) {
-            return true;
-        }
-        qWarning() << "Could not open archive for unpacking:" << fileCompressed << "Error:" << zip.getZipError();
+    // check if this is a minimum size empty zip file...
+    QFileInfo fileInfo(fileCompressed);
+    if (fileInfo.size() == 22) {
+        return true;
+    }
+    ArchiveReader zip(fileCompressed);
+    auto f = zip.goToFile(file);
+    if (!f) {
         return false;
     }
-    return extractRelFile(&zip, file, target);
+    int flags;
+
+    /* Select which attributes we want to restore. */
+    flags = ARCHIVE_EXTRACT_TIME;
+    flags |= ARCHIVE_EXTRACT_PERM;
+    flags |= ARCHIVE_EXTRACT_ACL;
+    flags |= ARCHIVE_EXTRACT_FFLAGS;
+
+    std::unique_ptr<archive, void (*)(archive*)> extPtr(archive_write_disk_new(), [](archive* a) {
+        archive_write_close(a);
+        archive_write_free(a);
+    });
+    auto ext = extPtr.get();
+    archive_write_disk_set_options(ext, flags);
+    archive_write_disk_set_standard_lookup(ext);
+
+    return f->writeFile(ext, target);
 }
 
 bool collectFileListRecursively(const QString& rootDir, const QString& subDir, QFileInfoList* files, FilterFileFunction excludeFilter)

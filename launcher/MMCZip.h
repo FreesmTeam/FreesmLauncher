@@ -48,6 +48,7 @@
 #include <functional>
 #include <memory>
 #include <optional>
+#include "archive/ArchiveReader.h"
 
 #if defined(LAUNCHER_APPLICATION)
 #include "minecraft/mod/Mod.h"
@@ -64,21 +65,11 @@ using FilterFileFunction = std::function<bool(const QFileInfo&)>;
  */
 bool createModdedJar(QString sourceJarPath, QString targetJarPath, const QList<Mod*>& mods);
 #endif
-/**
- * Find a single file in archive by file name (not path)
- *
- * \param ignore_paths paths to skip when recursing the search
- *
- * \return the path prefix where the file is
- */
-QString findFolderOfFileInZip(QuaZip* zip, const QString& what, const QStringList& ignore_paths = {}, const QString& root = QString(""));
 
 /**
  * Extract a subdirectory from an archive
  */
-std::optional<QStringList> extractSubDir(QuaZip* zip, const QString& subdir, const QString& target);
-
-bool extractRelFile(QuaZip* zip, const QString& file, const QString& target);
+std::optional<QStringList> extractSubDir(ArchiveReader* zip, const QString& subdir, const QString& target);
 
 /**
  * Extract a whole archive.

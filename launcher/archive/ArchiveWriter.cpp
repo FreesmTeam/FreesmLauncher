@@ -172,40 +172,8 @@ bool ArchiveWriter::addFile(const QString& fileDest, const QByteArray& data)
     return true;
 }
 
-bool ArchiveWriter::addFile(archive* src, archive_entry* entry)
+bool ArchiveWriter::addFile(ArchiveReader::File* f)
 {
-    if (!src) {
-        qCritical() << "Invalid source archive";
-        return false;
-    }
-    if (!entry) {  // if is empty read next header
-        if (auto r = archive_read_next_header(src, &entry); r == ARCHIVE_EOF) {
-            return false;
-        } else if (r != ARCHIVE_OK) {
-            qCritical() << "Failed to read entry from source archive:" << archive_error_string(src);
-            return false;
-        }
-    }
-
-    if (archive_write_header(m_archive, entry) != ARCHIVE_OK) {
-        qCritical() << "Failed to write header to entry:" << archive_entry_pathname(entry) << "-" << archive_error_string(m_archive);
-        return false;
-    }
-    const void* buff;
-    size_t size;
-    la_int64_t offset;
-
-    int status;
-    while ((status = archive_read_data_block(src, &buff, &size, &offset)) == ARCHIVE_OK) {
-        if (archive_write_data(m_archive, buff, size) < 0) {
-            qCritical() << "Failed writing data block:" << archive_error_string(m_archive);
-            return false;
-        }
-    }
-    if (status != ARCHIVE_EOF) {
-        qCritical() << "Failed reading data block:" << archive_error_string(m_archive);
-        return false;
-    }
-    return true;
+    return f->writeFile(m_archive, "", true);
 }
 }  // namespace MMCZip
