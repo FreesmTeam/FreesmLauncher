@@ -71,6 +71,8 @@ class FlameAPI : public NetworkResourceAPI {
             case ModPlatform::NeoForge:
                 return 6;
             case ModPlatform::DataPack:
+            case ModPlatform::Babric:
+            case ModPlatform::BTA:
                 break;  // not supported
         }
         return 0;

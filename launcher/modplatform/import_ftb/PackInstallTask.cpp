@@ -91,6 +91,10 @@ void PackInstallTask::copySettings()
                 break;
             case ModPlatform::DataPack:
                 break;
+            case ModPlatform::Babric:
+                break;
+            case ModPlatform::BTA:
+                break;
         }
     components->saveNow();
 
