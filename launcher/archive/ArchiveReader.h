@@ -18,6 +18,7 @@ class ArchiveReader {
     QStringList getFiles();
     QString getZipName();
     bool collectFiles(bool onlyFiles = true);
+    bool exists(const QString& filePath) const;
 
     class File {
        public:

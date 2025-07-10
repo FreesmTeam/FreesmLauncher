@@ -32,8 +32,8 @@ set(CORE_SOURCES
     archive/ArchiveWriter.h  
     archive/ExportToZipTask.cpp  
     archive/ExportToZipTask.h
-    Untar.h
-    Untar.cpp
+    archive/ExtractZipTask.cpp  
+    archive/ExtractZipTask.h
     StringUtils.h
     StringUtils.cpp
     QVariantUtils.h

@@ -39,7 +39,6 @@ class PackInstallTask : public InstanceTask {
    private: /* data */
     shared_qobject_ptr<QNetworkAccessManager> m_network;
     bool abortable = false;
-    std::unique_ptr<QuaZip> m_packZip;
     QFuture<std::optional<QStringList>> m_extractFuture;
     QFutureWatcher<std::optional<QStringList>> m_extractFutureWatcher;
     NetJob::Ptr netJobContainer;

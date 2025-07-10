@@ -109,36 +109,4 @@ bool extractFile(QString fileCompressed, QString file, QString dir);
  * \return true for success or false for failure
  */
 bool collectFileListRecursively(const QString& rootDir, const QString& subDir, QFileInfoList* files, FilterFileFunction excludeFilter);
-
-#if defined(LAUNCHER_APPLICATION)
-
-class ExtractZipTask : public Task {
-    Q_OBJECT
-   public:
-    ExtractZipTask(QString input, QDir outputDir, QString subdirectory = "")
-        : ExtractZipTask(std::make_shared<QuaZip>(input), outputDir, subdirectory)
-    {}
-    ExtractZipTask(std::shared_ptr<QuaZip> input, QDir outputDir, QString subdirectory = "")
-        : m_input(input), m_output_dir(outputDir), m_subdirectory(subdirectory)
-    {}
-    virtual ~ExtractZipTask() = default;
-
-    using ZipResult = std::optional<QString>;
-
-   protected:
-    virtual void executeTask() override;
-    bool abort() override;
-
-    ZipResult extractZip();
-    void finish();
-
-   private:
-    std::shared_ptr<QuaZip> m_input;
-    QDir m_output_dir;
-    QString m_subdirectory;
-
-    QFuture<ZipResult> m_zip_future;
-    QFutureWatcher<ZipResult> m_zip_watcher;
-};
-#endif
 }  // namespace MMCZip

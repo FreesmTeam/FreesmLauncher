@@ -102,12 +102,6 @@ void PackInstallTask::unzip()
 
     QDir extractDir(m_stagingPath);
 
-    m_packZip.reset(new QuaZip(archivePath));
-    if (!m_packZip->open(QuaZip::mdUnzip)) {
-        emitFailed(tr("Failed to open modpack file %1!").arg(archivePath));
-        return;
-    }
-
     m_extractFuture = QtConcurrent::run(QThreadPool::globalInstance(), QOverload<QString, QString>::of(MMCZip::extractDir), archivePath,
                                         extractDir.absolutePath() + "/unzip");
     connect(&m_extractFutureWatcher, &QFutureWatcher<QStringList>::finished, this, &PackInstallTask::onUnzipFinished);

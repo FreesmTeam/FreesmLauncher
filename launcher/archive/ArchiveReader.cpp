@@ -1,5 +1,8 @@
 #include "ArchiveReader.h"
 #include <archive_entry.h>
+#include <QDir>
+#include <QFileInfo>
+
 namespace MMCZip {
 QStringList ArchiveReader::getFiles()
 {
@@ -167,4 +170,32 @@ QString ArchiveReader::getZipName()
 {
     return m_archivePath;
 }
+
+bool ArchiveReader::exists(const QString& filePath) const
+{
+    if (filePath == QLatin1String("/") || filePath.isEmpty())
+        return true;
+    // Normalize input path (remove trailing slash, if any)
+    QString normalizedPath = QDir::cleanPath(filePath);
+    if (normalizedPath.startsWith('/'))
+        normalizedPath.remove(0, 1);
+    if (normalizedPath == QLatin1String("."))
+        return true;
+    if (normalizedPath == QLatin1String(".."))
+        return false;  // root only
+
+    // Check for exact file match
+    if (m_fileNames.contains(normalizedPath, Qt::CaseInsensitive))
+        return true;
+
+    // Check for directory existence by seeing if any file starts with that path
+    QString dirPath = normalizedPath + QLatin1Char('/');
+    for (const QString& f : m_fileNames) {
+        if (f.startsWith(dirPath, Qt::CaseInsensitive))
+            return true;
+    }
+
+    return false;
+}
+
 }  // namespace MMCZip
