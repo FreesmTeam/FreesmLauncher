@@ -621,6 +621,10 @@ set(PRISMUPDATER_SOURCES
     # Zip
     MMCZip.h
     MMCZip.cpp
+    archive/ArchiveReader.cpp  
+    archive/ArchiveReader.h  
+    archive/ArchiveWriter.cpp  
+    archive/ArchiveWriter.h  
 
     # Time
     MMCTime.h
@@ -1421,6 +1425,7 @@ if(Launcher_BUILD_UPDATER)
         Qt${QT_VERSION_MAJOR}::Network
         ${Launcher_QT_LIBS}
         cmark::cmark
+        PkgConfig::libarchive
     )
 
     add_executable("${Launcher_Name}_updater" WIN32 updater/prismupdater/updater_main.cpp)

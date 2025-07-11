@@ -38,17 +38,13 @@
 #include <archive.h>
 #include "FileSystem.h"
 #include "archive/ArchiveReader.h"
+#include "archive/ArchiveWriter.h"
 
 #include <QCoreApplication>
 #include <QDebug>
 #include <QFileInfo>
 #include <QUrl>
 #include <memory>
-
-#if defined(LAUNCHER_APPLICATION)
-#include <QtConcurrentRun>
-#include "archive/ArchiveWriter.h"
-#endif
 
 namespace MMCZip {
 // ours
