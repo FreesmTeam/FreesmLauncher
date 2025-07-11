@@ -1347,7 +1347,6 @@ target_link_libraries(Launcher_logic
     ${Launcher_QT_LIBS}
 )
 target_link_libraries(Launcher_logic
-    QuaZip::QuaZip
     cmark::cmark
     LocalPeer
     Launcher_rainbow
@@ -1414,7 +1413,6 @@ if(Launcher_BUILD_UPDATER)
     add_library(prism_updater_logic STATIC ${PRISMUPDATER_SOURCES} ${TASKS_SOURCES} ${PRISMUPDATER_UI})
     target_include_directories(prism_updater_logic PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
     target_link_libraries(prism_updater_logic
-        QuaZip::QuaZip
         ${ZLIB_LIBRARIES}
         systeminfo
         BuildConfig
