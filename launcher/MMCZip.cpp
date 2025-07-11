@@ -36,7 +36,6 @@
 
 #include "MMCZip.h"
 #include <archive.h>
-#include <qcontainerfwd.h>
 #include "FileSystem.h"
 #include "archive/ArchiveReader.h"
 

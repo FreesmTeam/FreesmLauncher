@@ -1,7 +1,6 @@
 #include "LocalModParseTask.h"
 
 #include <qdcss.h>
-#include <qstringview.h>
 #include <toml++/toml.h>
 #include <QJsonArray>
 #include <QJsonDocument>
