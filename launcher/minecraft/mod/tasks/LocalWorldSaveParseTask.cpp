@@ -133,8 +133,7 @@ static std::tuple<bool, QString, bool> contains_level_dat(QString fileName)
 
         // Check that there's nothing between worldName/ and level.dat
         if (remaining == "level.dat") {
-            QString worldDir = (saves ? "saves/" : "") + worldName;
-            return std::make_tuple(true, worldDir, saves);
+            return std::make_tuple(true, worldName, saves);
         }
     }
 

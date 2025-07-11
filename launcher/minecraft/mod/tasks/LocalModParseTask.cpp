@@ -1,8 +1,7 @@
 #include "LocalModParseTask.h"
 
 #include <qdcss.h>
-#include <quazip/quazip.h>
-#include <quazip/quazipfile.h>
+#include <qstringview.h>
 #include <toml++/toml.h>
 #include <QJsonArray>
 #include <QJsonDocument>
@@ -13,6 +12,7 @@
 
 #include "FileSystem.h"
 #include "Json.h"
+#include "archive/ArchiveReader.h"
 #include "minecraft/mod/ModDetails.h"
 #include "settings/INIFile.h"
 
@@ -470,31 +470,35 @@ bool processZIP(Mod& mod, [[maybe_unused]] ProcessingLevel level)
 {
     ModDetails details;
 
-    QuaZip zip(mod.fileinfo().filePath());
-    if (!zip.open(QuaZip::mdUnzip))
+    MMCZip::ArchiveReader zip(mod.fileinfo().filePath());
+    if (!zip.collectFiles())
         return false;
 
-    QuaZipFile file(&zip);
+    auto isForge = zip.exists("META-INF/mods.toml");
+    if (isForge || zip.exists("META-INF/neoforge.mods.toml")) {
+        {
+            std::unique_ptr<MMCZip::ArchiveReader::File> file;
+            if (isForge) {
+                file = zip.goToFile("META-INF/mods.toml");
+            } else {
+                file = zip.goToFile("META-INF/neoforge.mods.toml");
+            }
+            if (!file) {
+                return false;
+            }
 
-    if (zip.setCurrentFile("META-INF/mods.toml") || zip.setCurrentFile("META-INF/neoforge.mods.toml")) {
-        if (!file.open(QIODevice::ReadOnly)) {
-            zip.close();
-            return false;
+            details = ReadMCModTOML(file->readAll());
         }
-
-        details = ReadMCModTOML(file.readAll());
-        file.close();
 
         // to replace ${file.jarVersion} with the actual version, as needed
         if (details.version == "${file.jarVersion}") {
-            if (zip.setCurrentFile("META-INF/MANIFEST.MF")) {
-                if (!file.open(QIODevice::ReadOnly)) {
-                    zip.close();
+            if (zip.exists("META-INF/MANIFEST.MF")) {
+                auto file = zip.goToFile("META-INF/MANIFEST.MF");
+                if (!file) {
                     return false;
                 }
-
                 // quick and dirty line-by-line parser
-                auto manifestLines = QString(file.readAll()).split(s_newlineRegex);
+                auto manifestLines = QString(file->readAll()).split(s_newlineRegex);
                 QString manifestVersion = "";
                 for (auto& line : manifestLines) {
                     if (line.startsWith("Implementation-Version: ", Qt::CaseInsensitive)) {
@@ -510,69 +514,58 @@ bool processZIP(Mod& mod, [[maybe_unused]] ProcessingLevel level)
                 }
 
                 details.version = manifestVersion;
-
-                file.close();
             }
         }
 
-        zip.close();
         mod.setDetails(details);
 
         return true;
-    } else if (zip.setCurrentFile("mcmod.info")) {
-        if (!file.open(QIODevice::ReadOnly)) {
-            zip.close();
+    } else if (zip.exists("mcmod.info")) {
+        auto file = zip.goToFile("mcmod.info");
+        if (!file) {
             return false;
         }
 
-        details = ReadMCModInfo(file.readAll());
-        file.close();
-        zip.close();
+        details = ReadMCModInfo(file->readAll());
 
         mod.setDetails(details);
         return true;
-    } else if (zip.setCurrentFile("quilt.mod.json")) {
-        if (!file.open(QIODevice::ReadOnly)) {
-            zip.close();
+    } else if (zip.exists("quilt.mod.json")) {
+        auto file = zip.goToFile("quilt.mod.json");
+        if (!file) {
             return false;
         }
 
-        details = ReadQuiltModInfo(file.readAll());
-        file.close();
-        zip.close();
+        details = ReadQuiltModInfo(file->readAll());
 
         mod.setDetails(details);
         return true;
-    } else if (zip.setCurrentFile("fabric.mod.json")) {
-        if (!file.open(QIODevice::ReadOnly)) {
-            zip.close();
+    } else if (zip.exists("fabric.mod.json")) {
+        auto file = zip.goToFile("fabric.mod.json");
+        if (!file) {
             return false;
         }
 
-        details = ReadFabricModInfo(file.readAll());
-        file.close();
-        zip.close();
+        details = ReadFabricModInfo(file->readAll());
 
         mod.setDetails(details);
         return true;
-    } else if (zip.setCurrentFile("forgeversion.properties")) {
-        if (!file.open(QIODevice::ReadOnly)) {
-            zip.close();
+    } else if (zip.exists("forgeversion.properties")) {
+        auto file = zip.goToFile("forgeversion.properties");
+        if (!file) {
             return false;
         }
 
-        details = ReadForgeInfo(file.readAll());
-        file.close();
-        zip.close();
+        details = ReadForgeInfo(file->readAll());
 
         mod.setDetails(details);
         return true;
-    } else if (zip.setCurrentFile("META-INF/nil/mappings.json")) {
+    } else if (zip.exists("META-INF/nil/mappings.json")) {
         // nilloader uses the filename of the metadata file for the modid, so we can't know the exact filename
         // thankfully, there is a good file to use as a canary so we don't look for nil meta all the time
 
         QString foundNilMeta;
-        for (auto& fname : zip.getFileNameList()) {
+        for (auto& fname : zip.getFiles()) {
             // nilmods can shade nilloader to be able to run as a standalone agent - which includes nilloader's own meta file
             if (fname.endsWith(".nilmod.css") && fname != "nilloader.nilmod.css") {
                 foundNilMeta = fname;
@@ -580,22 +573,18 @@ bool processZIP(Mod& mod, [[maybe_unused]] ProcessingLevel level)
             }
         }
 
-        if (zip.setCurrentFile(foundNilMeta)) {
-            if (!file.open(QIODevice::ReadOnly)) {
-                zip.close();
+        if (zip.exists(foundNilMeta)) {
+            auto file = zip.goToFile(foundNilMeta);
+            if (!file) {
                 return false;
             }
-
-            details = ReadNilModInfo(file.readAll(), foundNilMeta);
-            file.close();
-            zip.close();
+            details = ReadNilModInfo(file->readAll(), foundNilMeta);
 
             mod.setDetails(details);
             return true;
         }
     }
 
-    zip.close();
     return false;  // no valid mod found in archive
 }
 
@@ -624,25 +613,14 @@ bool processLitemod(Mod& mod, [[maybe_unused]] ProcessingLevel level)
 {
     ModDetails details;
 
-    QuaZip zip(mod.fileinfo().filePath());
-    if (!zip.open(QuaZip::mdUnzip))
-        return false;
+    MMCZip::ArchiveReader zip(mod.fileinfo().filePath());
 
-    QuaZipFile file(&zip);
-
-    if (zip.setCurrentFile("litemod.json")) {
-        if (!file.open(QIODevice::ReadOnly)) {
-            zip.close();
-            return false;
-        }
-
-        details = ReadLiteModInfo(file.readAll());
-        file.close();
+    if (auto file = zip.goToFile("litemod.json"); file) {
+        details = ReadLiteModInfo(file->readAll());
 
         mod.setDetails(details);
         return true;
     }
-    zip.close();
 
     return false;  // no valid litemod.json found in archive
 }
@@ -700,24 +678,13 @@ bool loadIconFile(const Mod& mod, QPixmap* pixmap)
             return png_invalid("file '" + icon_info.filePath() + "' does not exists or is not a file");
         }
         case ResourceType::ZIPFILE: {
-            QuaZip zip(mod.fileinfo().filePath());
-            if (!zip.open(QuaZip::mdUnzip))
-                return png_invalid("failed to open '" + mod.fileinfo().filePath() + "' as a zip archive");
-
-            QuaZipFile file(&zip);
-
-            if (zip.setCurrentFile(mod.iconPath())) {
-                if (!file.open(QIODevice::ReadOnly)) {
-                    qCritical() << "Failed to open file in zip.";
-                    zip.close();
-                    return png_invalid("Failed to open '" + mod.iconPath() + "' in zip archive");
-                }
-
-                auto data = file.readAll();
+            MMCZip::ArchiveReader zip(mod.fileinfo().filePath());
+            auto file = zip.goToFile(mod.iconPath());
+            if (file) {
+                auto data = file->readAll();
 
                 bool icon_result = ModUtils::processIconPNG(mod, std::move(data), pixmap);
 
-                file.close();
                 if (!icon_result) {
                     return png_invalid("invalid png image");  // icon png invalid
                 }
