@@ -22,7 +22,8 @@
 				"macos_base"
 			],
 			"cacheVariables": {
-				"CMAKE_OSX_ARCHITECTURES": "x86_64;arm64"
+				"CMAKE_OSX_ARCHITECTURES": "x86_64;arm64",
+				"VCPKG_TARGET_TRIPLET": "universal-osx"
 			}
 		},
 		{
