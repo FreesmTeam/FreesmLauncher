@@ -11,6 +11,9 @@
       "name": "microsoft"
     }
   ],
+  "overlay-ports": [
+    "./cmake/vcpkg-ports"
+  ],
   "overlay-triplets": [
     "./cmake/vcpkg-triplets"
   ]
