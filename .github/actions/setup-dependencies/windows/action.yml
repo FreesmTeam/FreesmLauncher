@@ -30,6 +30,7 @@ runs:
       shell: pwsh
       env:
         USERNAME: ${{ github.repository_owner }}
+        GITHUB_TOKEN: ${{ github.token }}
         FEED_URL: https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json
       run: |
         .$(vcpkg fetch nuget) `
@@ -42,7 +43,7 @@ runs:
         .$(vcpkg fetch nuget) `
           setapikey "$env:GITHUB_TOKEN" `
           -Source "$env:FEED_URL"
-        Write-Output "VCPKG_BINARY_SOURCES=clear;nuget,$env:FEED_URL,readwrite" >> "$GITHUB_ENV"
+        "VCPKG_BINARY_SOURCES=clear;nuget,$env:FEED_URL,readwrite" | Out-File -Append $env:GITHUB_ENV
 
     - name: Setup vcpkg environment (MSVC)
       if: ${{ inputs.msystem == '' }}
