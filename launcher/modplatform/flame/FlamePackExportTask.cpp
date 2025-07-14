@@ -30,7 +30,6 @@
 #include <memory>
 #include "Application.h"
 #include "Json.h"
-#include "MMCZip.h"
 #include "archive/ExportToZipTask.h"
 #include "minecraft/PackProfile.h"
 #include "minecraft/mod/ModFolderModel.h"

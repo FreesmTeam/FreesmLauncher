@@ -349,29 +349,29 @@ else()
     pkg_check_modules(libqrencode REQUIRED IMPORTED_TARGET libqrencode)
 endif()
 
-if(NOT Launcher_FORCE_BUNDLED_LIBS)
+# Find libarchive through CMake packages, mainly for vcpkg
+find_package(LibArchive QUIET)
+# CMake packages aren't available in most distributions of libarchive, so fallback to pkg-config
+if(NOT LibArchive_FOUND)
     find_package(PkgConfig REQUIRED)
-    pkg_check_modules(libarchive IMPORTED_TARGET libarchive)
+    pkg_check_modules(libarchive REQUIRED IMPORTED_TARGET libarchive)
+endif()
+
+
+if(NOT Launcher_FORCE_BUNDLED_LIBS)
     # Find toml++
     find_package(tomlplusplus 3.2.0 QUIET)
     # Fallback to pkg-config (if available) if CMake files aren't found
     if(NOT tomlplusplus_FOUND)
-        pkg_check_modules(tomlplusplus IMPORTED_TARGET tomlplusplus>=3.2.0)
+        find_package(PkgConfig QUIET)
+        if(PkgConfig_FOUND)
+            pkg_check_modules(tomlplusplus IMPORTED_TARGET tomlplusplus>=3.2.0)
+        endif()
     endif()
 
 
     # Find cmark
     find_package(cmark QUIET)
-
-    find_package(LibArchive 3.7.8 QUIET)
-    # Fallback to pkg-config (if available) if CMake files aren't found
-    if(NOT LibArchive_FOUND)
-        pkg_check_modules(LibArchive IMPORTED_TARGET LibArchive>=3.7.8)
-    endif()
-
-    # Find qrcodegencpp-cmake
-    find_package(qrcodegencpp QUIET)
-
 endif()
 
 include(ECMQtDeclareLoggingCategory)
