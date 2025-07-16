@@ -138,7 +138,7 @@
           <item>
            <widget class="QLabel" name="label_7">
             <property name="text">
-             <string>You can set this to another server if you have problem in downloading assets.</string>
+             <string>You can set this to another server if you have problems with downloading assets.</string>
             </property>
             <property name="textFormat">
              <enum>Qt::RichText</enum>
