@@ -81,6 +81,15 @@ class ThemeManager {
     void initializeIcons();
     void initializeWidgets();
 
+    // On non-Mac systems, this is a no-op.
+    void setTitlebarColorOnMac(WId windowId, QColor color);
+    // This also will set the titlebar color of newly opened windows after this method is called.
+    // On non-Mac systems, this is a no-op.
+    void setTitlebarColorOfAllWindowsOnMac(QColor color);
+#ifdef Q_OS_MACOS
+    NSObject* m_windowTitlebarObserver = nullptr;
+#endif
+
     const QStringList builtinIcons{ "pe_colored", "pe_light", "pe_dark", "pe_blue",    "breeze_light", "breeze_dark",
                                     "OSX",        "iOS",      "flat",    "flat_white", "multimc" };
 };

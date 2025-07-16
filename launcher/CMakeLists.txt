@@ -1178,6 +1178,13 @@ SET(LAUNCHER_SOURCES
     ui/instanceview/VisualGroup.h
 )
 
+if (APPLE)
+    set(LAUNCHER_SOURCES
+        ${LAUNCHER_SOURCES}
+        ui/themes/ThemeManager.mm
+    )
+endif()
+
 if (NOT Apple)
     set(LAUNCHER_SOURCES
     ${LAUNCHER_SOURCES}
