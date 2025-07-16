@@ -39,6 +39,7 @@ inline auto themeWarningLog()
 class ThemeManager {
    public:
     ThemeManager();
+    ~ThemeManager();
 
     QList<IconTheme*> getValidIconThemes();
     QList<ITheme*> getValidApplicationThemes();
@@ -86,6 +87,8 @@ class ThemeManager {
     // This also will set the titlebar color of newly opened windows after this method is called.
     // On non-Mac systems, this is a no-op.
     void setTitlebarColorOfAllWindowsOnMac(QColor color);
+    // On non-Mac systems, this is a no-op.
+    void stopSettingNewWindowColorsOnMac();
 #ifdef Q_OS_MACOS
     NSObject* m_windowTitlebarObserver = nullptr;
 #endif

@@ -50,6 +50,11 @@ ThemeManager::ThemeManager()
     initializeCatPacks();
 }
 
+ThemeManager::~ThemeManager()
+{
+    stopSettingNewWindowColorsOnMac();
+}
+
 /// @brief Adds the Theme to the list of themes
 /// @param theme The Theme to add
 /// @return Theme ID
@@ -178,6 +183,8 @@ void ThemeManager::initializeWidgets()
 void ThemeManager::setTitlebarColorOnMac(WId windowId, QColor color)
 {}
 void ThemeManager::setTitlebarColorOfAllWindowsOnMac(QColor color)
+{}
+void ThemeManager::stopSettingNewWindowColorsOnMac()
 {}
 #endif
 
