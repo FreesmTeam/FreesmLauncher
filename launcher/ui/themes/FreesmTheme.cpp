@@ -154,7 +154,7 @@ QString FreesmTheme::appStyleSheet()
            "0, 0));border-radius: 1px;margin-top: 14px;margin-bottom: 14px;}QProgressBar::chunk {background-color: "
            "qlineargradient(spread:reflect, x1:0.5, y1:0.5, x2:0.5, y2:1, stop:0.119403 rgba(255, 255, 255, 250), stop:0.273632 rgba(0, 0, "
            "0, 0));border-radius: 2px;}QSpinBox {background-color: rgba(255, 255, 255, 10);border: 1px solid rgba(255, 255, 255, "
-           "8);border-radius: 5px;padding-left: 10px;padding-top: 6px;padding-bottom: 6px;min-width: 60px;border-bottom: 1px solid "
+           "8);border-radius: 5px;padding: 3px;min-width: 60px;border-bottom: 1px solid "
            "#707070;}QSpinBox:hover {background-color: rgba(255, 255, 255, 16);border: 1px solid rgba(255, 255, 255, 10);border-bottom: "
            "1px solid #707070;}QSpinBox::focus {background-color: rgba(255, 255, 255, 5);border: 1px solid rgba(255, 255, 255, 8);color: "
            "rgba(255, 255, 255, 200);border-bottom: 2px solid #cba6f7;}QSpinBox::up-button {image: "
