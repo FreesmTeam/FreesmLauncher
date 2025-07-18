@@ -39,7 +39,7 @@
 #include <QFuture>
 #include <QFutureWatcher>
 
-#include "ArchiveWriter.h"
+#include "archive/ArchiveWriter.h"
 #include "tasks/Task.h"
 
 namespace MMCZip {

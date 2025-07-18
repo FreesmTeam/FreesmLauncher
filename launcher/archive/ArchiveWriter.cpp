@@ -34,6 +34,7 @@
  */
 #include "ArchiveWriter.h"
 #include <archive.h>
+#include <archive_entry.h>
 
 #include <QFile>
 #include <QFileInfo>

@@ -1,7 +1,6 @@
 #include "LocalModParseTask.h"
 
 #include <qdcss.h>
-#include <qstringview.h>
 #include <toml++/toml.h>
 #include <QJsonArray>
 #include <QJsonDocument>
@@ -14,7 +13,6 @@
 #include "Json.h"
 #include "archive/ArchiveReader.h"
 #include "minecraft/mod/ModDetails.h"
-#include "modplatform/ModIndex.h"
 #include "settings/INIFile.h"
 
 static const QRegularExpression s_newlineRegex("\r\n|\n|\r");

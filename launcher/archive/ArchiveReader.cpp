@@ -33,6 +33,7 @@
  *      limitations under the License.
  */
 #include "ArchiveReader.h"
+#include <archive.h>
 #include <archive_entry.h>
 #include <QDir>
 #include <QFileInfo>
@@ -239,4 +240,5 @@ bool ArchiveReader::exists(const QString& filePath) const
     return false;
 }
 
+ArchiveReader::File::File() : m_archive(ArchivePtr(archive_read_new(), archive_read_free)) {}
 }  // namespace MMCZip

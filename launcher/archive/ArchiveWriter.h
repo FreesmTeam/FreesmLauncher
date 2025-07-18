@@ -34,13 +34,11 @@
  */
 #pragma once
 
-#include <archive.h>
-#include <archive_entry.h>
-
 #include <QByteArray>
 #include <QFileDevice>
 #include "archive/ArchiveReader.h"
 
+struct archive;
 namespace MMCZip {
 
 class ArchiveWriter {

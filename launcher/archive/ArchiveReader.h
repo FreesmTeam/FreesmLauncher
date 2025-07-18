@@ -34,14 +34,13 @@
  */
 #pragma once
 
-#include <archive.h>
-#include <archive_entry.h>
-
 #include <QByteArray>
 #include <QDateTime>
 #include <QStringList>
 #include <memory>
 
+struct archive;
+struct archive_entry;
 namespace MMCZip {
 class ArchiveReader {
    public:
@@ -56,8 +55,8 @@ class ArchiveReader {
 
     class File {
        public:
-        File() : m_archive(ArchivePtr(archive_read_new(), archive_read_free)) {}
-        virtual ~File() {}
+        File();
+        virtual ~File() = default;
 
         QString filename();
         bool isFile();
