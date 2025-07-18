@@ -357,7 +357,6 @@ if(NOT LibArchive_FOUND)
     pkg_check_modules(libarchive REQUIRED IMPORTED_TARGET libarchive)
 endif()
 
-
 if(NOT Launcher_FORCE_BUNDLED_LIBS)
     # Find toml++
     find_package(tomlplusplus 3.2.0 QUIET)
