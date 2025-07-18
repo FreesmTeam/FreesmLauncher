@@ -244,35 +244,23 @@ void World::readFromZip(const QFileInfo& file)
 {
     MMCZip::ArchiveReader r(file.absoluteFilePath());
 
-    if (m_isValid = r.collectFiles(); !m_isValid) {
-        return;
-    }
-
-    QString path;
-    const QString levelDat = "level.dat";
-    for (auto filePath : r.getFiles()) {
+    m_isValid = false;
+    r.parse([this](MMCZip::ArchiveReader::File* file, bool& stop) {
+        const QString levelDat = "level.dat";
+        auto filePath = file->filename();
         QFileInfo fi(filePath);
         if (fi.fileName().compare(levelDat, Qt::CaseInsensitive) == 0) {
             m_containerOffsetPath = filePath.chopped(levelDat.length());
-            path = filePath;
-            break;
+            if (!m_containerOffsetPath.isEmpty()) {
+                return false;
+            }
+            m_levelDatTime = file->dateTime();
+            loadFromLevelDat(file->readAll());
+            m_isValid = true;
+            stop = true;
         }
-    }
-
-    if (m_isValid = !m_containerOffsetPath.isEmpty(); !m_isValid) {
-        return;
-    }
-
-    auto zippedFile = r.goToFile(path);
-    if (m_isValid = !!zippedFile; !m_isValid) {
-        return;
-    }
-    // read the install profile
-    m_levelDatTime = zippedFile->dateTime();
-    if (!m_isValid) {
-        return;
-    }
-    loadFromLevelDat(zippedFile->readAll());
+        return true;
+    });
 }
 
 bool World::install(const QString& to, const QString& name)

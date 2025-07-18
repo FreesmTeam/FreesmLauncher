@@ -90,35 +90,25 @@ bool processZIP(TexturePack& pack, ProcessingLevel level)
     Q_ASSERT(pack.type() == ResourceType::ZIPFILE);
 
     MMCZip::ArchiveReader zip(pack.fileinfo().filePath());
+    bool packProcessed = false;
+    bool iconProcessed = false;
 
-    {
-        auto file = zip.goToFile("pack.txt");
-        if (file) {
+    return zip.parse([&packProcessed, &iconProcessed, &pack, level](MMCZip::ArchiveReader::File* file, bool& stop) {
+        if (!packProcessed && file->filename() == "pack.txt") {
+            packProcessed = true;
             auto data = file->readAll();
-
-            bool packTXT_result = TexturePackUtils::processPackTXT(pack, std::move(data));
-
-            if (!packTXT_result) {
-                return false;
-            }
+            stop = packProcessed && (iconProcessed || level == ProcessingLevel::BasicInfoOnly);
+            return TexturePackUtils::processPackTXT(pack, std::move(data));
         }
-    }
-
-    if (level == ProcessingLevel::BasicInfoOnly) {
+        if (!iconProcessed && file->filename() == "pack.png") {
+            iconProcessed = true;
+            auto data = file->readAll();
+            stop = packProcessed && iconProcessed;
+            return TexturePackUtils::processPackPNG(pack, std::move(data));
+        }
+        file->skip();
         return true;
-    }
-
-    auto file = zip.goToFile("pack.png");
-    if (file) {
-        auto data = file->readAll();
-
-        bool packPNG_result = TexturePackUtils::processPackPNG(pack, std::move(data));
-
-        if (!packPNG_result) {
-            return false;
-        }
-    }
-    return true;
+    });
 }
 
 bool processPackTXT(TexturePack& pack, QByteArray&& raw_data)

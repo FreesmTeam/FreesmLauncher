@@ -1,6 +1,7 @@
 #include "LocalModParseTask.h"
 
 #include <qdcss.h>
+#include <qstringview.h>
 #include <toml++/toml.h>
 #include <QJsonArray>
 #include <QJsonDocument>
@@ -13,6 +14,7 @@
 #include "Json.h"
 #include "archive/ArchiveReader.h"
 #include "minecraft/mod/ModDetails.h"
+#include "modplatform/ModIndex.h"
 #include "settings/INIFile.h"
 
 static const QRegularExpression s_newlineRegex("\r\n|\n|\r");
@@ -470,35 +472,32 @@ bool processZIP(Mod& mod, [[maybe_unused]] ProcessingLevel level)
     ModDetails details;
 
     MMCZip::ArchiveReader zip(mod.fileinfo().filePath());
-    if (!zip.collectFiles())
-        return false;
 
-    auto isForge = zip.exists("META-INF/mods.toml");
-    if (isForge || zip.exists("META-INF/neoforge.mods.toml")) {
-        {
-            std::unique_ptr<MMCZip::ArchiveReader::File> file;
-            if (isForge) {
-                file = zip.goToFile("META-INF/mods.toml");
-            } else {
-                file = zip.goToFile("META-INF/neoforge.mods.toml");
-            }
-            if (!file) {
-                return false;
-            }
+    bool baseForgePopulated = false;
+    bool isNilMod = false;
+    bool isValid = false;
+    QString manifestVersion = {};
+    QByteArray nilData = {};
+    QString nilFilePath = {};
 
-            details = ReadMCModTOML(file->readAll());
-        }
+    if (!zip.parse([&details, &baseForgePopulated, &manifestVersion, &isValid, &nilData, &isNilMod, &nilFilePath](
+                       MMCZip::ArchiveReader::File* file, bool& stop) {
+            auto filePath = file->filename();
 
-        // to replace ${file.jarVersion} with the actual version, as needed
-        if (details.version == "${file.jarVersion}") {
-            if (zip.exists("META-INF/MANIFEST.MF")) {
-                auto file = zip.goToFile("META-INF/MANIFEST.MF");
-                if (!file) {
-                    return false;
+            if (filePath == "META-INF/mods.toml" || filePath == "META-INF/neoforge.mods.toml") {
+                details = ReadMCModTOML(file->readAll());
+                isValid = true;
+                if (details.version == "${file.jarVersion}" && !manifestVersion.isEmpty()) {
+                    details.version = manifestVersion;
                 }
+                stop = details.version != "${file.jarVersion}";
+                baseForgePopulated = true;
+                return true;
+            }
+            if (filePath == "META-INF/MANIFEST.MF") {
                 // quick and dirty line-by-line parser
                 auto manifestLines = QString(file->readAll()).split(s_newlineRegex);
-                QString manifestVersion = "";
+                manifestVersion = "";
                 for (auto& line : manifestLines) {
                     if (line.startsWith("Implementation-Version: ", Qt::CaseInsensitive)) {
                         manifestVersion = line.remove("Implementation-Version: ", Qt::CaseInsensitive);
@@ -511,79 +510,64 @@ bool processZIP(Mod& mod, [[maybe_unused]] ProcessingLevel level)
                 if (manifestVersion.contains("task ':jar' property 'archiveVersion'") || manifestVersion == "") {
                     manifestVersion = "NONE";
                 }
-
-                details.version = manifestVersion;
+                if (baseForgePopulated) {
+                    details.version = manifestVersion;
+                    stop = true;
+                }
+                return true;
             }
-        }
-
-        mod.setDetails(details);
-
-        return true;
-    } else if (zip.exists("mcmod.info")) {
-        auto file = zip.goToFile("mcmod.info");
-        if (!file) {
-            return false;
-        }
-
-        details = ReadMCModInfo(file->readAll());
-
-        mod.setDetails(details);
-        return true;
-    } else if (zip.exists("quilt.mod.json")) {
-        auto file = zip.goToFile("quilt.mod.json");
-        if (!file) {
-            return false;
-        }
-
-        details = ReadQuiltModInfo(file->readAll());
-
-        mod.setDetails(details);
-        return true;
-    } else if (zip.exists("fabric.mod.json")) {
-        auto file = zip.goToFile("fabric.mod.json");
-        if (!file) {
-            return false;
-        }
-
-        details = ReadFabricModInfo(file->readAll());
-
-        mod.setDetails(details);
-        return true;
-    } else if (zip.exists("forgeversion.properties")) {
-        auto file = zip.goToFile("forgeversion.properties");
-        if (!file) {
-            return false;
-        }
-
-        details = ReadForgeInfo(file->readAll());
-
-        mod.setDetails(details);
-        return true;
-    } else if (zip.exists("META-INF/nil/mappings.json")) {
-        // nilloader uses the filename of the metadata file for the modid, so we can't know the exact filename
-        // thankfully, there is a good file to use as a canary so we don't look for nil meta all the time
-
-        QString foundNilMeta;
-        for (auto& fname : zip.getFiles()) {
+            if (filePath == "mcmod.info") {
+                details = ReadMCModInfo(file->readAll());
+                isValid = true;
+                stop = true;
+                return true;
+            }
+            if (filePath == "quilt.mod.json") {
+                details = ReadQuiltModInfo(file->readAll());
+                isValid = true;
+                stop = true;
+                return true;
+            }
+            if (filePath == "fabric.mod.json") {
+                details = ReadFabricModInfo(file->readAll());
+                isValid = true;
+                stop = true;
+                return true;
+            }
+            if (filePath == "forgeversion.properties") {
+                details = ReadForgeInfo(file->readAll());
+                isValid = true;
+                stop = true;
+                return true;
+            }
+            if (filePath == "META-INF/nil/mappings.json") {
+                // nilloader uses the filename of the metadata file for the modid, so we can't know the exact filename
+                // thankfully, there is a good file to use as a canary so we don't look for nil meta all the time
+                isNilMod = true;
+                stop = !nilFilePath.isEmpty();
+                file->skip();
+                return true;
+            }
             // nilmods can shade nilloader to be able to run as a standalone agent - which includes nilloader's own meta file
-            if (fname.endsWith(".nilmod.css") && fname != "nilloader.nilmod.css") {
-                foundNilMeta = fname;
-                break;
+            if (filePath.endsWith(".nilmod.css") && filePath != "nilloader.nilmod.css") {
+                nilData = file->readAll();
+                nilFilePath = filePath;
+                stop = isNilMod;
+                return true;
             }
-        }
-
-        if (zip.exists(foundNilMeta)) {
-            auto file = zip.goToFile(foundNilMeta);
-            if (!file) {
-                return false;
-            }
-            details = ReadNilModInfo(file->readAll(), foundNilMeta);
-
-            mod.setDetails(details);
+            file->skip();
             return true;
-        }
+        })) {
+        return false;
     }
-
+    if (isNilMod) {
+        details = ReadNilModInfo(nilData, nilFilePath);
+        isValid = true;
+    }
+    if (isValid) {
+        mod.setDetails(details);
+        return true;
+    }
     return false;  // no valid mod found in archive
 }
 
