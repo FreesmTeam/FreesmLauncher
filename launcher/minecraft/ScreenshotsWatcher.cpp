@@ -38,6 +38,10 @@ ScreenshotsWatcher::ScreenshotsWatcher(const QString& path) : QObject(), m_path(
 void ScreenshotsWatcher::dirUpdated()
 {
     QDir d(m_path, "*.png", QDir::Time, QDir::Files);
+    if (!d.exists() || !d.count()) {
+        qDebug() << "Invalid screenshots dir";
+        return;
+    }
     QString path = m_path + '/' + d[0];
 
     auto clipboard = Application::clipboard();
