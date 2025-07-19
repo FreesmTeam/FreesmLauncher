@@ -151,7 +151,7 @@ QString FreesmTheme::appStyleSheet()
            "url(theme:ScrollRightPressed.png);}QScrollBar::add-page:horizontal, QScrollBar::sub-page:horizontal {background: "
            "none;}QAbstractScrollArea {background-color: transparent;}QProgressBar {text-align: right;background-color: "
            "qlineargradient(spread:reflect, x1:0.5, y1:0.5, x2:0.5, y2:1, stop:0.119403 rgba(255, 255, 255, 20), stop:0.273632 rgba(0, 0, "
-           "0, 0));border-radius: 1px;margin-top: 14px;margin-bottom: 14px;}QProgressBar::chunk {background-color: "
+           "0, 0));border-radius: 1px;margin-top: 14px;margin-bottom: 14px;margin-right: 30px;}QProgressBar::chunk {background-color: "
            "qlineargradient(spread:reflect, x1:0.5, y1:0.5, x2:0.5, y2:1, stop:0.119403 rgba(255, 255, 255, 250), stop:0.273632 rgba(0, 0, "
            "0, 0));border-radius: 2px;}QSpinBox {background-color: rgba(255, 255, 255, 10);border: 1px solid rgba(255, 255, 255, "
            "8);border-radius: 5px;padding: 3px;min-width: 60px;border-bottom: 1px solid "
