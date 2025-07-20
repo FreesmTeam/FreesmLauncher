@@ -131,7 +131,7 @@ QString getCreditsHtml()
 
 QString getLicenseHtml()
 {
-    QFile dataFile(":/documents/COPYING.md");
+    QFile dataFile(":/documents/docs/COPYING.md");
     dataFile.open(QIODevice::ReadOnly);
     QString output = markdownToHTML(dataFile.readAll());
     return output;
