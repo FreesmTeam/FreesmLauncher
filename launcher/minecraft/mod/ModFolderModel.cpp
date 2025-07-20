@@ -301,24 +301,6 @@ void ModFolderModel::onParseFinished()
             }
         }
     }
-    auto removeDuplicates = [](QList<Mod*>& list) {
-        std::set<QString> seen;
-        auto it = std::remove_if(list.begin(), list.end(), [&seen](Mod* m) {
-            auto id = m->mod_id();
-            if (seen.count(id) > 0) {
-                return true;
-            }
-            seen.insert(id);
-            return false;
-        });
-        list.erase(it, list.end());
-    };
-    for (auto key : m_requiredBy.keys()) {
-        removeDuplicates(m_requiredBy[key]);
-    }
-    for (auto key : m_requires.keys()) {
-        removeDuplicates(m_requires[key]);
-    }
     for (auto mod : mods) {
         auto id = mod->mod_id();
         mod->setRequiredByCount(m_requiredBy[id].count());
@@ -346,7 +328,7 @@ QModelIndexList ModFolderModel::getAffectedMods(const QModelIndexList& indexes, 
     bool shouldBeEnabled = action == EnableAction::ENABLE;
     for (auto mod : indexedMods) {
         auto id = mod->mod_id();
-        QList<Mod*> mods;
+        QSet<Mod*> mods;
         switch (action) {
             case EnableAction::DISABLE: {
                 mods = m_requiredBy[id];
@@ -384,7 +366,7 @@ bool ModFolderModel::setResourceEnabled(const QModelIndexList& indexes, EnableAc
     return ResourceFolderModel::setResourceEnabled(indexes + affected, action);
 }
 
-QStringList reqToList(QList<Mod*> l)
+QStringList reqToList(QSet<Mod*> l)
 {
     QStringList req;
     for (auto m : l) {

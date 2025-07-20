@@ -40,7 +40,6 @@
 #include <QAbstractListModel>
 #include <QDir>
 #include <QHash>
-#include <QList>
 #include <QMap>
 #include <QSet>
 #include <QString>
@@ -104,6 +103,6 @@ class ModFolderModel : public ResourceFolderModel {
     void onParseFinished();
 
    private:
-    QHash<QString, QList<Mod*>> m_requiredBy;
-    QHash<QString, QList<Mod*>> m_requires;
+    QHash<QString, QSet<Mod*>> m_requiredBy;
+    QHash<QString, QSet<Mod*>> m_requires;
 };
