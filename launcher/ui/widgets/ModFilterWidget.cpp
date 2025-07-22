@@ -149,10 +149,16 @@ ModFilterWidget::ModFilterWidget(MinecraftInstance* instance, bool extended)
     connect(ui->forge, &QCheckBox::stateChanged, this, &ModFilterWidget::onLoadersFilterChanged);
     connect(ui->fabric, &QCheckBox::stateChanged, this, &ModFilterWidget::onLoadersFilterChanged);
     connect(ui->quilt, &QCheckBox::stateChanged, this, &ModFilterWidget::onLoadersFilterChanged);
-    if (extended)
-        connect(ui->liteLoader, &QCheckBox::stateChanged, this, &ModFilterWidget::onLoadersFilterChanged);
-    else
-        ui->liteLoader->setVisible(false);
+    connect(ui->liteLoader, &QCheckBox::stateChanged, this, &ModFilterWidget::onLoadersFilterChanged);
+    connect(ui->babric, &QCheckBox::stateChanged, this, &ModFilterWidget::onLoadersFilterChanged);
+    connect(ui->btaBabric, &QCheckBox::stateChanged, this, &ModFilterWidget::onLoadersFilterChanged);
+    
+    connect(ui->showMoreButton, &QPushButton::clicked, this, &ModFilterWidget::onShowMoreClicked);
+    
+    if (!extended) {
+        ui->showMoreButton->setVisible(false);
+        ui->extendedModLoadersWidget->setVisible(false);
+    }
 
     if (extended) {
         connect(ui->clientSide, &QCheckBox::stateChanged, this, &ModFilterWidget::onSideFilterChanged);
@@ -279,6 +285,10 @@ void ModFilterWidget::onLoadersFilterChanged()
         loaders |= ModPlatform::Quilt;
     if (ui->liteLoader->isChecked())
         loaders |= ModPlatform::LiteLoader;
+    if (ui->babric->isChecked())
+        loaders |= ModPlatform::Babric;
+    if (ui->btaBabric->isChecked())
+        loaders |= ModPlatform::BTA;
     m_filter_changed = loaders != m_filter->loaders;
     m_filter->loaders = loaders;
     if (m_filter_changed)
@@ -379,6 +389,12 @@ void ModFilterWidget::onReleaseFilterChanged()
     m_filter->releases = releases;
     if (m_filter_changed)
         emit filterChanged();
+}
+
+void ModFilterWidget::onShowMoreClicked()
+{
+    ui->extendedModLoadersWidget->setVisible(true);
+    ui->showMoreButton->setVisible(false);
 }
 
 #include "ModFilterWidget.moc"

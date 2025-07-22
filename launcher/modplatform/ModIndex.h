@@ -36,7 +36,9 @@ enum ModLoaderType {
     LiteLoader = 1 << 3,
     Fabric = 1 << 4,
     Quilt = 1 << 5,
-    DataPack = 1 << 6
+    DataPack = 1 << 6,
+    Babric = 1 << 7,
+    BTA = 1 << 8
 };
 Q_DECLARE_FLAGS(ModLoaderTypes, ModLoaderType)
 QList<ModLoaderType> modLoaderTypesToList(ModLoaderTypes flags);
