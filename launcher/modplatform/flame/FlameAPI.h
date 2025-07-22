@@ -41,15 +41,15 @@ class FlameAPI : public NetworkResourceAPI {
     {
         switch (type) {
             default:
-            case ModPlatform::ResourceType::MOD:
+            case ModPlatform::ResourceType::Mod:
                 return 6;
-            case ModPlatform::ResourceType::RESOURCE_PACK:
+            case ModPlatform::ResourceType::ResourcePack:
                 return 12;
-            case ModPlatform::ResourceType::SHADER_PACK:
+            case ModPlatform::ResourceType::ShaderPack:
                 return 6552;
-            case ModPlatform::ResourceType::MODPACK:
+            case ModPlatform::ResourceType::Modpack:
                 return 4471;
-            case ModPlatform::ResourceType::DATA_PACK:
+            case ModPlatform::ResourceType::DataPack:
                 return 6945;
         }
     }
