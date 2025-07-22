@@ -57,7 +57,7 @@ class ResourceDownloadDialog : public QDialog, public BasePageProvider {
     void connectButtons();
 
     //: String that gets appended to the download dialog title ("Download " + resourcesString())
-    [[nodiscard]] virtual QString resourcesString() const { return tr("resources"); }
+    virtual QString resourcesString() const { return tr("resources"); }
 
     QString dialogTitle() override { return tr("Download %1").arg(resourcesString()); };
 
@@ -68,7 +68,7 @@ class ResourceDownloadDialog : public QDialog, public BasePageProvider {
     void removeResource(const QString&);
 
     const QList<DownloadTaskPtr> getTasks();
-    [[nodiscard]] const std::shared_ptr<ResourceFolderModel> getBaseModel() const { return m_base_model; }
+    const std::shared_ptr<ResourceFolderModel> getBaseModel() const { return m_base_model; }
 
     void setResourceMetadata(const std::shared_ptr<Metadata::ModStruct>& meta);
 
@@ -82,10 +82,10 @@ class ResourceDownloadDialog : public QDialog, public BasePageProvider {
     virtual void confirm();
 
    protected:
-    [[nodiscard]] virtual QString geometrySaveKey() const { return ""; }
+    virtual QString geometrySaveKey() const { return ""; }
     void setButtonStatus();
 
-    [[nodiscard]] virtual GetModDependenciesTask::Ptr getModDependenciesTask() { return nullptr; }
+    virtual GetModDependenciesTask::Ptr getModDependenciesTask() { return nullptr; }
 
    protected:
     const std::shared_ptr<ResourceFolderModel> m_base_model;
@@ -104,8 +104,8 @@ class ModDownloadDialog final : public ResourceDownloadDialog {
     ~ModDownloadDialog() override = default;
 
     //: String that gets appended to the mod download dialog title ("Download " + resourcesString())
-    [[nodiscard]] QString resourcesString() const override { return tr("mods"); }
-    [[nodiscard]] QString geometrySaveKey() const override { return "ModDownloadGeometry"; }
+    QString resourcesString() const override { return tr("mods"); }
+    QString geometrySaveKey() const override { return "ModDownloadGeometry"; }
 
     QList<BasePage*> getPages() override;
     GetModDependenciesTask::Ptr getModDependenciesTask() override;
@@ -124,8 +124,8 @@ class ResourcePackDownloadDialog final : public ResourceDownloadDialog {
     ~ResourcePackDownloadDialog() override = default;
 
     //: String that gets appended to the resource pack download dialog title ("Download " + resourcesString())
-    [[nodiscard]] QString resourcesString() const override { return tr("resource packs"); }
-    [[nodiscard]] QString geometrySaveKey() const override { return "RPDownloadGeometry"; }
+    QString resourcesString() const override { return tr("resource packs"); }
+    QString geometrySaveKey() const override { return "RPDownloadGeometry"; }
 
     QList<BasePage*> getPages() override;
 
@@ -143,8 +143,8 @@ class TexturePackDownloadDialog final : public ResourceDownloadDialog {
     ~TexturePackDownloadDialog() override = default;
 
     //: String that gets appended to the texture pack download dialog title ("Download " + resourcesString())
-    [[nodiscard]] QString resourcesString() const override { return tr("texture packs"); }
-    [[nodiscard]] QString geometrySaveKey() const override { return "TPDownloadGeometry"; }
+    QString resourcesString() const override { return tr("texture packs"); }
+    QString geometrySaveKey() const override { return "TPDownloadGeometry"; }
 
     QList<BasePage*> getPages() override;
 
@@ -160,8 +160,8 @@ class ShaderPackDownloadDialog final : public ResourceDownloadDialog {
     ~ShaderPackDownloadDialog() override = default;
 
     //: String that gets appended to the shader pack download dialog title ("Download " + resourcesString())
-    [[nodiscard]] QString resourcesString() const override { return tr("shader packs"); }
-    [[nodiscard]] QString geometrySaveKey() const override { return "ShaderDownloadGeometry"; }
+    QString resourcesString() const override { return tr("shader packs"); }
+    QString geometrySaveKey() const override { return "ShaderDownloadGeometry"; }
 
     QList<BasePage*> getPages() override;
 
@@ -177,8 +177,8 @@ class DataPackDownloadDialog final : public ResourceDownloadDialog {
     ~DataPackDownloadDialog() override = default;
 
     //: String that gets appended to the data pack download dialog title ("Download " + resourcesString())
-    [[nodiscard]] QString resourcesString() const override { return tr("data packs"); }
-    [[nodiscard]] QString geometrySaveKey() const override { return "DataPackDownloadGeometry"; }
+    QString resourcesString() const override { return tr("data packs"); }
+    QString geometrySaveKey() const override { return "DataPackDownloadGeometry"; }
 
     QList<BasePage*> getPages() override;
 

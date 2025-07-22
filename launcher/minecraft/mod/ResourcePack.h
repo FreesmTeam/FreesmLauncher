@@ -22,7 +22,7 @@ class ResourcePack : public DataPack {
     ResourcePack(QFileInfo file_info) : DataPack(file_info) {}
 
     /** Gets, respectively, the lower and upper versions supported by the set pack format. */
-    [[nodiscard]] std::pair<Version, Version> compatibleVersions() const override;
+    std::pair<Version, Version> compatibleVersions() const override;
 
     QString directory() override { return "/assets"; }
 };

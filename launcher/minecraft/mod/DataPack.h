@@ -40,15 +40,15 @@ class DataPack : public Resource {
     DataPack(QFileInfo file_info) : Resource(file_info) {}
 
     /** Gets the numerical ID of the pack format. */
-    [[nodiscard]] int packFormat() const { return m_pack_format; }
+    int packFormat() const { return m_pack_format; }
     /** Gets, respectively, the lower and upper versions supported by the set pack format. */
-    [[nodiscard]] virtual std::pair<Version, Version> compatibleVersions() const;
+    virtual std::pair<Version, Version> compatibleVersions() const;
 
     /** Gets the description of the data pack. */
-    [[nodiscard]] QString description() const { return m_description; }
+    QString description() const { return m_description; }
 
     /** Gets the image of the data pack, converted to a QPixmap for drawing, and scaled to size. */
-    [[nodiscard]] QPixmap image(QSize size, Qt::AspectRatioMode mode = Qt::AspectRatioMode::IgnoreAspectRatio) const;
+    QPixmap image(QSize size, Qt::AspectRatioMode mode = Qt::AspectRatioMode::IgnoreAspectRatio) const;
 
     /** Thread-safe. */
     void setPackFormat(int new_format_id);

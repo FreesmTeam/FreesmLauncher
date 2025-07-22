@@ -34,13 +34,13 @@ class DataPackResourcePage : public ResourcePage {
     }
 
     //: The plural version of 'data pack'
-    [[nodiscard]] inline QString resourcesString() const override { return tr("data packs"); }
+    inline QString resourcesString() const override { return tr("data packs"); }
     //: The singular version of 'data packs'
-    [[nodiscard]] inline QString resourceString() const override { return tr("data pack"); }
+    inline QString resourceString() const override { return tr("data pack"); }
 
-    [[nodiscard]] bool supportsFiltering() const override { return false; };
+    bool supportsFiltering() const override { return false; };
 
-    [[nodiscard]] QMap<QString, QString> urlHandlers() const override;
+    QMap<QString, QString> urlHandlers() const override;
 
    protected:
     DataPackResourcePage(DataPackDownloadDialog* dialog, BaseInstance& instance);
