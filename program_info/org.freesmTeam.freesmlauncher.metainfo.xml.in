@@ -34,35 +34,35 @@
   <screenshots>
     <screenshot type="default">
       <caption>The main Freesm Launcher window</caption>
-      <image type="source" width="1030" height="764">https://prismlauncher.org/img/screenshots/LauncherDark.png</image>
+      <image type="source" width="1117" height="780">https://raw.githubusercontent.com/FreesmTeam/FreesmLauncher/refs/heads/develop/docs/screenshots/freesmlauncher_home_screenshot.png</image>
     </screenshot>
     <screenshot>
-      <caption>Modpack installation</caption>
-      <image type="source" width="1126" height="850">https://prismlauncher.org/img/screenshots/ModpackInstallDark.png</image>
+      <caption>Modpack adding</caption>
+      <image type="source" width="1058" height="540">https://raw.githubusercontent.com/FreesmTeam/FreesmLauncher/refs/heads/develop/docs/screenshots/freesmlauncher_instance_add_screenshot.png</image>
     </screenshot>
     <screenshot>
-      <caption>Modpack updating</caption>
+      <caption>Modpack updating (from Prism Launcher)</caption>
       <image type="source" width="930" height="677">https://prismlauncher.org/img/screenshots/ModpackUpdateDark.png</image>
     </screenshot>
     <screenshot>
-      <caption>Mod installation</caption>
+      <caption>Mod installation (from Prism Launcher)</caption>
       <image type="source" width="848" height="558">https://prismlauncher.org/img/screenshots/ModInstallDark.png</image>
     </screenshot>
     <screenshot>
-      <caption>Mod updating</caption>
+      <caption>Mod updating (from Prism Launcher)</caption>
       <image type="source" width="860" height="748">https://prismlauncher.org/img/screenshots/ModUpdateDark.png</image>
     </screenshot>
     <screenshot>
-      <caption>Instance management</caption>
+      <caption>Instance management (from Prism Launcher)</caption>
       <image type="source" width="960" height="659">https://prismlauncher.org/img/screenshots/PropertiesDark.png</image>
     </screenshot>
     <screenshot>
-      <caption>Cat :3</caption>
-      <image type="source" width="1042" height="754">https://prismlauncher.org/img/screenshots/LauncherCatDark.png</image>
+      <caption>MiSide background :3</caption>
+      <image type="source" width="1117" height="766">https://raw.githubusercontent.com/FreesmTeam/FreesmLauncher/refs/heads/develop/docs/screenshots/freesmlauncher_home_screenshot_opacity.png</image>
     </screenshot>
     <screenshot>
       <caption>Customization</caption>
-      <image type="source" width="1040" height="752">https://prismlauncher.org/img/screenshots/CustomizeDark.png</image>
+      <image type="source" width="1264" height="809">https://raw.githubusercontent.com/FreesmTeam/FreesmLauncher/refs/heads/develop/docs/screenshots/freesmlauncher_settings_theme_screenshot.png</image>
     </screenshot>
   </screenshots>
   <releases>
