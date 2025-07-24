@@ -38,6 +38,7 @@
 #include "ModFolderModel.h"
 
 #include <FileSystem.h>
+#include <qabstractitemmodel.h>
 #include <QDebug>
 #include <QFileSystemWatcher>
 #include <QHeaderView>
@@ -310,60 +311,114 @@ void ModFolderModel::onParseFinished()
     }
 }
 
-QModelIndexList ModFolderModel::getAffectedMods(const QModelIndexList& indexes, EnableAction action)
+QList<Mod*> collectMods(QList<Mod*> mods, QHash<QString, QSet<Mod*>> relation, std::set<QString>& seen)
 {
-    if (indexes.isEmpty())
-        return {};
-
-    QModelIndexList affectedList = {};
-    auto indexedMods = selectedMods(indexes);
-    if (action == EnableAction::TOGGLE) {
-        if (indexedMods.length() != 1) {
-            return {};  // not sure how to handle a bunch of rows that are toggled(not even sure it is posible)
-        }
-        action = indexedMods.first()->enabled() ? EnableAction::DISABLE : EnableAction::ENABLE;
-    }
-
-    std::set<QString> seen;
-    bool shouldBeEnabled = action == EnableAction::ENABLE;
-    for (auto mod : indexedMods) {
+    QList<Mod*> affectedList = {};
+    for (auto mod : mods) {
         auto id = mod->mod_id();
-        QSet<Mod*> mods;
-        switch (action) {
-            case EnableAction::DISABLE: {
-                mods = m_requiredBy[id];
-                break;
-            }
-            case EnableAction::ENABLE: {
-                mods = m_requires[id];
-                break;
-            }
-            case EnableAction::TOGGLE:
-                break;
-        }
-        for (auto affected : mods) {
-            auto affectedId = affected->mod_id();
+        if (seen.count(id) == 0) {
+            seen.insert(id);
+            for (auto affected : relation[id]) {
+                auto affectedId = affected->mod_id();
 
-            if (findById(indexedMods, affectedId) == nullptr && seen.count(affectedId) == 0) {
-                seen.insert(affectedId);
-                if (shouldBeEnabled != affected->enabled()) {
-                    auto row = m_resources_index[affected->internal_id()];
-                    affectedList << index(row, 0);
+                if (findById(mods, affectedId) == nullptr && seen.count(affectedId) == 0) {
+                    seen.insert(affectedId);
+                    affectedList << affected;
                 }
             }
         }
     }
     // collect the affected mods until all of them are included in the list
     if (!affectedList.isEmpty()) {
-        affectedList += getAffectedMods(indexes + affectedList, action);
+        affectedList += collectMods(affectedList, relation, seen);
+    }
+    return affectedList;
+}
+
+QModelIndexList ModFolderModel::getAffectedMods(const QModelIndexList& indexes, EnableAction action)
+{
+    if (indexes.isEmpty())
+        return {};
+
+    QModelIndexList affectedList = {};
+    auto affectedMods = selectedMods(indexes);
+    std::set<QString> seen;
+
+    switch (action) {
+        case EnableAction::ENABLE: {
+            affectedMods << collectMods(affectedMods, m_requires, seen);
+            break;
+        }
+        case EnableAction::DISABLE: {
+            affectedMods << collectMods(affectedMods, m_requiredBy, seen);
+            break;
+        }
+        case EnableAction::TOGGLE: {
+            return {};  // this function should not be called with TOGGLE
+        }
+    }
+    bool shouldBeEnabled = action == EnableAction::ENABLE;
+    for (auto affected : affectedMods) {
+        auto affectedId = affected->mod_id();
+        if (shouldBeEnabled != affected->enabled()) {
+            auto row = m_resources_index[affected->internal_id()];
+            affectedList << index(row, 0);
+        }
     }
     return affectedList;
 }
 
 bool ModFolderModel::setResourceEnabled(const QModelIndexList& indexes, EnableAction action)
 {
-    auto affected = getAffectedMods(indexes, action);
-    return ResourceFolderModel::setResourceEnabled(indexes + affected, action);
+    if (indexes.isEmpty())
+        return {};
+
+    QModelIndexList affectedList = {};
+    auto indexedMods = selectedMods(indexes);
+
+    QList<Mod*> toEnable = {};
+    QList<Mod*> toDisable = {};
+    std::set<QString> seen;
+
+    switch (action) {
+        case EnableAction::ENABLE: {
+            toEnable = indexedMods;
+            break;
+        }
+        case EnableAction::DISABLE: {
+            toDisable = indexedMods;
+            break;
+        }
+        case EnableAction::TOGGLE: {
+            for (auto mod : indexedMods) {
+                if (mod->enabled()) {
+                    toDisable << mod;
+                } else {
+                    toEnable << mod;
+                }
+            }
+            break;
+        }
+    }
+
+    toEnable << collectMods(toEnable, m_requires, seen);
+    toDisable << collectMods(toDisable, m_requiredBy, seen);
+
+    toDisable.removeIf([toEnable](Mod* m) { return toEnable.contains(m); });
+    auto toList = [this](QList<Mod*> mods, bool shouldBeEnabled) {
+        QModelIndexList list;
+        for (auto mod : mods) {
+            if (shouldBeEnabled != mod->enabled()) {
+                auto row = m_resources_index[mod->internal_id()];
+                list << index(row, 0);
+            }
+        }
+        return list;
+    };
+
+    auto disableStatus = ResourceFolderModel::setResourceEnabled(toList(toDisable, false), EnableAction::DISABLE);
+    auto enableStatus = ResourceFolderModel::setResourceEnabled(toList(toEnable, true), EnableAction::ENABLE);
+    return disableStatus && enableStatus;
 }
 
 QStringList reqToList(QSet<Mod*> l)
