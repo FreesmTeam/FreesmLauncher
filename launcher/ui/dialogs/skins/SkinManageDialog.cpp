@@ -446,7 +446,7 @@ void SkinManageDialog::on_userBtn_clicked()
     auto uuidLoop = makeShared<WaitTask>();
     auto profileLoop = makeShared<WaitTask>();
 
-    auto getUUID = Net::Download::makeByteArray("https://api.mojang.com/users/profiles/minecraft/" + user, uuidOut);
+    auto getUUID = Net::Download::makeByteArray("https://api.minecraftservices.com/minecraft/profile/lookup/name/" + user, uuidOut);
     auto getProfile = Net::Download::makeByteArray(QUrl(), profileOut);
     auto downloadSkin = Net::Download::makeFile(QUrl(), path);
 
