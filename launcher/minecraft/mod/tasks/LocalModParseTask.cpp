@@ -82,11 +82,11 @@ ModDetails ReadMCModInfo(QByteArray contents)
         };
 
         if (firstObj.contains("requiredMods")) {
-            for (auto dep : firstObj.value("dependencies").toArray().toVariantList()) {
+            for (auto dep : firstObj.value("requiredMods").toArray()) {
                 addDep(dep.toString());
             }
         } else if (firstObj.contains("dependencies")) {
-            for (auto dep : firstObj.value("dependencies").toArray().toVariantList()) {
+            for (auto dep : firstObj.value("dependencies").toArray()) {
                 addDep(dep.toString());
             }
         }
@@ -229,19 +229,29 @@ ModDetails ReadMCModTOML(QByteArray contents)
     details.icon_file = logoFile;
 
     auto parseDep = [&details](toml::array* dependencies) {
-        if (dependencies) {
-            for (auto& dep : *dependencies) {
-                auto dep_table = dep.as_table();
-                if (dep_table) {
-                    auto modId = dep_table->get("modId")->value_or<std::string>("");
-                    if (modId != "forge" && modId != "neoforge" && modId != "minecraft") {
-                        if (dep_table->contains("type") && (dep_table->get("type"))->value_or<std::string>("") == "required") {
-                            details.dependencies.append(QString::fromStdString(modId));
-                        } else if (dep_table->contains("mandatory") && (dep_table->get("mandatory"))->value_or(false)) {
-                            details.dependencies.append(QString::fromStdString(modId));
-                        }
-                    }
-                }
+        static const QStringList ignoreModIds = { "", "forge", "neoforge", "minecraft" };
+        if (!dependencies) {
+            return;
+        }
+        auto isNeoForgeDep = [](toml::table* t) {
+            auto type = (*t)["type"].as_string();
+            return type && type->get() == "required";
+        };
+        auto isForgeDep = [](toml::table* t) {
+            auto mandatory = (*t)["mandatory"].as_boolean();
+            return mandatory && mandatory->get();
+        };
+        for (auto& dep : *dependencies) {
+            auto dep_table = dep.as_table();
+            if (!dep_table) {
+                continue;
+            }
+            auto modId = (*dep_table)["modId"].as_string();
+            if (!modId || ignoreModIds.contains(modId->get())) {
+                continue;
+            }
+            if (isNeoForgeDep(dep_table) || isForgeDep(dep_table)) {
+                details.dependencies.append(QString::fromStdString(modId->get()));
             }
         }
     };
