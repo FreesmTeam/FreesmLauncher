@@ -42,6 +42,8 @@ runs:
     - name: Setup macOS dependencies
       if: ${{ runner.os == 'macOS' }}
       uses: ./.github/actions/setup-dependencies/macos
+      with:
+        build-type: ${{ inputs.build-type }}
 
     - name: Setup Windows dependencies
       if: ${{ runner.os == 'Windows' }}
