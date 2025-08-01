@@ -1,10 +1,16 @@
 {
   "overrides": {
     "com.mojang:authlib": {
+      "6.0.59": {
+        "name": "by.ely:authlib:6.0.59-ely.1",
+        "url": "https://llaun.ch/repo/libraries/by/ely/authlib/6.0.59-ely.1/authlib-6.0.59-ely.1.jar",
+        "sha1": "94da02aceeddc745c423d404415ef1e9c25d3548",
+        "size": 120513
+      },
       "6.0.58": {
         "name": "by.ely:authlib:6.0.58-ely.2",
         "url": "https://llaun.ch/repo/libraries/by/ely/authlib/6.0.58-ely.2/authlib-6.0.58-ely.2.jar",
-        "sha1": "af13c47f281185b4c42b7f356d674821d679c174",
+        "sha1": "e73f226c7fa9375717b9b8f56d8208748302d7ab",
         "size": 120229
       },
       "6.0.57": {
