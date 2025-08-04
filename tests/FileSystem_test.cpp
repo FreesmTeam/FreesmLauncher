@@ -188,7 +188,7 @@ class FileSystemTest : public QObject {
             qDebug() << tempDir.path();
             qDebug() << target_dir.path();
             FS::copy c(folder, target_dir.path());
-            auto re = Filters::regexp(QRegularExpression("/[.]?mcmeta$"));
+            auto re = Filters::regexp(QRegularExpression("[.]?mcmeta"));
             c.matcher(re);
             c();
 
@@ -221,7 +221,7 @@ class FileSystemTest : public QObject {
             qDebug() << tempDir.path();
             qDebug() << target_dir.path();
             FS::copy c(folder, target_dir.path());
-            auto re = Filters::regexp(QRegularExpression("/[.]?mcmeta$"));
+            auto re = Filters::regexp(QRegularExpression("[.]?mcmeta"));
             c.matcher(re);
             c.whitelist(true);
             c();
@@ -413,7 +413,7 @@ class FileSystemTest : public QObject {
             qDebug() << target_dir.path();
 
             LinkTask lnk_tsk(folder, target_dir.path());
-            auto re = Filters::regexp(QRegularExpression("/[.]?mcmeta$"));
+            auto re = Filters::regexp(QRegularExpression("[.]?mcmeta"));
             lnk_tsk.matcher(re);
             lnk_tsk.linkRecursively(true);
             connect(&lnk_tsk, &Task::finished,
@@ -459,7 +459,7 @@ class FileSystemTest : public QObject {
             qDebug() << target_dir.path();
 
             LinkTask lnk_tsk(folder, target_dir.path());
-            auto re = Filters::regexp(QRegularExpression("/[.]?mcmeta$"));
+            auto re = Filters::regexp(QRegularExpression("[.]?mcmeta"));
             lnk_tsk.matcher(re);
             lnk_tsk.linkRecursively(true);
             lnk_tsk.whitelist(true);
