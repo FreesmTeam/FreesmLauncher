@@ -43,9 +43,16 @@
 
 class Library;
 
-struct Rule {
+class Rule {
+   public:
     enum Action { Allow, Disallow, Defer };
 
+    static Rule fromJson(const QJsonObject& json);
+    QJsonObject toJson();
+
+    Action apply(const RuntimeContext& runtimeContext);
+
+   private:
     struct OS {
         QString name;
         // FIXME: unsupported
@@ -53,11 +60,6 @@ struct Rule {
         QString version;
     };
 
-    Action action = Defer;
-    std::optional<OS> os;
-
-    static Rule fromJson(const QJsonObject& json);
-    QJsonObject toJson();
-
-    Action apply(const RuntimeContext& runtimeContext);
+    Action m_action = Defer;
+    std::optional<OS> m_os;
 };

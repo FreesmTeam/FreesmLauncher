@@ -44,13 +44,13 @@ Rule Rule::fromJson(const QJsonObject& object)
     Rule result;
 
     if (object["action"] == "allow")
-        result.action = Allow;
+        result.m_action = Allow;
     else if (object["action"] == "disallow")
-        result.action = Disallow;
+        result.m_action = Disallow;
 
     if (auto os = object["os"]; os.isObject()) {
         if (auto name = os["name"].toString(); !name.isNull()) {
-            result.os = OS{
+            result.m_os = OS{
                 name,
                 os["version"].toString(),
             };
@@ -64,20 +64,20 @@ QJsonObject Rule::toJson()
 {
     QJsonObject result;
 
-    if (action == Allow)
+    if (m_action == Allow)
         result["action"] = "allow";
-    else if (action == Disallow)
+    else if (m_action == Disallow)
         result["action"] = "disallow";
 
-    if (os.has_value()) {
-        QJsonObject osResult;
+    if (m_os.has_value()) {
+        QJsonObject os;
 
-        osResult["name"] = os->name;
+        os["name"] = m_os->name;
 
-        if (!os->version.isEmpty())
-            osResult["version"] = os->version;
+        if (!m_os->version.isEmpty())
+            os["version"] = m_os->version;
 
-        result["os"] = osResult;
+        result["os"] = os;
     }
 
     return result;
@@ -85,8 +85,8 @@ QJsonObject Rule::toJson()
 
 Rule::Action Rule::apply(const RuntimeContext& runtimeContext)
 {
-    if (!runtimeContext.classifierMatches(os->name))
+    if (!runtimeContext.classifierMatches(m_os->name))
         return Defer;
 
-    return action;
+    return m_action;
 }
