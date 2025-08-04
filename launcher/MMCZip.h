@@ -178,7 +178,7 @@ class ExportToZipTask : public Task {
                     QString destinationPrefix = "",
                     bool followSymlinks = false,
                     bool utf8Enabled = false)
-        : ExportToZipTask(outputPath, QDir(dir), files, destinationPrefix, followSymlinks, utf8Enabled){};
+        : ExportToZipTask(outputPath, QDir(dir), files, destinationPrefix, followSymlinks, utf8Enabled) {};
 
     virtual ~ExportToZipTask() = default;
 

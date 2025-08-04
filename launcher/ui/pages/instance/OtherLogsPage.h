@@ -38,7 +38,6 @@
 #include <QWidget>
 
 #include <Application.h>
-#include <pathmatcher/IPathMatcher.h>
 #include <QFileSystemWatcher>
 #include "LogPage.h"
 #include "ui/pages/BasePage.h"

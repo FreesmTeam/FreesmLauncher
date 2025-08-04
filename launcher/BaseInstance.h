@@ -52,7 +52,6 @@
 #include "BaseVersionList.h"
 #include "MessageLevel.h"
 #include "minecraft/auth/MinecraftAccount.h"
-#include "pathmatcher/IPathMatcher.h"
 #include "settings/INIFile.h"
 
 #include "net/Mode.h"
