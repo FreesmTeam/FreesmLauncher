@@ -3,59 +3,36 @@
 #include <QRegularExpression>
 #include <QString>
 
-class Filter {
-   public:
-    virtual ~Filter() = default;
-    virtual bool accepts(const QString& value) = 0;
-};
+using Filter = std::function<bool(const QString&)>;
 
-class ContainsFilter : public Filter {
-   public:
-    ContainsFilter(const QString& pattern);
-    virtual ~ContainsFilter() = default;
-    bool accepts(const QString& value) override;
+namespace Filters {
+inline Filter inverse(Filter filter)
+{
+    return [filter = std::move(filter)](const QString& src) { return !filter(src); };
+}
 
-   private:
-    QString pattern;
-};
+inline Filter contains(QString pattern)
+{
+    return [pattern = std::move(pattern)](const QString& src) { return src.contains(pattern); };
+}
 
-class ExactFilter : public Filter {
-   public:
-    ExactFilter(const QString& pattern);
-    virtual ~ExactFilter() = default;
-    bool accepts(const QString& value) override;
+inline Filter equals(QString pattern)
+{
+    return [pattern = std::move(pattern)](const QString& src) { return src == pattern; };
+}
 
-   private:
-    QString pattern;
-};
+inline Filter equalsAny(QStringList patterns = {})
+{
+    return [patterns = std::move(patterns)](const QString& src) { return patterns.isEmpty() || patterns.contains(src); };
+}
 
-class ExactIfPresentFilter : public Filter {
-   public:
-    ExactIfPresentFilter(const QString& pattern);
-    virtual ~ExactIfPresentFilter() override = default;
-    bool accepts(const QString& value) override;
+inline Filter equalsOrEmpty(QString pattern)
+{
+    return [pattern = std::move(pattern)](const QString& src) { return src.isEmpty() || src == pattern; };
+}
 
-   private:
-    QString pattern;
-};
-
-class RegexpFilter : public Filter {
-   public:
-    RegexpFilter(const QString& regexp, bool invert);
-    virtual ~RegexpFilter() = default;
-    bool accepts(const QString& value) override;
-
-   private:
-    QRegularExpression pattern;
-    bool invert = false;
-};
-
-class ExactListFilter : public Filter {
-   public:
-    ExactListFilter(const QStringList& pattern = {});
-    virtual ~ExactListFilter() = default;
-    bool accepts(const QString& value) override;
-
-   private:
-    QStringList m_pattern;
-};
+inline Filter regexp(QRegularExpression pattern)
+{
+    return [pattern = std::move(pattern)](const QString& src) { return pattern.match(src).hasMatch(); };
+}
+}  // namespace Filters

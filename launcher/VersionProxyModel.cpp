@@ -63,7 +63,7 @@ class VersionFilterModel : public QSortFilterProxyModel {
         for (auto it = filters.begin(); it != filters.end(); ++it) {
             auto data = sourceModel()->data(idx, it.key());
             auto match = data.toString();
-            if (!it.value()->accepts(match)) {
+            if (!it.value()(match)) {
                 return false;
             }
         }
@@ -380,9 +380,9 @@ void VersionProxyModel::clearFilters()
     filterModel->filterChanged();
 }
 
-void VersionProxyModel::setFilter(const BaseVersionList::ModelRoles column, Filter* f)
+void VersionProxyModel::setFilter(const BaseVersionList::ModelRoles column, Filter f)
 {
-    m_filters[column].reset(f);
+    m_filters[column] = std::move(f);
     filterModel->filterChanged();
 }
 

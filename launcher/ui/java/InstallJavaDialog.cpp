@@ -140,9 +140,9 @@ class InstallJavaPage : public QWidget, public BasePage {
     void recommendedFilterChanged()
     {
         if (m_recommend) {
-            majorVersionSelect->setFilter(BaseVersionList::ModelRoles::JavaMajorRole, new ExactListFilter(m_recommended_majors));
+            majorVersionSelect->setFilter(BaseVersionList::ModelRoles::JavaMajorRole, Filters::equalsAny(m_recommended_majors));
         } else {
-            majorVersionSelect->setFilter(BaseVersionList::ModelRoles::JavaMajorRole, new ExactListFilter());
+            majorVersionSelect->setFilter(BaseVersionList::ModelRoles::JavaMajorRole, Filters::equalsAny());
         }
     }
 
