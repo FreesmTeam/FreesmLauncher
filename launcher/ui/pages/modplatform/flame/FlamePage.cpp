@@ -140,8 +140,8 @@ void FlamePage::triggerSearch()
     ui->packView->clearSelection();
     ui->packDescription->clear();
     ui->versionSelectionBox->clear();
-    listModel->searchWithTerm(ui->searchEdit->text(), ui->sortByBox->currentIndex(), m_filterWidget->getFilter(),
-                              m_filterWidget->changed());
+    bool filterChanged = m_filterWidget->changed();
+    listModel->searchWithTerm(ui->searchEdit->text(), ui->sortByBox->currentIndex(), m_filterWidget->getFilter(), filterChanged);
     m_fetch_progress.watch(listModel->activeSearchJob().get());
 }
 
