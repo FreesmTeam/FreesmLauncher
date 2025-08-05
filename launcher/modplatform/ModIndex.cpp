@@ -31,7 +31,7 @@ static const QMap<QString, IndexedVersionType::VersionType> s_indexed_version_ty
     { "alpha", IndexedVersionType::VersionType::Alpha }
 };
 
-static const QList<ModLoaderType> loaderList = { NeoForge, Forge, Cauldron, LiteLoader, Quilt, Fabric, Babric, BTA, LegacyFabric, Ornithe };
+static const QList<ModLoaderType> loaderList = { NeoForge, Forge, Cauldron, LiteLoader, Quilt, Fabric, Babric, BTA, LegacyFabric, Ornithe, Rift };
 
 QList<ModLoaderType> modLoaderTypesToList(ModLoaderTypes flags)
 {
@@ -167,6 +167,8 @@ auto getModLoaderFromString(QString type) -> ModLoaderType
         return LegacyFabric;
     if (type == "ornithe")
         return Ornithe;
+    if (type == "rift")
+        return Rift;
     return {};
 }
 
