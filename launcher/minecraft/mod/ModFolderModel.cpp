@@ -213,9 +213,9 @@ QVariant ModFolderModel::headerData(int section, [[maybe_unused]] Qt::Orientatio
                 case SizeColumn:
                     return tr("The size of the mod.");
                 case RequiredByColumn:
-                    return tr("Number of mods for what this is needed.");
+                    return tr("For each mod, the number of other mods which depend on it.");
                 case RequiresColumn:
-                    return tr("Number of mods that this requires.");
+                    return tr("For each mod, the number of other mods it depends on.");
                 default:
                     return QVariant();
             }
