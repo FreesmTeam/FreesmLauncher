@@ -33,7 +33,12 @@ void DiscordQueue::instanceStopped(const std::shared_ptr<BaseInstance>& instance
         m_runningInstance = {};
     }
 
-    m_queue.removeIf([instance](const WeakRunningInstance& ptr) { return ptr.lock() == instance; });
+    QMutableListIterator<WeakRunningInstance> it(m_queue);
+    while (it.hasNext()) {
+        if (it.next().lock() == instance) {
+            it.remove();
+        }
+    }
     emit processQueue();
 }
 
