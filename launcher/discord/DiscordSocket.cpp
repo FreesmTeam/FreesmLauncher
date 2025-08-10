@@ -18,6 +18,7 @@
 
 #include <QDataStream>
 #include <QDir>
+#include <QJsonDocument>
 #include <QJsonObject>
 
 #include "BuildConfig.h"
