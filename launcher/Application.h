@@ -74,6 +74,7 @@ class ITheme;
 class MCEditTool;
 class ThemeManager;
 class IconTheme;
+class DiscordIntegration;
 
 namespace Meta {
 class Index;
@@ -131,6 +132,8 @@ class Application : public QApplication {
     std::shared_ptr<InstanceList> instances() const { return m_instances; }
 
     std::shared_ptr<IconList> icons() const { return m_icons; }
+
+    std::shared_ptr<DiscordIntegration> discord() const;
 
     MCEditTool* mcedit() const { return m_mcedit.get(); }
 
@@ -230,6 +233,7 @@ class Application : public QApplication {
     bool handleDataMigration(const QString& currentData, const QString& oldData, const QString& name, const QString& configFile) const;
     bool createSetupWizard();
     void performMainStartupAction();
+    void setupDiscordIntegration();
 
     // sets the fatal error message and m_status to Failed.
     void showFatalErrorMessage(const QString& title, const QString& content);
@@ -259,6 +263,7 @@ class Application : public QApplication {
     std::unique_ptr<MCEditTool> m_mcedit;
     QSet<QString> m_features;
     std::unique_ptr<ThemeManager> m_themeManager;
+    std::shared_ptr<DiscordIntegration> m_discord;
 
     QMap<QString, std::shared_ptr<BaseProfilerFactory>> m_profilers;
 

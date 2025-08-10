@@ -151,6 +151,8 @@ class MinecraftInstance : public BaseInstance {
 
     QString getStatusbarDescription() override;
 
+    QString getVersionString() override;
+
     // FIXME: remove
     virtual QStringList getClassPath();
     // FIXME: remove

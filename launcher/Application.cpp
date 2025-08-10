@@ -124,6 +124,8 @@
 #include "meta/Index.h"
 #include "translations/TranslationsModel.h"
 
+#include "discord/DiscordIntegration.h"
+
 #include <DesktopServices.h>
 #include <FileSystem.h>
 #include <LocalPeer.h>
@@ -1082,6 +1084,8 @@ Application::Application(int& argc, char** argv) : QApplication(argc, argv)
 
     m_themeManager->applyCurrentlySelectedTheme(true);
     performMainStartupAction();
+
+    setupDiscordIntegration();
 }
 
 bool Application::createSetupWizard()
@@ -1119,8 +1123,8 @@ bool Application::createSetupWizard()
             settings()->set("IconTheme", QString("fluent_dark"));
         if (!validWidgets) {
 #if defined(Q_OS_WIN32) && QT_VERSION >= QT_VERSION_CHECK(6, 5, 0)
-            const QString style =
-                QGuiApplication::styleHints()->colorScheme() == Qt::ColorScheme::Dark ? QStringLiteral("freesm") : QStringLiteral("freesm-light");
+            const QString style = QGuiApplication::styleHints()->colorScheme() == Qt::ColorScheme::Dark ? QStringLiteral("freesm")
+                                                                                                        : QStringLiteral("freesm-light");
 #else
             const QString style = QStringLiteral("freesm");
 #endif
@@ -1279,6 +1283,12 @@ void Application::performMainStartupAction()
     }
 }
 
+void Application::setupDiscordIntegration()
+{
+    // TODO: add settings
+    m_discord = std::make_shared<DiscordIntegration>();
+}
+
 void Application::showFatalErrorMessage(const QString& title, const QString& content)
 {
     m_status = Application::Failed;
@@ -1384,6 +1394,11 @@ std::shared_ptr<JavaInstallList> Application::javalist()
         m_javalist.reset(new JavaInstallList());
     }
     return m_javalist;
+}
+
+std::shared_ptr<DiscordIntegration> Application::discord() const
+{
+    return m_discord;
 }
 
 QIcon Application::getThemedIcon(const QString& name)

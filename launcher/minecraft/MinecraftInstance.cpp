@@ -56,7 +56,10 @@
 #include "pathmatcher/MultiMatcher.h"
 #include "pathmatcher/RegexpMatcher.h"
 
+#include "launch/ApplyAuthlibInjector.h"
+#include "launch/ApplyLibraryOverrides.h"
 #include "launch/LaunchTask.h"
+#include "launch/SetDiscordActivity.h"
 #include "launch/TaskStepWrapper.h"
 #include "launch/steps/CheckJava.h"
 #include "launch/steps/LookupServerAddress.h"
@@ -65,8 +68,6 @@
 #include "launch/steps/QuitAfterGameStop.h"
 #include "launch/steps/TextPrint.h"
 
-#include "launch/ApplyAuthlibInjector.h"
-#include "launch/ApplyLibraryOverrides.h"
 #include "minecraft/launch/ClaimAccount.h"
 #include "minecraft/launch/LauncherPartLaunch.h"
 #include "minecraft/launch/ModMinecraftJar.h"
@@ -1119,6 +1120,11 @@ QString MinecraftInstance::getStatusbarDescription()
     return description;
 }
 
+QString MinecraftInstance::getVersionString()
+{
+    return m_components->getComponentVersion("net.minecraft");
+}
+
 QList<LaunchStep::Ptr> MinecraftInstance::createUpdateTask()
 {
     return {
@@ -1236,12 +1242,20 @@ shared_qobject_ptr<LaunchTask> MinecraftInstance::createLaunchTask(AuthSessionPt
     }
 
     {
+        process->appendStep(makeShared<SetDiscordActivity>(pptr, true));
+    }
+
+    {
         // actually launch the game
         auto step = makeShared<LauncherPartLaunch>(pptr);
         step->setWorkingDirectory(gameRoot());
         step->setAuthSession(session);
         step->setTargetToJoin(targetToJoin);
         process->appendStep(step);
+    }
+
+    {
+        process->appendStep(makeShared<SetDiscordActivity>(pptr, false));
     }
 
     // run post-exit command if that's needed
