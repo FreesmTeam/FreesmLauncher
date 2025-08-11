@@ -1241,7 +1241,7 @@ shared_qobject_ptr<LaunchTask> MinecraftInstance::createLaunchTask(AuthSessionPt
         process->appendStep(makeShared<VerifyJavaInstall>(pptr));
     }
 
-    {
+    if (m_settings->get("EnableDiscordRichPresence").toBool()) {
         process->appendStep(makeShared<SetDiscordActivity>(pptr, true));
     }
 
@@ -1254,7 +1254,7 @@ shared_qobject_ptr<LaunchTask> MinecraftInstance::createLaunchTask(AuthSessionPt
         process->appendStep(step);
     }
 
-    {
+    if (m_settings->get("EnableDiscordRichPresence").toBool()) {
         process->appendStep(makeShared<SetDiscordActivity>(pptr, false));
     }
 

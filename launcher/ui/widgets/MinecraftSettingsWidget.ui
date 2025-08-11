@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-       <width>621</width>
-       <height>687</height>
+    <width>621</width>
+    <height>687</height>
    </rect>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
@@ -61,9 +61,9 @@
           <property name="geometry">
            <rect>
             <x>0</x>
-            <y>0</y>
-               <width>561</width>
-               <height>614</height>
+            <y>-94</y>
+            <width>561</width>
+            <height>676</height>
            </rect>
           </property>
           <layout class="QVBoxLayout" name="verticalLayout_5">
@@ -260,13 +260,13 @@
                 </property>
                </widget>
               </item>
-                 <item>
-                     <widget class="QCheckBox" name="copyIngameScreenshotsCheck">
-                         <property name="text">
-                             <string>Copy in-game screenshots to clipboard</string>
-                         </property>
-                     </widget>
-                 </item>
+              <item>
+               <widget class="QCheckBox" name="copyIngameScreenshotsCheck">
+                <property name="text">
+                 <string>Copy in-game screenshots to clipboard</string>
+                </property>
+               </widget>
+              </item>
              </layout>
             </widget>
            </item>
@@ -331,6 +331,25 @@
             </widget>
            </item>
            <item>
+            <widget class="QGroupBox" name="discordGroupBox">
+             <property name="title">
+              <string>Discord</string>
+             </property>
+             <layout class="QVBoxLayout" name="verticalLayout_18">
+              <item>
+               <widget class="QCheckBox" name="enableRichPresenceCheck">
+                <property name="text">
+                 <string>Show launcher in Discord Rich Presence</string>
+                </property>
+                <property name="tristate">
+                 <bool>false</bool>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </widget>
+           </item>
+           <item>
             <spacer name="verticalSpacer_2">
              <property name="orientation">
               <enum>Qt::Orientation::Vertical</enum>
@@ -364,8 +383,8 @@
            <rect>
             <x>0</x>
             <y>0</y>
-               <width>561</width>
-               <height>582</height>
+            <width>561</width>
+            <height>582</height>
            </rect>
           </property>
          </widget>
@@ -391,8 +410,8 @@
            <rect>
             <x>0</x>
             <y>0</y>
-               <width>561</width>
-               <height>582</height>
+            <width>561</width>
+            <height>582</height>
            </rect>
           </property>
           <layout class="QVBoxLayout" name="verticalLayout_7">
@@ -579,8 +598,8 @@
            <rect>
             <x>0</x>
             <y>0</y>
-               <width>561</width>
-               <height>582</height>
+            <width>561</width>
+            <height>582</height>
            </rect>
           </property>
           <layout class="QVBoxLayout" name="verticalLayout_14">

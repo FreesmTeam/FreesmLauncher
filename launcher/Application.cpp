@@ -741,6 +741,8 @@ Application::Application(int& argc, char** argv) : QApplication(argc, argv)
         m_settings->registerSetting("TPDownloadGeometry", "");
         m_settings->registerSetting("ShaderDownloadGeometry", "");
 
+        m_settings->registerSetting("EnableDiscordRichPresence", false);
+
         // HACK: This code feels so stupid is there a less stupid way of doing this?
         {
             m_settings->registerSetting("PastebinURL", "");
