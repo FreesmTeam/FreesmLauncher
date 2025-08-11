@@ -152,9 +152,12 @@ ModFilterWidget::ModFilterWidget(MinecraftInstance* instance, bool extended)
     connect(ui->liteLoader, &QCheckBox::stateChanged, this, &ModFilterWidget::onLoadersFilterChanged);
     connect(ui->babric, &QCheckBox::stateChanged, this, &ModFilterWidget::onLoadersFilterChanged);
     connect(ui->btaBabric, &QCheckBox::stateChanged, this, &ModFilterWidget::onLoadersFilterChanged);
-    
+    connect(ui->legacyFabric, &QCheckBox::stateChanged, this, &ModFilterWidget::onLoadersFilterChanged);
+    connect(ui->ornithe, &QCheckBox::stateChanged, this, &ModFilterWidget::onLoadersFilterChanged);
+    connect(ui->rift, &QCheckBox::stateChanged, this, &ModFilterWidget::onLoadersFilterChanged);
+
     connect(ui->showMoreButton, &QPushButton::clicked, this, &ModFilterWidget::onShowMoreClicked);
-    
+
     if (!extended) {
         ui->showMoreButton->setVisible(false);
         ui->extendedModLoadersWidget->setVisible(false);
@@ -289,6 +292,12 @@ void ModFilterWidget::onLoadersFilterChanged()
         loaders |= ModPlatform::Babric;
     if (ui->btaBabric->isChecked())
         loaders |= ModPlatform::BTA;
+    if (ui->legacyFabric->isChecked())
+        loaders |= ModPlatform::LegacyFabric;
+    if (ui->ornithe->isChecked())
+        loaders |= ModPlatform::Ornithe;
+    if (ui->rift->isChecked())
+        loaders |= ModPlatform::Rift;
     m_filter_changed = loaders != m_filter->loaders;
     m_filter->loaders = loaders;
     if (m_filter_changed)

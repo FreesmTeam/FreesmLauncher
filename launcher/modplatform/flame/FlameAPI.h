@@ -73,6 +73,9 @@ class FlameAPI : public NetworkResourceAPI {
             case ModPlatform::DataPack:
             case ModPlatform::Babric:
             case ModPlatform::BTA:
+            case ModPlatform::LegacyFabric:
+            case ModPlatform::Ornithe:
+            case ModPlatform::Rift:
                 break;  // not supported
         }
         return 0;

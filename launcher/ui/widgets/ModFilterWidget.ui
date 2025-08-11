@@ -167,6 +167,27 @@
                </property>
               </widget>
              </item>
+             <item>
+              <widget class="QCheckBox" name="legacyFabric">
+               <property name="text">
+                <string>Legacy Fabric</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QCheckBox" name="ornithe">
+               <property name="text">
+                <string>Ornithe</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QCheckBox" name="rift">
+               <property name="text">
+                <string>Rift</string>
+               </property>
+              </widget>
+             </item>
             </layout>
            </widget>
           </item>
