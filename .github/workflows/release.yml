@@ -25,7 +25,7 @@ jobs:
           submodules: "true"
           path: "PrismLauncher-source"
       - name: Download artifacts
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v5
       - name: Grab and store version
         run: |
           tag_name=$(echo ${{ github.ref }} | grep -oE "[^/]+$")
