@@ -133,7 +133,7 @@ class Application : public QApplication {
 
     std::shared_ptr<IconList> icons() const { return m_icons; }
 
-    std::shared_ptr<DiscordIntegration> discord() const;
+    std::shared_ptr<DiscordIntegration> discord();
 
     MCEditTool* mcedit() const { return m_mcedit.get(); }
 
@@ -233,7 +233,6 @@ class Application : public QApplication {
     bool handleDataMigration(const QString& currentData, const QString& oldData, const QString& name, const QString& configFile) const;
     bool createSetupWizard();
     void performMainStartupAction();
-    void setupDiscordIntegration();
 
     // sets the fatal error message and m_status to Failed.
     void showFatalErrorMessage(const QString& title, const QString& content);

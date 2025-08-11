@@ -1086,8 +1086,6 @@ Application::Application(int& argc, char** argv) : QApplication(argc, argv)
 
     m_themeManager->applyCurrentlySelectedTheme(true);
     performMainStartupAction();
-
-    setupDiscordIntegration();
 }
 
 bool Application::createSetupWizard()
@@ -1285,12 +1283,6 @@ void Application::performMainStartupAction()
     }
 }
 
-void Application::setupDiscordIntegration()
-{
-    // TODO: add settings
-    m_discord = std::make_shared<DiscordIntegration>();
-}
-
 void Application::showFatalErrorMessage(const QString& title, const QString& content)
 {
     m_status = Application::Failed;
@@ -1398,8 +1390,12 @@ std::shared_ptr<JavaInstallList> Application::javalist()
     return m_javalist;
 }
 
-std::shared_ptr<DiscordIntegration> Application::discord() const
+std::shared_ptr<DiscordIntegration> Application::discord()
 {
+    // lazy initialize
+    if (!m_discord) {
+        m_discord = std::make_shared<DiscordIntegration>();
+    }
     return m_discord;
 }
 

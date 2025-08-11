@@ -47,13 +47,13 @@ class DiscordSocket : public QObject {
 
    protected slots:
     void onConnected();
+
     virtual void errorOccurred(QLocalSocket::LocalSocketError socketError);
+
+    void read();
 
    protected:
     QLocalSocket m_socket;
-
-    static constexpr auto s_opcodeSize = 4;
-    static constexpr auto s_lengthSize = 4;
 };
 
 class UnixDiscordSocket : public DiscordSocket {

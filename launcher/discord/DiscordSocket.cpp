@@ -45,8 +45,9 @@ DiscordSocket::DiscordSocket()
 
 void DiscordSocket::onConnected()
 {
+    connect(&m_socket, &QLocalSocket::readyRead, this, &DiscordSocket::read);
+
     handshake();
-    emit connected();
 }
 
 void DiscordSocket::handshake()
@@ -57,6 +58,14 @@ void DiscordSocket::handshake()
 void DiscordSocket::errorOccurred([[maybe_unused]] QLocalSocket::LocalSocketError socketError)
 {
     emit failed();
+}
+
+void DiscordSocket::read()
+{
+    if (m_socket.bytesAvailable() != 0) {
+        disconnect(&m_socket, &QLocalSocket::readyRead, this, &DiscordSocket::read);
+        emit connected();
+    }
 }
 
 bool DiscordSocket::send(const QByteArray& data, Opcode opcode)
