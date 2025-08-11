@@ -72,4 +72,20 @@ class UnixDiscordSocket : public DiscordSocket {
     int m_socketIndex{};
 };
 
+class WinDiscordSocket : public DiscordSocket {
+    Q_OBJECT
+
+   public:
+    void connectSocket() override;
+
+   protected slots:
+    void errorOccurred(QLocalSocket::LocalSocketError socketError) override;
+
+   private slots:
+    void tryNext();
+
+   private:
+    int m_socketIndex{};
+};
+
 std::unique_ptr<DiscordSocket> makeSocket();

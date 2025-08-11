@@ -81,7 +81,6 @@ bool DiscordSocket::send(const QByteArray& data, Opcode opcode)
         return false;
     }
     m_socket.flush();
-    qDebug() << "SOCKET SENT: " << frame;
     return true;
 }
 
@@ -112,6 +111,33 @@ void UnixDiscordSocket::tryNext()
     }
 }
 
+void WinDiscordSocket::connectSocket()
+{
+    emit tryNext();
+}
+
+void WinDiscordSocket::errorOccurred(QLocalSocket::LocalSocketError socketError)
+{
+    if (socketError == QLocalSocket::ServerNotFoundError) {
+        m_socket.abort();
+        m_socketIndex++;
+        emit tryNext();
+    } else {
+        emit failed();
+    }
+}
+
+void WinDiscordSocket::tryNext()
+{
+    if (m_socketIndex < 10) {
+        const QString path = "discord-ipc-" + QString::number(m_socketIndex);
+        m_socket.setServerName(path);
+        m_socket.connectToServer();
+    } else {
+        emit failed();
+    }
+}
+
 std::unique_ptr<DiscordSocket> makeSocket()
 {
 #ifdef Q_OS_WINDOWS
@@ -119,6 +145,5 @@ std::unique_ptr<DiscordSocket> makeSocket()
 #else
     auto socket = std::make_unique<UnixDiscordSocket>();
 #endif
-    // socket->connectSocket();
     return socket;
 }
