@@ -313,7 +313,11 @@ bool AccountData::resumeStateFromV3(QJsonObject data)
         case AccountType::Offline:
             break;
         case AccountType::Elyby: {
-            clientID = data.value("elyby-client-id").toString();
+            auto clientIDV = data.value("elyby-client-id");
+            if (clientIDV.isString()) {
+                clientID = clientIDV.toString();
+            }  // leave clientID empty if it doesn't exist or isn't a string
+            msaToken = tokenFromJSONV3(data, "msa");
         } break;
         case AccountType::Custom: {
             clientID = data.value("custom-client-id").toString();
@@ -360,6 +364,7 @@ QJsonObject AccountData::saveState() const
         case AccountType::Elyby: {
             output["type"] = "Elyby";
             output["elyby-client-id"] = clientID;
+            tokenToJSONV3(output, msaToken, "msa");
         } break;
         case AccountType::Custom: {
             output["type"] = "Custom";
@@ -367,7 +372,7 @@ QJsonObject AccountData::saveState() const
             output["auth-url"] = authUrl;
             output["login-url"] = loginUrl;
             output["refresh-url"] = refreshUrl;
-        }
+        } break;
     }
 
     tokenToJSONV3(output, yggdrasilToken, "ygg");
