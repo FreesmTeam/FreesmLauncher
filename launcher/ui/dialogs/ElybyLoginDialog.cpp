@@ -134,9 +134,10 @@ void ElybyLoginDialog::onTaskFailed(QString reason)
 
 void ElybyLoginDialog::authorizeWithBrowser(const QUrl& url)
 {
+    const auto str = url.toString().replace("localhost", "127.0.0.1");
     ui->stackedWidget2->setCurrentIndex(1);
-    ui->loginButton->setToolTip(QString("<div style='width: 200px;'>%1</div>").arg(url.toString()));
-    m_url = url;
+    ui->loginButton->setToolTip(QString("<div style='width: 200px;'>%1</div>").arg(str));
+    m_url = str;
 }
 
 void ElybyLoginDialog::authorizeWithBrowserWithExtra(QString url, QString code, int expiresIn)
