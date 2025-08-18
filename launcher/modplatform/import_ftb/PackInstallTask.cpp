@@ -95,6 +95,12 @@ void PackInstallTask::copySettings()
                 break;
             case ModPlatform::BTA:
                 break;
+            case ModPlatform::LegacyFabric:
+                break;
+            case ModPlatform::Ornithe:
+                break;
+            case ModPlatform::Rift:
+                break;
         }
     components->saveNow();
 
