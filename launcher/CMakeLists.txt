@@ -260,8 +260,6 @@ set(MINECRAFT_SOURCES
     minecraft/auth/msa/steps/XboxUserStep.cpp
     minecraft/auth/msa/steps/XboxUserStep.h
 
-    # minecraft/auth/elyby/steps/ElybyAuthStep.cpp
-    # minecraft/auth/elyby/steps/ElybyAuthStep.h
     minecraft/auth/elyby/steps/ElyDeviceCodeStep.cpp
     minecraft/auth/elyby/steps/ElyDeviceCodeStep.h
     minecraft/auth/elyby/steps/ElyStep.cpp
