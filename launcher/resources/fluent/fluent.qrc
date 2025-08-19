@@ -42,5 +42,22 @@
         <file>scalable/launch.svg</file>
         <file>scalable/shortcut.svg</file>
         <file>scalable/server.svg</file>
+        <file>resources/CheckBox.png</file>
+        <file>resources/CheckBoxDisabled.png</file>
+        <file>resources/CheckBoxInterminate.png</file>
+        <file>resources/CheckBoxInterminateDisabled.png</file>
+        <file>resources/CheckBoxInterminatePressed.png</file>
+        <file>resources/CheckBoxPressed.png</file>
+        <file>resources/ComboBox.png</file>
+        <file>resources/ComboBoxDisabled.png</file>
+        <file>resources/RadioButton.png</file>
+        <file>resources/RadioButtonHover.png</file>
+        <file>resources/RadioButtonPressed.png</file>
+        <file>resources/SpinBoxDown.png</file>
+        <file>resources/SpinBoxDownDisabled.png</file>
+        <file>resources/SpinBoxUp.png</file>
+        <file>resources/SpinBoxUpDisabled.png</file>
+        <file>resources/TreeViewClose.png</file>
+        <file>resources/TreeViewOpen.png</file>
     </qresource>
 </RCC>
