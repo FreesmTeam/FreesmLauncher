@@ -56,7 +56,6 @@ set(CORE_SOURCES
 
     # String filters
     Filter.h
-    Filter.cpp
 
     # JSON parsing helpers
     Json.h
@@ -107,15 +106,6 @@ if (UNIX AND NOT CYGWIN AND NOT APPLE)
     MangoHud.cpp
     )
 endif()
-
-set(PATHMATCHER_SOURCES
-    # Path matchers
-    pathmatcher/FSTreeMatcher.h
-    pathmatcher/IPathMatcher.h
-    pathmatcher/MultiMatcher.h
-    pathmatcher/RegexpMatcher.h
-    pathmatcher/SimplePrefixMatcher.h
-)
 
 set(NET_SOURCES
     # network stuffs
@@ -760,7 +750,6 @@ endif()
 
 set(LOGIC_SOURCES
     ${CORE_SOURCES}
-    ${PATHMATCHER_SOURCES}
     ${NET_SOURCES}
     ${LAUNCH_SOURCES}
     ${UPDATE_SOURCES}

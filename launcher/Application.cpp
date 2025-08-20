@@ -46,8 +46,6 @@
 #include "DataMigrationTask.h"
 #include "java/JavaInstallList.h"
 #include "net/PasteUpload.h"
-#include "pathmatcher/MultiMatcher.h"
-#include "pathmatcher/SimplePrefixMatcher.h"
 #include "tasks/Task.h"
 #include "tools/GenericProfiler.h"
 #include "ui/InstanceWindow.h"
@@ -1985,22 +1983,23 @@ bool Application::handleDataMigration(const QString& currentData,
 
     if (!currentExists) {
         // Migrate!
-        auto matcher = std::make_shared<MultiMatcher>();
-        matcher->add(std::make_shared<SimplePrefixMatcher>(configFile));
-        matcher->add(std::make_shared<SimplePrefixMatcher>(
-            BuildConfig.LAUNCHER_CONFIGFILE));  // it's possible that we already used that directory before
-        matcher->add(std::make_shared<SimplePrefixMatcher>("logs/"));
-        matcher->add(std::make_shared<SimplePrefixMatcher>("accounts.json"));
-        matcher->add(std::make_shared<SimplePrefixMatcher>("accounts/"));
-        matcher->add(std::make_shared<SimplePrefixMatcher>("assets/"));
-        matcher->add(std::make_shared<SimplePrefixMatcher>("icons/"));
-        matcher->add(std::make_shared<SimplePrefixMatcher>("instances/"));
-        matcher->add(std::make_shared<SimplePrefixMatcher>("libraries/"));
-        matcher->add(std::make_shared<SimplePrefixMatcher>("mods/"));
-        matcher->add(std::make_shared<SimplePrefixMatcher>("themes/"));
+        using namespace Filters;
+
+        QList<Filter> filters;
+        filters.append(equals(configFile));
+        filters.append(equals(BuildConfig.LAUNCHER_CONFIGFILE));  // it's possible that we already used that directory before
+        filters.append(startsWith("logs/"));
+        filters.append(equals("accounts.json"));
+        filters.append(startsWith("accounts/"));
+        filters.append(startsWith("assets/"));
+        filters.append(startsWith("icons/"));
+        filters.append(startsWith("instances/"));
+        filters.append(startsWith("libraries/"));
+        filters.append(startsWith("mods/"));
+        filters.append(startsWith("themes/"));
 
         ProgressDialog diag;
-        DataMigrationTask task(oldData, currentData, matcher);
+        DataMigrationTask task(oldData, currentData, any(std::move(filters)));
         if (diag.execWithTask(&task)) {
             qDebug() << "<> Migration succeeded";
             setDoNotMigrate();

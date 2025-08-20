@@ -331,7 +331,7 @@ bool copy::operator()(const QString& offset, bool dryRun)
 
     // Function that'll do the actual copying
     auto copy_file = [this, dryRun, src, dst, opt, &err](QString src_path, QString relative_dst_path) {
-        if (m_matcher && (m_matcher->matches(relative_dst_path) != m_whitelist))
+        if (m_matcher && (m_matcher(relative_dst_path) != m_whitelist))
             return;
 
         auto dst_path = PathCombine(dst, relative_dst_path);
@@ -418,7 +418,7 @@ void create_link::make_link_list(const QString& offset)
 
         // Function that'll do the actual linking
         auto link_file = [this, dst](QString src_path, QString relative_dst_path) {
-            if (m_matcher && (m_matcher->matches(relative_dst_path) != m_whitelist)) {
+            if (m_matcher && (m_matcher(relative_dst_path) != m_whitelist)) {
                 qDebug() << "path" << relative_dst_path << "in black list or not in whitelist";
                 return;
             }
@@ -1277,7 +1277,7 @@ bool clone::operator()(const QString& offset, bool dryRun)
 
     // Function that'll do the actual cloneing
     auto cloneFile = [this, dryRun, dst, &err](QString src_path, QString relative_dst_path) {
-        if (m_matcher && (m_matcher->matches(relative_dst_path) != m_whitelist))
+        if (m_matcher && (m_matcher(relative_dst_path) != m_whitelist))
             return;
 
         auto dst_path = PathCombine(dst, relative_dst_path);

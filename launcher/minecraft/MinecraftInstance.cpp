@@ -53,7 +53,6 @@
 #include "FileSystem.h"
 #include "MMCTime.h"
 #include "java/JavaVersion.h"
-#include "pathmatcher/MultiMatcher.h"
 
 #include "launch/LaunchTask.h"
 #include "launch/TaskStepWrapper.h"

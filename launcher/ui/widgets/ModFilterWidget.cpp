@@ -114,7 +114,7 @@ ModFilterWidget::ModFilterWidget(MinecraftInstance* instance, bool extended)
     ui->setupUi(this);
 
     m_versions_proxy = new VersionProxyModel(this);
-    m_versions_proxy->setFilter(BaseVersionList::TypeRole, new ExactFilter("release"));
+    m_versions_proxy->setFilter(BaseVersionList::TypeRole, Filters::equals("release"));
 
     QAbstractProxyModel* proxy = new VersionBasicModel(this);
     proxy->setSourceModel(m_versions_proxy);
@@ -256,7 +256,7 @@ void ModFilterWidget::onShowAllVersionsChanged()
     if (ui->showAllVersions->isChecked())
         m_versions_proxy->clearFilters();
     else
-        m_versions_proxy->setFilter(BaseVersionList::TypeRole, new ExactFilter("release"));
+        m_versions_proxy->setFilter(BaseVersionList::TypeRole, Filters::equals("release"));
 }
 
 void ModFilterWidget::onVersionFilterChanged(int)
