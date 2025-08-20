@@ -76,35 +76,33 @@ stdenv.mkDerivation {
     stripJavaArchivesHook
   ];
 
-  buildInputs =
-    [
-      cmark
-      kdePackages.qtbase
-      kdePackages.qtnetworkauth
-      kdePackages.quazip
-      tomlplusplus
-      zlib
-    ]
-    ++ lib.optionals stdenv.hostPlatform.isDarwin [ apple-sdk_11 ]
-    ++ lib.optional gamemodeSupport gamemode;
+  buildInputs = [
+    cmark
+    kdePackages.qtbase
+    kdePackages.qtnetworkauth
+    kdePackages.quazip
+    tomlplusplus
+    zlib
+  ]
+  ++ lib.optionals stdenv.hostPlatform.isDarwin [ apple-sdk_11 ]
+  ++ lib.optional gamemodeSupport gamemode;
 
   hardeningEnable = lib.optionals stdenv.hostPlatform.isLinux [ "pie" ];
 
-  cmakeFlags =
-    [
-      # downstream branding
-      (lib.cmakeFeature "Launcher_BUILD_PLATFORM" "nixpkgs")
-    ]
-    ++ lib.optionals (msaClientID != null) [
-      (lib.cmakeFeature "Launcher_MSA_CLIENT_ID" (toString msaClientID))
-    ]
-    ++ lib.optionals stdenv.hostPlatform.isDarwin [
-      # we wrap our binary manually
-      (lib.cmakeFeature "INSTALL_BUNDLE" "nodeps")
-      # disable built-in updater
-      (lib.cmakeFeature "MACOSX_SPARKLE_UPDATE_FEED_URL" "''")
-      (lib.cmakeFeature "CMAKE_INSTALL_PREFIX" "${placeholder "out"}/Applications/")
-    ];
+  cmakeFlags = [
+    # downstream branding
+    (lib.cmakeFeature "Launcher_BUILD_PLATFORM" "nixpkgs")
+  ]
+  ++ lib.optionals (msaClientID != null) [
+    (lib.cmakeFeature "Launcher_MSA_CLIENT_ID" (toString msaClientID))
+  ]
+  ++ lib.optionals stdenv.hostPlatform.isDarwin [
+    # we wrap our binary manually
+    (lib.cmakeFeature "INSTALL_BUNDLE" "nodeps")
+    # disable built-in updater
+    (lib.cmakeFeature "MACOSX_SPARKLE_UPDATE_FEED_URL" "''")
+    (lib.cmakeFeature "CMAKE_INSTALL_PREFIX" "${placeholder "out"}/Applications/")
+  ];
 
   doCheck = true;
 
