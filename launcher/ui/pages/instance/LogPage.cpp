@@ -131,7 +131,6 @@ QModelIndex LogFormatProxyModel::find(const QModelIndex& start, const QString& v
 LogPage::LogPage(InstancePtr instance, QWidget* parent) : QWidget(parent), ui(new Ui::LogPage), m_instance(instance)
 {
     ui->setupUi(this);
-    ui->tabWidget->tabBar()->hide();
 
     m_proxy = new LogFormatProxyModel(this);
 
