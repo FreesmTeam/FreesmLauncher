@@ -52,7 +52,7 @@ ExternalResourcesPage::ExternalResourcesPage(BaseInstance* instance, std::shared
 {
     ui->setupUi(this);
 
-    ui->actionsToolbar->insertSpacer(ui->actionViewConfigs);
+    ui->actionsToolbar->insertSpacer(ui->actionViewFolder);
 
     m_filterModel = model->createFilterProxyModel(this);
     m_filterModel->setDynamicSortFilter(true);
