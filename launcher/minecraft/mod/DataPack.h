@@ -64,8 +64,6 @@ class DataPack : public Resource {
     [[nodiscard]] int compare(Resource const& other, SortType type) const override;
     [[nodiscard]] bool applyFilter(QRegularExpression filter) const override;
 
-    virtual QString directory() { return "/data"; }
-
    protected:
     mutable QMutex m_data_lock;
 
