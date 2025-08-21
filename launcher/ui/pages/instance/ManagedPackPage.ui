@@ -34,7 +34,7 @@
         </sizepolicy>
        </property>
        <property name="title">
-        <string>Pack information</string>
+        <string>Pack Information</string>
        </property>
        <layout class="QFormLayout" name="formLayout_2">
         <item row="0" column="0">
@@ -42,7 +42,7 @@
           <item>
            <widget class="QLabel" name="packNameLabel">
             <property name="text">
-             <string>Pack name:</string>
+             <string>Pack Name:</string>
             </property>
            </widget>
           </item>
@@ -162,7 +162,7 @@
           </sizepolicy>
          </property>
          <property name="text">
-          <string>Update from file</string>
+          <string>Update From File</string>
          </property>
         </widget>
        </item>

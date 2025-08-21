@@ -82,7 +82,7 @@ class CoreModFolderPage : public ModFolderPage {
     explicit CoreModFolderPage(BaseInstance* inst, std::shared_ptr<ModFolderModel> mods, QWidget* parent = 0);
     virtual ~CoreModFolderPage() = default;
 
-    virtual QString displayName() const override { return tr("Core mods"); }
+    virtual QString displayName() const override { return tr("Core Mods"); }
     virtual QIcon icon() const override { return APPLICATION->getThemedIcon("coremods"); }
     virtual QString id() const override { return "coremods"; }
     virtual QString helpPage() const override { return "Core-mods"; }
