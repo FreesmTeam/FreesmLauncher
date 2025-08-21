@@ -222,9 +222,9 @@ void MinecraftSettingsWidget::loadSettings()
     m_ui->useDiscreteGpuCheck->setChecked(settings->get("UseDiscreteGpu").toBool());
     m_ui->useZink->setChecked(settings->get("UseZink").toBool());
 
-    m_ui->serverJoinGroupBox->setChecked(settings->get("JoinServerOnLaunch").toBool());
-
     if (m_instance != nullptr) {
+        m_ui->serverJoinGroupBox->setChecked(settings->get("JoinServerOnLaunch").toBool());
+
         if (auto server = settings->get("JoinServerOnLaunchAddress").toString(); !server.isEmpty()) {
             m_ui->serverJoinAddress->setText(server);
             m_ui->serverJoinAddressButton->setChecked(true);
@@ -240,7 +240,7 @@ void MinecraftSettingsWidget::loadSettings()
         } else {
             m_ui->serverJoinAddressButton->setChecked(true);
             m_ui->worldJoinButton->setChecked(false);
-            m_ui->serverJoinAddress->setEnabled(true);
+            m_ui->serverJoinAddress->setEnabled(m_ui->serverJoinGroupBox->isChecked());
             m_ui->worldsCb->setEnabled(false);
         }
 
