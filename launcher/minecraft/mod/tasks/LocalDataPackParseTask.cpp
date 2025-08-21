@@ -73,11 +73,6 @@ bool processFolder(DataPack* pack, ProcessingLevel level)
         return mcmeta_invalid();  // mcmeta file isn't a valid file
     }
 
-    QFileInfo data_dir_info(FS::PathCombine(pack->fileinfo().filePath(), pack->directory()));
-    if (!data_dir_info.exists() || !data_dir_info.isDir()) {
-        return false;  // data dir does not exists or isn't valid
-    }
-
     if (level == ProcessingLevel::BasicInfoOnly) {
         return true;  // only need basic info already checked
     }
@@ -139,11 +134,6 @@ bool processZIP(DataPack* pack, ProcessingLevel level)
         }
     } else {
         return mcmeta_invalid();  // could not set pack.mcmeta as current file.
-    }
-
-    QuaZipDir zipDir(&zip);
-    if (!zipDir.exists(pack->directory())) {
-        return false;  // data dir does not exists at zip root
     }
 
     if (level == ProcessingLevel::BasicInfoOnly) {
