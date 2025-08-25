@@ -24,7 +24,7 @@
 
 </div>
 
-## 💻 Скриншоты
+## Скриншоты
 
 <details>
   <summary>Показать</summary>
@@ -44,7 +44,7 @@
 
 </details>
 
-## ✨ Возможности
+## Возможности
 
 - Офлайн-аккаунт больше не требует наличия лицензии
 - Возможность входа через [Ely.by](https://ely.by/). Скины будут показываться не только на серверах с плагином Ely.by, но и в синглплеере/на серверах без плагина
@@ -57,7 +57,7 @@
 - FLOSS
 - ...все остальные фичи Prism Launcher'а
 
-## 📊 Сравнение
+## Сравнение
 
 
 | Feature                                           | Freesm  Launcher | Shattered  Prism | HMCL | Fjord   | PollyMC       | ElyPrism      | UltimMC | Prism-Cracked | Prism Launcher |
@@ -75,7 +75,7 @@
 
 ² можно изменить JVM аргумент `javaagent` так, чтобы он использовал Ваш файл `authlib-injector` как сервер авторизации
 
-## ⬇️ Установка
+## Установка
 
 ### Стабильные версии
 
@@ -92,7 +92,7 @@
 
 Эти сборки содержат отладочную информацию, поэтому их размер будет относительно больше. Уже готовые нестабильные сборки доступны на **Linux, Windows и macOS**.
 
-## 💬 Сообщество и поддержка
+## Сообщество и поддержка
 
 Если Вы нашли баг или хотите сделать какое-либо предложение, пожалуйста, откройте issue в [GitHub Issues](https://github.com/FreesmTeam/FreesmLauncher/issues). Pull-реквесты и любой вклад (code, docs, translations) приветствуются!
 
@@ -109,7 +109,7 @@
 
 [![r/FreesmLauncher](https://img.shields.io/reddit/subreddit-subscribers/freesmlauncher?style=for-the-badge&logo=reddit)](https://freesmlauncher.org/reddit)
 
-## 🌐 Переводы
+## Переводы
 
 Freesm Launcher использует переводы Prism Launcher'а на данный момент.
 
@@ -117,11 +117,11 @@ Freesm Launcher использует переводы Prism Launcher'а на д�
 
 <!-- Freesm Launcher supports community translations via [Weblate](https://hosted.weblate.org/projects/freesmlauncher/). Help us translate or improve existing translations by visiting our [Weblate page](https://hosted.weblate.org/projects/freesmlauncher/) or our [GitHub Translations guide](https://github.com/FreesmTeam/Translations). -->
 
-## 🛠️ Сборка
+## Сборка
 
 Если вы хотите собрать Freesm Launcher самостоятельно, следуйте [инструкциям сборки Prism Launcher](https://prismlauncher.org/wiki/development/build-instructions/) (Freesm использует систему сборки Garnix).
 
-## ℹ️ Прочее
+## Прочее
 
 <ul>
   <li>Мы <strong>НЕ</strong> связаны с командой <a href="https://prismlauncher.org">Prism Launcher</a>.</li>
@@ -130,6 +130,6 @@ Freesm Launcher использует переводы Prism Launcher'а на д�
   <li>Мы <strong>ОТКРЫТЫ</strong> для коммитов от сообщества.</li>
 </ul>
 
-## 📜 Лицензия
+## Лицензия
 
 [![GitHub](https://img.shields.io/github/license/freesmteam/freesmlauncher?style=for-the-badge)](https://github.com/freesmteam/freesmlauncher/blob/main/LICENSE)
