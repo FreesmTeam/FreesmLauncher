@@ -24,7 +24,7 @@ This fork is **not** endorsed by Prism Launcher
 
 </div>
 
-## 💻 Screenshots
+## Screenshots
 
 <details>
   <summary>Show</summary>
@@ -44,7 +44,7 @@ This fork is **not** endorsed by Prism Launcher
 
 </details>
 
-## ✨ Features
+## Features
 
 - Offline mode doesn't require signing in with a Microsoft account anymore
 - [Ely.by](https://ely.by/) can be used as an account auth option, providing a seamless integration with Minecraft. You will see your Minecraft skin anywhere without any mods or plugins
@@ -57,7 +57,7 @@ This fork is **not** endorsed by Prism Launcher
 - FLOSS
 - ...all the Prism Launcher's features
 
-## 📊 Comparison
+## Comparison
 
 
 | Feature                                  | Freesm  Launcher | Shattered  Prism | HMCL | Fjord   | PollyMC       | ElyPrism      | UltimMC | Prism-Cracked | Prism Launcher |
@@ -75,7 +75,7 @@ This fork is **not** endorsed by Prism Launcher
 
 ² you can still change a `javaagent` JVM argument to use your `authlib-injector` jar file as an auth server
 
-## ⬇️ Installation
+## Installation
 
 ### Stable Releases
 
@@ -92,7 +92,7 @@ There are development builds available through:
 
 These builds contain debug information in the binaries, so their file sizes are relatively larger. Prebuilt Development builds are provided for **Linux, Windows, and macOS**.
 
-## 💬 Community & Support
+## Community & Support
 
 If you found a bug or want to suggest a feature, please open an issue in [GitHub Issues](https://github.com/FreesmTeam/FreesmLauncher/issues). Pull requests and contributions (code, docs, translations) are welcome!
 
@@ -109,7 +109,7 @@ If you found a bug or want to suggest a feature, please open an issue in [GitHub
 
 [![r/FreesmLauncher](https://img.shields.io/reddit/subreddit-subscribers/freesmlauncher?style=for-the-badge&logo=reddit)](https://freesmlauncher.org/reddit)
 
-## 🌐 Translations
+## Translations
 
 Freesm Launcher uses Prism Launcher's translations at the moment.
 
@@ -117,11 +117,11 @@ The translation effort for Prism Launcher is hosted on Weblate, and information 
 
 <!-- Freesm Launcher supports community translations via [Weblate](https://hosted.weblate.org/projects/freesmlauncher/). Help us translate or improve existing translations by visiting our [Weblate page](https://hosted.weblate.org/projects/freesmlauncher/) or our [GitHub Translations guide](https://github.com/FreesmTeam/Translations). -->
 
-## 🛠️ Building from Source
+## Building from Source
 
 To build Freesm Launcher yourself, see the [Prism Launcher build instructions](https://prismlauncher.org/wiki/development/build-instructions/) (Freesm uses the Garnix build system).
 
-## ℹ️ Other
+## Other
 
 <ul>
   <li>We <strong>ARE NOT</strong> related to the <a href="https://prismlauncher.org">Prism Launcher</a> team.</li>
@@ -130,6 +130,6 @@ To build Freesm Launcher yourself, see the [Prism Launcher build instructions](h
   <li>We <strong>ARE</strong> open to any contributions.</li>
 </ul>
 
-## 📜 License
+## License
 
 [![GitHub](https://img.shields.io/github/license/freesmteam/freesmlauncher?style=for-the-badge)](https://github.com/freesmteam/freesmlauncher/blob/main/LICENSE)
