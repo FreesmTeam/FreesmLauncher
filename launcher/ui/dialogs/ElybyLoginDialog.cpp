@@ -146,7 +146,7 @@ void ElybyLoginDialog::authorizeWithBrowserWithExtra(QString url, QString code, 
 
     const auto linkString = QString("<a href=\"%1\">%2</a>").arg(url, url);
     ui->code->setText(code);
-    auto isDefaultUrl = url == "http://account.ely.by/code" || url == "https://account.ely.by/code";
+    auto isDefaultUrl = url == "https://account.ely.by/code";
     ui->qr->setVisible(isDefaultUrl);
     if (isDefaultUrl) {
         ui->qrMessage->setText(tr("Open %1 or scan the QR and enter the above code.").arg(linkString));
