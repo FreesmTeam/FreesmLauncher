@@ -45,7 +45,6 @@
     nixpkgsFor = forAllSystems (system: nixpkgs.legacyPackages.${system});
   in {
     formatter = forAllSystems (system: nixpkgsFor.${system}.alejandra);
-
     devShells = forAllSystems (
       system: let
         pkgs = nixpkgsFor.${system};
@@ -58,6 +57,14 @@
             pkgs.ccache
             pkgs.ninja
           ];
+          shellHook = ''
+            # https://discourse.nixos.org/t/qt-development-environment-on-a-flake-system/23707/5
+            setQtEnvironment=$(mktemp)
+            random=$(openssl rand -base64 20 | sed "s/[^a-zA-Z0-9]//g")
+            makeWrapper "$(type -p sh)" "$setQtEnvironment" "''${qtWrapperArgs[@]}" --argv0 "$random"
+            sed "/$random/d" -i "$setQtEnvironment"
+            source "$setQtEnvironment"
+          '';
         };
       }
     );
