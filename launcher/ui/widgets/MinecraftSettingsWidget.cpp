@@ -79,6 +79,7 @@ MinecraftSettingsWidget::MinecraftSettingsWidget(MinecraftInstancePtr instance, 
         m_ui->gameTimeGroupBox->setCheckable(true);
         m_ui->legacySettingsGroupBox->setCheckable(true);
         m_ui->elybyGroupBox->setCheckable(true);
+        m_ui->discordGroupBox->setCheckable(true);
 
         m_quickPlaySingleplayer = m_instance->traits().contains("feature:is_quick_play_singleplayer");
         if (m_quickPlaySingleplayer) {
@@ -209,6 +210,9 @@ void MinecraftSettingsWidget::loadSettings()
     m_ui->elybyGroupBox->setChecked(m_instance == nullptr || settings->get("OverrideElyby").toBool());
     m_ui->elySkinSystemComboBox->setCurrentIndex(settings->get("UseElySkins").toInt());
     m_ui->useInjectorCheckBox->setChecked(settings->get("UseElyAuthlibInjector").toBool());
+
+    m_ui->discordGroupBox->setChecked(m_instance == nullptr || settings->get("OverrideDiscord").toBool());
+    m_ui->enableRichPresenceCheck->setChecked(settings->get("EnableDiscordRichPresence").toBool());
 
     m_ui->serverJoinGroupBox->setChecked(settings->get("JoinServerOnLaunch").toBool());
 
@@ -374,6 +378,17 @@ void MinecraftSettingsWidget::saveSettings()
         } else {
             settings->reset("UseElySkins");
             settings->reset("UseElyAuthlibInjector");
+        }
+
+        bool discord = m_instance == nullptr || m_ui->discordGroupBox->isChecked();
+
+        if (m_instance != nullptr)
+            settings->set("OverrideDiscord", discord);
+
+        if (discord) {
+            settings->set("EnableDiscordRichPresence", m_ui->enableRichPresenceCheck->isChecked());
+        } else {
+            settings->reset("EnableDiscordRichPresence");
         }
 
         // Game time

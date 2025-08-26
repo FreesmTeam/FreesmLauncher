@@ -105,6 +105,9 @@ BaseInstance::BaseInstance(SettingsObjectPtr globalSettings, SettingsObjectPtr s
     m_settings->registerSetting("ManagedPackVersionName", "");
 
     m_settings->registerSetting("Profiler", "");
+
+    auto discordSetting = m_settings->registerSetting("OverrideDiscord", false);
+    m_settings->registerOverride(globalSettings->getSetting("EnableDiscordRichPresence"), discordSetting);
 }
 
 QString BaseInstance::getPreLaunchCommand()

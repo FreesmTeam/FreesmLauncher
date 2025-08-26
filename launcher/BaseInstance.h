@@ -210,6 +210,8 @@ class BaseInstance : public QObject, public std::enable_shared_from_this<BaseIns
 
     virtual QString getStatusbarDescription() = 0;
 
+    virtual QString getVersionString() = 0;
+
     /// FIXME: this really should be elsewhere...
     virtual QString instanceConfigFolder() const = 0;
 
