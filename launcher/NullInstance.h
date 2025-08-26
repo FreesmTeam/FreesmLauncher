@@ -50,6 +50,7 @@ class NullInstance : public BaseInstance {
     void saveNow() override {}
     void loadSpecificSettings() override { setSpecificSettingsLoaded(true); }
     QString getStatusbarDescription() override { return tr("Unknown instance type"); };
+    QString getVersionString() override { return ""; }
     QSet<QString> traits() const override { return {}; };
     QString instanceConfigFolder() const override { return instanceRoot(); };
     shared_qobject_ptr<LaunchTask> createLaunchTask(AuthSessionPtr, MinecraftTarget::Ptr) override { return nullptr; }

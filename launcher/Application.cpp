@@ -124,6 +124,8 @@
 #include "meta/Index.h"
 #include "translations/TranslationsModel.h"
 
+#include "discord/DiscordIntegration.h"
+
 #include <DesktopServices.h>
 #include <FileSystem.h>
 #include <LocalPeer.h>
@@ -739,6 +741,8 @@ Application::Application(int& argc, char** argv) : QApplication(argc, argv)
         m_settings->registerSetting("TPDownloadGeometry", "");
         m_settings->registerSetting("ShaderDownloadGeometry", "");
 
+        m_settings->registerSetting("EnableDiscordRichPresence", false);
+
         // HACK: This code feels so stupid is there a less stupid way of doing this?
         {
             m_settings->registerSetting("PastebinURL", "");
@@ -1119,8 +1123,8 @@ bool Application::createSetupWizard()
             settings()->set("IconTheme", QString("fluent_dark"));
         if (!validWidgets) {
 #if defined(Q_OS_WIN32) && QT_VERSION >= QT_VERSION_CHECK(6, 5, 0)
-            const QString style =
-                QGuiApplication::styleHints()->colorScheme() == Qt::ColorScheme::Dark ? QStringLiteral("freesm") : QStringLiteral("freesm-light");
+            const QString style = QGuiApplication::styleHints()->colorScheme() == Qt::ColorScheme::Dark ? QStringLiteral("freesm")
+                                                                                                        : QStringLiteral("freesm-light");
 #else
             const QString style = QStringLiteral("freesm");
 #endif
@@ -1384,6 +1388,15 @@ std::shared_ptr<JavaInstallList> Application::javalist()
         m_javalist.reset(new JavaInstallList());
     }
     return m_javalist;
+}
+
+std::shared_ptr<DiscordIntegration> Application::discord()
+{
+    // lazy initialize
+    if (!m_discord) {
+        m_discord = std::make_shared<DiscordIntegration>();
+    }
+    return m_discord;
 }
 
 QIcon Application::getThemedIcon(const QString& name)

@@ -304,6 +304,8 @@ set(MINECRAFT_SOURCES
     minecraft/launch/VerifyJavaInstall.h
     minecraft/launch/AutoInstallJava.cpp
     minecraft/launch/AutoInstallJava.h
+    minecraft/launch/SetDiscordActivity.cpp
+    minecraft/launch/SetDiscordActivity.h
 
     minecraft/GradleSpecifier.h
     minecraft/MinecraftInstance.cpp
@@ -681,6 +683,18 @@ set(PRISMUPDATER_SOURCES
 
 )
 
+set(DISCORD_SOURCES
+    discord/DiscordIntegration.h
+    discord/DiscordIntegration.cpp
+    discord/DiscordSocket.h
+    discord/DiscordSocket.cpp
+    discord/DiscordQueue.h
+    discord/DiscordQueue.cpp
+    discord/Activity.cpp
+    discord/Activity.h
+    discord/RunningInstance.h
+)
+
 ######## Logging categories ########
 
 ecm_qt_declare_logging_category(CORE_SOURCES
@@ -789,6 +803,7 @@ set(LOGIC_SOURCES
     ${PACKWIZ_SOURCES}
     ${TECHNIC_SOURCES}
     ${ATLAUNCHER_SOURCES}
+    ${DISCORD_SOURCES}
 )
 
 if(APPLE AND Launcher_ENABLE_UPDATER)

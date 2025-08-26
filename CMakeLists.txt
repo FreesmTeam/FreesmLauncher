@@ -220,6 +220,9 @@ set(Launcher_META_URL "https://meta.prismlauncher.org/v1/" CACHE STRING "URL to 
 # Imgur API Client ID
 set(Launcher_IMGUR_CLIENT_ID "5b97b0713fba4a3" CACHE STRING "Client ID you can get from Imgur when you register an application")
 
+# Discord Client ID
+set(Launcher_DISCORD_CLIENT_ID "1378362128125263882" CACHE STRING "Discord application ID")
+
 # Bug tracker URL
 set(Launcher_BUG_TRACKER_URL "https://github.com/FreesmTeam/FreesmLauncher/issues" CACHE STRING "URL for the bug tracker.")
 
