@@ -19,11 +19,11 @@
 #pragma once
 
 #include <QObject>
+#include "RunningInstance.h"
 
 class BaseInstance;
 class DiscordSocket;
 class DiscordQueue;
-struct RunningInstance;
 
 class DiscordIntegration : public QObject {
     Q_OBJECT
@@ -40,7 +40,7 @@ class DiscordIntegration : public QObject {
     void socketConnected();
     void socketFailed();
 
-    bool startActivity(const RunningInstance& instance);
+    bool startActivity(RunningInstance instance);
     bool stopActivity();
 
    private:

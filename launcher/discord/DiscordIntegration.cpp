@@ -51,7 +51,7 @@ void DiscordIntegration::instanceStopped(const std::shared_ptr<BaseInstance>& in
     m_queue->instanceStopped(instance);
 }
 
-bool DiscordIntegration::startActivity(const RunningInstance& instance)
+bool DiscordIntegration::startActivity(const RunningInstance instance)
 {
     return m_socket->send(generateActivity(instance));
 }

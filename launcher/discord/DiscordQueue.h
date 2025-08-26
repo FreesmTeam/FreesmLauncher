@@ -36,7 +36,7 @@ class DiscordQueue : public QObject {
     void socketReady();
 
    signals:
-    void started(const RunningInstance& instance);
+    void started(const RunningInstance instance);
     void rest();
 
    private:
