@@ -18,12 +18,11 @@
 
 #include "ElybyAccount.h"
 
-ElybyAccount::ElybyAccount(QObject* parent) : CustomAccount(parent) {}
+ElybyAccount::ElybyAccount(QObject* parent) : MSAAccount(parent) {}
 
-ElybyAccountPtr ElybyAccount::createElyby(const QString& login)
+ElybyAccountPtr ElybyAccount::createElyby()
 {
     ElybyAccountPtr account(new ElybyAccount());
     account->data.type = AccountType::Elyby;
-    account->data.accountLogin = login;
     return account;
 }

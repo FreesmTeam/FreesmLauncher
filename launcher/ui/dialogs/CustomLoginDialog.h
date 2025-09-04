@@ -17,7 +17,7 @@
 
 #include <QDialog>
 
-#include "minecraft/auth/elyby/ElybyAccount.h"
+#include "minecraft/auth/custom/CustomAccount.h"
 #include "tasks/Task.h"
 
 namespace Ui {

@@ -165,7 +165,7 @@ void AccountListPage::on_actionAddOffline_triggered()
 
 void AccountListPage::on_actionAddElyby_triggered()
 {
-    auto account = ElybyLoginDialog::newAccount(this, tr("Please enter your username and password of Ely.by account."));
+    auto account = ElybyLoginDialog::newAccount(this);
     if (account) {
         m_accounts->addAccount(account);
         if (m_accounts->count() == 1) {

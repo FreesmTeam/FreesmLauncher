@@ -18,17 +18,17 @@
 
 #pragma once
 
-#include "minecraft/auth/custom/CustomAccount.h"
+#include "minecraft/auth/msa/MSAAccount.h"
 
 class ElybyAccount;
 
 using ElybyAccountPtr = shared_qobject_ptr<ElybyAccount>;
 Q_DECLARE_METATYPE(ElybyAccountPtr)
 
-class ElybyAccount : public CustomAccount {
+class ElybyAccount : public MSAAccount {
     Q_OBJECT
    public:
     explicit ElybyAccount(QObject* parent = 0);
 
-    static ElybyAccountPtr createElyby(const QString& login);
+    static ElybyAccountPtr createElyby();
 };
