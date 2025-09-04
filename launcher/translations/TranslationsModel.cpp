@@ -73,7 +73,7 @@ struct Language {
         if (key == "ja_KANJI") {
             result = locale.nativeLanguageName() + u8" (漢字)";
         } else if (key == "es_UY") {
-            result = u8"español de Latinoamérica";
+            result = u8"Español de Latinoamérica";
         } else if (key == "en_NZ") {
             result = u8"New Zealand English";  // No idea why qt translates this to just english and not to New Zealand English
         } else if (key == "en@pirate") {
