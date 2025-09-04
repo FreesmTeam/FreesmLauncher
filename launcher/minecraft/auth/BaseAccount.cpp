@@ -20,6 +20,7 @@
 
 #include "BaseAccount.h"
 
+#include "minecraft/auth/custom/CustomAccount.h"
 #include "minecraft/auth/elyby/ElybyAccount.h"
 #include "minecraft/auth/msa/MSAAccount.h"
 #include "minecraft/auth/offline/OfflineAccount.h"

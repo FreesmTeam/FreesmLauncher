@@ -49,7 +49,7 @@ void LoginWizardPage::on_addMicrosoftButton_clicked()
 void LoginWizardPage::on_addElybyButton_clicked()
 {
     wizard()->hide();
-    auto account = ElybyLoginDialog::newAccount(nullptr, "Please enter your username and password of Elyby account.");
+    auto account = ElybyLoginDialog::newAccount(nullptr);
     wizard()->show();
     if (account) {
         APPLICATION->accounts()->addAccount(account);

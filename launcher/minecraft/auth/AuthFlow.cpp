@@ -17,7 +17,9 @@
 #include "minecraft/auth/msa/steps/XboxUserStep.h"
 
 // Elyby
-#include "elyby/steps/ElybyAuthStep.h"
+#include "elyby/steps/ElyDeviceCodeStep.h"
+#include "elyby/steps/ElyStep.h"
+#include "elyby/steps/MinecraftProfileStepEly.h"
 
 // Custom
 #include "custom/steps/CustomAuthStep.h"
@@ -53,7 +55,17 @@ AuthFlow::AuthFlow(AccountData* data, Action action, QString password) : Task(),
             m_steps.append(makeShared<GetSkinStep>(m_data));
         } break;
         case AccountType::Elyby: {
-            m_steps.append(makeShared<ElybyAuthStep>(m_data, action, std::move(password)));
+            if (action == Action::DeviceCode) {
+                auto oauthStep = makeShared<ElyDeviceCodeStep>(m_data);
+                connect(oauthStep.get(), &ElyDeviceCodeStep::authorizeWithBrowser, this, &AuthFlow::authorizeWithBrowserWithExtra);
+                connect(this, &Task::aborted, oauthStep.get(), &ElyDeviceCodeStep::abort);
+                m_steps.append(oauthStep);
+            } else {
+                auto oauthStep = makeShared<ElyStep>(m_data, action == Action::Refresh);
+                connect(oauthStep.get(), &ElyStep::authorizeWithBrowser, this, &AuthFlow::authorizeWithBrowser);
+                m_steps.append(oauthStep);
+            }
+            m_steps.append(makeShared<MinecraftProfileStepEly>(m_data));
             m_steps.append(makeShared<GetSkinStep>(m_data));
         } break;
         case AccountType::Custom: {
