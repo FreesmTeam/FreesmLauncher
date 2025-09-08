@@ -361,7 +361,8 @@ void ModrinthPage::triggerSearch()
     ui->packView->clearSelection();
     ui->packDescription->clear();
     ui->versionSelectionBox->clear();
-    m_model->searchWithTerm(ui->searchEdit->text(), ui->sortByBox->currentIndex(), m_filterWidget->getFilter(), m_filterWidget->changed());
+    bool filterChanged = m_filterWidget->changed();
+    m_model->searchWithTerm(ui->searchEdit->text(), ui->sortByBox->currentIndex(), m_filterWidget->getFilter(), filterChanged);
     m_fetch_progress.watch(m_model->activeSearchJob().get());
 }
 
