@@ -566,7 +566,7 @@ void InstanceView::setPaintCat(bool visible)
 
         if (catName.endsWith("gif")) {
             m_catMovie = new QMovie(catName);
-            m_catMovie->setCacheMode(QMovie::CacheAll);
+            m_catMovie->setCacheMode(QMovie::CacheNone);
             m_catMovie->setProperty("loopCount", -1);
 
             if (!m_catMovie->isValid()) {
