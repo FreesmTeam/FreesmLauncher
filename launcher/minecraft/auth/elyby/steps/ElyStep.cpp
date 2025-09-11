@@ -128,8 +128,13 @@ void ElyStep::perform()
         m_oauth2.refreshAccessToken();
     } else {
 #if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)  // QMultiMap param changed in 6.0
-        m_oauth2.setModifyParametersFunction(
-            [](QAbstractOAuth::Stage stage, QMultiMap<QString, QVariant>* map) { map->insert("prompt", "select_account"); });
+        m_oauth2.setModifyParametersFunction([](QAbstractOAuth::Stage stage, QMultiMap<QString, QVariant>* map) {
+            map->insert("prompt", "select_account");
+            if (const auto it = map->find("redirect_uri"); it != map->end()) {
+                const auto host = it->toString().replace("localhost", "127.0.0.1");
+                *it = host;
+            }
+        });
 #else
         m_oauth2.setModifyParametersFunction(
             [](QAbstractOAuth::Stage stage, QMap<QString, QVariant>* map) { map->insert("prompt", "select_account"); });
