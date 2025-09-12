@@ -34,17 +34,17 @@ static std::list<Version> mcVersions(BaseInstance* inst)
 
 ResourceUpdateDialog::ResourceUpdateDialog(QWidget* parent,
                                            BaseInstance* instance,
-                                           const std::shared_ptr<ResourceFolderModel> resource_model,
-                                           QList<Resource*>& search_for,
-                                           bool include_deps,
+                                           const std::shared_ptr<ResourceFolderModel> resourceModel,
+                                           QList<Resource*>& searchFor,
+                                           bool includeDeps,
                                            QList<ModPlatform::ModLoaderType> loadersList)
     : ReviewMessageBox(parent, tr("Confirm resources to update"), "")
     , m_parent(parent)
-    , m_resource_model(resource_model)
-    , m_candidates(search_for)
-    , m_second_try_metadata(new ConcurrentTask("Second Metadata Search", APPLICATION->settings()->get("NumberOfConcurrentTasks").toInt()))
+    , m_resourceModel(resourceModel)
+    , m_candidates(searchFor)
+    , m_secondTryMetadata(new ConcurrentTask("Second Metadata Search", APPLICATION->settings()->get("NumberOfConcurrentTasks").toInt()))
     , m_instance(instance)
-    , m_include_deps(include_deps)
+    , m_includeDeps(includeDeps)
     , m_loadersList(std::move(loadersList))
 {
     ReviewMessageBox::setGeometry(0, 0, 800, 600);
@@ -63,9 +63,9 @@ void ResourceUpdateDialog::checkCandidates()
     }
 
     // Report failed metadata generation
-    if (!m_failed_metadata.empty()) {
+    if (!m_failedMetadata.empty()) {
         QString text;
-        for (const auto& failed : m_failed_metadata) {
+        for (const auto& failed : m_failedMetadata) {
             const auto& mod = std::get<0>(failed);
             const auto& reason = std::get<1>(failed);
             text += tr("Mod name: %1<br>File name: %2<br>Reason: %3<br><br>").arg(mod->name(), mod->fileinfo().fileName(), reason);
@@ -84,24 +84,24 @@ void ResourceUpdateDialog::checkCandidates()
     }
 
     auto versions = mcVersions(m_instance);
+
     SequentialTask check_task(tr("Checking for updates"));
 
-    if (!m_modrinth_to_update.empty()) {
-        m_modrinth_check_task.reset(new ModrinthCheckUpdate(m_modrinth_to_update, versions, m_loadersList, m_resource_model));
-        connect(m_modrinth_check_task.get(), &CheckUpdateTask::checkFailed, this,
+    if (!m_modrinthToUpdate.empty()) {
+        m_modrinthCheckTask.reset(new ModrinthCheckUpdate(m_modrinthToUpdate, versions, m_loadersList, m_resourceModel));
+        connect(m_modrinthCheckTask.get(), &CheckUpdateTask::checkFailed, this,
                 [this](Resource* resource, QString reason, QUrl recover_url) {
-                    m_failed_check_update.append({ resource, reason, recover_url });
+                    m_failedCheckUpdate.append({ resource, reason, recover_url });
                 });
-        check_task.addTask(m_modrinth_check_task);
+        check_task.addTask(m_modrinthCheckTask);
     }
 
-    if (!m_flame_to_update.empty()) {
-        m_flame_check_task.reset(new FlameCheckUpdate(m_flame_to_update, versions, m_loadersList, m_resource_model));
-        connect(m_flame_check_task.get(), &CheckUpdateTask::checkFailed, this,
-                [this](Resource* resource, QString reason, QUrl recover_url) {
-                    m_failed_check_update.append({ resource, reason, recover_url });
-                });
-        check_task.addTask(m_flame_check_task);
+    if (!m_flameToUpdate.empty()) {
+        m_flameCheckTask.reset(new FlameCheckUpdate(m_flameToUpdate, versions, m_loadersList, m_resourceModel));
+        connect(m_flameCheckTask.get(), &CheckUpdateTask::checkFailed, this, [this](Resource* resource, QString reason, QUrl recover_url) {
+            m_failedCheckUpdate.append({ resource, reason, recover_url });
+        });
+        check_task.addTask(m_flameCheckTask);
     }
 
     connect(&check_task, &Task::failed, this,
@@ -130,33 +130,33 @@ void ResourceUpdateDialog::checkCandidates()
     QList<std::shared_ptr<GetModDependenciesTask::PackDependency>> selectedVers;
 
     // Add found updates for Modrinth
-    if (m_modrinth_check_task) {
-        auto modrinth_updates = m_modrinth_check_task->getUpdates();
+    if (m_modrinthCheckTask) {
+        auto modrinth_updates = m_modrinthCheckTask->getUpdates();
         for (auto& updatable : modrinth_updates) {
             qDebug() << QString("Mod %1 has an update available!").arg(updatable.name);
 
             appendResource(updatable);
             m_tasks.insert(updatable.name, updatable.download);
         }
-        selectedVers.append(m_modrinth_check_task->getDependencies());
+        selectedVers.append(m_modrinthCheckTask->getDependencies());
     }
 
     // Add found updated for Flame
-    if (m_flame_check_task) {
-        auto flame_updates = m_flame_check_task->getUpdates();
+    if (m_flameCheckTask) {
+        auto flame_updates = m_flameCheckTask->getUpdates();
         for (auto& updatable : flame_updates) {
             qDebug() << QString("Mod %1 has an update available!").arg(updatable.name);
 
             appendResource(updatable);
             m_tasks.insert(updatable.name, updatable.download);
         }
-        selectedVers.append(m_flame_check_task->getDependencies());
+        selectedVers.append(m_flameCheckTask->getDependencies());
     }
 
     // Report failed update checking
-    if (!m_failed_check_update.empty()) {
+    if (!m_failedCheckUpdate.empty()) {
         QString text;
-        for (const auto& failed : m_failed_check_update) {
+        for (const auto& failed : m_failedCheckUpdate) {
             const auto& mod = std::get<0>(failed);
             const auto& reason = std::get<1>(failed);
             const auto& recover_url = std::get<2>(failed);
@@ -185,8 +185,8 @@ void ResourceUpdateDialog::checkCandidates()
         }
     }
 
-    if (m_include_deps && !APPLICATION->settings()->get("ModDependenciesDisabled").toBool()) {  // dependencies
-        auto* mod_model = dynamic_cast<ModFolderModel*>(m_resource_model.get());
+    if (m_includeDeps && !APPLICATION->settings()->get("ModDependenciesDisabled").toBool()) {  // dependencies
+        auto* mod_model = dynamic_cast<ModFolderModel*>(m_resourceModel.get());
 
         if (mod_model != nullptr) {
             auto depTask = makeShared<GetModDependenciesTask>(m_instance, mod_model, selectedVers);
@@ -224,7 +224,7 @@ void ResourceUpdateDialog::checkCandidates()
                 auto changelog = dep->version.changelog;
                 if (dep->pack->provider == ModPlatform::ResourceProvider::FLAME)
                     changelog = api.getModFileChangelog(dep->version.addonId.toInt(), dep->version.fileId.toInt());
-                auto download_task = makeShared<ResourceDownloadTask>(dep->pack, dep->version, m_resource_model);
+                auto download_task = makeShared<ResourceDownloadTask>(dep->pack, dep->version, m_resourceModel);
                 auto extraInfo = dependencyExtraInfo.value(dep->version.addonId.toString());
                 CheckUpdateTask::Update updatable = {
                     dep->pack->name, dep->version.hash,   tr("Not installed"), dep->version.version,      dep->version.version_type,
@@ -239,7 +239,7 @@ void ResourceUpdateDialog::checkCandidates()
 
     // If there's no resource to be updated
     if (ui->modTreeWidget->topLevelItemCount() == 0) {
-        m_no_updates = true;
+        m_noUpdates = true;
     } else {
         // FIXME: Find a more efficient way of doing this!
 
@@ -254,7 +254,7 @@ void ResourceUpdateDialog::checkCandidates()
         }
     }
 
-    if (m_aborted || m_no_updates)
+    if (m_aborted || m_noUpdates)
         QMetaObject::invokeMethod(this, "reject", Qt::QueuedConnection);
 }
 
@@ -362,7 +362,7 @@ auto ResourceUpdateDialog::ensureMetadata() -> bool
         seq.addTask(flame_task);
     }
 
-    seq.addTask(m_second_try_metadata);
+    seq.addTask(m_secondTryMetadata);
 
     // execute all the tasks
     ProgressDialog checking_dialog(m_parent);
@@ -381,10 +381,10 @@ void ResourceUpdateDialog::onMetadataEnsured(Resource* resource)
 
     switch (resource->metadata()->provider) {
         case ModPlatform::ResourceProvider::MODRINTH:
-            m_modrinth_to_update.push_back(resource);
+            m_modrinthToUpdate.push_back(resource);
             break;
         case ModPlatform::ResourceProvider::FLAME:
-            m_flame_to_update.push_back(resource);
+            m_flameToUpdate.push_back(resource);
             break;
     }
 }
@@ -415,14 +415,14 @@ void ResourceUpdateDialog::onMetadataFailed(Resource* resource, bool try_others,
             auto seq = makeShared<SequentialTask>();
             seq->addTask(task->getHashingTask());
             seq->addTask(task);
-            m_second_try_metadata->addTask(seq);
+            m_secondTryMetadata->addTask(seq);
         } else {
-            m_second_try_metadata->addTask(task);
+            m_secondTryMetadata->addTask(task);
         }
     } else {
         QString reason{ tr("Couldn't find a valid version on the selected mod provider(s)") };
 
-        m_failed_metadata.append({ resource, reason });
+        m_failedMetadata.append({ resource, reason });
     }
 }
 
