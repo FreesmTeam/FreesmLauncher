@@ -1,3 +1,4 @@
+---
 name: Update Flake Lockfile
 
 on:
@@ -17,12 +18,12 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-      - uses: cachix/install-nix-action@d1ca217b388ee87b2507a9a93bf01368bde7cec2 # v31
-
+      - uses: DeterminateSystems/nix-installer-action@v16
+      - uses: DeterminateSystems/flake-checker-action@v5
       - uses: DeterminateSystems/update-flake-lock@v24
         with:
-          commit-msg: "chore(nix): update lockfile"
-          pr-title: "chore(nix): update lockfile"
+          commit-msg: "chore(nix): update `flake.lock` via CI/CD"
+          pr-title: "chore(nix): update `flake.lock`"
           pr-labels: |
             [0] : Freesm
             [1] : Nix-related
@@ -36,3 +37,10 @@ jobs:
             [8] : User: End-Users
             [9] : Bug: None
             [10] : Pull Request
+          git-author-name: John Nix
+          git-author-email: github-actions[bot]@users.noreply.github.com
+          git-commiter-name: John Nix
+          git-commiter-email: github-actions[bot]@users.noreply.github.com
+          pr-reviewers: |
+            s0me1newithhand7s
+         
