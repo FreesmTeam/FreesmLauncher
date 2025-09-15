@@ -213,7 +213,7 @@ bool ManagedPackPage::runUpdateTask(InstanceTask* task)
 
 void ManagedPackPage::suggestVersion()
 {
-    ui->updateButton->setText(tr("Update pack"));
+    ui->updateButton->setText(tr("Update Pack"));
     ui->updateButton->setDisabled(false);
 }
 
