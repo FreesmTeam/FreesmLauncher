@@ -36,6 +36,7 @@
  */
 
 #include "MinecraftSettingsWidget.h"
+#include "modplatform/ModIndex.h"
 #include "ui_MinecraftSettingsWidget.h"
 
 #include <QFileDialog>
