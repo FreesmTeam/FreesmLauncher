@@ -97,7 +97,7 @@ class InstallJavaPage : public QWidget, public BasePage {
 
     QString id() const override { return uid; }
     QString displayName() const override { return name; }
-    QIcon icon() const override { return APPLICATION->getThemedIcon(iconName); }
+    QIcon icon() const override { return QIcon::fromTheme(iconName); }
 
     void openedImpl() override
     {

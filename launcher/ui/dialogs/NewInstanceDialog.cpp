@@ -74,7 +74,7 @@ NewInstanceDialog::NewInstanceDialog(const QString& initialGroup,
 {
     ui->setupUi(this);
 
-    setWindowIcon(APPLICATION->getThemedIcon("new"));
+    setWindowIcon(QIcon::fromTheme("new"));
 
     InstIconKey = "default";
     ui->iconButton->setIcon(APPLICATION->icons()->getIcon(InstIconKey));

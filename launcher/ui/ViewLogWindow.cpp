@@ -8,7 +8,7 @@ ViewLogWindow::ViewLogWindow(QWidget* parent)
     : QMainWindow(parent), m_page(new OtherLogsPage("launcher-logs", tr("Launcher Logs"), "Launcher-Logs", nullptr, parent))
 {
     setAttribute(Qt::WA_DeleteOnClose);
-    setWindowIcon(APPLICATION->getThemedIcon("log"));
+    setWindowIcon(QIcon::fromTheme("log"));
     setWindowTitle(tr("View Launcher Logs"));
     setCentralWidget(m_page);
     setMinimumSize(m_page->size());

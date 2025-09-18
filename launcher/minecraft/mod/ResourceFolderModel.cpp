@@ -503,7 +503,7 @@ QVariant ResourceFolderModel::data(const QModelIndex& index, int role) const
             return m_resources[row]->internal_id();
         case Qt::DecorationRole: {
             if (column == NameColumn && (at(row).isSymLinkUnder(instDirPath()) || at(row).isMoreThanOneHardLink()))
-                return APPLICATION->getThemedIcon("status-yellow");
+                return QIcon::fromTheme("status-yellow");
 
             return {};
         }
@@ -709,8 +709,7 @@ SortType ResourceFolderModel::columnToSortKey(size_t column) const
 }
 
 /* Standard Proxy Model for createFilterProxyModel */
-bool ResourceFolderModel::ProxyModel::filterAcceptsRow(int source_row,
-                                                                     [[maybe_unused]] const QModelIndex& source_parent) const
+bool ResourceFolderModel::ProxyModel::filterAcceptsRow(int source_row, [[maybe_unused]] const QModelIndex& source_parent) const
 {
     auto* model = qobject_cast<ResourceFolderModel*>(sourceModel());
     if (!model)

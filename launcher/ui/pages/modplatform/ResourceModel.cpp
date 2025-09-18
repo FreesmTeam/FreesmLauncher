@@ -65,7 +65,7 @@ auto ResourceModel::data(const QModelIndex& index, int role) const -> QVariant
                     icon_or_none.has_value())
                     return icon_or_none.value();
 
-                return APPLICATION->getThemedIcon("screenshot-placeholder");
+                return QIcon::fromTheme("screenshot-placeholder");
             } else {
                 return {};
             }
