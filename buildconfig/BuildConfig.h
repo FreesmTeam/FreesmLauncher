@@ -172,6 +172,9 @@ class Config {
      */
     QString META_URL;
 
+    QString EPL_META_URL;
+    QString EPL_META_FALLBACK_URL;
+
     QString GLFW_LIBRARY_NAME;
     QString OPENAL_LIBRARY_NAME;
 

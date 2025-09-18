@@ -1,10 +1,10 @@
 #include "ApplyLibraryOverrides.h"
-#include <launch/LaunchTask.h>
+#include "Application.h"
+#include "BuildConfig.h"
+#include "launch/LaunchTask.h"
 #include "minecraft/PackProfile.h"
 #include "net/Download.h"
 #include "net/NetJob.h"
-
-#include "Application.h"
 
 ApplyLibraryOverrides::ApplyLibraryOverrides(LaunchTask* parent, AuthSessionPtr session)
     : LaunchStep(parent), m_session(session), m_instance(m_parent->instance())
@@ -17,13 +17,13 @@ void ApplyLibraryOverrides::executeTask()
 
 void ApplyLibraryOverrides::downloadLibraryOverrideList()
 {
-    const auto libraryOverrideListUrl =
-        QUrl("https://raw.githubusercontent.com/FreesmTeam/FreesmLauncher/refs/heads/develop/epl_metadata.json");
+    const auto libraryOverrideListUrl = QUrl(m_isFirstDownloadTry ? BuildConfig.EPL_META_URL : BuildConfig.EPL_META_FALLBACK_URL);
     m_response = std::make_shared<QByteArray>();
     m_request = Net::Download::makeByteArray(libraryOverrideListUrl, m_response);
 
     m_task.reset(new NetJob("Fetch EPL metadata", APPLICATION->network()));
     m_task->addNetAction(m_request);
+    m_task->setAskRetry(false);
 
     connect(m_task.get(), &NetJob::finished, this, &ApplyLibraryOverrides::onLibraryOverrideDownloadFinished);
     connect(m_task.get(), &NetJob::aborted, this, [this] { emitFailed(tr("Aborted")); });
@@ -34,6 +34,10 @@ void ApplyLibraryOverrides::downloadLibraryOverrideList()
 void ApplyLibraryOverrides::onLibraryOverrideDownloadFinished()
 {
     if (m_request->error() != QNetworkReply::NoError) {
+        if (m_isFirstDownloadTry) {
+            m_isFirstDownloadTry = false;
+            return downloadLibraryOverrideList();
+        }
         emitFailed("Failed to download EPL metadata.");
         return;
     }
