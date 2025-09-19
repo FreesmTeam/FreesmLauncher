@@ -242,9 +242,6 @@ set(MINECRAFT_SOURCES
     minecraft/auth/steps/XboxUserStep.cpp
     minecraft/auth/steps/XboxUserStep.h
 
-    minecraft/gameoptions/GameOptions.h
-    minecraft/gameoptions/GameOptions.cpp
-
     minecraft/update/AssetUpdateTask.h
     minecraft/update/AssetUpdateTask.cpp
     minecraft/update/FMLLibrariesTask.cpp
@@ -901,8 +898,6 @@ SET(LAUNCHER_SOURCES
     # GUI - instance pages
     ui/pages/instance/ExternalResourcesPage.cpp
     ui/pages/instance/ExternalResourcesPage.h
-    ui/pages/instance/GameOptionsPage.cpp
-    ui/pages/instance/GameOptionsPage.h
     ui/pages/instance/VersionPage.cpp
     ui/pages/instance/VersionPage.h
     ui/pages/instance/ManagedPackPage.cpp
@@ -1201,7 +1196,6 @@ qt_wrap_ui(LAUNCHER_UI
     ui/pages/instance/NotesPage.ui
     ui/pages/instance/LogPage.ui
     ui/pages/instance/ServersPage.ui
-    ui/pages/instance/GameOptionsPage.ui
     ui/pages/instance/OtherLogsPage.ui
     ui/pages/instance/VersionPage.ui
     ui/pages/instance/ManagedPackPage.ui
