@@ -36,6 +36,7 @@
  */
 
 #include "ServersPage.h"
+#include "Application.h"
 #include "ServerPingTask.h"
 #include "ui/dialogs/CustomMessageBox.h"
 #include "ui_ServersPage.h"
@@ -319,7 +320,7 @@ class ServersModel : public QAbstractListModel {
                             if (px.loadFromData(bytes))
                                 return QIcon(px);
                         }
-                        return APPLICATION->getThemedIcon("unknown_server");
+                        return QIcon::fromTheme("unknown_server");
                     }
                     case 1:
                         return m_servers[row].m_address;

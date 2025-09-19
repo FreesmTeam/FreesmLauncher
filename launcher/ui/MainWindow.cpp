@@ -148,7 +148,7 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent), ui(new Ui::MainWi
 {
     ui->setupUi(this);
 
-    setWindowIcon(APPLICATION->getThemedIcon("logo"));
+    setWindowIcon(APPLICATION->logo());
     setWindowTitle(APPLICATION->applicationDisplayName());
 #ifndef QT_NO_ACCESSIBILITY
     setAccessibleName(BuildConfig.LAUNCHER_DISPLAYNAME);
@@ -165,7 +165,7 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent), ui(new Ui::MainWi
         // qt designer will delete it when you save the file >:(
         changeIconButton = new LabeledToolButton(this);
         changeIconButton->setObjectName(QStringLiteral("changeIconButton"));
-        changeIconButton->setIcon(APPLICATION->getThemedIcon("news"));
+        changeIconButton->setIcon(QIcon::fromTheme("news"));
         changeIconButton->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
         connect(changeIconButton, &QToolButton::clicked, this, &MainWindow::on_actionChangeInstIcon_triggered);
         ui->instanceToolBar->insertWidgetBefore(ui->actionLaunchInstance, changeIconButton);
@@ -277,7 +277,7 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent), ui(new Ui::MainWi
     {
         m_newsChecker.reset(new NewsChecker(APPLICATION->network(), BuildConfig.NEWS_RSS_URL));
         newsLabel = new QToolButton();
-        newsLabel->setIcon(APPLICATION->getThemedIcon("news"));
+        newsLabel->setIcon(QIcon::fromTheme("news"));
         newsLabel->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
         newsLabel->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
         newsLabel->setFocusPolicy(Qt::NoFocus);
@@ -684,7 +684,7 @@ void MainWindow::repopulateAccountsMenu()
             if (!face.isNull()) {
                 action->setIcon(face);
             } else {
-                action->setIcon(APPLICATION->getThemedIcon("noaccount"));
+                action->setIcon(QIcon::fromTheme("noaccount"));
             }
 
             const int highestNumberKey = 9;
@@ -755,7 +755,7 @@ void MainWindow::defaultAccountChanged()
         ui->actionAccountsButton->setText(profileLabel);
         auto face = account->getFace();
         if (face.isNull()) {
-            ui->actionAccountsButton->setIcon(APPLICATION->getThemedIcon("noaccount"));
+            ui->actionAccountsButton->setIcon(QIcon::fromTheme("noaccount"));
         } else {
             ui->actionAccountsButton->setIcon(face);
         }
@@ -763,7 +763,7 @@ void MainWindow::defaultAccountChanged()
     }
 
     // Set the icon to the "no account" icon.
-    ui->actionAccountsButton->setIcon(APPLICATION->getThemedIcon("noaccount"));
+    ui->actionAccountsButton->setIcon(QIcon::fromTheme("noaccount"));
     ui->actionAccountsButton->setText(tr("Accounts"));
 }
 
@@ -1041,7 +1041,7 @@ void MainWindow::processURLs(QList<QUrl> urls)
 
         auto type = ResourceUtils::identify(localFileInfo);
 
-        if (ResourceUtils::ValidResourceTypes.count(type) == 0) {  // probably instance/modpack
+        if (ModPlatform::ResourceTypeUtils::VALID_RESOURCES.count(type) == 0) {  // probably instance/modpack
             addInstance(localFileName, extra_info);
             continue;
         }
@@ -1065,25 +1065,25 @@ void MainWindow::processURLs(QList<QUrl> urls)
         auto minecraftInst = std::dynamic_pointer_cast<MinecraftInstance>(inst);
 
         switch (type) {
-            case PackedResourceType::ResourcePack:
+            case ModPlatform::ResourceType::ResourcePack:
                 minecraftInst->resourcePackList()->installResourceWithFlameMetadata(localFileName, version);
                 break;
-            case PackedResourceType::TexturePack:
+            case ModPlatform::ResourceType::TexturePack:
                 minecraftInst->texturePackList()->installResourceWithFlameMetadata(localFileName, version);
                 break;
-            case PackedResourceType::DataPack:
+            case ModPlatform::ResourceType::DataPack:
                 qWarning() << "Importing of Data Packs not supported at this time. Ignoring" << localFileName;
                 break;
-            case PackedResourceType::Mod:
+            case ModPlatform::ResourceType::Mod:
                 minecraftInst->loaderModList()->installResourceWithFlameMetadata(localFileName, version);
                 break;
-            case PackedResourceType::ShaderPack:
+            case ModPlatform::ResourceType::ShaderPack:
                 minecraftInst->shaderPackList()->installResourceWithFlameMetadata(localFileName, version);
                 break;
-            case PackedResourceType::WorldSave:
+            case ModPlatform::ResourceType::World:
                 minecraftInst->worldList()->installWorld(localFileInfo);
                 break;
-            case PackedResourceType::UNKNOWN:
+            case ModPlatform::ResourceType::Unknown:
             default:
                 qDebug() << "Can't Identify" << localFileName << "Ignoring it.";
                 break;

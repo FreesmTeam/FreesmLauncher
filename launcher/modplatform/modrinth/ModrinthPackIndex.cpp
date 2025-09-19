@@ -63,11 +63,11 @@ void Modrinth::loadIndexedPack(ModPlatform::IndexedPack& pack, QJsonObject& obj)
     auto server = shouldDownloadOnSide(Json::ensureString(obj, "server_side"));
 
     if (server && client) {
-        pack.side = "both";
+        pack.side = ModPlatform::Side::UniversalSide;
     } else if (server) {
-        pack.side = "server";
+        pack.side = ModPlatform::Side::ServerSide;
     } else if (client) {
-        pack.side = "client";
+        pack.side = ModPlatform::Side::ClientSide;
     }
 
     // Modrinth can have more data than what's provided by the basic search :)
@@ -110,25 +110,6 @@ void Modrinth::loadExtraPackData(ModPlatform::IndexedPack& pack, QJsonObject& ob
     pack.extraData.body = Json::ensureString(obj, "body").remove("<br>");
 
     pack.extraDataLoaded = true;
-}
-
-void Modrinth::loadIndexedPackVersions(ModPlatform::IndexedPack& pack, QJsonArray& arr)
-{
-    QList<ModPlatform::IndexedVersion> unsortedVersions;
-    for (auto versionIter : arr) {
-        auto obj = versionIter.toObject();
-        auto file = loadIndexedPackVersion(obj);
-
-        if (file.fileId.isValid())  // Heuristic to check if the returned value is valid
-            unsortedVersions.append(file);
-    }
-    auto orderSortPredicate = [](const ModPlatform::IndexedVersion& a, const ModPlatform::IndexedVersion& b) -> bool {
-        // dates are in RFC 3339 format
-        return a.date > b.date;
-    };
-    std::sort(unsortedVersions.begin(), unsortedVersions.end(), orderSortPredicate);
-    pack.versions = unsortedVersions;
-    pack.versionsLoaded = true;
 }
 
 ModPlatform::IndexedVersion Modrinth::loadIndexedPackVersion(QJsonObject& obj, QString preferred_hash_type, QString preferred_file_name)
@@ -243,29 +224,4 @@ ModPlatform::IndexedVersion Modrinth::loadIndexedPackVersion(QJsonObject& obj, Q
     }
 
     return {};
-}
-
-ModPlatform::IndexedVersion Modrinth::loadDependencyVersions([[maybe_unused]] const ModPlatform::Dependency& m,
-                                                             QJsonArray& arr,
-                                                             const BaseInstance* inst)
-{
-    auto profile = (dynamic_cast<const MinecraftInstance*>(inst))->getPackProfile();
-    QString mcVersion = profile->getComponentVersion("net.minecraft");
-    auto loaders = profile->getSupportedModLoaders();
-
-    QList<ModPlatform::IndexedVersion> versions;
-    for (auto versionIter : arr) {
-        auto obj = versionIter.toObject();
-        auto file = loadIndexedPackVersion(obj);
-
-        if (file.fileId.isValid() &&
-            (!loaders.has_value() || !file.loaders || loaders.value() & file.loaders))  // Heuristic to check if the returned value is valid
-            versions.append(file);
-    }
-    auto orderSortPredicate = [](const ModPlatform::IndexedVersion& a, const ModPlatform::IndexedVersion& b) -> bool {
-        // dates are in RFC 3339 format
-        return a.date > b.date;
-    };
-    std::sort(versions.begin(), versions.end(), orderSortPredicate);
-    return versions.length() != 0 ? versions.front() : ModPlatform::IndexedVersion();
 }

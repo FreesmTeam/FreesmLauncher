@@ -2,6 +2,9 @@ name: Nix
 
 on:
   push:
+    branches:
+      - "develop"
+      - "release-*"
     tags:
       - "*"
     paths:
@@ -9,19 +12,20 @@ on:
       - "**.cpp"
       - "**.h"
       - "**.java"
+      - "**.ui"
 
       # Build files
       - "**.nix"
-      - "nix/"
+      - "nix/**"
       - "flake.lock"
 
       # Directories
-      - "buildconfig/"
-      - "cmake/"
-      - "launcher/"
-      - "libraries/"
-      - "program_info/"
-      - "tests/"
+      - "buildconfig/**"
+      - "cmake/**"
+      - "launcher/**"
+      - "libraries/**"
+      - "program_info/**"
+      - "tests/**"
 
       # Files
       - "CMakeLists.txt"
@@ -34,19 +38,21 @@ on:
       # File types
       - "**.cpp"
       - "**.h"
+      - "**.java"
+      - "**.ui"
 
       # Build files
       - "**.nix"
-      - "nix/"
+      - "nix/**"
       - "flake.lock"
 
       # Directories
-      - "buildconfig/"
-      - "cmake/"
-      - "launcher/"
-      - "libraries/"
-      - "program_info/"
-      - "tests/"
+      - "buildconfig/**"
+      - "cmake/**"
+      - "launcher/**"
+      - "libraries/**"
+      - "program_info/**"
+      - "tests/**"
 
       # Files
       - "CMakeLists.txt"
@@ -99,12 +105,12 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           ref: ${{ steps.merge-commit.outputs.merge-commit-sha || github.sha }}
 
       - name: Install Nix
-        uses: DeterminateSystems/nix-installer-action@v17
+        uses: DeterminateSystems/nix-installer-action@v19
         with:
           determinate: ${{ env.USE_DETERMINATE }}
 

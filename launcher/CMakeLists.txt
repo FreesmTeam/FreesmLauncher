@@ -56,7 +56,6 @@ set(CORE_SOURCES
 
     # String filters
     Filter.h
-    Filter.cpp
 
     # JSON parsing helpers
     Json.h
@@ -107,15 +106,6 @@ if (UNIX AND NOT CYGWIN AND NOT APPLE)
     MangoHud.cpp
     )
 endif()
-
-set(PATHMATCHER_SOURCES
-    # Path matchers
-    pathmatcher/FSTreeMatcher.h
-    pathmatcher/IPathMatcher.h
-    pathmatcher/MultiMatcher.h
-    pathmatcher/RegexpMatcher.h
-    pathmatcher/SimplePrefixMatcher.h
-)
 
 set(NET_SOURCES
     # network stuffs
@@ -491,8 +481,11 @@ set(META_SOURCES
 set(API_SOURCES
     modplatform/ModIndex.h
     modplatform/ModIndex.cpp
+    modplatform/ResourceType.h
+    modplatform/ResourceType.cpp
 
     modplatform/ResourceAPI.h
+    modplatform/ResourceAPI.cpp
 
     modplatform/EnsureMetadataTask.h
     modplatform/EnsureMetadataTask.cpp
@@ -503,8 +496,6 @@ set(API_SOURCES
     modplatform/flame/FlameAPI.cpp
     modplatform/modrinth/ModrinthAPI.h
     modplatform/modrinth/ModrinthAPI.cpp
-    modplatform/helpers/NetworkResourceAPI.h
-    modplatform/helpers/NetworkResourceAPI.cpp
     modplatform/helpers/HashUtils.h
     modplatform/helpers/HashUtils.cpp
     modplatform/helpers/OverrideUtils.h
@@ -532,8 +523,6 @@ set(FTB_SOURCES
 
 set(FLAME_SOURCES
     # Flame
-    modplatform/flame/FlamePackIndex.cpp
-    modplatform/flame/FlamePackIndex.h
     modplatform/flame/FlameModIndex.cpp
     modplatform/flame/FlameModIndex.h
     modplatform/flame/PackManifest.h
@@ -551,8 +540,6 @@ set(FLAME_SOURCES
 set(MODRINTH_SOURCES
     modplatform/modrinth/ModrinthPackIndex.cpp
     modplatform/modrinth/ModrinthPackIndex.h
-    modplatform/modrinth/ModrinthPackManifest.cpp
-    modplatform/modrinth/ModrinthPackManifest.h
     modplatform/modrinth/ModrinthCheckUpdate.cpp
     modplatform/modrinth/ModrinthCheckUpdate.h
     modplatform/modrinth/ModrinthInstanceCreationTask.cpp
@@ -755,7 +742,6 @@ endif()
 
 set(LOGIC_SOURCES
     ${CORE_SOURCES}
-    ${PATHMATCHER_SOURCES}
     ${NET_SOURCES}
     ${LAUNCH_SOURCES}
     ${UPDATE_SOURCES}
@@ -1039,8 +1025,6 @@ SET(LAUNCHER_SOURCES
     ui/pages/modplatform/OptionalModDialog.cpp
     ui/pages/modplatform/OptionalModDialog.h
 
-    ui/pages/modplatform/modrinth/ModrinthResourceModels.cpp
-    ui/pages/modplatform/modrinth/ModrinthResourceModels.h
     ui/pages/modplatform/modrinth/ModrinthResourcePages.cpp
     ui/pages/modplatform/modrinth/ModrinthResourcePages.h
 
@@ -1173,6 +1157,13 @@ SET(LAUNCHER_SOURCES
     ui/instanceview/VisualGroup.h
 )
 
+if (APPLE)
+    set(LAUNCHER_SOURCES
+        ${LAUNCHER_SOURCES}
+        ui/themes/ThemeManager.mm
+    )
+endif()
+
 if (NOT Apple)
     set(LAUNCHER_SOURCES
     ${LAUNCHER_SOURCES}
@@ -1303,12 +1294,16 @@ target_link_libraries(Launcher_logic
     Launcher_murmur2
     nbt++
     ${ZLIB_LIBRARIES}
-    tomlplusplus::tomlplusplus
     qdcss
     BuildConfig
     Qt${QT_VERSION_MAJOR}::Widgets
     qrcodegenerator
 )
+if(TARGET PkgConfig::tomlplusplus)
+    target_link_libraries(Launcher_logic PkgConfig::tomlplusplus)
+else()
+    target_link_libraries(Launcher_logic tomlplusplus::tomlplusplus)
+endif()
 
 if (UNIX AND NOT CYGWIN AND NOT APPLE)
     target_link_libraries(Launcher_logic
@@ -1379,11 +1374,17 @@ if(DEFINED Launcher_APP_BINARY_DEFS)
 endif()
 
 install(TARGETS ${Launcher_Name}
+    RUNTIME_DEPENDENCY_SET LAUNCHER_DEPENDENCY_SET
     BUNDLE DESTINATION "." COMPONENT Runtime
     LIBRARY DESTINATION ${LIBRARY_DEST_DIR} COMPONENT Runtime
     RUNTIME DESTINATION ${BINARY_DEST_DIR} COMPONENT Runtime
     FRAMEWORK DESTINATION ${FRAMEWORK_DEST_DIR} COMPONENT Runtime
 )
+
+# Deploy PDBs
+if(WIN32 AND (CMAKE_BUILD_TYPE STREQUAL "Debug" OR CMAKE_BUILD_TYPE STREQUAL "RelWithDebInfo"))
+    install(FILES $<TARGET_PDB_FILE:${Launcher_Name}> DESTINATION ${BINARY_DEST_DIR})
+endif()
 
 if(Launcher_BUILD_UPDATER)
     # Updater
@@ -1418,6 +1419,11 @@ if(Launcher_BUILD_UPDATER)
         RUNTIME DESTINATION ${BINARY_DEST_DIR} COMPONENT Runtime
         FRAMEWORK DESTINATION ${FRAMEWORK_DEST_DIR} COMPONENT Runtime
     )
+
+    # Deploy PDBs
+    if(WIN32 AND (CMAKE_BUILD_TYPE STREQUAL "Debug" OR CMAKE_BUILD_TYPE STREQUAL "RelWithDebInfo"))
+        install(FILES $<TARGET_PDB_FILE:${Launcher_Name}_updater> DESTINATION ${BINARY_DEST_DIR})
+    endif()
 endif()
 
 if(WIN32 OR (DEFINED Launcher_BUILD_FILELINKER AND Launcher_BUILD_FILELINKER))
@@ -1442,6 +1448,12 @@ if(WIN32 OR (DEFINED Launcher_BUILD_FILELINKER AND Launcher_BUILD_FILELINKER))
     add_executable("${Launcher_Name}_filelink" WIN32 filelink/filelink_main.cpp)
 
     target_sources("${Launcher_Name}_filelink" PRIVATE filelink/filelink.exe.manifest)
+    # HACK: Fix manifest issues with Ninja in release mode (and only release mode) and MSVC
+    # I have no idea why this works or why it's needed. UPDATE THIS IF YOU EDIT THE MANIFEST!!! -@getchoo
+    # Thank you 2018 CMake mailing list thread https://cmake.cmake.narkive.com/LnotZXus/conflicting-msvc-manifests
+    if(MSVC)
+        set_property(TARGET "${Launcher_Name}_filelink" PROPERTY LINK_FLAGS "/MANIFESTUAC:level='requireAdministrator'")
+    endif()
 
     target_link_libraries("${Launcher_Name}_filelink" filelink_logic)
 
@@ -1458,6 +1470,11 @@ if(WIN32 OR (DEFINED Launcher_BUILD_FILELINKER AND Launcher_BUILD_FILELINKER))
         RUNTIME DESTINATION ${BINARY_DEST_DIR} COMPONENT Runtime
         FRAMEWORK DESTINATION ${FRAMEWORK_DEST_DIR} COMPONENT Runtime
     )
+
+    # Deploy PDBs
+    if(WIN32 AND (CMAKE_BUILD_TYPE STREQUAL "Debug" OR CMAKE_BUILD_TYPE STREQUAL "RelWithDebInfo"))
+        install(FILES $<TARGET_PDB_FILE:${Launcher_Name}_filelink> DESTINATION ${BINARY_DEST_DIR})
+    endif()
 endif()
 
 if (UNIX AND APPLE AND Launcher_ENABLE_UPDATER)
@@ -1468,186 +1485,64 @@ if (UNIX AND APPLE AND Launcher_ENABLE_UPDATER)
 endif()
 
 #### The bundle mess! ####
-# Bundle utilities are used to complete the portable packages - they add all the libraries that would otherwise be missing on the target system.
+# Bundle utilities are used to complete packages for different platforms - they add all the libraries that would otherwise be missing on the target system.
 # NOTE: it seems that this absolutely has to be here, and nowhere else.
-if(INSTALL_BUNDLE STREQUAL "full")
+if(WIN32 OR (UNIX AND APPLE))
+    if(WIN32)
+        set(QT_DEPLOY_TOOL_OPTIONS "--no-opengl-sw --no-quick-import --no-system-d3d-compiler --no-system-dxc-compiler --skip-plugin-types generic,networkinformation")
+    endif()
+
+    qt_generate_deploy_script(
+        TARGET ${Launcher_Name}
+        OUTPUT_SCRIPT QT_DEPLOY_SCRIPT
+        CONTENT "
+        qt_deploy_runtime_dependencies(
+            EXECUTABLE ${BINARY_DEST_DIR}/$<TARGET_FILE_NAME:${Launcher_Name}>
+            BIN_DIR ${BINARY_DEST_DIR}
+            LIBEXEC_DIR ${LIBRARY_DEST_DIR}
+            LIB_DIR ${LIBRARY_DEST_DIR}
+            PLUGINS_DIR ${PLUGIN_DEST_DIR}
+            NO_OVERWRITE
+            NO_TRANSLATIONS
+            NO_COMPILER_RUNTIME
+            DEPLOY_TOOL_OPTIONS ${QT_DEPLOY_TOOL_OPTIONS}
+        )"
+    )
+
+    # Bundle our linked dependencies
+    install(
+        RUNTIME_DEPENDENCY_SET LAUNCHER_DEPENDENCY_SET
+        COMPONENT bundle
+        DIRECTORIES
+            ${CMAKE_SYSTEM_LIBRARY_PATH}
+            ${QT_LIBS_DIR}
+            ${QT_LIBEXECS_DIR}
+        PRE_EXCLUDE_REGEXES
+            "^(api-ms-win|ext-ms)-.*\\.dll$"
+            # FIXME: Why aren't these caught by the below regex???
+            "^azure.*\\.dll$"
+            "^vcruntime.*\\.dll$"
+        POST_EXCLUDE_REGEXES
+            "system32"
+        LIBRARY DESTINATION ${LIBRARY_DEST_DIR}
+        RUNTIME DESTINATION ${BINARY_DEST_DIR}
+        FRAMEWORK DESTINATION ${FRAMEWORK_DEST_DIR}
+    )
+    # Deploy Qt plugins
+    install(
+        SCRIPT ${QT_DEPLOY_SCRIPT}
+        COMPONENT bundle
+    )
+
     # Add qt.conf - this makes Qt stop looking for things outside the bundle
     install(
         CODE "file(WRITE \"\${CMAKE_INSTALL_PREFIX}/${RESOURCES_DEST_DIR}/qt.conf\" \" \")"
-        COMPONENT Runtime
+        COMPONENT bundle
     )
-    # add qtlogging.ini as a config file
+    # Add qtlogging.ini as a config file
     install(
         FILES "qtlogging.ini"
         DESTINATION ${CMAKE_INSTALL_PREFIX}/${RESOURCES_DEST_DIR}
-        COMPONENT Runtime
+        COMPONENT bundle
     )
-    # Bundle plugins
-    # Image formats
-    install(
-        DIRECTORY "${QT_PLUGINS_DIR}/imageformats"
-        CONFIGURATIONS Debug RelWithDebInfo ""
-        DESTINATION ${PLUGIN_DEST_DIR}
-        COMPONENT Runtime
-        REGEX "tga|tiff|mng" EXCLUDE
-    )
-    install(
-        DIRECTORY "${QT_PLUGINS_DIR}/imageformats"
-        CONFIGURATIONS Release MinSizeRel
-        DESTINATION ${PLUGIN_DEST_DIR}
-        COMPONENT Runtime
-        REGEX "tga|tiff|mng" EXCLUDE
-        REGEX "d\\." EXCLUDE
-        REGEX "_debug\\." EXCLUDE
-        REGEX "\\.dSYM" EXCLUDE
-    )
-    # Icon engines
-    install(
-        DIRECTORY "${QT_PLUGINS_DIR}/iconengines"
-        CONFIGURATIONS Debug RelWithDebInfo ""
-        DESTINATION ${PLUGIN_DEST_DIR}
-        COMPONENT Runtime
-        REGEX "fontawesome" EXCLUDE
-    )
-    install(
-        DIRECTORY "${QT_PLUGINS_DIR}/iconengines"
-        CONFIGURATIONS Release MinSizeRel
-        DESTINATION ${PLUGIN_DEST_DIR}
-        COMPONENT Runtime
-        REGEX "fontawesome" EXCLUDE
-        REGEX "d\\." EXCLUDE
-        REGEX "_debug\\." EXCLUDE
-        REGEX "\\.dSYM" EXCLUDE
-    )
-    # Platform plugins
-    install(
-        DIRECTORY "${QT_PLUGINS_DIR}/platforms"
-        CONFIGURATIONS Debug RelWithDebInfo ""
-        DESTINATION ${PLUGIN_DEST_DIR}
-        COMPONENT Runtime
-        REGEX "minimal|linuxfb|offscreen" EXCLUDE
-    )
-    install(
-        DIRECTORY "${QT_PLUGINS_DIR}/platforms"
-        CONFIGURATIONS Release MinSizeRel
-        DESTINATION ${PLUGIN_DEST_DIR}
-        COMPONENT Runtime
-        REGEX "minimal|linuxfb|offscreen" EXCLUDE
-        REGEX "[^2]d\\." EXCLUDE
-        REGEX "_debug\\." EXCLUDE
-        REGEX "\\.dSYM" EXCLUDE
-    )
-    # Style plugins
-    if(EXISTS "${QT_PLUGINS_DIR}/styles")
-        install(
-            DIRECTORY "${QT_PLUGINS_DIR}/styles"
-            CONFIGURATIONS Debug RelWithDebInfo ""
-            DESTINATION ${PLUGIN_DEST_DIR}
-            COMPONENT Runtime
-        )
-        install(
-            DIRECTORY "${QT_PLUGINS_DIR}/styles"
-            CONFIGURATIONS Release MinSizeRel
-            DESTINATION ${PLUGIN_DEST_DIR}
-            COMPONENT Runtime
-            REGEX "d\\." EXCLUDE
-            REGEX "_debug\\." EXCLUDE
-            REGEX "\\.dSYM" EXCLUDE
-        )
-    endif()
-    # TLS plugins (Qt 6 only)
-    if(EXISTS "${QT_PLUGINS_DIR}/tls")
-        install(
-            DIRECTORY "${QT_PLUGINS_DIR}/tls"
-            CONFIGURATIONS Debug RelWithDebInfo ""
-            DESTINATION ${PLUGIN_DEST_DIR}
-            COMPONENT Runtime
-            PATTERN "*qcertonlybackend*" EXCLUDE
-        )
-        install(
-            DIRECTORY "${QT_PLUGINS_DIR}/tls"
-            CONFIGURATIONS Release MinSizeRel
-            DESTINATION ${PLUGIN_DEST_DIR}
-            COMPONENT Runtime
-            REGEX "dd\\." EXCLUDE
-            REGEX "_debug\\." EXCLUDE
-            REGEX "\\.dSYM" EXCLUDE
-            PATTERN "*qcertonlybackend*" EXCLUDE
-        )
-    endif()
-    # Wayland support
-    if(EXISTS "${QT_PLUGINS_DIR}/wayland-graphics-integration-client")
-        install(
-            DIRECTORY "${QT_PLUGINS_DIR}/wayland-graphics-integration-client"
-            CONFIGURATIONS Debug RelWithDebInfo ""
-            DESTINATION ${PLUGIN_DEST_DIR}
-            COMPONENT Runtime
-        )
-        install(
-            DIRECTORY "${QT_PLUGINS_DIR}/wayland-graphics-integration-client"
-            CONFIGURATIONS Release MinSizeRel
-            DESTINATION ${PLUGIN_DEST_DIR}
-            COMPONENT Runtime
-            REGEX "dd\\." EXCLUDE
-            REGEX "_debug\\." EXCLUDE
-            REGEX "\\.dSYM" EXCLUDE
-        )
-    endif()
-    if(EXISTS "${QT_PLUGINS_DIR}/wayland-graphics-integration-server")
-        install(
-            DIRECTORY "${QT_PLUGINS_DIR}/wayland-graphics-integration-server"
-            CONFIGURATIONS Debug RelWithDebInfo ""
-            DESTINATION ${PLUGIN_DEST_DIR}
-            COMPONENT Runtime
-        )
-        install(
-            DIRECTORY "${QT_PLUGINS_DIR}/wayland-graphics-integration-server"
-            CONFIGURATIONS Release MinSizeRel
-            DESTINATION ${PLUGIN_DEST_DIR}
-            COMPONENT Runtime
-            REGEX "dd\\." EXCLUDE
-            REGEX "_debug\\." EXCLUDE
-            REGEX "\\.dSYM" EXCLUDE
-        )
-    endif()
-    if(EXISTS "${QT_PLUGINS_DIR}/wayland-decoration-client")
-        install(
-            DIRECTORY "${QT_PLUGINS_DIR}/wayland-decoration-client"
-            CONFIGURATIONS Debug RelWithDebInfo ""
-            DESTINATION ${PLUGIN_DEST_DIR}
-            COMPONENT Runtime
-        )
-        install(
-            DIRECTORY "${QT_PLUGINS_DIR}/wayland-decoration-client"
-            CONFIGURATIONS Release MinSizeRel
-            DESTINATION ${PLUGIN_DEST_DIR}
-            COMPONENT Runtime
-            REGEX "dd\\." EXCLUDE
-            REGEX "_debug\\." EXCLUDE
-            REGEX "\\.dSYM" EXCLUDE
-        )
-    endif()
-    if(EXISTS "${QT_PLUGINS_DIR}/wayland-shell-integration")
-        install(
-            DIRECTORY "${QT_PLUGINS_DIR}/wayland-shell-integration"
-            CONFIGURATIONS Debug RelWithDebInfo ""
-            DESTINATION ${PLUGIN_DEST_DIR}
-            COMPONENT Runtime
-        )
-        install(
-            DIRECTORY "${QT_PLUGINS_DIR}/wayland-shell-integration"
-            CONFIGURATIONS Release MinSizeRel
-            DESTINATION ${PLUGIN_DEST_DIR}
-            COMPONENT Runtime
-            REGEX "dd\\." EXCLUDE
-            REGEX "_debug\\." EXCLUDE
-            REGEX "\\.dSYM" EXCLUDE
-        )
-    endif()
-    configure_file(
-        "${CMAKE_CURRENT_SOURCE_DIR}/install_prereqs.cmake.in"
-        "${CMAKE_CURRENT_BINARY_DIR}/install_prereqs.cmake"
-        @ONLY
-    )
-    install(SCRIPT "${CMAKE_CURRENT_BINARY_DIR}/install_prereqs.cmake" COMPONENT Runtime)
 endif()

@@ -69,7 +69,7 @@ class ResourcePackParseTest : public QObject {
 
         QVERIFY(pack.packFormat() == 6);
         QVERIFY(pack.description() == "o quartel pegou fogo, policia deu sinal, acode acode acode a bandeira nacional");
-        QVERIFY(valid == false);  // no assets dir
+        QVERIFY(valid == true);  // no assets dir but it is still valid based on https://minecraft.wiki/w/Resource_pack
     }
 };
 

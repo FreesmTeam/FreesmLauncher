@@ -38,8 +38,6 @@
 
 #pragma once
 
-#include "Application.h"
-
 #include "modplatform/ResourceAPI.h"
 
 #include "ui/pages/modplatform/DataPackPage.h"
@@ -57,7 +55,7 @@ static inline QString displayName()
 }
 static inline QIcon icon()
 {
-    return APPLICATION->getThemedIcon("modrinth");
+    return QIcon::fromTheme("modrinth");
 }
 static inline QString id()
 {
@@ -85,15 +83,15 @@ class ModrinthModPage : public ModPage {
     ModrinthModPage(ModDownloadDialog* dialog, BaseInstance& instance);
     ~ModrinthModPage() override = default;
 
-    [[nodiscard]] bool shouldDisplay() const override;
+    bool shouldDisplay() const override;
 
-    [[nodiscard]] inline auto displayName() const -> QString override { return Modrinth::displayName(); }
-    [[nodiscard]] inline auto icon() const -> QIcon override { return Modrinth::icon(); }
-    [[nodiscard]] inline auto id() const -> QString override { return Modrinth::id(); }
-    [[nodiscard]] inline auto debugName() const -> QString override { return Modrinth::debugName(); }
-    [[nodiscard]] inline auto metaEntryBase() const -> QString override { return Modrinth::metaEntryBase(); }
+    inline auto displayName() const -> QString override { return Modrinth::displayName(); }
+    inline auto icon() const -> QIcon override { return Modrinth::icon(); }
+    inline auto id() const -> QString override { return Modrinth::id(); }
+    inline auto debugName() const -> QString override { return Modrinth::debugName(); }
+    inline auto metaEntryBase() const -> QString override { return Modrinth::metaEntryBase(); }
 
-    [[nodiscard]] inline auto helpPage() const -> QString override { return "Mod-platform"; }
+    inline auto helpPage() const -> QString override { return "Mod-platform"; }
 
     std::unique_ptr<ModFilterWidget> createFilterWidget() override;
 
@@ -114,15 +112,15 @@ class ModrinthResourcePackPage : public ResourcePackResourcePage {
     ModrinthResourcePackPage(ResourcePackDownloadDialog* dialog, BaseInstance& instance);
     ~ModrinthResourcePackPage() override = default;
 
-    [[nodiscard]] bool shouldDisplay() const override;
+    bool shouldDisplay() const override;
 
-    [[nodiscard]] inline auto displayName() const -> QString override { return Modrinth::displayName(); }
-    [[nodiscard]] inline auto icon() const -> QIcon override { return Modrinth::icon(); }
-    [[nodiscard]] inline auto id() const -> QString override { return Modrinth::id(); }
-    [[nodiscard]] inline auto debugName() const -> QString override { return Modrinth::debugName(); }
-    [[nodiscard]] inline auto metaEntryBase() const -> QString override { return Modrinth::metaEntryBase(); }
+    inline auto displayName() const -> QString override { return Modrinth::displayName(); }
+    inline auto icon() const -> QIcon override { return Modrinth::icon(); }
+    inline auto id() const -> QString override { return Modrinth::id(); }
+    inline auto debugName() const -> QString override { return Modrinth::debugName(); }
+    inline auto metaEntryBase() const -> QString override { return Modrinth::metaEntryBase(); }
 
-    [[nodiscard]] inline auto helpPage() const -> QString override { return ""; }
+    inline auto helpPage() const -> QString override { return ""; }
 };
 
 class ModrinthTexturePackPage : public TexturePackResourcePage {
@@ -137,15 +135,15 @@ class ModrinthTexturePackPage : public TexturePackResourcePage {
     ModrinthTexturePackPage(TexturePackDownloadDialog* dialog, BaseInstance& instance);
     ~ModrinthTexturePackPage() override = default;
 
-    [[nodiscard]] bool shouldDisplay() const override;
+    bool shouldDisplay() const override;
 
-    [[nodiscard]] inline auto displayName() const -> QString override { return Modrinth::displayName(); }
-    [[nodiscard]] inline auto icon() const -> QIcon override { return Modrinth::icon(); }
-    [[nodiscard]] inline auto id() const -> QString override { return Modrinth::id(); }
-    [[nodiscard]] inline auto debugName() const -> QString override { return Modrinth::debugName(); }
-    [[nodiscard]] inline auto metaEntryBase() const -> QString override { return Modrinth::metaEntryBase(); }
+    inline auto displayName() const -> QString override { return Modrinth::displayName(); }
+    inline auto icon() const -> QIcon override { return Modrinth::icon(); }
+    inline auto id() const -> QString override { return Modrinth::id(); }
+    inline auto debugName() const -> QString override { return Modrinth::debugName(); }
+    inline auto metaEntryBase() const -> QString override { return Modrinth::metaEntryBase(); }
 
-    [[nodiscard]] inline auto helpPage() const -> QString override { return ""; }
+    inline auto helpPage() const -> QString override { return ""; }
 };
 
 class ModrinthShaderPackPage : public ShaderPackResourcePage {
@@ -160,15 +158,15 @@ class ModrinthShaderPackPage : public ShaderPackResourcePage {
     ModrinthShaderPackPage(ShaderPackDownloadDialog* dialog, BaseInstance& instance);
     ~ModrinthShaderPackPage() override = default;
 
-    [[nodiscard]] bool shouldDisplay() const override;
+    bool shouldDisplay() const override;
 
-    [[nodiscard]] inline auto displayName() const -> QString override { return Modrinth::displayName(); }
-    [[nodiscard]] inline auto icon() const -> QIcon override { return Modrinth::icon(); }
-    [[nodiscard]] inline auto id() const -> QString override { return Modrinth::id(); }
-    [[nodiscard]] inline auto debugName() const -> QString override { return Modrinth::debugName(); }
-    [[nodiscard]] inline auto metaEntryBase() const -> QString override { return Modrinth::metaEntryBase(); }
+    inline auto displayName() const -> QString override { return Modrinth::displayName(); }
+    inline auto icon() const -> QIcon override { return Modrinth::icon(); }
+    inline auto id() const -> QString override { return Modrinth::id(); }
+    inline auto debugName() const -> QString override { return Modrinth::debugName(); }
+    inline auto metaEntryBase() const -> QString override { return Modrinth::metaEntryBase(); }
 
-    [[nodiscard]] inline auto helpPage() const -> QString override { return ""; }
+    inline auto helpPage() const -> QString override { return ""; }
 };
 
 class ModrinthDataPackPage : public DataPackResourcePage {
@@ -183,15 +181,15 @@ class ModrinthDataPackPage : public DataPackResourcePage {
     ModrinthDataPackPage(DataPackDownloadDialog* dialog, BaseInstance& instance);
     ~ModrinthDataPackPage() override = default;
 
-    [[nodiscard]] bool shouldDisplay() const override;
+    bool shouldDisplay() const override;
 
-    [[nodiscard]] inline auto displayName() const -> QString override { return Modrinth::displayName(); }
-    [[nodiscard]] inline auto icon() const -> QIcon override { return Modrinth::icon(); }
-    [[nodiscard]] inline auto id() const -> QString override { return Modrinth::id(); }
-    [[nodiscard]] inline auto debugName() const -> QString override { return Modrinth::debugName(); }
-    [[nodiscard]] inline auto metaEntryBase() const -> QString override { return Modrinth::metaEntryBase(); }
+    inline auto displayName() const -> QString override { return Modrinth::displayName(); }
+    inline auto icon() const -> QIcon override { return Modrinth::icon(); }
+    inline auto id() const -> QString override { return Modrinth::id(); }
+    inline auto debugName() const -> QString override { return Modrinth::debugName(); }
+    inline auto metaEntryBase() const -> QString override { return Modrinth::metaEntryBase(); }
 
-    [[nodiscard]] inline auto helpPage() const -> QString override { return ""; }
+    inline auto helpPage() const -> QString override { return ""; }
 };
 
 }  // namespace ResourceDownload

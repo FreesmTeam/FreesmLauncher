@@ -3,8 +3,8 @@
 #include <QtConcurrentRun>
 #include <memory>
 #include "FileSystem.h"
+#include "Filter.h"
 #include "NullInstance.h"
-#include "pathmatcher/RegexpMatcher.h"
 #include "settings/INISettingsObject.h"
 #include "tasks/Task.h"
 
@@ -30,9 +30,8 @@ InstanceCopyTask::InstanceCopyTask(InstancePtr origInstance, const InstanceCopyP
     if (!filters.isEmpty()) {
         // Set regex filter:
         // FIXME: get this from the original instance type...
-        auto matcherReal = new RegexpMatcher(filters);
-        matcherReal->caseSensitive(false);
-        m_matcher.reset(matcherReal);
+        QRegularExpression regexp(filters, QRegularExpression::CaseInsensitiveOption);
+        m_matcher = Filters::regexp(regexp);
     }
 }
 

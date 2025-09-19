@@ -8,8 +8,8 @@
 
 namespace ResourceDownload {
 
-ShaderPackResourceModel::ShaderPackResourceModel(BaseInstance const& base_inst, ResourceAPI* api)
-    : ResourceModel(api), m_base_instance(base_inst)
+ShaderPackResourceModel::ShaderPackResourceModel(BaseInstance const& base_inst, ResourceAPI* api, QString debugName, QString metaEntryBase)
+    : ResourceModel(api), m_base_instance(base_inst), m_debugName(debugName + " (Model)"), m_metaEntryBase(metaEntryBase)
 {}
 
 /******** Make data requests ********/
@@ -17,13 +17,13 @@ ShaderPackResourceModel::ShaderPackResourceModel(BaseInstance const& base_inst, 
 ResourceAPI::SearchArgs ShaderPackResourceModel::createSearchArguments()
 {
     auto sort = getCurrentSortingMethodByIndex();
-    return { ModPlatform::ResourceType::SHADER_PACK, m_next_search_offset, m_search_term, sort };
+    return { ModPlatform::ResourceType::ShaderPack, m_next_search_offset, m_search_term, sort };
 }
 
 ResourceAPI::VersionSearchArgs ShaderPackResourceModel::createVersionsArguments(const QModelIndex& entry)
 {
     auto& pack = m_packs[entry.row()];
-    return { *pack };
+    return { *pack, {}, {}, ModPlatform::ResourceType::ShaderPack };
 }
 
 ResourceAPI::ProjectInfoArgs ShaderPackResourceModel::createInfoArguments(const QModelIndex& entry)

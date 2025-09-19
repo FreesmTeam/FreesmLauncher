@@ -13,9 +13,9 @@ class TexturePackResourceModel : public ResourcePackResourceModel {
     Q_OBJECT
 
    public:
-    TexturePackResourceModel(BaseInstance const& inst, ResourceAPI* api);
+    TexturePackResourceModel(BaseInstance const& inst, ResourceAPI* api, QString debugName, QString metaEntryBase);
 
-    [[nodiscard]] inline ::Version maximumTexturePackVersion() const { return { "1.6" }; }
+    inline ::Version maximumTexturePackVersion() const { return { "1.6" }; }
 
     ResourceAPI::SearchArgs createSearchArguments() override;
     ResourceAPI::VersionSearchArgs createVersionsArguments(const QModelIndex&) override;

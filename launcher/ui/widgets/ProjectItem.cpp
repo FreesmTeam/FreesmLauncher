@@ -20,9 +20,6 @@ void ProjectItemDelegate::paint(QPainter* painter, const QStyleOptionViewItem& o
     auto isChecked = opt.checkState == Qt::Checked;
     auto isSelected = option.state & QStyle::State_Selected;
 
-    if (!isSelected && !isChecked && isInstalled) {
-        painter->setOpacity(0.4);  // Fade out the entire item
-    }
     const QStyle* style = opt.widget == nullptr ? QApplication::style() : opt.widget->style();
 
     auto rect = opt.rect;
@@ -39,6 +36,9 @@ void ProjectItemDelegate::paint(QPainter* painter, const QStyleOptionViewItem& o
         rect.setX(checkboxOpt.rect.right());
     }
 
+    if (!isSelected && !isChecked && isInstalled) {
+        painter->setOpacity(0.4);  // Fade out the entire item
+    }
     // The default icon size will be a square (and height is usually the lower value).
     auto icon_width = rect.height(), icon_height = rect.height();
     int icon_x_margin = (rect.height() - icon_width) / 2;

@@ -2,21 +2,23 @@ name: Build
 
 on:
   push:
-    branches-ignore:
-      - "renovate/**"
+    branches:
+      - "develop"
+      - "release-*"
     paths:
       # File types
       - "**.cpp"
       - "**.h"
       - "**.java"
+      - "**.ui"
 
       # Directories
-      - "buildconfig/"
-      - "cmake/"
-      - "launcher/"
-      - "libraries/"
-      - "program_info/"
-      - "tests/"
+      - "buildconfig/**"
+      - "cmake/**"
+      - "launcher/**"
+      - "libraries/**"
+      - "program_info/**"
+      - "tests/**"
 
       # Files
       - "CMakeLists.txt"
@@ -24,21 +26,23 @@ on:
 
       # Workflows
       - ".github/workflows/build.yml"
-      - ".github/actions/package/"
-      - ".github/actions/setup-dependencies/"
+      - ".github/actions/package/**"
+      - ".github/actions/setup-dependencies/**"
   pull_request:
     paths:
       # File types
       - "**.cpp"
       - "**.h"
+      - "**.java"
+      - "**.ui"
 
       # Directories
-      - "buildconfig/"
-      - "cmake/"
-      - "launcher/"
-      - "libraries/"
-      - "program_info/"
-      - "tests/"
+      - "buildconfig/**"
+      - "cmake/**"
+      - "launcher/**"
+      - "libraries/**"
+      - "program_info/**"
+      - "tests/**"
 
       # Files
       - "CMakeLists.txt"
@@ -46,8 +50,8 @@ on:
 
       # Workflows
       - ".github/workflows/build.yml"
-      - ".github/actions/package/"
-      - ".github/actions/setup-dependencies/"
+      - ".github/actions/package/**"
+      - ".github/actions/setup-dependencies/**"
   workflow_call:
     inputs:
       build-type:
@@ -65,12 +69,24 @@ jobs:
   build:
     name: Build (${{ matrix.artifact-name }})
 
+    permissions:
+      # Required for vcpkg binary cache
+      packages: write
+
     strategy:
       fail-fast: false
       matrix:
         include:
           - os: ubuntu-22.04
             artifact-name: Linux
+            base-cmake-preset: linux
+
+            # NOTE(@getchoo): Yes, we're intentionally using 24.04 here!!!
+            #
+            # It's not really documented anywhere AFAICT, but upstream Qt binaries
+            # *for the same version* are compiled against 24.04 on ARM, and *not* 22.04 like x64
+          - os: ubuntu-24.04-arm
+            artifact-name: Linux-aarch64
             base-cmake-preset: linux
 
           - os: windows-2022
@@ -117,7 +133,7 @@ jobs:
       ##
 
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           submodules: true
 
@@ -126,6 +142,7 @@ jobs:
         uses: ./.github/actions/setup-dependencies
         with:
           build-type: ${{ inputs.build-type || 'Debug' }}
+          artifact-name: ${{ matrix.artifact-name }}
           msystem: ${{ matrix.msystem }}
           vcvars-arch: ${{ matrix.vcvars-arch }}
           qt-architecture: ${{ matrix.qt-architecture }}
@@ -145,6 +162,9 @@ jobs:
       - name: Run CMake workflow
         env:
           CMAKE_PRESET: ${{ steps.cmake-preset.outputs.preset }}
+
+          ARTIFACT_NAME: ${{ matrix.artifact-name }}-Qt6
+          BUILD_PLATFORM: official
         run: |
           cmake --workflow --preset "$CMAKE_PRESET"
 
@@ -164,6 +184,7 @@ jobs:
         with:
           version: ${{ steps.short-version.outputs.version }}
           build-type: ${{ steps.setup-dependencies.outputs.build-type }}
+          artifact-name: ${{ matrix.artifact-name }}
           cmake-preset: ${{ steps.cmake-preset.outputs.preset }}
           qt-version: ${{ steps.setup-dependencies.outputs.qt-version }}
 

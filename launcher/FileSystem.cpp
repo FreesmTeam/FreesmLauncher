@@ -331,7 +331,7 @@ bool copy::operator()(const QString& offset, bool dryRun)
 
     // Function that'll do the actual copying
     auto copy_file = [this, dryRun, src, dst, opt, &err](QString src_path, QString relative_dst_path) {
-        if (m_matcher && (m_matcher->matches(relative_dst_path) != m_whitelist))
+        if (m_matcher && (m_matcher(relative_dst_path) != m_whitelist))
             return;
 
         auto dst_path = PathCombine(dst, relative_dst_path);
@@ -418,7 +418,7 @@ void create_link::make_link_list(const QString& offset)
 
         // Function that'll do the actual linking
         auto link_file = [this, dst](QString src_path, QString relative_dst_path) {
-            if (m_matcher && (m_matcher->matches(relative_dst_path) != m_whitelist)) {
+            if (m_matcher && (m_matcher(relative_dst_path) != m_whitelist)) {
                 qDebug() << "path" << relative_dst_path << "in black list or not in whitelist";
                 return;
             }
@@ -897,6 +897,29 @@ QString getApplicationsDir()
     return QStandardPaths::writableLocation(QStandardPaths::ApplicationsLocation);
 }
 
+QString quoteArgs(const QStringList& args, const QString& wrap, const QString& escapeChar, bool wrapOnlyIfNeeded = false)
+{
+    QString result;
+
+    auto size = args.size();
+    for (int i = 0; i < size; ++i) {
+        QString arg = args[i];
+        arg.replace(wrap, escapeChar);
+
+        bool needsWrapping = !wrapOnlyIfNeeded || arg.contains(' ') || arg.contains('\t') || arg.contains(wrap);
+
+        if (needsWrapping)
+            result += wrap + arg + wrap;
+        else
+            result += arg;
+
+        if (i < size - 1)
+            result += ' ';
+    }
+
+    return result;
+}
+
 // Cross-platform Shortcut creation
 QString createShortcut(QString destination, QString target, QStringList args, QString name, QString icon)
 {
@@ -940,9 +963,7 @@ QString createShortcut(QString destination, QString target, QStringList args, QS
     f.open(QIODevice::WriteOnly | QIODevice::Text);
     QTextStream stream(&f);
 
-    QString argstring;
-    if (!args.empty())
-        argstring = " \"" + args.join("\" \"") + "\"";
+    auto argstring = quoteArgs(args, "\"", "\\\"");
 
     stream << "#!/bin/bash" << "\n";
     stream << "\"" << target << "\" " << argstring << "\n";
@@ -984,14 +1005,12 @@ QString createShortcut(QString destination, QString target, QStringList args, QS
     f.open(QIODevice::WriteOnly | QIODevice::Text);
     QTextStream stream(&f);
 
-    QString argstring;
-    if (!args.empty())
-        argstring = " '" + args.join("' '") + "'";
+    auto argstring = quoteArgs(args, "'", "'\\''");
 
     stream << "[Desktop Entry]" << "\n";
     stream << "Type=Application" << "\n";
     stream << "Categories=Game;ActionGame;AdventureGame;Simulation" << "\n";
-    stream << "Exec=\"" << target.toLocal8Bit() << "\"" << argstring.toLocal8Bit() << "\n";
+    stream << "Exec=\"" << target.toLocal8Bit() << "\" " << argstring.toLocal8Bit() << "\n";
     stream << "Name=" << name.toLocal8Bit() << "\n";
     if (!icon.isEmpty()) {
         stream << "Icon=" << icon.toLocal8Bit() << "\n";
@@ -1030,20 +1049,7 @@ QString createShortcut(QString destination, QString target, QStringList args, QS
         return QString();
     }
 
-    QString argStr;
-    int argCount = args.count();
-    for (int i = 0; i < argCount; i++) {
-        if (args[i].contains(' ')) {
-            argStr.append('"').append(args[i]).append('"');
-        } else {
-            argStr.append(args[i]);
-        }
-
-        if (i < argCount - 1) {
-            argStr.append(" ");
-        }
-    }
-
+    auto argStr = quoteArgs(args, "\"", "\\\"", true);
     if (argStr.length() >= MAX_PATH) {
         qWarning() << "Arguments string is too long!";
         return QString();
@@ -1271,7 +1277,7 @@ bool clone::operator()(const QString& offset, bool dryRun)
 
     // Function that'll do the actual cloneing
     auto cloneFile = [this, dryRun, dst, &err](QString src_path, QString relative_dst_path) {
-        if (m_matcher && (m_matcher->matches(relative_dst_path) != m_whitelist))
+        if (m_matcher && (m_matcher(relative_dst_path) != m_whitelist))
             return;
 
         auto dst_path = PathCombine(dst, relative_dst_path);
