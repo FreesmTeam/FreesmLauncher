@@ -85,7 +85,7 @@ QJsonObject Rule::toJson()
 
 Rule::Action Rule::apply(const RuntimeContext& runtimeContext)
 {
-    if (!runtimeContext.classifierMatches(m_os->name))
+    if (m_os.has_value() && !runtimeContext.classifierMatches(m_os->name))
         return Defer;
 
     return m_action;
