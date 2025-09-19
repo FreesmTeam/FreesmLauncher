@@ -85,7 +85,6 @@
 #include "AssetsUtils.h"
 #include "MinecraftLoadAndCheck.h"
 #include "PackProfile.h"
-#include "minecraft/gameoptions/GameOptions.h"
 #include "minecraft/update/FoldersTask.h"
 
 #include "tools/BaseProfiler.h"
@@ -1285,14 +1284,6 @@ std::shared_ptr<WorldList> MinecraftInstance::worldList()
         m_world_list.reset(new WorldList(worldDir(), this));
     }
     return m_world_list;
-}
-
-std::shared_ptr<GameOptions> MinecraftInstance::gameOptionsModel()
-{
-    if (!m_game_options) {
-        m_game_options.reset(new GameOptions(FS::PathCombine(gameRoot(), "options.txt")));
-    }
-    return m_game_options;
 }
 
 QList<Mod*> MinecraftInstance::getJarMods() const

@@ -49,7 +49,6 @@ class ResourcePackFolderModel;
 class ShaderPackFolderModel;
 class TexturePackFolderModel;
 class WorldList;
-class GameOptions;
 class LaunchStep;
 class PackProfile;
 
@@ -121,7 +120,6 @@ class MinecraftInstance : public BaseInstance {
     std::shared_ptr<DataPackFolderModel> dataPackList();
     QList<std::shared_ptr<ResourceFolderModel>> resourceLists();
     std::shared_ptr<WorldList> worldList();
-    std::shared_ptr<GameOptions> gameOptionsModel();
 
     //////  Launch stuff //////
     QList<Task::Ptr> createUpdateTask() override;
@@ -171,7 +169,6 @@ class MinecraftInstance : public BaseInstance {
     mutable std::shared_ptr<TexturePackFolderModel> m_texture_pack_list;
     mutable std::shared_ptr<DataPackFolderModel> m_data_pack_list;
     mutable std::shared_ptr<WorldList> m_world_list;
-    mutable std::shared_ptr<GameOptions> m_game_options;
 };
 
 using MinecraftInstancePtr = std::shared_ptr<MinecraftInstance>;
