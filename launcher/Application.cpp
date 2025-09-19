@@ -1489,12 +1489,9 @@ std::shared_ptr<JavaInstallList> Application::javalist()
     return m_javalist;
 }
 
-QIcon Application::getThemedIcon(const QString& name)
+QIcon Application::logo()
 {
-    if (name == "logo") {
-        return QIcon(":/" + BuildConfig.LAUNCHER_SVGFILENAME);
-    }
-    return QIcon::fromTheme(name);
+    return QIcon(":/" + BuildConfig.LAUNCHER_SVGFILENAME);
 }
 
 bool Application::openJsonEditor(const QString& filename)

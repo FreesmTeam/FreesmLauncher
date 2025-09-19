@@ -147,7 +147,7 @@ AboutDialog::AboutDialog(QWidget* parent) : QDialog(parent), ui(new Ui::AboutDia
 
     ui->urlLabel->setOpenExternalLinks(true);
 
-    ui->icon->setPixmap(APPLICATION->getThemedIcon("logo").pixmap(64));
+    ui->icon->setPixmap(APPLICATION->logo().pixmap(64));
     ui->title->setText(launcherName);
 
     ui->versionLabel->setText(BuildConfig.printableVersionString());

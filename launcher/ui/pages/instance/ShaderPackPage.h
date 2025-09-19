@@ -48,7 +48,7 @@ class ShaderPackPage : public ExternalResourcesPage {
     ~ShaderPackPage() override = default;
 
     QString displayName() const override { return tr("Shader Packs"); }
-    QIcon icon() const override { return APPLICATION->getThemedIcon("shaderpacks"); }
+    QIcon icon() const override { return QIcon::fromTheme("shaderpacks"); }
     QString id() const override { return "shaderpacks"; }
     QString helpPage() const override { return "shader-packs"; }
 

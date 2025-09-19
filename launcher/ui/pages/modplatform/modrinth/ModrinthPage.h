@@ -36,7 +36,6 @@
 
 #pragma once
 
-#include "Application.h"
 #include "modplatform/ModIndex.h"
 #include "modplatform/modrinth/ModrinthAPI.h"
 #include "ui/dialogs/NewInstanceDialog.h"
@@ -64,7 +63,7 @@ class ModrinthPage : public QWidget, public ModpackProviderBasePage {
     ~ModrinthPage() override;
 
     QString displayName() const override { return tr("Modrinth"); }
-    QIcon icon() const override { return APPLICATION->getThemedIcon("modrinth"); }
+    QIcon icon() const override { return QIcon::fromTheme("modrinth"); }
     QString id() const override { return "modrinth"; }
     QString helpPage() const override { return "Modrinth-platform"; }
 

@@ -500,7 +500,7 @@ void MinecraftSettingsWidget::updateAccountsMenu(const SettingsObject& settings)
         QIcon face = account->getFace();
 
         if (face.isNull())
-            face = APPLICATION->getThemedIcon("noaccount");
+            face = QIcon::fromTheme("noaccount");
 
         m_ui->instanceAccountSelector->addItem(face, account->profileName(), i);
         if (i == accountIndex)

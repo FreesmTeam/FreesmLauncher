@@ -228,7 +228,7 @@ void PageContainer::showPage(int row)
     } else {
         m_pageStack->setCurrentIndex(0);
         m_header->setText(QString());
-        m_iconHeader->setIcon(APPLICATION->getThemedIcon("bug"));
+        m_iconHeader->setIcon(QIcon::fromTheme("bug"));
     }
 }
 

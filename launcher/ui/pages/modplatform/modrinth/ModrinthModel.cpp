@@ -36,6 +36,7 @@
 
 #include "ModrinthModel.h"
 
+#include "Application.h"
 #include "BuildConfig.h"
 #include "Json.h"
 #include "modplatform/ModIndex.h"
@@ -91,7 +92,7 @@ auto ModpackListModel::data(const QModelIndex& index, int role) const -> QVarian
             if (m_logoMap.contains(pack->logoName))
                 return m_logoMap.value(pack->logoName);
 
-            QIcon icon = APPLICATION->getThemedIcon("screenshot-placeholder");
+            QIcon icon = QIcon::fromTheme("screenshot-placeholder");
             ((ModpackListModel*)this)->requestLogo(pack->logoName, pack->logoUrl);
             return icon;
         }

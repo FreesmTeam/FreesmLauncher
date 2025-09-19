@@ -166,7 +166,7 @@ QString ManagedPackPage::displayName() const
 
 QIcon ManagedPackPage::icon() const
 {
-    return APPLICATION->getThemedIcon(m_inst->getManagedPackType());
+    return QIcon::fromTheme(m_inst->getManagedPackType());
 }
 
 QString ManagedPackPage::helpPage() const

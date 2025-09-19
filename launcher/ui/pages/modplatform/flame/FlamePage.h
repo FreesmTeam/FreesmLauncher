@@ -37,7 +37,6 @@
 
 #include <QWidget>
 
-#include <Application.h>
 #include <QTimer>
 #include "modplatform/ModIndex.h"
 #include "ui/pages/modplatform/ModpackProviderBasePage.h"
@@ -61,7 +60,7 @@ class FlamePage : public QWidget, public ModpackProviderBasePage {
     explicit FlamePage(NewInstanceDialog* dialog, QWidget* parent = 0);
     virtual ~FlamePage();
     virtual QString displayName() const override { return "CurseForge"; }
-    virtual QIcon icon() const override { return APPLICATION->getThemedIcon("flame"); }
+    virtual QIcon icon() const override { return QIcon::fromTheme("flame"); }
     virtual QString id() const override { return "flame"; }
     virtual QString helpPage() const override { return "Flame-platform"; }
     virtual bool shouldDisplay() const override;
