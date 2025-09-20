@@ -38,4 +38,5 @@ class ApplyLibraryOverrides : public LaunchStep {
     std::shared_ptr<QByteArray> m_response = std::make_shared<QByteArray>();
     Net::Download::Ptr m_request;
     NetJob::Ptr m_task;
+    bool m_isFirstDownloadTry = true;
 };
