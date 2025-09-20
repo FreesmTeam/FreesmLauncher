@@ -24,6 +24,7 @@
 #include "ui/dialogs/ProgressDialog.h"
 #include "ui_ExportPackDialog.h"
 
+#include <QDir>
 #include <QFileDialog>
 #include <QFileSystemModel>
 #include <QJsonDocument>
@@ -145,12 +146,17 @@ void ExportPackDialog::done(int result)
         }
 
         Task* task;
+        // The filter considers the instance folder to be the root folder, while MMCZip considers the root game folder to be the root
+        // folder.
+        const QString gameFolder = QDir(m_instance->instanceRoot()).relativeFilePath(m_instance->gameRoot());
         if (m_provider == ModPlatform::ResourceProvider::MODRINTH) {
-            task = new ModrinthPackExportTask(name, m_ui->version->text(), m_ui->summary->toPlainText(), m_ui->optionalFiles->isChecked(),
-                                              m_instance, output, std::bind(&FileIgnoreProxy::filterFile, m_proxy, std::placeholders::_1));
+            task = new ModrinthPackExportTask(
+                name, m_ui->version->text(), m_ui->summary->toPlainText(), m_ui->optionalFiles->isChecked(), m_instance, output,
+                [this, gameFolder](const QString& path) { return m_proxy->filterFile(FS::PathCombine(gameFolder, path)); });
         } else {
-            task = new FlamePackExportTask(name, m_ui->version->text(), m_ui->author->text(), m_ui->optionalFiles->isChecked(), m_instance,
-                                           output, std::bind(&FileIgnoreProxy::filterFile, m_proxy, std::placeholders::_1));
+            task = new FlamePackExportTask(
+                name, m_ui->version->text(), m_ui->author->text(), m_ui->optionalFiles->isChecked(), m_instance, output,
+                [this, gameFolder](const QString& path) { return m_proxy->filterFile(FS::PathCombine(gameFolder, path)); });
         }
 
         connect(task, &Task::failed,
