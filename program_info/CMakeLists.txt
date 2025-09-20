@@ -31,6 +31,7 @@ set(Launcher_mrpack_MIMEInfo "program_info/modrinth-mrpack-mime.xml" PARENT_SCOP
 set(Launcher_MetaInfo "program_info/${Launcher_AppID}.metainfo.xml" PARENT_SCOPE)
 set(Launcher_SVG "program_info/${Launcher_SVGFileName}" PARENT_SCOPE)
 set(Launcher_Branding_ICNS "program_info/prismlauncher.icns" PARENT_SCOPE)
+set(Launcher_Branding_macos_ASSETSCAR "program_info/Assets.car" PARENT_SCOPE)
 set(Launcher_Branding_ICO "program_info/prismlauncher.ico")
 set(Launcher_Branding_ICO "${Launcher_Branding_ICO}" PARENT_SCOPE)
 set(Launcher_Branding_WindowsRC "program_info/prismlauncher.rc" PARENT_SCOPE)
