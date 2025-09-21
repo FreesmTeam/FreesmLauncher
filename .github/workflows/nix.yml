@@ -67,7 +67,6 @@ permissions:
 
 env:
   DEBUG: ${{ github.ref_type != 'tag' }}
-  USE_DETERMINATE: ${{ github.event_name == 'pull_request' }}
 
 jobs:
   build:
@@ -96,9 +95,7 @@ jobs:
         uses: actions/checkout@v5
 
       - name: Install Nix
-        uses: DeterminateSystems/nix-installer-action@v19
-        with:
-          determinate: ${{ env.USE_DETERMINATE }}
+        uses: cachix/install-nix-action@v31
 
         # For PRs
       - name: Setup Nix Magic Cache
