@@ -11,10 +11,6 @@
     <br><strong>hand7s</strong>
   </a>
   <br> <!-- add desc -->
-  <a href="https://github.com/fractal">
-    <br><strong>fractal</strong>
-  </a>
-  <br> <!-- add desc -->
   <a href="https://github.com/so5iso4ka">
     <br><strong>so5iso4ka</strong>
   </a>
