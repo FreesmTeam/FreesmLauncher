@@ -67,7 +67,7 @@ Based on Prism Launcher **9.4**
 | Offline Mode without a Microsoft account | ✅                | ✅                | ✅    | ❌       | ✅             | ✅             | ✅       | ✅             | ❌              |
 | FTB packs                                | ✅                | ✅                | ❌    | ✅       | ✅             | ✅             | ❌       | ✅             | ✅              |
 | Ely.by support                           | ✅                | 🟨¹              | 🟨¹  | 🟨¹     | 🟨¹           | ✅             | 🟨¹     | ❌             | ❌              |
-| Authlib-injector support                 | ✅                | ✅                | ✅    | ✅       | ✅             | ❌²            | ❌²      | ❌²            | ❌²             |
+| Authlib-injector support                 | ✅                | ✅                | ✅    | ✅       | ✅             | ✅            | ❌²      | ❌²            | ❌²             |
 | Custom Authlib-injector jar support      | ❌²               | ✅                | ❌²   | ✅       | ❌²            | ❌²            | ❌²      | ❌²            | ❌²             |
 | Animated Cat Packs & Cropping            | ✅                | ❌                | ❌    | ❌       | ❌             | ❌             | ❌       | ❌             | ❌              |
 | Screenshots saving to the buffer history | ✅                | ❌                | ❌    | ❌       | ❌             | ❌             | ❌       | ❌             | ❌              |
