@@ -33,7 +33,7 @@ on:
 
       # Workflows
       - ".github/workflows/nix.yml"
-  pull_request_target:
+  pull_request:
     paths:
       # File types
       - "**.cpp"
@@ -92,19 +92,8 @@ jobs:
     runs-on: ${{ matrix.os }}
 
     steps:
-      - name: Get merge commit
-        if: ${{ github.event_name == 'pull_request_target' }}
-        id: merge-commit
-        uses: PrismLauncher/PrismLauncher/.github/actions/get-merge-commit@develop
-        with:
-          pull-request-id: ${{ github.event.number }}
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
       - name: Checkout repository
         uses: actions/checkout@v5
-        with:
-          ref: ${{ steps.merge-commit.outputs.merge-commit-sha || github.sha }}
 
       - name: Install Nix
         uses: DeterminateSystems/nix-installer-action@v19
@@ -113,7 +102,7 @@ jobs:
 
         # For PRs
       - name: Setup Nix Magic Cache
-        if: ${{ github.event_name == 'pull_request_target' }}
+        if: ${{ github.event_name == 'pull_request' }}
         uses: DeterminateSystems/magic-nix-cache-action@v13
         with:
           diagnostic-endpoint: ""
