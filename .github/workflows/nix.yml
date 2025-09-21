@@ -91,9 +91,6 @@ jobs:
 
     runs-on: ${{ matrix.os }}
 
-    permissions:
-      id-token: write
-
     steps:
       - name: Get merge commit
         if: ${{ github.event_name == 'pull_request_target' }}
@@ -116,8 +113,11 @@ jobs:
 
         # For PRs
       - name: Setup Nix Magic Cache
-        if: ${{ env.USE_DETERMINATE == 'true' }}
-        uses: DeterminateSystems/flakehub-cache-action@v2
+        if: ${{ github.event_name == 'pull_request_target' }}
+        uses: DeterminateSystems/magic-nix-cache-action@v13
+        with:
+          diagnostic-endpoint: ""
+          use-flakehub: false
 
         # For in-tree builds
       - name: Setup Cachix
