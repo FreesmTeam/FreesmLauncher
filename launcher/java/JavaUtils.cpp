@@ -385,6 +385,13 @@ QList<QString> JavaUtils::FindJavaPaths()
     for (const QString& java : sdkmanJavas) {
         javas.append(sdkmanJavaDir.absolutePath() + "/" + java + "/bin/java");
     }
+
+    // javas downloaded by asdf
+    QString asdfDataDir = qEnvironmentVariable("ASDF_DATA_DIR", FS::PathCombine(home, ".asdf"));
+    QDir asdfJavaDir(FS::PathCombine(asdfDataDir, "installs/java"));
+    QStringList asdfJavas = asdfJavaDir.entryList(QDir::Dirs | QDir::NoDotAndDotDot);
+    for (const QString& java : asdfJavas) {
+        javas.append(asdfJavaDir.absolutePath() + "/" + java + "/bin/java");
     }
 
     // java in user library folder (like from intellij downloads)
@@ -472,6 +479,9 @@ QList<QString> JavaUtils::FindJavaPaths()
     // javas downloaded by sdkman
     QString sdkmanDir = qEnvironmentVariable("SDKMAN_DIR", FS::PathCombine(home, ".sdkman"));
     scanJavaDirs(FS::PathCombine(sdkmanDir, "candidates/java"));
+    // javas downloaded by asdf
+    QString asdfDataDir = qEnvironmentVariable("ASDF_DATA_DIR", FS::PathCombine(home, ".asdf"));
+    scanJavaDirs(FS::PathCombine(asdfDataDir, "installs/java"));
     // javas downloaded by gradle (toolchains)
     scanJavaDirs(FS::PathCombine(home, ".gradle/jdks"));
 
