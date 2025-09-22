@@ -52,7 +52,7 @@ void Modrinth::loadIndexedPack(ModPlatform::IndexedPack& pack, QJsonObject& obj)
     pack.description = Json::ensureString(obj, "description", "");
 
     pack.logoUrl = Json::ensureString(obj, "icon_url", "");
-    pack.logoName = pack.addonId.toString();
+    pack.logoName = QString("%1.%2").arg(Json::ensureString(obj, "slug"), QFileInfo(QUrl(pack.logoUrl).fileName()).suffix());
 
     ModPlatform::ModpackAuthor modAuthor;
     modAuthor.name = Json::ensureString(obj, "author", QObject::tr("No author(s)"));
