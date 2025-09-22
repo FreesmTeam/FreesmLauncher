@@ -320,9 +320,9 @@ void ModrinthPage::suggestCurrent()
             extra_info.insert("pack_version_id", ver.fileId.toString());
 
             m_dialog->setSuggestedPack(m_current->name, ver.version, new InstanceImportTask(ver.downloadUrl, this, std::move(extra_info)));
-            auto iconName = m_current->logoName;
-            m_model->getLogo(iconName, m_current->logoUrl,
-                             [this, iconName](QString logo) { m_dialog->setSuggestedIconFromFile(logo, iconName); });
+            QString editedLogoName = "modrinth_" + m_current->logoName;
+            m_model->getLogo(m_current->logoName, m_current->logoUrl,
+                             [this, editedLogoName](QString logo) { m_dialog->setSuggestedIconFromFile(logo, editedLogoName); });
 
             break;
         }
