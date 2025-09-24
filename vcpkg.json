@@ -1,6 +1,5 @@
 {
   "dependencies": [
-    "bzip2",
     "cmark",
     {
       "name": "ecm",
