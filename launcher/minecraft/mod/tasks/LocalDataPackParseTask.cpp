@@ -106,59 +106,49 @@ bool processZIP(DataPack* pack, ProcessingLevel level)
     MMCZip::ArchiveReader zip(pack->fileinfo().filePath());
 
     bool metaParsed = false;
-    bool directoryFound = false;
     bool iconParsed = false;
     bool mcmeta_result = false;
     bool pack_png_result = false;
-    if (!zip.parse([&metaParsed, &directoryFound, &iconParsed, &mcmeta_result, &pack_png_result, pack, level](
-                       MMCZip::ArchiveReader::File* f, bool& breakControl) {
-            bool skip = true;
-            if (!metaParsed && f->filename() == "pack.mcmeta") {
-                metaParsed = true;
-                skip = false;
-                auto data = f->readAll();
+    if (!zip.parse(
+            [&metaParsed, &iconParsed, &mcmeta_result, &pack_png_result, pack, level](MMCZip::ArchiveReader::File* f, bool& breakControl) {
+                bool skip = true;
+                if (!metaParsed && f->filename() == "pack.mcmeta") {
+                    metaParsed = true;
+                    skip = false;
+                    auto data = f->readAll();
 
-                mcmeta_result = DataPackUtils::processMCMeta(pack, std::move(data));
+                    mcmeta_result = DataPackUtils::processMCMeta(pack, std::move(data));
 
-                if (!mcmeta_result) {
-                    breakControl = true;
-                    return true;  // mcmeta invalid
+                    if (!mcmeta_result) {
+                        breakControl = true;
+                        return true;  // mcmeta invalid
+                    }
                 }
-            }
-            if (!directoryFound) {
-                QString normalizedPath = QDir::cleanPath(pack->directory()) + QLatin1Char('/');
-                if (normalizedPath.startsWith('/'))
-                    normalizedPath.remove(0, 1);
-                directoryFound = f->filename().startsWith(normalizedPath, Qt::CaseInsensitive);
-            }
-            if (!iconParsed && level != ProcessingLevel::BasicInfoOnly && f->filename() == "pack.png") {
-                iconParsed = true;
-                skip = false;
-                auto data = f->readAll();
+                if (!iconParsed && level != ProcessingLevel::BasicInfoOnly && f->filename() == "pack.png") {
+                    iconParsed = true;
+                    skip = false;
+                    auto data = f->readAll();
 
-                pack_png_result = DataPackUtils::processPackPNG(pack, std::move(data));
-                if (!pack_png_result) {
-                    breakControl = true;
-                    return true;  // pack.png invalid
+                    pack_png_result = DataPackUtils::processPackPNG(pack, std::move(data));
+                    if (!pack_png_result) {
+                        breakControl = true;
+                        return true;  // pack.png invalid
+                    }
                 }
-            }
-            if (skip) {
-                f->skip();
-            }
-            if (metaParsed && directoryFound && (level == ProcessingLevel::BasicInfoOnly || iconParsed)) {
-                breakControl = true;
-            }
+                if (skip) {
+                    f->skip();
+                }
+                if (metaParsed && (level == ProcessingLevel::BasicInfoOnly || iconParsed)) {
+                    breakControl = true;
+                }
 
-            return true;
-        })) {
+                return true;
+            })) {
         return false;  // can't open zip file
     }
     if (!mcmeta_result) {
         qWarning() << "Data pack at" << pack->fileinfo().filePath() << "does not have a valid pack.mcmeta";
         return false;  // the mcmeta is not optional
-    }
-    if (!directoryFound) {
-        return false;  // data dir does not exists at zip root
     }
 
     if (level == ProcessingLevel::BasicInfoOnly) {
