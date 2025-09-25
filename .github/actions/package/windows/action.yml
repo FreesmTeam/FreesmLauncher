@@ -14,8 +14,7 @@ inputs:
     required: true
   msystem:
     description: MSYS2 subsystem to use
-    required: true
-    default: false
+    required: false
   windows-codesign-cert:
     description: Certificate for signing Windows builds
     required: false
