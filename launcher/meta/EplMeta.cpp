@@ -16,6 +16,7 @@
  *  along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+#include "Application.h"
 #include "BuildConfig.h"
 #include "JsonFormat.h"
 
@@ -23,7 +24,12 @@
 
 QUrl Meta::EplMeta::url() const
 {
-    return BuildConfig.EPL_META_URL;
+    auto s = APPLICATION->settings();
+    QString metaOverride = s->get("EPLMetaURLOverride").toString();
+    if (metaOverride.isEmpty()) {
+        return QUrl(BuildConfig.EPL_META_URL).resolved(localFilename());
+    }
+    return QUrl(metaOverride).resolved(localFilename());
 }
 
 void Meta::EplMeta::parse(const QJsonObject& obj)

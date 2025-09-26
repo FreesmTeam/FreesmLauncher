@@ -76,11 +76,13 @@ APIPage::APIPage(QWidget* parent) : QWidget(parent), ui(new Ui::APIPage)
     updateBaseURLPlaceholder(ui->pasteTypeComboBox->currentIndex());
     // NOTE: this allows http://, but we replace that with https later anyway
     ui->metaURL->setValidator(new QRegularExpressionValidator(validUrlRegExp, ui->metaURL));
+    ui->eplMetaURL->setValidator(new QRegularExpressionValidator(validUrlRegExp, ui->eplMetaURL));
     ui->baseURLEntry->setValidator(new QRegularExpressionValidator(validUrlRegExp, ui->baseURLEntry));
     ui->msaClientID->setValidator(new QRegularExpressionValidator(validMSAClientID, ui->msaClientID));
     ui->flameKey->setValidator(new QRegularExpressionValidator(validFlameKey, ui->flameKey));
 
     ui->metaURL->setPlaceholderText(BuildConfig.META_URL);
+    ui->eplMetaURL->setPlaceholderText(BuildConfig.EPL_META_URL);
     ui->userAgentLineEdit->setPlaceholderText(BuildConfig.USER_AGENT);
 
     loadSettings();
@@ -137,6 +139,8 @@ void APIPage::loadSettings()
     ui->msaClientID->setText(msaClientID);
     QString metaURL = s->get("MetaURLOverride").toString();
     ui->metaURL->setText(metaURL);
+    QString eplMetaURL = s->get("EPLMetaURLOverride").toString();
+    ui->eplMetaURL->setText(eplMetaURL);
     QString flameKey = s->get("FlameKeyOverride").toString();
     ui->flameKey->setText(flameKey);
     QString modrinthToken = s->get("ModrinthToken").toString();
@@ -155,19 +159,28 @@ void APIPage::applySettings()
 
     QString msaClientID = ui->msaClientID->text();
     s->set("MSAClientIDOverride", msaClientID);
-    QUrl metaURL(ui->metaURL->text());
-    // Add required trailing slash
-    if (!metaURL.isEmpty() && !metaURL.path().endsWith('/')) {
-        QString path = metaURL.path();
-        path.append('/');
-        metaURL.setPath(path);
-    }
-    // Don't allow HTTP, since meta is basically RCE with all the jar files.
-    if (!metaURL.isEmpty() && metaURL.scheme() == "http") {
-        metaURL.setScheme("https");
-    }
+
+    constexpr auto processUrl = [](const QString& urlString) {
+        QUrl url(urlString);
+        // Add required trailing slash
+        if (!url.isEmpty() && !url.path().endsWith('/')) {
+            QString path = url.path();
+            path.append('/');
+            url.setPath(path);
+        }
+        // Don't allow HTTP, since meta is basically RCE with all the jar files.
+        if (!url.isEmpty() && url.scheme() == "http") {
+            url.setScheme("https");
+        }
+        return url;
+    };
+
+    const auto metaURL = processUrl(ui->metaURL->text());
+    const auto eplMetaURL = processUrl(ui->eplMetaURL->text());
 
     s->set("MetaURLOverride", metaURL.toString());
+    s->set("EPLMetaURLOverride", eplMetaURL.toString());
+
     QString flameKey = ui->flameKey->text();
     s->set("FlameKeyOverride", flameKey);
     QString modrinthToken = ui->modrinthToken->text();

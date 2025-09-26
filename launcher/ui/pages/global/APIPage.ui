@@ -97,7 +97,7 @@
              <string>You can set this to a third-party metadata server to use patched libraries or other hacks.</string>
             </property>
             <property name="textFormat">
-             <enum>Qt::RichText</enum>
+             <enum>Qt::TextFormat::RichText</enum>
             </property>
             <property name="wordWrap">
              <bool>true</bool>
@@ -117,7 +117,7 @@
              <string>Enter a custom URL for meta here.</string>
             </property>
             <property name="textFormat">
-             <enum>Qt::RichText</enum>
+             <enum>Qt::TextFormat::RichText</enum>
             </property>
             <property name="wordWrap">
              <bool>true</bool>
@@ -131,9 +131,35 @@
         </widget>
        </item>
        <item>
+        <widget class="QGroupBox" name="groupBox_epl_meta">
+         <property name="title">
+          <string>EPL Metadata Server</string>
+         </property>
+         <layout class="QVBoxLayout" name="verticalLayout_10">
+          <item>
+           <widget class="QLabel" name="label">
+            <property name="text">
+             <string>You can set this to a third-party EPL metadata server if the main one is not working.</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLineEdit" name="eplMetaURL"/>
+          </item>
+          <item>
+           <widget class="QLabel" name="label_2">
+            <property name="text">
+             <string>Enter a custom URL for EPL meta here.</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
         <spacer name="verticalSpacer_2">
          <property name="orientation">
-          <enum>Qt::Vertical</enum>
+          <enum>Qt::Orientation::Vertical</enum>
          </property>
          <property name="sizeHint" stdset="0">
           <size>
@@ -162,7 +188,7 @@
              <string>Note: you probably don't need to set this if logging in via Microsoft Authentication already works.</string>
             </property>
             <property name="textFormat">
-             <enum>Qt::RichText</enum>
+             <enum>Qt::TextFormat::RichText</enum>
             </property>
             <property name="wordWrap">
              <bool>true</bool>
@@ -182,7 +208,7 @@
              <string>Enter a custom client ID for Microsoft Authentication here.</string>
             </property>
             <property name="textFormat">
-             <enum>Qt::RichText</enum>
+             <enum>Qt::TextFormat::RichText</enum>
             </property>
             <property name="wordWrap">
              <bool>true</bool>
@@ -220,7 +246,7 @@
              <string>Enter a custom API token for Modrinth here.</string>
             </property>
             <property name="textFormat">
-             <enum>Qt::RichText</enum>
+             <enum>Qt::TextFormat::RichText</enum>
             </property>
             <property name="wordWrap">
              <bool>true</bool>
@@ -265,7 +291,7 @@
              <string>Enter a custom API Key for CurseForge here.</string>
             </property>
             <property name="textFormat">
-             <enum>Qt::RichText</enum>
+             <enum>Qt::TextFormat::RichText</enum>
             </property>
             <property name="wordWrap">
              <bool>true</bool>
@@ -321,7 +347,7 @@
        <item>
         <spacer name="verticalSpacer">
          <property name="orientation">
-          <enum>Qt::Vertical</enum>
+          <enum>Qt::Orientation::Vertical</enum>
          </property>
          <property name="sizeHint" stdset="0">
           <size>
@@ -366,7 +392,7 @@
        <item>
         <spacer name="verticalSpacer_3">
          <property name="orientation">
-          <enum>Qt::Vertical</enum>
+          <enum>Qt::Orientation::Vertical</enum>
          </property>
          <property name="sizeHint" stdset="0">
           <size>

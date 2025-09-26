@@ -777,6 +777,16 @@ Application::Application(int& argc, char** argv) : QApplication(argc, argv)
             if (!metaUrl.isValid() || (metaUrl.scheme() != "http" && metaUrl.scheme() != "https"))
                 m_settings->reset("MetaURLOverride");
         }
+        {
+            // EPL Meta URL
+            m_settings->registerSetting("EPLMetaURLOverride", "");
+
+            QUrl eplMetaUrl(m_settings->get("EPLMetaURLOverride").toString());
+
+            // get rid of invalid meta urls
+            if (!eplMetaUrl.isValid() || eplMetaUrl.scheme() != "https")
+                m_settings->reset("MetaURLOverride");
+        }
 
         m_settings->registerSetting("CloseAfterLaunch", false);
         m_settings->registerSetting("QuitAfterGameStop", false);
