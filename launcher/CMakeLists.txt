@@ -513,6 +513,8 @@ set(META_SOURCES
     meta/Version.h
     meta/Index.cpp
     meta/Index.h
+    meta/EplMeta.cpp
+    meta/EplMeta.h
 )
 
 set(API_SOURCES

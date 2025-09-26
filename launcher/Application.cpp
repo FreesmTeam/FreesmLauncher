@@ -121,6 +121,7 @@
 #include "settings/INISettingsObject.h"
 #include "settings/Setting.h"
 
+#include "meta/EplMeta.h"
 #include "meta/Index.h"
 #include "translations/TranslationsModel.h"
 
@@ -1728,6 +1729,14 @@ shared_qobject_ptr<Meta::Index> Application::metadataIndex()
         m_metadataIndex.reset(new Meta::Index());
     }
     return m_metadataIndex;
+}
+
+std::shared_ptr<Meta::EplMeta> Application::eplMetadata()
+{
+    if (!m_eplMetadata) {
+        m_eplMetadata.reset(new Meta::EplMeta());
+    }
+    return m_eplMetadata;
 }
 
 void Application::updateCapabilities()

@@ -1,91 +1,58 @@
-#include "ApplyLibraryOverrides.h"
-#include "Application.h"
-#include "BuildConfig.h"
-#include "launch/LaunchTask.h"
-#include "minecraft/PackProfile.h"
-#include "net/Download.h"
-#include "net/NetJob.h"
+#include <algorithm>
+#include <memory>
 
-ApplyLibraryOverrides::ApplyLibraryOverrides(LaunchTask* parent, AuthSessionPtr session)
-    : LaunchStep(parent), m_session(session), m_instance(m_parent->instance())
-{}
+#include "Application.h"
+#include "launch/LaunchTask.h"
+#include "meta/EplMeta.h"
+#include "minecraft/PackProfile.h"
+
+#include "ApplyLibraryOverrides.h"
+
+ApplyLibraryOverrides::ApplyLibraryOverrides(LaunchTask* parent) : LaunchStep(parent), m_instance(m_parent->instance()) {}
 
 void ApplyLibraryOverrides::executeTask()
 {
-    downloadLibraryOverrideList();
-}
+    auto meta = APPLICATION->eplMetadata();
+    if (meta->isLoaded())
+        return onLibraryOverrideDownloadFinished();
 
-void ApplyLibraryOverrides::downloadLibraryOverrideList()
-{
-    const auto libraryOverrideListUrl = QUrl(m_isFirstDownloadTry ? BuildConfig.EPL_META_URL : BuildConfig.EPL_META_FALLBACK_URL);
-    m_response = std::make_shared<QByteArray>();
-    m_request = Net::Download::makeByteArray(libraryOverrideListUrl, m_response);
+    m_task = meta->loadTask();
+    connect(m_task.get(), &Task::succeeded, this, &ApplyLibraryOverrides::onLibraryOverrideDownloadFinished);
+    connect(m_task.get(), &Task::failed, this, [this] { emitFailed(tr("Couldn't fetch EPL metadata")); });
+    connect(m_task.get(), &Task::aborted, this, [this] { emitFailed(tr("Aborted")); });
 
-    m_task.reset(new NetJob("Fetch EPL metadata", APPLICATION->network()));
-    m_task->addNetAction(m_request);
-    m_task->setAskRetry(false);
-
-    connect(m_task.get(), &NetJob::finished, this, &ApplyLibraryOverrides::onLibraryOverrideDownloadFinished);
-    connect(m_task.get(), &NetJob::aborted, this, [this] { emitFailed(tr("Aborted")); });
-
-    m_task->start();
+    if (!m_task->isRunning()) {
+        m_task->start();
+    }
 }
 
 void ApplyLibraryOverrides::onLibraryOverrideDownloadFinished()
 {
-    if (m_request->error() != QNetworkReply::NoError) {
-        if (m_isFirstDownloadTry) {
-            m_isFirstDownloadTry = false;
-            return downloadLibraryOverrideList();
-        }
-        emitFailed("Failed to download EPL metadata.");
-        return;
-    }
+    const auto meta = APPLICATION->eplMetadata();
+    const auto profile = m_instance->getPackProfile()->getProfile();
+    auto& libraries = profile->libraries();
 
-    QJsonParseError jsonError;
-    const QJsonDocument doc = QJsonDocument::fromJson(*m_response, &jsonError);
-    if (jsonError.error) {
-        emitFailed("Failed to parse EPL metadata.");
-        return;
-    }
+    if (const auto it = std::find_if(libraries.begin(), libraries.end(),
+                                     [](const LibraryPtr& lib) { return lib->artifactPrefix() == "com.mojang:authlib"; });
+        it != libraries.end()) {
+        const auto override = meta->overrideFromVersion((*it)->version());
+        if (override.isEmpty())
+            emitFailed(tr("No suitable authlib version found"));
 
-    const auto root = doc.object();
-    const auto overrides = root.value("overrides").toObject();
+        const auto newLibrary = std::make_shared<Library>(override["name"].toString());
 
-    auto& libraries = m_instance->getPackProfile()->getProfile()->libraries();
-    for (int i = libraries.size() - 1; i >= 0; --i) {
-        const auto library = libraries.at(i);
-        const QString& libraryArtifact = library->artifactPrefix();
-        const bool isAuthlib = libraryArtifact == "com.mojang:authlib";
-        if (isAuthlib && !m_session->wants_ely_patch) {
-            continue;
-        }
-
-        const QJsonValue artifact = overrides.value(libraryArtifact);
-        if (!artifact.isObject()) {
-            continue;
-        }
-
-        const QJsonValue version = artifact.toObject().value(library->version());
-        if (!version.isObject()) {
-            continue;
-        }
-
-        const QJsonObject override = version.toObject();
-        auto newName = override.value("name").toString();
-
-        LibraryPtr newLibrary(new Library(newName));
         const auto newDownloadInfo = std::make_shared<MojangDownloadInfo>();
-        newDownloadInfo->sha1 = override.value("sha1").toString();
-        newDownloadInfo->url = override.value("url").toString();
-        newDownloadInfo->size = override.value("size").toInt();
+        newDownloadInfo->sha1 = override["sha1"].toString();
+        newDownloadInfo->url = override["url"].toString();
+        newDownloadInfo->size = override["size"].toInt();
 
-        const auto newLibraryDownloadInfo = std::make_shared<MojangLibraryDownloadInfo>(newDownloadInfo);
-        newLibrary->setMojangDownloadInfo(newLibraryDownloadInfo);
+        newLibrary->setMojangDownloadInfo(std::make_shared<MojangLibraryDownloadInfo>(newDownloadInfo));
 
-        libraries.removeAt(i);
-        libraries.insert(i, newLibrary);
+        *it = newLibrary;
+
+        emitSucceeded();
+        return;
     }
 
-    emitSucceeded();
+    emitFailed(tr("Couldn't replace authlib"));
 }

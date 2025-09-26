@@ -1202,7 +1202,7 @@ shared_qobject_ptr<LaunchTask> MinecraftInstance::createLaunchTask(AuthSessionPt
         if (!session->demo) {
             process->appendStep(makeShared<ClaimAccount>(pptr, session));
         }
-        process->appendStep(makeShared<ApplyLibraryOverrides>(pptr, session));
+        process->appendStep(makeShared<ApplyLibraryOverrides>(pptr));
         if (session->wants_authlib_injector) {
             process->appendStep(makeShared<ApplyAuthlibInjector>(pptr, session));
         }

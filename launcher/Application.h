@@ -78,7 +78,8 @@ class DiscordIntegration;
 
 namespace Meta {
 class Index;
-}
+class EplMeta;
+}  // namespace Meta
 
 #if defined(APPLICATION)
 #undef APPLICATION
@@ -150,6 +151,8 @@ class Application : public QApplication {
     shared_qobject_ptr<HttpMetaCache> metacache();
 
     shared_qobject_ptr<Meta::Index> metadataIndex();
+
+    std::shared_ptr<Meta::EplMeta> eplMetadata();
 
     void updateCapabilities();
 
@@ -252,6 +255,7 @@ class Application : public QApplication {
 
     shared_qobject_ptr<HttpMetaCache> m_metacache;
     shared_qobject_ptr<Meta::Index> m_metadataIndex;
+    std::shared_ptr<Meta::EplMeta> m_eplMetadata;
 
     std::shared_ptr<SettingsObject> m_settings;
     std::shared_ptr<InstanceList> m_instances;
