@@ -107,11 +107,13 @@ See [github repo](https://github.com/nayuki/QR-Code-generator).
 
 MIT
 
-## quazip
+## libarchive
 
-A zip manipulation library.
+Multi-format archive and compression library.
 
-LGPL 2.1 with linking exception.
+See [github repo](https://github.com/libarchive/libarchive).
+
+BSD 2-Clause license with some exception.
 
 ## rainbow
 
