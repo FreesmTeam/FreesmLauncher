@@ -32,9 +32,10 @@ class EplMeta : public BaseEntity {
     void parse(const QJsonObject& obj) override;
 
     QJsonObject overrideFromVersion(const QString& version);
+    QJsonObject authlibInjector();
 
    private:
     std::unordered_map<QString, QJsonObject> m_authlibs;
-    QUrl m_authlibInjectorUrl;
+    QJsonObject m_authlibInjector;
 };
 }  // namespace Meta

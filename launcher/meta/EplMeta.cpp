@@ -44,7 +44,7 @@ void Meta::EplMeta::parse(const QJsonObject& obj)
     for (auto it = authlibs.constBegin(); it != authlibs.constEnd(); ++it) {
         m_authlibs[it.key()] = it.value().toObject();
     }
-    m_authlibInjectorUrl = extras["authlib-injector"].toString();
+    m_authlibInjector = extras["authlib-injector"].toObject();
 }
 
 QJsonObject Meta::EplMeta::overrideFromVersion(const QString& version)
@@ -53,4 +53,9 @@ QJsonObject Meta::EplMeta::overrideFromVersion(const QString& version)
         return it->second;
     }
     return {};
+}
+
+QJsonObject Meta::EplMeta::authlibInjector()
+{
+    return m_authlibInjector;
 }

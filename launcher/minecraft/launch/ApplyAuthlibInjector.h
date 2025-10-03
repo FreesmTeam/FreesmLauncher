@@ -18,28 +18,28 @@
 
 #pragma once
 
-#include <launch/LaunchStep.h>
-#include <minecraft/auth/BaseAccount.h>
-#include "minecraft/MinecraftInstance.h"
-#include "net/Download.h"
+#include "launch/LaunchStep.h"
+#include "meta/BaseEntity.h"
+#include "minecraft/auth/AuthSession.h"
 #include "net/NetJob.h"
 
 class ApplyAuthlibInjector : public LaunchStep {
     Q_OBJECT
    public:
-    explicit ApplyAuthlibInjector(LaunchTask* parent, AuthSessionPtr session);
-    virtual ~ApplyAuthlibInjector() = default;
+    explicit ApplyAuthlibInjector(LaunchTask* parent, const AuthSessionPtr& session);
+    ~ApplyAuthlibInjector() override = default;
 
     void executeTask() override;
     bool canAbort() const override { return false; }
 
-   public slots:
+   private slots:
     void onRequestDone();
 
    private:
+    void downloadFile();
+    static bool checkFile();
+
     AuthSessionPtr m_session;
-    MinecraftInstancePtr m_instance;
-    std::shared_ptr<QByteArray> m_response = std::make_shared<QByteArray>();
-    Net::Download::Ptr m_request;
-    NetJob::Ptr m_task;
+    Meta::BaseEntityLoadTask::Ptr m_metaTask;
+    NetJob::Ptr m_netTask;
 };
