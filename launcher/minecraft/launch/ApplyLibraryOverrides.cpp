@@ -18,7 +18,10 @@ void ApplyLibraryOverrides::executeTask()
 
     m_task = meta->loadTask();
     connect(m_task.get(), &Task::succeeded, this, &ApplyLibraryOverrides::onLibraryOverrideDownloadFinished);
-    connect(m_task.get(), &Task::failed, this, [this] { emitFailed(tr("Couldn't fetch EPL metadata")); });
+    connect(m_task.get(), &Task::failed, this, [this] {
+        emit logLine(tr("Couldn't fetch EPL metadata from %1").arg(APPLICATION->eplMetadata()->url().toString()), MessageLevel::Error);
+        emitFailed(tr("Couldn't fetch EPL metadata"));
+    });
     connect(m_task.get(), &Task::aborted, this, [this] { emitFailed(tr("Aborted")); });
 
     if (!m_task->isRunning()) {
@@ -36,8 +39,11 @@ void ApplyLibraryOverrides::onLibraryOverrideDownloadFinished()
                                      [](const LibraryPtr& lib) { return lib->artifactPrefix() == "com.mojang:authlib"; });
         it != libraries.end()) {
         const auto override = meta->overrideFromVersion((*it)->version());
-        if (override.isEmpty())
+        if (override.isEmpty()) {
+            emit logLine(tr("No suitable authlib version found"), MessageLevel::Error);
             emitFailed(tr("No suitable authlib version found"));
+            return;
+        }
 
         const auto newLibrary = std::make_shared<Library>(override["name"].toString());
 
@@ -54,5 +60,6 @@ void ApplyLibraryOverrides::onLibraryOverrideDownloadFinished()
         return;
     }
 
+    emit logLine(tr("Couldn't replace authlib"), MessageLevel::Error);
     emitFailed(tr("Couldn't replace authlib"));
 }
