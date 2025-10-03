@@ -196,6 +196,11 @@
     }
   },
   "extras": {
-    "authlib-injector": "https://github.com/yushijinhun/authlib-injector/releases/download/v1.2.5/authlib-injector-1.2.5.jar"
+    "authlib-injector": {
+      "name": "authlib-injector",
+      "url": "https://github.com/yushijinhun/authlib-injector/releases/download/v1.2.5/authlib-injector-1.2.5.jar",
+      "sha256": "3bc9ebdc583b36abd2a65b626c4b9f35f21177fbf42a851606eaaea3fd42ee0f",
+      "size": 341970
+    }
   }
 }
