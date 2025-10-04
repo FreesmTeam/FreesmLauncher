@@ -113,18 +113,26 @@ QString InstanceImportTask::getRootFromZip(QStringList files)
     if (!isRunning()) {
         return {};
     }
+    auto cleanPath = [](QString path) {
+        if (path == ".")
+            return QString();
+        QString result = path;
+        if (result.startsWith("./"))
+            result = result.mid(2);
+        return result;
+    };
     for (auto&& fileName : files) {
         setDetails(fileName);
         QFileInfo fileInfo(fileName);
         if (fileInfo.fileName() == "instance.cfg") {
             qDebug() << "MultiMC:" << true;
             m_modpackType = ModpackType::MultiMC;
-            return fileInfo.path();
+            return cleanPath(fileInfo.path());
         }
         if (fileInfo.fileName() == "manifest.json") {
             qDebug() << "Flame:" << true;
             m_modpackType = ModpackType::Flame;
-            return fileInfo.path();
+            return cleanPath(fileInfo.path());
         }
         QCoreApplication::processEvents();
     }

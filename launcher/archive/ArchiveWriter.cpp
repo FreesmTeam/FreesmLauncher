@@ -56,7 +56,7 @@ bool ArchiveWriter::open()
     } else if (lowerName.endsWith(".tar.xz") || lowerName.endsWith(".txz")) {
         archive_write_set_format_pax_restricted(m_archive);
         archive_write_add_filter_xz(m_archive);
-    } else if (lowerName.endsWith(".zip") || lowerName.endsWith(".jar")) {
+    } else if (lowerName.endsWith(".zip") || lowerName.endsWith(".jar") || lowerName.endsWith(".mrpack")) {
         archive_write_set_format_zip(m_archive);
     } else if (lowerName.endsWith(".tar")) {
         archive_write_set_format_pax_restricted(m_archive);
