@@ -61,7 +61,7 @@ QJsonObject makeActivity(const RunningInstance& instance)
 {
     QJsonObject activity;
 
-    activity["name"] = "Playing Minecraft";
+    activity["name"] = "Freesm Launcher";
     activity["type"] = static_cast<int>(DiscordActivityType::Playing);
     activity["details"] = makeActivityDetails(instance.ptr());
     activity["timestamps"] = makeActivityTimestamps(instance);
