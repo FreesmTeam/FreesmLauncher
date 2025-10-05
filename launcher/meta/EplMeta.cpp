@@ -45,6 +45,10 @@ void Meta::EplMeta::parse(const QJsonObject& obj)
         m_authlibs[it.key()] = it.value().toObject();
     }
     m_authlibInjector = extras["authlib-injector"].toObject();
+
+    if (m_authlibs.empty() || m_authlibInjector.isEmpty()) {
+        throw ParseException(QObject::tr("Invalid EPL metadata"));
+    }
 }
 
 QJsonObject Meta::EplMeta::overrideFromVersion(const QString& version)
