@@ -61,6 +61,7 @@
 #include "JavaCommon.h"
 #include "launch/steps/TextPrint.h"
 #include "tasks/Task.h"
+#include "ui/dialogs/ChooseOfflineNameDialog.h"
 
 LaunchController::LaunchController() : Task() {}
 
@@ -157,10 +158,15 @@ QString LaunchController::askOfflineName(QString playerName, bool demo, bool& ok
 
     QString lastOfflinePlayerName = APPLICATION->settings()->get("LastOfflinePlayerName").toString();
     QString usedname = lastOfflinePlayerName.isEmpty() ? playerName : lastOfflinePlayerName;
-    QString name = QInputDialog::getText(m_parentWidget, tr("Player name"), message, QLineEdit::Normal, usedname, &ok);
-    if (!ok)
+
+    ChooseOfflineNameDialog dialog(message, m_parentWidget);
+    dialog.setWindowTitle(tr("Player name"));
+    dialog.setUsername(usedname);
+    if (dialog.exec() != QDialog::Accepted) {
         return {};
-    if (name.length()) {
+    }
+
+    if (const QString name = dialog.getUsername(); !name.isEmpty()) {
         usedname = name;
         APPLICATION->settings()->set("LastOfflinePlayerName", usedname);
     }
