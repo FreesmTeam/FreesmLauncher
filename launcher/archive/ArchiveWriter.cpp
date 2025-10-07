@@ -65,6 +65,11 @@ bool ArchiveWriter::open()
         return false;
     }
 
+    if (archive_write_set_options(m_archive, "hdrcharset=UTF-8") != ARCHIVE_OK) {
+        qCritical() << "Failed to open archive file:" << m_filename << "-" << archive_error_string(m_archive);
+        return false;
+    }
+
     auto archiveNameUtf8 = m_filename.toUtf8();
     if (archive_write_open_filename(m_archive, archiveNameUtf8.constData()) != ARCHIVE_OK) {
         qCritical() << "Failed to open archive file:" << m_filename << "-" << archive_error_string(m_archive);
@@ -138,7 +143,7 @@ bool ArchiveWriter::addFile(const QString& fileName, const QString& fileDest)
     archive_entry_set_size(entry, file.size());
 
     if (archive_write_header(m_archive, entry) != ARCHIVE_OK) {
-        qCritical() << "Failed to write header for: " << fileDest;
+        qCritical() << "Failed to write header for: " << fileDest << "-" << archive_error_string(m_archive);
         return false;
     }
 
@@ -178,12 +183,12 @@ bool ArchiveWriter::addFile(const QString& fileDest, const QByteArray& data)
     archive_entry_set_size(entry, data.size());
 
     if (archive_write_header(m_archive, entry) != ARCHIVE_OK) {
-        qCritical() << "Failed to write header for: " << fileDest;
+        qCritical() << "Failed to write header for: " << fileDest << "-" << archive_error_string(m_archive);
         return false;
     }
 
     if (archive_write_data(m_archive, data.constData(), data.size()) < 0) {
-        qCritical() << "Write error in archive for: " << fileDest;
+        qCritical() << "Write error in archive for: " << fileDest << "-" << archive_error_string(m_archive);
         return false;
     }
     return true;
@@ -193,6 +198,7 @@ bool ArchiveWriter::addFile(ArchiveReader::File* f)
 {
     return f->writeFile(m_archive, "", true);
 }
+
 std::unique_ptr<archive, void (*)(archive*)> ArchiveWriter::createDiskWriter()
 {
     int flags = ARCHIVE_EXTRACT_TIME | ARCHIVE_EXTRACT_PERM | ARCHIVE_EXTRACT_ACL | ARCHIVE_EXTRACT_FFLAGS;
