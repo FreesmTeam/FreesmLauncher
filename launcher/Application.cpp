@@ -108,7 +108,6 @@
 #include "icons/IconList.h"
 #include "net/HttpMetaCache.h"
 
-
 #include "updater/ExternalUpdater.h"
 
 #include "tools/JProfiler.h"

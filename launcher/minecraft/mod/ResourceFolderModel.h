@@ -21,11 +21,11 @@ class QSortFilterProxyModel;
 
 /* A macro to define useful functions to handle Resource* -> T* more easily on derived classes */
 #define RESOURCE_HELPERS(T)                                         \
-    T& at(int index)                                  \
+    T& at(int index)                                                \
     {                                                               \
         return *static_cast<T*>(m_resources[index].get());          \
     }                                                               \
-    const T& at(int index) const                      \
+    const T& at(int index) const                                    \
     {                                                               \
         return *static_cast<const T*>(m_resources.at(index).get()); \
     }                                                               \

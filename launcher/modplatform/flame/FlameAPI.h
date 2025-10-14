@@ -160,10 +160,7 @@ class FlameAPI : public ResourceAPI {
     void loadExtraPackInfo(ModPlatform::IndexedPack& m, [[maybe_unused]] QJsonObject&) const override { FlameMod::loadBody(m); }
 
    private:
-    std::optional<QString> getInfoURL(QString const& id) const override
-    {
-        return QString(BuildConfig.FLAME_BASE_URL + "/mods/%1").arg(id);
-    }
+    std::optional<QString> getInfoURL(QString const& id) const override { return QString(BuildConfig.FLAME_BASE_URL + "/mods/%1").arg(id); }
     std::optional<QString> getDependencyURL(DependencySearchArgs const& args) const override
     {
         auto addonId = args.dependency.addonId.toString();
