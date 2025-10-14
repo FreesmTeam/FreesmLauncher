@@ -59,10 +59,8 @@
 #if defined Q_OS_WIN32
 #define NOMINMAX
 #define WIN32_LEAN_AND_MEAN
-#include <objbase.h>
 #include <objidl.h>
 #include <shlguid.h>
-#include <shlobj.h>
 #include <shobjidl.h>
 #include <sys/utime.h>
 #include <versionhelpers.h>
