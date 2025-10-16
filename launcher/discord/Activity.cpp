@@ -26,6 +26,8 @@
 
 #include "Activity.h"
 
+#include "BuildConfig.h"
+
 namespace {
 enum class DiscordActivityType { Playing = 0, Streaming = 1, Listening = 2, Watching = 3, Custom = 4, Competing = 5 };
 
@@ -34,56 +36,52 @@ QJsonValue makeNonce()
     return QUuid::createUuid().toString();
 }
 
-QJsonValue makeActivityDetails(const InstancePtr& instance)
-{
-    return "Minecraft " + instance->getVersionString();
-}
-
-QJsonObject makeActivityTimestamps(const RunningInstance& instance)
+QJsonObject makeActivityTimestamps(const qint64 startTime)
 {
     QJsonObject timestamps;
 
-    timestamps["start"] = instance.startedAt.toSecsSinceEpoch();
+    timestamps["start"] = startTime;
 
     return timestamps;
 }
 
-[[maybe_unused]] QJsonObject makeActivityAssets(const InstancePtr& instance)
-{
-    QJsonObject assets;
-
-    assets["large_image"] = instance->iconKey();
-
-    return assets;
-}
-
-QJsonObject makeActivity(const RunningInstance& instance)
+QJsonObject makeActivity(qint64 startTime, const QString& details)
 {
     QJsonObject activity;
 
-    activity["name"] = "Freesm Launcher";
+    activity["name"] = BuildConfig.LAUNCHER_DISPLAYNAME;
     activity["type"] = static_cast<int>(DiscordActivityType::Playing);
-    activity["details"] = makeActivityDetails(instance.ptr());
-    activity["timestamps"] = makeActivityTimestamps(instance);
-    // activity["assets"] = makeActivityAssets(instance);
+    if (!details.isEmpty())
+        activity["details"] = details;
+    activity["timestamps"] = makeActivityTimestamps(startTime);
 
     return activity;
 }
-}  // namespace
 
-QByteArray generateActivity(const RunningInstance& instance)
+QByteArray makeRequest(qint64 startTime, const QString& details)
 {
     QJsonObject request;
 
     QJsonObject args;
     args["pid"] = APPLICATION->applicationPid();
-    args["activity"] = makeActivity(instance);
+    args["activity"] = makeActivity(startTime, details);
 
     request["args"] = args;
     request["nonce"] = makeNonce();
     request["cmd"] = "SET_ACTIVITY";
 
     return QJsonDocument(request).toJson();
+}
+}  // namespace
+
+QByteArray generateActivity(const RunningInstance& instance)
+{
+    return makeRequest(instance.startedAt.toSecsSinceEpoch(), "Minecraft " + instance.ptr()->getVersionString());
+}
+
+QByteArray generateBackgroundActivity(qint64 startTime)
+{
+    return makeRequest(startTime, "");
 }
 
 QByteArray generateEmptyActivity()

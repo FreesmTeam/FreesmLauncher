@@ -18,7 +18,10 @@
 
 #pragma once
 
+#include <QByteArray>
+
 struct RunningInstance;
 
 QByteArray generateActivity(const RunningInstance& instance);
+QByteArray generateBackgroundActivity(qint64 startTime);
 QByteArray generateEmptyActivity();

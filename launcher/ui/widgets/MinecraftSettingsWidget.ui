@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>621</width>
-    <height>687</height>
+       <height>675</height>
    </rect>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
@@ -61,7 +61,7 @@
           <property name="geometry">
            <rect>
             <x>0</x>
-            <y>-94</y>
+               <y>0</y>
             <width>561</width>
             <height>676</height>
            </rect>
@@ -339,7 +339,7 @@
               <item>
                <widget class="QCheckBox" name="enableRichPresenceCheck">
                 <property name="text">
-                 <string>Show launcher in Discord Rich Presence</string>
+                    <string>Show launcher in Discord Rich Presence during gameplay</string>
                 </property>
                 <property name="tristate">
                  <bool>false</bool>
@@ -383,8 +383,8 @@
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>561</width>
-            <height>582</height>
+               <width>98</width>
+               <height>28</height>
            </rect>
           </property>
          </widget>
@@ -410,8 +410,8 @@
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>561</width>
-            <height>582</height>
+               <width>302</width>
+               <height>361</height>
            </rect>
           </property>
           <layout class="QVBoxLayout" name="verticalLayout_7">
@@ -598,8 +598,8 @@
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>561</width>
-            <height>582</height>
+               <width>295</width>
+               <height>225</height>
            </rect>
           </property>
           <layout class="QVBoxLayout" name="verticalLayout_14">

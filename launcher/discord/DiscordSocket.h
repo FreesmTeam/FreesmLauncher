@@ -18,8 +18,10 @@
 
 #pragma once
 
+#include <QByteArray>
 #include <QLocalSocket>
 #include <QObject>
+#include <QQueue>
 
 class DiscordSocket : public QObject {
     enum class Opcode : uint32_t { Handshake = 0, Frame = 1, Close = 2, Ping = 3, Pong = 4 };
@@ -32,7 +34,7 @@ class DiscordSocket : public QObject {
 
     virtual void connectSocket() = 0;
 
-    bool send(const QByteArray& data, Opcode opcode = Opcode::Frame);
+    void enqueue(const QByteArray& data, Opcode opcode = Opcode::Frame);
 
     QString errorString() const { return m_socket.errorString(); }
 
@@ -45,6 +47,8 @@ class DiscordSocket : public QObject {
    protected:
     void handshake();
 
+    void processReply();
+
    protected slots:
     void onConnected();
 
@@ -52,8 +56,17 @@ class DiscordSocket : public QObject {
 
     void read();
 
+    void send();
+
    protected:
     QLocalSocket m_socket;
+
+   private:
+    enum class State { Waiting, Sent, Reading } m_state{ State::Waiting };
+    int64_t m_pendingBytes{};
+    QByteArray m_msg;
+
+    QQueue<std::pair<QByteArray, Opcode>> m_messagesToSend;
 };
 
 class UnixDiscordSocket : public DiscordSocket {
