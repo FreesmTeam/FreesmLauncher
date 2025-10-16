@@ -106,6 +106,7 @@ LauncherPage::~LauncherPage()
 bool LauncherPage::apply()
 {
     applySettings();
+    APPLICATION->showInDiscord();
     return true;
 }
 
@@ -278,7 +279,10 @@ void LauncherPage::applySettings()
     s->set("ModMetadataDisabled", ui->metadataDisableBtn->isChecked());
     s->set("ModDependenciesDisabled", ui->dependenciesDisableBtn->isChecked());
     s->set("SkipModpackUpdatePrompt", ui->skipModpackUpdatePromptBtn->isChecked());
+
+    s->set("AlwaysShowInDiscord", ui->discordBtn->isChecked());
 }
+
 void LauncherPage::loadSettings()
 {
     auto s = APPLICATION->settings();
@@ -352,6 +356,8 @@ void LauncherPage::loadSettings()
     ui->metadataWarningLabel->setHidden(!ui->metadataDisableBtn->isChecked());
     ui->dependenciesDisableBtn->setChecked(s->get("ModDependenciesDisabled").toBool());
     ui->skipModpackUpdatePromptBtn->setChecked(s->get("SkipModpackUpdatePrompt").toBool());
+
+    ui->discordBtn->setChecked(s->get("AlwaysShowInDiscord").toBool());
 }
 
 void LauncherPage::refreshFontPreview()

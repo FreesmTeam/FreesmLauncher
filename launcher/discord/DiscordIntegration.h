@@ -29,22 +29,27 @@ class DiscordIntegration : public QObject {
     Q_OBJECT
 
    public:
-    DiscordIntegration();
+    explicit DiscordIntegration(bool showAlways);
     ~DiscordIntegration() override;
 
    public:
     void instanceStarted(const std::shared_ptr<BaseInstance>& instance);
     void instanceStopped(const std::shared_ptr<BaseInstance>& instance);
 
+    void showAlways(bool state);
+
    private slots:
     void socketConnected();
     void socketFailed();
 
-    bool startActivity(RunningInstance instance);
-    bool stopActivity();
+    void startActivity(RunningInstance instance);
+    void stopActivity();
 
    private:
     std::unique_ptr<DiscordSocket> m_socket;
 
     std::unique_ptr<DiscordQueue> m_queue;
+
+    bool m_showAlways;
+    qint64 m_startTime;
 };

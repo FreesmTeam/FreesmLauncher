@@ -42,6 +42,11 @@ void DiscordQueue::instanceStopped(const std::shared_ptr<BaseInstance>& instance
     emit processQueue();
 }
 
+bool DiscordQueue::isInstanceRunning()
+{
+    return !m_runningInstance.expired();
+}
+
 void DiscordQueue::socketReady()
 {
     m_socketReady = true;

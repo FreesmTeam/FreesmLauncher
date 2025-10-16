@@ -742,6 +742,10 @@ Application::Application(int& argc, char** argv) : QApplication(argc, argv)
         m_settings->registerSetting("ShaderDownloadGeometry", "");
 
         m_settings->registerSetting("EnableDiscordRichPresence", false);
+        m_settings->registerSetting("AlwaysShowInDiscord", false);
+        if (m_settings->get("AlwaysShowInDiscord").toBool()) {
+            discord();
+        }
 
         // HACK: This code feels so stupid is there a less stupid way of doing this?
         {
@@ -1394,7 +1398,7 @@ std::shared_ptr<DiscordIntegration> Application::discord()
 {
     // lazy initialize
     if (!m_discord) {
-        m_discord = std::make_shared<DiscordIntegration>();
+        m_discord = std::make_shared<DiscordIntegration>(m_settings->get("AlwaysShowInDiscord").toBool());
     }
     return m_discord;
 }
@@ -1416,6 +1420,11 @@ bool Application::openJsonEditor(const QString& filename)
         // return DesktopServices::openFile(m_settings->get("JsonEditor").toString(), file);
         return DesktopServices::run(m_settings->get("JsonEditor").toString(), { file });
     }
+}
+
+void Application::showInDiscord()
+{
+    discord()->showAlways(m_settings->get("AlwaysShowInDiscord").toBool());
 }
 
 bool Application::launch(InstancePtr instance, bool online, bool demo, MinecraftTarget::Ptr targetToJoin, BaseAccountPtr accountToUse)

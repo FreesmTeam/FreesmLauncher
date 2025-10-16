@@ -16,6 +16,7 @@
  *  along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+#include <QDateTime>
 #include <QDir>
 #include <QJsonDocument>
 #include <QJsonObject>
@@ -28,7 +29,13 @@
 
 #include "DiscordIntegration.h"
 
-DiscordIntegration::DiscordIntegration() : m_socket(makeSocket()), m_queue(std::make_unique<DiscordQueue>())
+#include <QThread>
+
+DiscordIntegration::DiscordIntegration(bool showAlways)
+    : m_socket(makeSocket())
+    , m_queue(std::make_unique<DiscordQueue>())
+    , m_showAlways(showAlways)
+    , m_startTime(QDateTime::currentSecsSinceEpoch())
 {
     connect(m_socket.get(), &DiscordSocket::connected, this, &DiscordIntegration::socketConnected);
     connect(m_socket.get(), &DiscordSocket::failed, this, &DiscordIntegration::socketFailed);
@@ -51,14 +58,23 @@ void DiscordIntegration::instanceStopped(const std::shared_ptr<BaseInstance>& in
     m_queue->instanceStopped(instance);
 }
 
-bool DiscordIntegration::startActivity(const RunningInstance instance)
+void DiscordIntegration::showAlways(bool state)
 {
-    return m_socket->send(generateActivity(instance));
+    m_showAlways = state;
+
+    if (!m_queue->isInstanceRunning()) {
+        emit stopActivity();
+    }
 }
 
-bool DiscordIntegration::stopActivity()
+void DiscordIntegration::startActivity(const RunningInstance instance)
 {
-    return m_socket->send(generateEmptyActivity());
+    m_socket->enqueue(generateActivity(instance));
+}
+
+void DiscordIntegration::stopActivity()
+{
+    m_socket->enqueue(m_showAlways ? generateBackgroundActivity(m_startTime) : generateEmptyActivity());
 }
 
 void DiscordIntegration::socketConnected()
