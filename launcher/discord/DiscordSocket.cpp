@@ -52,27 +52,27 @@ void DiscordSocket::onConnected()
 
 void DiscordSocket::handshake()
 {
-    send(generateHandshake(), Opcode::Handshake);
+    enqueue(generateHandshake(), Opcode::Handshake);
 }
 
-void DiscordSocket::errorOccurred([[maybe_unused]] QLocalSocket::LocalSocketError socketError)
+void DiscordSocket::processReply()
 {
-    emit failed();
-}
-
-void DiscordSocket::read()
-{
-    if (m_socket.bytesAvailable() != 0) {
-        disconnect(&m_socket, &QLocalSocket::readyRead, this, &DiscordSocket::read);
+    const auto reply = QJsonDocument::fromJson(m_msg);
+    const auto obj = reply.object();
+    if (obj["cmd"] == "DISPATCH" && obj["evt"] == "READY") {
         emit connected();
+        return;
+    }
+
+    if (!m_messagesToSend.isEmpty()) {
+        emit send();
     }
 }
 
-bool DiscordSocket::send(const QByteArray& data, Opcode opcode)
+void DiscordSocket::send()
 {
-    if (m_socket.state() != QLocalSocket::ConnectedState) {
-        qDebug() << "socket.state() != QLocalSocket::ConnectedState";
-    }
+    m_state = State::Sent;
+    auto [data, opcode] = m_messagesToSend.dequeue();
 
     QByteArray frame;
     QDataStream stream(&frame, QIODevice::WriteOnly);
@@ -87,10 +87,54 @@ bool DiscordSocket::send(const QByteArray& data, Opcode opcode)
     const auto sent = m_socket.write(frame);
     if (sent != frame.size()) {
         qDebug() << "send failed, sent " << sent << '/' << frame.size();
-        return false;
+        return;
     }
     m_socket.flush();
-    return true;
+}
+
+void DiscordSocket::errorOccurred([[maybe_unused]] QLocalSocket::LocalSocketError socketError)
+{
+    emit failed();
+}
+
+void DiscordSocket::read()
+{
+    if (m_state != State::Reading) {
+        if (m_socket.bytesAvailable() >= sizeof(uint32_t) * 2) {
+            QDataStream in(&m_socket);
+            in.setByteOrder(QDataStream::LittleEndian);
+
+            uint32_t op;
+            in >> op;
+
+            uint32_t bytes;
+            in >> bytes;
+            m_pendingBytes = bytes;
+
+            m_state = State::Reading;
+            m_msg = {};
+        } else {
+            return;
+        }
+    }
+
+    if (m_state == State::Reading) {
+        auto toRead = std::min(m_socket.bytesAvailable(), m_pendingBytes);
+        m_msg.append(m_socket.read(toRead));
+        m_pendingBytes -= toRead;
+        if (m_pendingBytes == 0) {
+            m_state = State::Waiting;
+            processReply();
+        }
+    }
+}
+
+void DiscordSocket::enqueue(const QByteArray& data, Opcode opcode)
+{
+    m_messagesToSend.enqueue({ data, opcode });
+    if (m_state == State::Waiting) {
+        emit send();
+    }
 }
 
 void UnixDiscordSocket::connectSocket()
