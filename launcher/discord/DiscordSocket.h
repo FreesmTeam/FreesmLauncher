@@ -24,7 +24,7 @@
 #include <QQueue>
 
 class DiscordSocket : public QObject {
-    enum class Opcode : uint32_t { Handshake = 0, Frame = 1, Close = 2, Ping = 3, Pong = 4 };
+    enum class Opcode : quint32 { Handshake = 0, Frame = 1, Close = 2, Ping = 3, Pong = 4 };
 
     Q_OBJECT
    public:
@@ -63,7 +63,7 @@ class DiscordSocket : public QObject {
 
    private:
     enum class State { Waiting, Sent, Reading } m_state{ State::Waiting };
-    int64_t m_pendingBytes{};
+    qint64 m_pendingBytes{};
     QByteArray m_msg;
 
     QQueue<std::pair<QByteArray, Opcode>> m_messagesToSend;

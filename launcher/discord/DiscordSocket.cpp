@@ -100,14 +100,14 @@ void DiscordSocket::errorOccurred([[maybe_unused]] QLocalSocket::LocalSocketErro
 void DiscordSocket::read()
 {
     if (m_state != State::Reading) {
-        if (m_socket.bytesAvailable() >= sizeof(uint32_t) * 2) {
+        if (m_socket.bytesAvailable() >= sizeof(quint32) * 2) {
             QDataStream in(&m_socket);
             in.setByteOrder(QDataStream::LittleEndian);
 
-            uint32_t op;
+            quint32 op;
             in >> op;
 
-            uint32_t bytes;
+            quint32 bytes;
             in >> bytes;
             m_pendingBytes = bytes;
 
