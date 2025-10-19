@@ -49,6 +49,7 @@
 #include "Application.h"
 #include "BuildConfig.h"
 #include "DesktopServices.h"
+#include "discord/DiscordIntegration.h"
 #include "settings/SettingsObject.h"
 #include "ui/themes/ITheme.h"
 #include "ui/themes/ThemeManager.h"
@@ -106,7 +107,6 @@ LauncherPage::~LauncherPage()
 bool LauncherPage::apply()
 {
     applySettings();
-    APPLICATION->showInDiscord();
     return true;
 }
 
@@ -280,7 +280,9 @@ void LauncherPage::applySettings()
     s->set("ModDependenciesDisabled", ui->dependenciesDisableBtn->isChecked());
     s->set("SkipModpackUpdatePrompt", ui->skipModpackUpdatePromptBtn->isChecked());
 
-    s->set("AlwaysShowInDiscord", ui->discordBtn->isChecked());
+    const auto showInDiscord = ui->discordBtn->isChecked();
+    s->set("AlwaysShowInDiscord", showInDiscord);
+    APPLICATION->discord()->showAlways(showInDiscord);
 }
 
 void LauncherPage::loadSettings()

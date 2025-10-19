@@ -187,8 +187,6 @@ class Application : public QApplication {
      */
     bool openJsonEditor(const QString& filename);
 
-    void showInDiscord();
-
     InstanceWindow* showInstanceWindow(InstancePtr instance, QString page = QString());
     MainWindow* showMainWindow(bool minimized = false);
 
