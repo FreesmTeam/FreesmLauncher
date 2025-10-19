@@ -38,8 +38,9 @@
 #include "ModFolderModel.h"
 
 #include <FileSystem.h>
-#include <qabstractitemmodel.h>
+#include <QAbstractButton>
 #include <QDebug>
+#include <QFileInfo>
 #include <QFileSystemWatcher>
 #include <QHeaderView>
 #include <QIcon>
@@ -56,6 +57,7 @@
 #include "minecraft/mod/ResourceFolderModel.h"
 #include "minecraft/mod/tasks/LocalModParseTask.h"
 #include "modplatform/ModIndex.h"
+#include "ui/dialogs/CustomMessageBox.h"
 
 ModFolderModel::ModFolderModel(const QDir& dir, BaseInstance* instance, bool is_indexed, bool create_dir, QObject* parent)
     : ResourceFolderModel(QDir(dir), instance, is_indexed, create_dir, parent)
@@ -262,7 +264,7 @@ void ModFolderModel::onParseSucceeded(int ticket, QString mod_id)
     emit dataChanged(index(row), index(row, columnCount(QModelIndex()) - 1));
 }
 
-Mod* findById(QList<Mod*> mods, QString modId)
+Mod* findById(QSet<Mod*> mods, QString modId)
 {
     auto found = std::find_if(mods.begin(), mods.end(), [modId](Mod* m) { return m->mod_id() == modId; });
     return found != mods.end() ? *found : nullptr;
@@ -273,7 +275,8 @@ void ModFolderModel::onParseFinished()
     if (hasPendingParseTasks()) {
         return;
     }
-    auto mods = allMods();
+    auto modsList = allMods();
+    auto mods = QSet(modsList.begin(), modsList.end());
 
     auto findByProjectID = [mods](QVariant modId, ModPlatform::ResourceProvider provider) -> Mod* {
         auto found = std::find_if(mods.begin(), mods.end(), [modId, provider](Mod* m) {
@@ -311,9 +314,9 @@ void ModFolderModel::onParseFinished()
     }
 }
 
-QList<Mod*> collectMods(QList<Mod*> mods, QHash<QString, QSet<Mod*>> relation, std::set<QString>& seen)
+QSet<Mod*> collectMods(QSet<Mod*> mods, QHash<QString, QSet<Mod*>> relation, std::set<QString>& seen)
 {
-    QList<Mod*> affectedList = {};
+    QSet<Mod*> affectedList = {};
     for (auto mod : mods) {
         auto id = mod->mod_id();
         if (seen.count(id) == 0) {
@@ -341,16 +344,17 @@ QModelIndexList ModFolderModel::getAffectedMods(const QModelIndexList& indexes, 
         return {};
 
     QModelIndexList affectedList = {};
-    auto affectedMods = selectedMods(indexes);
+    auto affectedModsList = selectedMods(indexes);
+    auto affectedMods = QSet(affectedModsList.begin(), affectedModsList.end());
     std::set<QString> seen;
 
     switch (action) {
         case EnableAction::ENABLE: {
-            affectedMods << collectMods(affectedMods, m_requires, seen);
+            affectedMods = collectMods(affectedMods, m_requires, seen);
             break;
         }
         case EnableAction::DISABLE: {
-            affectedMods << collectMods(affectedMods, m_requiredBy, seen);
+            affectedMods = collectMods(affectedMods, m_requiredBy, seen);
             break;
         }
         case EnableAction::TOGGLE: {
@@ -374,10 +378,11 @@ bool ModFolderModel::setResourceEnabled(const QModelIndexList& indexes, EnableAc
         return {};
 
     QModelIndexList affectedList = {};
-    auto indexedMods = selectedMods(indexes);
+    auto indexedModsList = selectedMods(indexes);
+    auto indexedMods = QSet(indexedModsList.begin(), indexedModsList.end());
 
-    QList<Mod*> toEnable = {};
-    QList<Mod*> toDisable = {};
+    QSet<Mod*> toEnable = {};
+    QSet<Mod*> toDisable = {};
     std::set<QString> seen;
 
     switch (action) {
@@ -401,11 +406,11 @@ bool ModFolderModel::setResourceEnabled(const QModelIndexList& indexes, EnableAc
         }
     }
 
-    toEnable << collectMods(toEnable, m_requires, seen);
-    toDisable << collectMods(toDisable, m_requiredBy, seen);
+    auto requiredToEnable = collectMods(toEnable, m_requires, seen);
+    auto requiredToDisable = collectMods(toDisable, m_requiredBy, seen);
 
     toDisable.removeIf([toEnable](Mod* m) { return toEnable.contains(m); });
-    auto toList = [this](QList<Mod*> mods, bool shouldBeEnabled) {
+    auto toList = [this](QSet<Mod*> mods, bool shouldBeEnabled) {
         QModelIndexList list;
         for (auto mod : mods) {
             if (shouldBeEnabled != mod->enabled()) {
@@ -415,6 +420,26 @@ bool ModFolderModel::setResourceEnabled(const QModelIndexList& indexes, EnableAc
         }
         return list;
     };
+
+    if (requiredToEnable.size() > 0 || requiredToDisable.size() > 0) {
+        auto box = CustomMessageBox::selectable(
+            nullptr, tr("Confirm toggle"),
+            tr("Toggling this mod(s) will cause changes to other mods.\n") +
+                (requiredToEnable.size() > 0 ? tr("%1 mod(s) will be enabled\n").arg(requiredToEnable.size()) : "") +
+                (requiredToDisable.size() > 0 ? tr("%1 mod(s) will be disabled\n").arg(requiredToDisable.size()) : "") +
+                tr("Do you want to automatically apply these related changes?\nIgnoring them may break the game."),
+            QMessageBox::Warning, QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel, QMessageBox::No);
+        auto b = box->button(QMessageBox::No);
+        b->setText(tr("No, just toggle selected"));
+        auto response = box->exec();
+
+        if (response == QMessageBox::Yes) {
+            toEnable |= requiredToEnable;
+            toDisable |= requiredToDisable;
+        } else if (response == QMessageBox::Cancel) {
+            return false;
+        }
+    }
 
     auto disableStatus = ResourceFolderModel::setResourceEnabled(toList(toDisable, false), EnableAction::DISABLE);
     auto enableStatus = ResourceFolderModel::setResourceEnabled(toList(toEnable, true), EnableAction::ENABLE);
@@ -429,11 +454,40 @@ QStringList reqToList(QSet<Mod*> l)
     }
     return req;
 }
+
 QStringList ModFolderModel::requiresList(QString id)
 {
     return reqToList(m_requires[id]);
 }
+
 QStringList ModFolderModel::requiredByList(QString id)
 {
     return reqToList(m_requiredBy[id]);
+}
+
+bool ModFolderModel::deleteResources(const QModelIndexList& indexes)
+{
+    auto deleteInvalid = [](QSet<Mod*>& mods) {
+        for (auto it = mods.begin(); it != mods.end();) {
+            auto mod = *it;
+            // the QFileInfo::exists is used instead of mod->fileinfo().exists
+            // because the later somehow caches that the file exists
+            if (!mod || !QFileInfo::exists(mod->fileinfo().absoluteFilePath())) {
+                it = mods.erase(it);
+            } else {
+                ++it;
+            }
+        }
+    };
+    auto rsp = ResourceFolderModel::deleteResources(indexes);
+    for (auto mod : allMods()) {
+        auto id = mod->mod_id();
+        deleteInvalid(m_requiredBy[id]);
+        deleteInvalid(m_requires[id]);
+        mod->setRequiredByCount(m_requiredBy[id].count());
+        mod->setRequiresCount(m_requires[id].count());
+        int row = m_resources_index[mod->internal_id()];
+        emit dataChanged(index(row), index(row, columnCount(QModelIndex()) - 1));
+    }
+    return rsp;
 }

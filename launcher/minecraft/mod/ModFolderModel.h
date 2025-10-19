@@ -90,6 +90,8 @@ class ModFolderModel : public ResourceFolderModel {
     bool isValid();
 
     bool setResourceEnabled(const QModelIndexList& indexes, EnableAction action) override;
+    bool deleteResources(const QModelIndexList& indexes) override;
+
     QModelIndexList getAffectedMods(const QModelIndexList& indexes, EnableAction action);
 
     RESOURCE_HELPERS(Mod)
