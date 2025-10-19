@@ -254,6 +254,18 @@ void ResourceFolderModel::deleteMetadata(const QModelIndexList& indexes)
 
 bool ResourceFolderModel::setResourceEnabled(const QModelIndexList& indexes, EnableAction action)
 {
+    if (m_instance != nullptr && m_instance->isRunning()) {
+        auto response =
+            CustomMessageBox::selectable(nullptr, tr("Confirm toggle"),
+                                         tr("If you enable/disable this resource while the game is running it may crash your game.\n"
+                                            "Are you sure you want to do this?"),
+                                         QMessageBox::Warning, QMessageBox::Yes | QMessageBox::No, QMessageBox::No)
+                ->exec();
+
+        if (response != QMessageBox::Yes)
+            return false;
+    }
+
     if (indexes.isEmpty())
         return true;
 
@@ -523,17 +535,6 @@ bool ResourceFolderModel::setData(const QModelIndex& index, [[maybe_unused]] con
         return false;
 
     if (role == Qt::CheckStateRole) {
-        if (m_instance != nullptr && m_instance->isRunning()) {
-            auto response =
-                CustomMessageBox::selectable(nullptr, tr("Confirm toggle"),
-                                             tr("If you enable/disable this resource while the game is running it may crash your game.\n"
-                                                "Are you sure you want to do this?"),
-                                             QMessageBox::Warning, QMessageBox::Yes | QMessageBox::No, QMessageBox::No)
-                    ->exec();
-
-            if (response != QMessageBox::Yes)
-                return false;
-        }
         return setResourceEnabled({ index }, EnableAction::TOGGLE);
     }
 
