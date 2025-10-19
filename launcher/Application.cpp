@@ -1422,11 +1422,6 @@ bool Application::openJsonEditor(const QString& filename)
     }
 }
 
-void Application::showInDiscord()
-{
-    discord()->showAlways(m_settings->get("AlwaysShowInDiscord").toBool());
-}
-
 bool Application::launch(InstancePtr instance, bool online, bool demo, MinecraftTarget::Ptr targetToJoin, BaseAccountPtr accountToUse)
 {
     if (m_updateRunning) {
