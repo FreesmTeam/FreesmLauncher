@@ -30,9 +30,9 @@
 #include "ui/themes/CatPack.h"
 #include "ui/themes/CustomTheme.h"
 #include "ui/themes/DarkTheme.h"
+#include "ui/themes/FreesmLightTheme.h"
 #include "ui/themes/FreesmTheme.h"
 #include "ui/themes/GruvboxTheme.h"
-#include "ui/themes/FreesmLightTheme.h"
 #include "ui/themes/SystemTheme.h"
 
 #include "Application.h"
@@ -300,16 +300,21 @@ QString ThemeManager::addCatPack(std::unique_ptr<CatPack> catPack)
 void ThemeManager::initializeCatPacks()
 {
     QList<std::pair<QString, QString>> defaultCats{ { "kitteh", QObject::tr("Background Cat (from MultiMC)") },
-                                                    { "typescript", QObject::tr("You should have used Typescript") },
-                                                    { "miside-screenshot", QObject::tr("MiSide Screenshot") },
-                                                    { "maxwell-christmas-gif", QObject::tr("Maxwell Christmas Cat") },
-                                                    { "konata-gif", QObject::tr("Low-poly Konata") },
                                                     { "rory", QObject::tr("Rory ID 11 (drawn by Ashtaka)") },
                                                     { "rory-flat", QObject::tr("Rory ID 11 (flat edition, drawn by Ashtaka)") },
                                                     { "teawie", QObject::tr("Teawie (drawn by SympathyTea)") } };
     for (auto [id, name] : defaultCats) {
         addCatPack(std::unique_ptr<CatPack>(new BasicCatPack(id, name)));
     }
+
+    QList<std::pair<QString, QString>> freesmCats{ { "typescript", QObject::tr("You should have used Typescript") },
+                                                   { "miside-screenshot", QObject::tr("MiSide Screenshot") },
+                                                   { "maxwell-christmas-gif", QObject::tr("Maxwell Christmas Cat") },
+                                                   { "konata-gif", QObject::tr("Low-poly Konata") } };
+    for (const auto& [id, name] : freesmCats) {
+        addCatPack(std::make_unique<FreesmCatPack>(id, name));
+    }
+
     if (!m_catPacksFolder.mkpath("."))
         themeWarningLog() << "Couldn't create catpacks folder";
     themeDebugLog() << "CatPacks Folder Path:" << m_catPacksFolder.absolutePath();
