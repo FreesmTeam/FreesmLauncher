@@ -83,6 +83,7 @@ class UnixDiscordSocket : public DiscordSocket {
 
    private:
     int m_socketIndex{};
+    QString m_path;
 };
 
 class WinDiscordSocket : public DiscordSocket {
