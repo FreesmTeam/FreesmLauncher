@@ -32,6 +32,8 @@ class DiscordQueue : public QObject {
     void instanceStarted(const std::shared_ptr<BaseInstance>& instance);
     void instanceStopped(const std::shared_ptr<BaseInstance>& instance);
 
+    bool isInstanceRunning();
+
    public slots:
     void socketReady();
 

@@ -49,6 +49,7 @@
 #include "Application.h"
 #include "BuildConfig.h"
 #include "DesktopServices.h"
+#include "discord/DiscordIntegration.h"
 #include "settings/SettingsObject.h"
 #include "ui/themes/ITheme.h"
 #include "ui/themes/ThemeManager.h"
@@ -278,7 +279,12 @@ void LauncherPage::applySettings()
     s->set("ModMetadataDisabled", ui->metadataDisableBtn->isChecked());
     s->set("ModDependenciesDisabled", ui->dependenciesDisableBtn->isChecked());
     s->set("SkipModpackUpdatePrompt", ui->skipModpackUpdatePromptBtn->isChecked());
+
+    const auto showInDiscord = ui->discordBtn->isChecked();
+    s->set("AlwaysShowInDiscord", showInDiscord);
+    APPLICATION->discord()->showAlways(showInDiscord);
 }
+
 void LauncherPage::loadSettings()
 {
     auto s = APPLICATION->settings();
@@ -352,6 +358,8 @@ void LauncherPage::loadSettings()
     ui->metadataWarningLabel->setHidden(!ui->metadataDisableBtn->isChecked());
     ui->dependenciesDisableBtn->setChecked(s->get("ModDependenciesDisabled").toBool());
     ui->skipModpackUpdatePromptBtn->setChecked(s->get("SkipModpackUpdatePrompt").toBool());
+
+    ui->discordBtn->setChecked(s->get("AlwaysShowInDiscord").toBool());
 }
 
 void LauncherPage::refreshFontPreview()
