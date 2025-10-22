@@ -20,6 +20,7 @@
 #include <QDir>
 #include <QJsonDocument>
 #include <QJsonObject>
+#include <QProcessEnvironment>
 
 #include "BuildConfig.h"
 
@@ -139,6 +140,8 @@ void DiscordSocket::enqueue(const QByteArray& data, Opcode opcode)
 
 void UnixDiscordSocket::connectSocket()
 {
+    const QString runtimeDir = QProcessEnvironment::systemEnvironment().value("XDG_RUNTIME_DIR");
+    m_path = runtimeDir != "" ? runtimeDir : QDir::tempPath();
     emit tryNext();
 }
 
@@ -156,7 +159,7 @@ void UnixDiscordSocket::errorOccurred(QLocalSocket::LocalSocketError socketError
 void UnixDiscordSocket::tryNext()
 {
     if (m_socketIndex < 10) {
-        const QString path = QDir::tempPath() + "/discord-ipc-" + QString::number(m_socketIndex);
+        const QString path = m_path + "/discord-ipc-" + QString::number(m_socketIndex);
         m_socket.setServerName(path);
         m_socket.connectToServer();
     } else {
