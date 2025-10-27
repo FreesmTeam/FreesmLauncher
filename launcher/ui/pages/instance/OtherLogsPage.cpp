@@ -284,9 +284,9 @@ void OtherLogsPage::reload()
             MessageLevel::Enum level = MessageLevel::Unknown;
 
             QString lineTemp = line;  // don't edit out the time and level for clarity
-            if (!m_instance)
+            if (!m_instance) {
                 level = MessageLevel::fromLauncherLine(lineTemp);
-            else {
+            } else {
                 level = LogParser::guessLevel(line);
 
                 if (level == MessageLevel::Unknown)
