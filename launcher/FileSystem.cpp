@@ -1002,7 +1002,10 @@ QString createShortcut(QString destination, QString target, QStringList args, QS
     if (!destination.endsWith(".desktop"))  // in case of isFlatpak destination is already populated
         destination += ".desktop";
     QFile f(destination);
-    f.open(QIODevice::WriteOnly | QIODevice::Text);
+    if (!f.open(QIODevice::WriteOnly | QIODevice::Text)) {
+        qWarning() << "Failed to open file '" << f.fileName() << "' for writing!";
+        return QString();
+    }
     QTextStream stream(&f);
 
     auto argstring = quoteArgs(args, "'", "'\\''");
