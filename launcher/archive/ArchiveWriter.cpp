@@ -46,24 +46,7 @@ bool ArchiveWriter::open()
         return false;
     }
 
-    QString lowerName = m_filename.toLower();
-    if (lowerName.endsWith(".tar.gz") || lowerName.endsWith(".tgz")) {
-        archive_write_set_format_pax_restricted(m_archive);
-        archive_write_add_filter_gzip(m_archive);
-    } else if (lowerName.endsWith(".tar.bz2") || lowerName.endsWith(".tbz")) {
-        archive_write_set_format_pax_restricted(m_archive);
-        archive_write_add_filter_bzip2(m_archive);
-    } else if (lowerName.endsWith(".tar.xz") || lowerName.endsWith(".txz")) {
-        archive_write_set_format_pax_restricted(m_archive);
-        archive_write_add_filter_xz(m_archive);
-    } else if (lowerName.endsWith(".zip") || lowerName.endsWith(".jar") || lowerName.endsWith(".mrpack")) {
-        archive_write_set_format_zip(m_archive);
-    } else if (lowerName.endsWith(".tar")) {
-        archive_write_set_format_pax_restricted(m_archive);
-    } else {
-        qCritical() << "Unknown archive format:" << m_filename;
-        return false;
-    }
+    archive_write_set_format_zip(m_archive);
 
     if (archive_write_set_options(m_archive, "hdrcharset=UTF-8") != ARCHIVE_OK) {
         qCritical() << "Failed to open archive file:" << m_filename << "-" << archive_error_string(m_archive);
