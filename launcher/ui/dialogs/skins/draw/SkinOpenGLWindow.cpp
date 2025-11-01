@@ -75,6 +75,12 @@ void SkinOpenGLWindow::mousePressEvent(QMouseEvent* e)
 
 void SkinOpenGLWindow::mouseMoveEvent(QMouseEvent* event)
 {
+    // Prevents mouse sticking on Wayland compositors
+    if (!(event->buttons() & Qt::MouseButton::LeftButton)) {
+        m_isMousePressed = false;
+        return;
+    }
+
     if (m_isMousePressed) {
         int dx = event->position().x() - m_mousePosition.x();
         int dy = event->position().y() - m_mousePosition.y();
