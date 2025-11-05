@@ -45,7 +45,8 @@ class ModrinthAPI : public ResourceAPI {
     {
         QStringList l;
         for (auto loader : { ModPlatform::NeoForge, ModPlatform::Forge, ModPlatform::Fabric, ModPlatform::Quilt, ModPlatform::LiteLoader,
-                             ModPlatform::DataPack, ModPlatform::Babric, ModPlatform::BTA, ModPlatform::LegacyFabric, ModPlatform::Ornithe, ModPlatform::Rift }) {
+                             ModPlatform::DataPack, ModPlatform::Babric, ModPlatform::BTA, ModPlatform::LegacyFabric, ModPlatform::Ornithe,
+                             ModPlatform::Rift }) {
             if (types & loader) {
                 l << getModLoaderAsString(loader);
             }
@@ -188,7 +189,7 @@ class ModrinthAPI : public ResourceAPI {
             get_arguments.append(QString("loaders=[\"%1\"]").arg(getModLoaderStrings(args.loaders.value()).join("\",\"")));
 
         return QString("%1/project/%2/version%3%4")
-            .arg(BuildConfig.MODRINTH_PROD_URL, args.pack.addonId.toString(), get_arguments.isEmpty() ? "" : "?", get_arguments.join('&'));
+            .arg(BuildConfig.MODRINTH_PROD_URL, args.pack->addonId.toString(), get_arguments.isEmpty() ? "" : "?", get_arguments.join('&'));
     };
 
     QString getGameVersionsArray(std::list<Version> mcVersions) const
@@ -204,7 +205,8 @@ class ModrinthAPI : public ResourceAPI {
     static inline auto validateModLoaders(ModPlatform::ModLoaderTypes loaders) -> bool
     {
         return loaders & (ModPlatform::NeoForge | ModPlatform::Forge | ModPlatform::Fabric | ModPlatform::Quilt | ModPlatform::LiteLoader |
-                          ModPlatform::DataPack | ModPlatform::Babric | ModPlatform::BTA | ModPlatform::LegacyFabric | ModPlatform::Ornithe | ModPlatform::Rift);
+                          ModPlatform::DataPack | ModPlatform::Babric | ModPlatform::BTA | ModPlatform::LegacyFabric |
+                          ModPlatform::Ornithe | ModPlatform::Rift);
     }
 
     std::optional<QString> getDependencyURL(DependencySearchArgs const& args) const override

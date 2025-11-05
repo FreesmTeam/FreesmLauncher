@@ -26,12 +26,15 @@ void FlameMod::loadIndexedPack(ModPlatform::IndexedPack& pack, QJsonObject& obj)
     }
 
     auto authors = Json::ensureArray(obj, "authors");
-    for (auto authorIter : authors) {
-        auto author = Json::requireObject(authorIter);
-        ModPlatform::ModpackAuthor packAuthor;
-        packAuthor.name = Json::requireString(author, "name");
-        packAuthor.url = Json::requireString(author, "url");
-        pack.authors.append(packAuthor);
+    if (!authors.isEmpty()) {
+        pack.authors.clear();
+        for (auto authorIter : authors) {
+            auto author = Json::requireObject(authorIter);
+            ModPlatform::ModpackAuthor packAuthor;
+            packAuthor.name = Json::requireString(author, "name");
+            packAuthor.url = Json::requireString(author, "url");
+            pack.authors.append(packAuthor);
+        }
     }
 
     pack.extraDataLoaded = false;

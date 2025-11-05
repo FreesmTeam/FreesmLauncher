@@ -6,12 +6,14 @@
 #include <QDesktopServices>
 #include <QUrl>
 #include <QUrlQuery>
+#include "modplatform/ModIndex.h"
 #include "ui_ManagedPackPage.h"
 
 #include <QFileDialog>
 #include <QListView>
 #include <QProxyStyle>
 #include <QStyleFactory>
+#include <memory>
 
 #include "Application.h"
 #include "BuildConfig.h"
@@ -284,7 +286,8 @@ void ModrinthManagedPackPage::parseManagedPack()
     };
     callbacks.on_fail = [this](QString reason, int) { setFailState(); };
     callbacks.on_abort = [this]() { setFailState(); };
-    m_fetch_job = m_api.getProjectVersions({ m_pack, {}, {}, ModPlatform::ResourceType::Modpack }, std::move(callbacks));
+    m_fetch_job = m_api.getProjectVersions(
+        { std::make_shared<ModPlatform::IndexedPack>(m_pack), {}, {}, ModPlatform::ResourceType::Modpack }, std::move(callbacks));
 
     ui->changelogTextBrowser->setText(tr("Fetching changelogs..."));
 
@@ -455,7 +458,8 @@ void FlameManagedPackPage::parseManagedPack()
     };
     callbacks.on_fail = [this](QString reason, int) { setFailState(); };
     callbacks.on_abort = [this]() { setFailState(); };
-    m_fetch_job = m_api.getProjectVersions({ m_pack, {}, {}, ModPlatform::ResourceType::Modpack }, std::move(callbacks));
+    m_fetch_job = m_api.getProjectVersions(
+        { std::make_shared<ModPlatform::IndexedPack>(m_pack), {}, {}, ModPlatform::ResourceType::Modpack }, std::move(callbacks));
 
     m_fetch_job->start();
 }

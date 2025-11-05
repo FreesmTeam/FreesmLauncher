@@ -80,7 +80,7 @@ Task::Ptr ResourceAPI::getProjectVersions(VersionSearchArgs&& args, Callback<QVe
 
     auto versions_url = versions_url_optional.value();
 
-    auto netJob = makeShared<NetJob>(QString("%1::Versions").arg(args.pack.name), APPLICATION->network());
+    auto netJob = makeShared<NetJob>(QString("%1::Versions").arg(args.pack->name), APPLICATION->network());
     auto response = std::make_shared<QByteArray>();
 
     netJob->addNetAction(Net::ApiDownload::makeByteArray(versions_url, response));
@@ -104,7 +104,7 @@ Task::Ptr ResourceAPI::getProjectVersions(VersionSearchArgs&& args, Callback<QVe
 
                 auto file = loadIndexedPackVersion(obj, args.resourceType);
                 if (!file.addonId.isValid())
-                    file.addonId = args.pack.addonId;
+                    file.addonId = args.pack->addonId;
 
                 if (file.fileId.isValid() && !file.downloadUrl.isEmpty())  // Heuristic to check if the returned value is valid
                     unsortedVersions.append(file);
@@ -140,10 +140,10 @@ Task::Ptr ResourceAPI::getProjectVersions(VersionSearchArgs&& args, Callback<QVe
     return netJob;
 }
 
-Task::Ptr ResourceAPI::getProjectInfo(ProjectInfoArgs&& args, Callback<ModPlatform::IndexedPack>&& callbacks) const
+Task::Ptr ResourceAPI::getProjectInfo(ProjectInfoArgs&& args, Callback<ModPlatform::IndexedPack::Ptr>&& callbacks) const
 {
     auto response = std::make_shared<QByteArray>();
-    auto job = getProject(args.pack.addonId.toString(), response);
+    auto job = getProject(args.pack->addonId.toString(), response);
 
     QObject::connect(job.get(), &NetJob::succeeded, [this, response, callbacks, args] {
         auto pack = args.pack;
@@ -159,8 +159,8 @@ Task::Ptr ResourceAPI::getProjectInfo(ProjectInfoArgs&& args, Callback<ModPlatfo
             auto obj = Json::requireObject(doc);
             if (obj.contains("data"))
                 obj = Json::requireObject(obj, "data");
-            loadIndexedPack(pack, obj);
-            loadExtraPackInfo(pack, obj);
+            loadIndexedPack(*pack, obj);
+            loadExtraPackInfo(*pack, obj);
         } catch (const JSONValidationError& e) {
             qDebug() << doc;
             qWarning() << "Error while reading " << debugName() << " resource info: " << e.cause();

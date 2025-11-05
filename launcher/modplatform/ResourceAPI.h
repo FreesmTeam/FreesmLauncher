@@ -88,7 +88,7 @@ class ResourceAPI {
     };
 
     struct VersionSearchArgs {
-        ModPlatform::IndexedPack pack;
+        ModPlatform::IndexedPack::Ptr pack;
 
         std::optional<std::list<Version>> mcVersions;
         std::optional<ModPlatform::ModLoaderTypes> loaders;
@@ -96,7 +96,7 @@ class ResourceAPI {
     };
 
     struct ProjectInfoArgs {
-        ModPlatform::IndexedPack pack;
+        ModPlatform::IndexedPack::Ptr pack;
     };
 
     struct DependencySearchArgs {
@@ -115,7 +115,7 @@ class ResourceAPI {
     virtual Task::Ptr getProject(QString addonId, std::shared_ptr<QByteArray> response) const;
     virtual Task::Ptr getProjects(QStringList addonIds, std::shared_ptr<QByteArray> response) const = 0;
 
-    virtual Task::Ptr getProjectInfo(ProjectInfoArgs&&, Callback<ModPlatform::IndexedPack>&&) const;
+    virtual Task::Ptr getProjectInfo(ProjectInfoArgs&&, Callback<ModPlatform::IndexedPack::Ptr>&&) const;
     Task::Ptr getProjectVersions(VersionSearchArgs&& args, Callback<QVector<ModPlatform::IndexedVersion>>&& callbacks) const;
     virtual Task::Ptr getDependencyVersion(DependencySearchArgs&&, Callback<ModPlatform::IndexedVersion>&&) const;
 

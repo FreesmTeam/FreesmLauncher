@@ -138,13 +138,13 @@ class ResourceModel : public QAbstractListModel {
    private:
     /* Default search request callbacks */
     void searchRequestSucceeded(QList<ModPlatform::IndexedPack::Ptr>&);
-    void searchRequestForOneSucceeded(ModPlatform::IndexedPack&);
+    void searchRequestForOneSucceeded(ModPlatform::IndexedPack::Ptr);
     void searchRequestFailed(QString reason, int network_error_code);
     void searchRequestAborted();
 
     void versionRequestSucceeded(QVector<ModPlatform::IndexedVersion>&, QVariant, const QModelIndex&);
 
-    void infoRequestSucceeded(ModPlatform::IndexedPack&, const QModelIndex&);
+    void infoRequestSucceeded(ModPlatform::IndexedPack::Ptr, const QModelIndex&);
 
    signals:
     void versionListUpdated(const QModelIndex& index);
