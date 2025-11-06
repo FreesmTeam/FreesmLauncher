@@ -61,7 +61,8 @@ class SkinOpenGLWindow : public QOpenGLWindow, protected QOpenGLFunctions {
     void renderBackground();
 
    private:
-    QOpenGLShaderProgram* m_program;
+    QOpenGLShaderProgram* m_modelProgram;
+    QOpenGLShaderProgram* m_backgroundProgram;
     opengl::Scene* m_scene = nullptr;
 
     QMatrix4x4 m_projection;
