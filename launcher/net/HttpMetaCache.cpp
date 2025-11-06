@@ -112,7 +112,10 @@ auto HttpMetaCache::resolveEntry(QString base, QString resource_path, QString ex
     qint64 file_last_changed = finfo.lastModified().toUTC().toMSecsSinceEpoch();
     if (file_last_changed != entry->m_local_changed_timestamp) {
         QFile input(real_path);
-        input.open(QIODevice::ReadOnly);
+        if (!input.open(QIODevice::ReadOnly)) {
+            qWarning() << "Failed to open file '" << input.fileName() << "' for reading!";
+            return staleEntry(base, resource_path);
+        }
         QString md5sum = QCryptographicHash::hash(input.readAll(), QCryptographicHash::Md5).toHex().constData();
         if (entry->m_md5sum != md5sum) {
             selected_base.entry_list.remove(resource_path);

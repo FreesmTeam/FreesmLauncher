@@ -59,9 +59,14 @@ QString getCreditsHtml()
 QString getLicenseHtml()
 {
     QFile dataFile(":/documents/COPYING.md");
-    dataFile.open(QIODevice::ReadOnly);
-    QString output = markdownToHTML(dataFile.readAll());
-    return output;
+    if (dataFile.open(QIODevice::ReadOnly)) {
+        QString output = markdownToHTML(dataFile.readAll());
+        dataFile.close();
+        return output;
+    } else {
+        qWarning() << "Failed to open file '" << dataFile.fileName() << "' for reading!";
+        return QString();
+    }
 }
 
 }  // namespace
