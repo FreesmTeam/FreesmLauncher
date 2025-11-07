@@ -23,6 +23,26 @@ ReviewMessageBox::ReviewMessageBox(QWidget* parent, [[maybe_unused]] QString con
 
     ui->buttonBox->button(QDialogButtonBox::Cancel)->setText(tr("Cancel"));
     ui->buttonBox->button(QDialogButtonBox::Ok)->setText(tr("OK"));
+
+    // Overwrite Ctrl+C functionality to exclude the label when copying text from tree
+    auto shortcut = new QShortcut(QKeySequence::Copy, ui->modTreeWidget);
+    connect(shortcut, &QShortcut::activated, [this]() {
+        auto currentItem = this->ui->modTreeWidget->currentItem();
+        if (!currentItem)
+            return;
+        auto currentColumn = this->ui->modTreeWidget->currentColumn();
+
+        auto data = currentItem->data(currentColumn, Qt::UserRole);
+        QString txt;
+
+        if (data.isValid()) {
+            txt = data.toString();
+        } else {
+            txt = currentItem->text(currentColumn);
+        }
+
+        QApplication::clipboard()->setText(txt);
+    });
 }
 
 ReviewMessageBox::~ReviewMessageBox()
@@ -95,26 +115,6 @@ void ReviewMessageBox::appendResource(ResourceInformation&& info)
     itemTop->insertChildren(childIndx++, { versionTypeItem });
 
     ui->modTreeWidget->addTopLevelItem(itemTop);
-
-    // Overwrite Ctrl+C functionality to exclude the label when copying text from tree
-    auto shortcut = new QShortcut(QKeySequence::Copy, ui->modTreeWidget);
-    connect(shortcut, &QShortcut::activated, [this]() {
-        auto currentItem = this->ui->modTreeWidget->currentItem();
-        if (!currentItem)
-            return;
-        auto currentColumn = this->ui->modTreeWidget->currentColumn();
-
-        auto data = currentItem->data(currentColumn, Qt::UserRole);
-        QString txt;
-
-        if (data.isValid()) {
-            txt = data.toString();
-        } else {
-            txt = currentItem->text(currentColumn);
-        }
-
-        QApplication::clipboard()->setText(txt);
-    });
 }
 
 auto ReviewMessageBox::deselectedResources() -> QStringList

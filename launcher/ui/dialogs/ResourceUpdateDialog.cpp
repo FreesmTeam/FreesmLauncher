@@ -482,6 +482,7 @@ void ResourceUpdateDialog::appendResource(CheckUpdateTask::Update const& info, Q
     auto changelog_area = new QTextBrowser();
 
     QString text = info.changelog;
+    changelog->setData(0, Qt::UserRole, text);
     if (info.provider == ModPlatform::ResourceProvider::MODRINTH) {
         text = markdownToHTML(info.changelog.toUtf8());
     }
@@ -494,26 +495,6 @@ void ResourceUpdateDialog::appendResource(CheckUpdateTask::Update const& info, Q
     ui->modTreeWidget->setItemWidget(changelog, 0, changelog_area);
 
     ui->modTreeWidget->addTopLevelItem(item_top);
-
-    // Overwrite Ctrl+C functionality to exclude the label when copying text from tree
-    auto shortcut = new QShortcut(QKeySequence::Copy, ui->modTreeWidget);
-    connect(shortcut, &QShortcut::activated, [this]() {
-        auto currentItem = this->ui->modTreeWidget->currentItem();
-        if (!currentItem)
-            return;
-        auto currentColumn = this->ui->modTreeWidget->currentColumn();
-
-        auto data = currentItem->data(currentColumn, Qt::UserRole);
-        QString txt;
-
-        if (data.isValid()) {
-            txt = data.toString();
-        } else {
-            txt = currentItem->text(currentColumn);
-        }
-
-        QApplication::clipboard()->setText(txt);
-    });
 }
 
 auto ResourceUpdateDialog::getTasks() -> const QList<ResourceDownloadTask::Ptr>
