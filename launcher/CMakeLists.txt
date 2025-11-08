@@ -1290,7 +1290,6 @@ set_project_warnings(Launcher_logic
 target_include_directories(Launcher_logic PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 target_compile_definitions(Launcher_logic PUBLIC LAUNCHER_APPLICATION)
 target_link_libraries(Launcher_logic
-    systeminfo
     Launcher_murmur2
     nbt++
     ${ZLIB_LIBRARIES}
@@ -1393,7 +1392,6 @@ if(Launcher_BUILD_UPDATER)
     target_link_libraries(prism_updater_logic
         QuaZip::QuaZip
         ${ZLIB_LIBRARIES}
-        systeminfo
         BuildConfig
         Qt${QT_VERSION_MAJOR}::Widgets
         Qt${QT_VERSION_MAJOR}::Core
@@ -1436,7 +1434,6 @@ if(WIN32 OR (DEFINED Launcher_BUILD_FILELINKER AND Launcher_BUILD_FILELINKER))
 
     target_include_directories(filelink_logic PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
     target_link_libraries(filelink_logic
-        systeminfo
         BuildConfig
         Qt${QT_VERSION_MAJOR}::Widgets
         Qt${QT_VERSION_MAJOR}::Core

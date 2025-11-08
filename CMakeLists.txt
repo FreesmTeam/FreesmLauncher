@@ -467,7 +467,6 @@ option(NBT_USE_ZLIB "Build NBT library with zlib support" OFF)
 option(NBT_BUILD_TESTS "Build NBT library tests" OFF) #FIXME: fix unit tests.
 add_subdirectory(libraries/libnbtplusplus)
 
-add_subdirectory(libraries/systeminfo) # system information library
 add_subdirectory(libraries/launcher) # java based launcher part for Minecraft
 add_subdirectory(libraries/javacheck) # java compatibility checker
 if(FORCE_BUNDLED_ZLIB)

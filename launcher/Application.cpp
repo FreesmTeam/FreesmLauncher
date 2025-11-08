@@ -127,7 +127,6 @@
 #include <LocalPeer.h>
 
 #include <stdlib.h>
-#include <sys.h>
 #include <QStringLiteral>
 #include "SysInfo.h"
 
