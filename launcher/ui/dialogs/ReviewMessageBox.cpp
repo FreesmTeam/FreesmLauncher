@@ -1,7 +1,9 @@
 #include "ReviewMessageBox.h"
 #include "ui_ReviewMessageBox.h"
 
+#include <QClipboard>
 #include <QPushButton>
+#include <QShortcut>
 
 ReviewMessageBox::ReviewMessageBox(QWidget* parent, [[maybe_unused]] QString const& title, [[maybe_unused]] QString const& icon)
     : QDialog(parent), ui(new Ui::ReviewMessageBox)
@@ -21,6 +23,26 @@ ReviewMessageBox::ReviewMessageBox(QWidget* parent, [[maybe_unused]] QString con
 
     ui->buttonBox->button(QDialogButtonBox::Cancel)->setText(tr("Cancel"));
     ui->buttonBox->button(QDialogButtonBox::Ok)->setText(tr("OK"));
+
+    // Overwrite Ctrl+C functionality to exclude the label when copying text from tree
+    auto shortcut = new QShortcut(QKeySequence::Copy, ui->modTreeWidget);
+    connect(shortcut, &QShortcut::activated, [this]() {
+        auto currentItem = this->ui->modTreeWidget->currentItem();
+        if (!currentItem)
+            return;
+        auto currentColumn = this->ui->modTreeWidget->currentColumn();
+
+        auto data = currentItem->data(currentColumn, Qt::UserRole);
+        QString txt;
+
+        if (data.isValid()) {
+            txt = data.toString();
+        } else {
+            txt = currentItem->text(currentColumn);
+        }
+
+        QApplication::clipboard()->setText(txt);
+    });
 }
 
 ReviewMessageBox::~ReviewMessageBox()
@@ -44,6 +66,7 @@ void ReviewMessageBox::appendResource(ResourceInformation&& info)
 
     auto filenameItem = new QTreeWidgetItem(itemTop);
     filenameItem->setText(0, tr("Filename: %1").arg(info.filename));
+    filenameItem->setData(0, Qt::UserRole, info.filename);
 
     auto childIndx = 0;
     itemTop->insertChildren(childIndx++, { filenameItem });
@@ -62,6 +85,7 @@ void ReviewMessageBox::appendResource(ResourceInformation&& info)
 
     auto providerItem = new QTreeWidgetItem(itemTop);
     providerItem->setText(0, tr("Provider: %1").arg(info.provider));
+    providerItem->setData(0, Qt::UserRole, info.provider);
 
     itemTop->insertChildren(childIndx++, { providerItem });
 
@@ -86,6 +110,8 @@ void ReviewMessageBox::appendResource(ResourceInformation&& info)
 
     auto versionTypeItem = new QTreeWidgetItem(itemTop);
     versionTypeItem->setText(0, tr("Version Type: %1").arg(info.version_type));
+    versionTypeItem->setData(0, Qt::UserRole, info.version_type);
+
     itemTop->insertChildren(childIndx++, { versionTypeItem });
 
     ui->modTreeWidget->addTopLevelItem(itemTop);
