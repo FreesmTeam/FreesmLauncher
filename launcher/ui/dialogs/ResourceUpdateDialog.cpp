@@ -461,13 +461,12 @@ void ResourceUpdateDialog::appendResource(CheckUpdateTask::Update const& info, Q
         auto requiredByItem = new QTreeWidgetItem(item_top);
         if (requiredBy.length() == 1) {
             requiredByItem->setText(0, tr("Required by: %1").arg(requiredBy.back()));
+            requiredByItem->setData(0, Qt::UserRole, requiredBy.back());
         } else {
             requiredByItem->setText(0, tr("Required by:"));
-            auto i = 0;
             for (auto req : requiredBy) {
                 auto reqItem = new QTreeWidgetItem(requiredByItem);
                 reqItem->setText(0, req);
-                reqItem->insertChildren(i++, { reqItem });
             }
         }
 
