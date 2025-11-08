@@ -61,7 +61,7 @@ bool rosettaDetect()
 {
     int ret = 0;
     size_t size = sizeof(ret);
-    if (sysctlbyname("sysctl.proc_translated", &ret, &size, NULL, 0) == -1) {
+    if (sysctlbyname("sysctl.proc_translated", &ret, &size, nullptr, 0) == -1) {
         return false;
     }
     return ret == 1;
@@ -118,8 +118,8 @@ uint64_t getSystemRamMiB()
 #elif defined(Q_OS_FREEBSD) || defined(Q_OS_OPENBSD)
     char buff[512];
     FILE* fp = popen("sysctl hw.physmem", "r");
-    if (fp != NULL) {
-        if (fgets(buff, 512, fp) != NULL) {
+    if (fp != nullptr) {
+        if (fgets(buff, 512, fp) != nullptr) {
             std::string str(buff);
             uint64_t mem = std::stoull(str.substr(12, std::string::npos));
 
@@ -131,7 +131,7 @@ uint64_t getSystemRamMiB()
     uint64_t memsize;
     size_t memsizesize = sizeof memsize;
 
-    if (!sysctlbyname("hw.memsize", &memsize, &memsizesize, NULL, 0)) {
+    if (!sysctlbyname("hw.memsize", &memsize, &memsizesize, nullptr, 0)) {
         // transforming bytes -> mib
         return memsize / 1024 / 1024;
     }
