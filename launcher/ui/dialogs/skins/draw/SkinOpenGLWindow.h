@@ -74,6 +74,8 @@ class SkinOpenGLWindow : public QOpenGLWindow, protected QOpenGLFunctions {
     float m_yaw = 90;   // Horizontal rotation angle
     float m_pitch = 0;  // Vertical rotation angle
 
+    bool m_isFirstFrame = true;
+
     opengl::BoxGeometry* m_background = nullptr;
     QOpenGLTexture* m_backgroundTexture = nullptr;
     QColor m_baseColor;
