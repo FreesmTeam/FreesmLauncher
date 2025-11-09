@@ -248,19 +248,10 @@ QList<T> ensureIsArrayOf(const QJsonObject& parent,
     {                                                                                                                 \
         return requireIsType<TYPE>(value, what);                                                                      \
     }                                                                                                                 \
-    inline TYPE ensure##NAME(const QJsonValue& value, const TYPE default_ = TYPE(), const QString& what = "Value")    \
-    {                                                                                                                 \
-        return ensureIsType<TYPE>(value, default_, what);                                                             \
-    }                                                                                                                 \
     inline TYPE require##NAME(const QJsonObject& parent, const QString& key, const QString& what = "__placeholder__") \
     {                                                                                                                 \
         return requireIsType<TYPE>(parent, key, what);                                                                \
     }                                                                                                                 \
-    inline TYPE ensure##NAME(const QJsonObject& parent, const QString& key, const TYPE default_ = TYPE(),             \
-                             const QString& what = "__placeholder")                                                   \
-    {                                                                                                                 \
-        return ensureIsType<TYPE>(parent, key, default_, what);                                                       \
-    }
 
 JSON_HELPERFUNCTIONS(Array, QJsonArray)
 JSON_HELPERFUNCTIONS(Object, QJsonObject)
