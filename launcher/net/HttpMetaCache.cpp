@@ -270,7 +270,7 @@ void HttpMetaCache::Load()
         foo->m_local_changed_timestamp = element_obj["last_changed_timestamp"].toDouble();
         foo->m_remote_changed_timestamp = element_obj["remote_changed_timestamp"].toString();
 
-        foo->makeEternal(element_obj[QStringLiteral("eternal")].toBool(false));
+        foo->makeEternal(element_obj[QStringLiteral("eternal")].toBool());
         if (!foo->isEternal()) {
             foo->m_current_age = element_obj["current_age"].toDouble();
             foo->m_max_age = element_obj["max_age"].toDouble();

@@ -180,7 +180,7 @@ bool processMCMeta(DataPack* pack, QByteArray&& raw_data)
         auto json_doc = QJsonDocument::fromJson(raw_data);
         auto pack_obj = Json::requireObject(json_doc.object(), "pack", {});
 
-        pack->setPackFormat(pack_obj["pack_format"].toInt(0));
+        pack->setPackFormat(pack_obj["pack_format"].toInt());
         pack->setDescription(DataPackUtils::processComponent(pack_obj.value("description")));
     } catch (Json::JsonException& e) {
         qWarning() << "JsonException: " << e.what() << e.cause();
