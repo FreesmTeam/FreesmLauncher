@@ -249,7 +249,7 @@ bool ModrinthCreationTask::createInstance()
     auto root_modpack_url = QUrl::fromLocalFile(root_modpack_path);
     // TODO make this work with other sorts of resource
     QHash<QString, Resource*> resources;
-    for (auto file : m_files) {
+    for (auto& file : m_files) {
         auto fileName = file.path;
         fileName = FS::RemoveInvalidPathChars(fileName);
         auto file_path = FS::PathCombine(root_modpack_path, fileName);
