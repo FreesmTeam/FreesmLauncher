@@ -105,7 +105,6 @@ assert lib.assertMsg (
       '';
       maintainers = with lib.maintainers; [
         s0me1newithhand7s
-        windstone
       ];
     };
   }
