@@ -18,6 +18,7 @@
 #include "ArchiveWriter.h"
 #include <archive.h>
 #include <archive_entry.h>
+#include <sys/stat.h>
 
 #include <QFile>
 #include <QFileInfo>
@@ -96,6 +97,13 @@ bool ArchiveWriter::addFile(const QString& fileName, const QString& fileDest)
 
     auto fileDestUtf8 = fileDest.toUtf8();
     archive_entry_set_pathname(entry, fileDestUtf8.constData());
+
+    QByteArray utf8 = fileInfo.absoluteFilePath().toUtf8();
+    const char* cpath = utf8.constData();
+    struct stat st;
+    if (stat(cpath, &st) == 0) {
+        archive_entry_copy_stat(entry, &st);
+    }
     archive_entry_set_perm(entry, fileInfo.permissions() & 0777);
 
     if (fileInfo.isSymLink()) {
