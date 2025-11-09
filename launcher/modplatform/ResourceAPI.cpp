@@ -67,7 +67,10 @@ Task::Ptr ResourceAPI::searchProjects(SearchArgs&& args, Callback<QList<ModPlatf
         }
         callbacks.on_fail(reason, network_error_code);
     });
-    QObject::connect(netJob.get(), &NetJob::aborted, [callbacks] { callbacks.on_abort(); });
+    QObject::connect(netJob.get(), &NetJob::aborted, [callbacks] {
+        if (callbacks.on_abort != nullptr)
+            callbacks.on_abort();
+    });
 
     return netJob;
 }
@@ -135,7 +138,10 @@ Task::Ptr ResourceAPI::getProjectVersions(VersionSearchArgs&& args, Callback<QVe
         }
         callbacks.on_fail(reason, network_error_code);
     });
-    QObject::connect(netJob.get(), &NetJob::aborted, [callbacks] { callbacks.on_abort(); });
+    QObject::connect(netJob.get(), &NetJob::aborted, [callbacks] {
+        if (callbacks.on_abort != nullptr)
+            callbacks.on_abort();
+    });
 
     return netJob;
 }
@@ -182,7 +188,10 @@ Task::Ptr ResourceAPI::getProjectInfo(ProjectInfoArgs&& args, Callback<ModPlatfo
         }
         callbacks.on_fail(reason, network_error_code);
     });
-    QObject::connect(job.get(), &NetJob::aborted, [callbacks] { callbacks.on_abort(); });
+    QObject::connect(job.get(), &NetJob::aborted, [callbacks] {
+        if (callbacks.on_abort != nullptr)
+            callbacks.on_abort();
+    });
     return job;
 }
 
