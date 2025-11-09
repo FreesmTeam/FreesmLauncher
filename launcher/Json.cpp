@@ -287,7 +287,7 @@ QStringList toStringList(const QString& jsonString)
     if (parseError.error != QJsonParseError::NoError || !doc.isArray())
         return {};
     try {
-        return ensureIsArrayOf<QString>(doc.array(), "");
+        return requireIsArrayOf<QString>(doc);
     } catch (Json::JsonException& e) {
         return {};
     }
