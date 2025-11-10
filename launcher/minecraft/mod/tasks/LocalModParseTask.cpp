@@ -302,10 +302,10 @@ ModDetails ReadQuiltModInfo(QByteArray contents)
 
         // https://github.com/QuiltMC/rfcs/blob/be6ba280d785395fefa90a43db48e5bfc1d15eb4/specification/0002-quilt.mod.json.md
         if (schemaVersion == 1) {
-            auto modInfo = object.value("quilt_loader").toObject();
+            auto modInfo = Json::requireObject(object.value("quilt_loader"), "Quilt mod info");
 
-            details.mod_id = modInfo.value("id").toString();
-            details.version = modInfo.value("version").toString();
+            details.mod_id = Json::requireString(modInfo.value("id"), "Mod ID");
+            details.version = Json::requireString(modInfo.value("version"), "Mod version");
 
             auto modMetadata = modInfo.value("metadata").toObject();
 
