@@ -1073,8 +1073,6 @@ SET(LAUNCHER_SOURCES
     ui/dialogs/ResourceDownloadDialog.h
     ui/dialogs/ScrollMessageBox.cpp
     ui/dialogs/ScrollMessageBox.h
-    ui/dialogs/UpdateCheckFailedDialog.cpp
-    ui/dialogs/UpdateCheckFailedDialog.h
     ui/dialogs/BlockedModsDialog.cpp
     ui/dialogs/BlockedModsDialog.h
     ui/dialogs/ChooseProviderDialog.h
