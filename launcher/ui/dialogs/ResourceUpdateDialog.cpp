@@ -5,6 +5,7 @@
 #include "ProgressDialog.h"
 #include "ScrollMessageBox.h"
 #include "StringUtils.h"
+#include "UpdateCheckFailedDialog.h"
 #include "minecraft/mod/tasks/GetModDependenciesTask.h"
 #include "modplatform/ModIndex.h"
 #include "modplatform/flame/FlameAPI.h"
@@ -175,15 +176,20 @@ void ResourceUpdateDialog::checkCandidates()
             text += "<br>";
         }
 
-        ScrollMessageBox message_dialog(m_parent, tr("Failed to check for updates"),
-                                        tr("Could not check or get the following resources for updates:<br>"
-                                           "Do you wish to proceed without those resources?"),
-                                        text);
+        UpdateCheckFailedDialog message_dialog(m_parent, text);
         message_dialog.setModal(true);
         if (message_dialog.exec() == QDialog::Rejected) {
             m_aborted = true;
             QMetaObject::invokeMethod(this, "reject", Qt::QueuedConnection);
             return;
+        }
+
+        // Disable incompatible mods
+        if (message_dialog.isOptionChecked()) {
+            for (const auto& failed : m_failedCheckUpdate) {
+                const auto& mod = std::get<0>(failed);
+                mod->enable(EnableAction::DISABLE);
+            }
         }
     }
 

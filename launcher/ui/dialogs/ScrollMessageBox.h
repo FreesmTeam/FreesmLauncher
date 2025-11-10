@@ -16,6 +16,8 @@ class ScrollMessageBox : public QDialog {
 
     ~ScrollMessageBox() override;
 
-   private:
+    bool isOptionChecked() const;
+
+   protected:
     Ui::ScrollMessageBox* ui;
 };

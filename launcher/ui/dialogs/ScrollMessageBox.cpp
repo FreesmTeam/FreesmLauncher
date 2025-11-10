@@ -18,3 +18,8 @@ ScrollMessageBox::~ScrollMessageBox()
 {
     delete ui;
 }
+
+bool ScrollMessageBox::isOptionChecked() const
+{
+    return ui->optionCheckBox->isChecked();
+}
