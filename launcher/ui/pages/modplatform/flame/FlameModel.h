@@ -50,7 +50,7 @@ class ListModel : public QAbstractListModel {
 
     void searchRequestFinished(QList<ModPlatform::IndexedPack::Ptr>&);
     void searchRequestFailed(QString reason);
-    void searchRequestForOneSucceeded(ModPlatform::IndexedPack&);
+    void searchRequestForOneSucceeded(ModPlatform::IndexedPack::Ptr);
 
    private:
     void requestLogo(QString file, QString url);
