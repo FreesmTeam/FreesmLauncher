@@ -46,7 +46,9 @@ void FlameCheckUpdate::executeTask()
     connect(netJob, &Task::stepProgress, this, &FlameCheckUpdate::propagateStepProgress);
     connect(netJob, &Task::details, this, &FlameCheckUpdate::setDetails);
     for (auto* resource : m_resources) {
-        auto versionsUrlOptional = api.getVersionsURL({ { resource->metadata()->project_id.toString() }, m_gameVersions });
+        auto project = std::make_shared<ModPlatform::IndexedPack>();
+        project->addonId = resource->metadata()->project_id.toString();
+        auto versionsUrlOptional = api.getVersionsURL({ project, m_gameVersions });
         if (!versionsUrlOptional.has_value())
             continue;
 

@@ -11,6 +11,7 @@
 #include <Version.h>
 
 #include <QtMath>
+#include <memory>
 
 namespace Flame {
 
@@ -167,7 +168,7 @@ void ListModel::performPaginatedSearch()
     if (m_currentSearchTerm.startsWith("#")) {
         auto projectId = m_currentSearchTerm.mid(1);
         if (!projectId.isEmpty()) {
-            ResourceAPI::Callback<ModPlatform::IndexedPack> callbacks;
+            ResourceAPI::Callback<ModPlatform::IndexedPack::Ptr> callbacks;
 
             callbacks.on_fail = [this](QString reason, int) { searchRequestFailed(reason); };
             callbacks.on_succeed = [this](auto& pack) { searchRequestForOneSucceeded(pack); };
@@ -175,7 +176,9 @@ void ListModel::performPaginatedSearch()
                 qCritical() << "Search task aborted by an unknown reason!";
                 searchRequestFailed("Aborted");
             };
-            if (auto job = api.getProjectInfo({ { projectId } }, std::move(callbacks)); job) {
+            auto project = std::make_shared<ModPlatform::IndexedPack>();
+            project->addonId = projectId;
+            if (auto job = api.getProjectInfo({ project }, std::move(callbacks)); job) {
                 m_jobPtr = job;
                 m_jobPtr->start();
             }
@@ -189,6 +192,10 @@ void ListModel::performPaginatedSearch()
 
     callbacks.on_succeed = [this](auto& doc) { searchRequestFinished(doc); };
     callbacks.on_fail = [this](QString reason, int) { searchRequestFailed(reason); };
+    callbacks.on_abort = [this] {
+	qCritical() << "Search task aborted by an unknown reason!";
+	searchRequestFailed("Aborted");
+    };
 
     auto netJob = api.searchProjects({ ModPlatform::ResourceType::Modpack, m_nextSearchOffset, m_currentSearchTerm, sort, m_filter->loaders,
                                        m_filter->versions, ModPlatform::Side::NoSide, m_filter->categoryIds, m_filter->openSource },
@@ -241,12 +248,12 @@ void Flame::ListModel::searchRequestFinished(QList<ModPlatform::IndexedPack::Ptr
     endInsertRows();
 }
 
-void Flame::ListModel::searchRequestForOneSucceeded(ModPlatform::IndexedPack& pack)
+void Flame::ListModel::searchRequestForOneSucceeded(ModPlatform::IndexedPack::Ptr pack)
 {
     m_jobPtr.reset();
 
     beginInsertRows(QModelIndex(), m_modpacks.size(), m_modpacks.size() + 1);
-    m_modpacks.append(std::make_shared<ModPlatform::IndexedPack>(pack));
+    m_modpacks.append(pack);
     endInsertRows();
 }
 

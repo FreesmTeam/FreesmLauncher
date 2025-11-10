@@ -33,7 +33,7 @@ bool shouldDownloadOnSide(QString side)
     return side == "required" || side == "optional";
 }
 
-// https://docs.modrinth.com/api-spec/#tag/projects/operation/getProject
+// https://docs.modrinth.com/api/operations/getproject/
 void Modrinth::loadIndexedPack(ModPlatform::IndexedPack& pack, QJsonObject& obj)
 {
     pack.addonId = obj["project_id"].toString();
@@ -54,10 +54,12 @@ void Modrinth::loadIndexedPack(ModPlatform::IndexedPack& pack, QJsonObject& obj)
     pack.logoUrl = obj["icon_url"].toString("");
     pack.logoName = QString("%1.%2").arg(obj["slug"].toString()), QFileInfo(QUrl(pack.logoUrl).fileName()).suffix();
 
-    ModPlatform::ModpackAuthor modAuthor;
-    modAuthor.name = obj["author"].toString(QObject::tr("No author(s)"));
-    modAuthor.url = api.getAuthorURL(modAuthor.name);
-    pack.authors.append(modAuthor);
+    if (obj.contains("author")) {
+        ModPlatform::ModpackAuthor modAuthor;
+        modAuthor.name = obj["author"].toString();
+        modAuthor.url = api.getAuthorURL(modAuthor.name);
+        pack.authors = { modAuthor };
+    }
 
     auto client = shouldDownloadOnSide(obj["client_side"].toString());
     auto server = shouldDownloadOnSide(obj["server_side"].toString());
