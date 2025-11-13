@@ -70,6 +70,8 @@ jobs:
     name: Build (${{ matrix.artifact-name }})
 
     permissions:
+      # Required for Azure Trusted Signing
+      id-token: write
       # Required for vcpkg binary cache
       packages: write
 
@@ -215,5 +217,6 @@ jobs:
           artifact-name: ${{ matrix.artifact-name }}
           msystem: ${{ matrix.msystem }}
 
-          windows-codesign-cert: ${{ secrets.WINDOWS_CODESIGN_CERT }}
-          windows-codesign-password: ${{ secrets.WINDOWS_CODESIGN_PASSWORD }}
+          azure-client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          azure-tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          azure-subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
