@@ -1316,7 +1316,6 @@ target_link_libraries(Launcher_logic
     qdcss
     BuildConfig
     Qt${QT_VERSION_MAJOR}::Widgets
-    PkgConfig::libarchive
 )
 
 if(TARGET PkgConfig::libqrencode)
