@@ -104,7 +104,7 @@ bool ArchiveWriter::addFile(const QString& fileName, const QString& fileDest)
     if (stat(cpath, &st) == 0) {
         archive_entry_copy_stat(entry, &st);
     }
-    archive_entry_set_perm(entry, fileInfo.permissions() & 0777);
+    archive_entry_set_perm(entry, fileInfo.permissions());
 
     if (fileInfo.isSymLink()) {
         auto target = fileInfo.symLinkTarget().toUtf8();
