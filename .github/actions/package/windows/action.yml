@@ -76,9 +76,9 @@ runs:
         certificate-profile-name: PrismLauncher
 
         files: |
-          install/prismlauncher.exe
-          install/prismlauncher_filelink.exe
-          install/prismlauncher_updater.exe
+          ${{ github.workspace }}\install\prismlauncher.exe
+          ${{ github.workspace }}\install\prismlauncher_filelink.exe
+          ${{ github.workspace }}\install\prismlauncher_updater.exe
 
         # TODO(@getchoo): Is this all really needed???
         # https://github.com/Azure/trusted-signing-action/blob/fc390cf8ed0f14e248a542af1d838388a47c7a7c/docs/OIDC.md
@@ -148,7 +148,7 @@ runs:
         certificate-profile-name: PrismLauncher
 
         files: |
-          PrismLauncher-Setup.exe
+          ${{ github.workspace }}\PrismLauncher-Setup.exe
 
         # TODO(@getchoo): Is this all really needed???
         # https://github.com/Azure/trusted-signing-action/blob/fc390cf8ed0f14e248a542af1d838388a47c7a7c/docs/OIDC.md
