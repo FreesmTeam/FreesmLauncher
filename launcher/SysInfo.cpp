@@ -135,7 +135,7 @@ uint64_t getSystemRamMiB()
         // transforming bytes -> mib
         return memsize / 1024 / 1024;
     }
-#elif defined(__GNUC__)
+#elif defined(__GNUC__) || defined(__clang__)
 #warning getSystemRam not implemented on this platform; detecting amount of installed RAM will not work
 #endif
     return 0;
