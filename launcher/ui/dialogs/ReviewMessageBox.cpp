@@ -68,18 +68,14 @@ void ReviewMessageBox::appendResource(ResourceInformation&& info)
     filenameItem->setText(0, tr("Filename: %1").arg(info.filename));
     filenameItem->setData(0, Qt::UserRole, info.filename);
 
-    auto childIndx = 0;
-    itemTop->insertChildren(childIndx++, { filenameItem });
-
     if (!info.custom_file_path.isEmpty()) {
         auto customPathItem = new QTreeWidgetItem(itemTop);
         customPathItem->setText(0, tr("This download will be placed in: %1").arg(info.custom_file_path));
-
-        itemTop->insertChildren(1, { customPathItem });
+        customPathItem->setData(0, Qt::UserRole, info.custom_file_path);
 
         itemTop->setIcon(1, QIcon(QIcon::fromTheme("status-yellow")));
         itemTop->setToolTip(
-            childIndx++,
+            1,
             tr("This file will be downloaded to a folder location different from the default, possibly due to its loader requiring it."));
     }
 
@@ -87,23 +83,19 @@ void ReviewMessageBox::appendResource(ResourceInformation&& info)
     providerItem->setText(0, tr("Provider: %1").arg(info.provider));
     providerItem->setData(0, Qt::UserRole, info.provider);
 
-    itemTop->insertChildren(childIndx++, { providerItem });
-
     if (!info.required_by.isEmpty()) {
         auto requiredByItem = new QTreeWidgetItem(itemTop);
         if (info.required_by.length() == 1) {
             requiredByItem->setText(0, tr("Required by: %1").arg(info.required_by.back()));
+            requiredByItem->setData(0, Qt::UserRole, info.required_by.back());
         } else {
             requiredByItem->setText(0, tr("Required by:"));
-            auto i = 0;
             for (auto req : info.required_by) {
                 auto reqItem = new QTreeWidgetItem(requiredByItem);
                 reqItem->setText(0, req);
-                reqItem->insertChildren(i++, { reqItem });
             }
         }
 
-        itemTop->insertChildren(childIndx++, { requiredByItem });
         ui->toggleDepsButton->show();
         m_deps << itemTop;
     }
@@ -111,8 +103,6 @@ void ReviewMessageBox::appendResource(ResourceInformation&& info)
     auto versionTypeItem = new QTreeWidgetItem(itemTop);
     versionTypeItem->setText(0, tr("Version Type: %1").arg(info.version_type));
     versionTypeItem->setData(0, Qt::UserRole, info.version_type);
-
-    itemTop->insertChildren(childIndx++, { versionTypeItem });
 
     ui->modTreeWidget->addTopLevelItem(itemTop);
 }
