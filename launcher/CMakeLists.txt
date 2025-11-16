@@ -1053,8 +1053,6 @@ SET(LAUNCHER_SOURCES
     ui/dialogs/ImportResourceDialog.h
     ui/dialogs/MSALoginDialog.cpp
     ui/dialogs/MSALoginDialog.h
-    ui/dialogs/OfflineLoginDialog.cpp
-    ui/dialogs/OfflineLoginDialog.h
     ui/dialogs/NewComponentDialog.cpp
     ui/dialogs/NewComponentDialog.h
     ui/dialogs/NewInstanceDialog.cpp
@@ -1081,6 +1079,8 @@ SET(LAUNCHER_SOURCES
     ui/dialogs/ResourceUpdateDialog.h
     ui/dialogs/InstallLoaderDialog.cpp
     ui/dialogs/InstallLoaderDialog.h
+    ui/dialogs/ChooseOfflineNameDialog.cpp
+    ui/dialogs/ChooseOfflineNameDialog.h
 
     ui/dialogs/skins/SkinManageDialog.cpp
     ui/dialogs/skins/SkinManageDialog.h
@@ -1234,13 +1234,13 @@ qt_wrap_ui(LAUNCHER_UI
     ui/dialogs/IconPickerDialog.ui
     ui/dialogs/ImportResourceDialog.ui
     ui/dialogs/MSALoginDialog.ui
-    ui/dialogs/OfflineLoginDialog.ui
     ui/dialogs/AboutDialog.ui
     ui/dialogs/ReviewMessageBox.ui
     ui/dialogs/ScrollMessageBox.ui
     ui/dialogs/BlockedModsDialog.ui
     ui/dialogs/ChooseProviderDialog.ui
     ui/dialogs/skins/SkinManageDialog.ui
+    ui/dialogs/ChooseOfflineNameDialog.ui
 )
 
 qt_wrap_ui(PRISM_UPDATE_UI
