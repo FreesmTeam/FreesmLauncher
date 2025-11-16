@@ -108,8 +108,6 @@
 #include "icons/IconList.h"
 #include "net/HttpMetaCache.h"
 
-#include "java/JavaInstallList.h"
-
 #include "updater/ExternalUpdater.h"
 
 #include "tools/JProfiler.h"
@@ -128,7 +126,6 @@
 
 #include <stdlib.h>
 #include <sys.h>
-#include <QStringLiteral>
 #include "SysInfo.h"
 
 #ifdef Q_OS_LINUX
