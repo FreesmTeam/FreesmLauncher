@@ -234,29 +234,40 @@ bool LaunchTask::parseXmlLogs(QString const& line, MessageLevel::Enum level)
         auto& model = *getLogModel();
         model.append(MessageLevel::Error, tr("[Log4j Parse Error] Failed to parse log4j log event: %1").arg(err.value().errMessage));
         return false;
-    } else {
-        if (!items.isEmpty()) {
-            auto& model = *getLogModel();
-            for (auto const& item : items) {
-                if (std::holds_alternative<LogParser::LogEntry>(item)) {
-                    auto entry = std::get<LogParser::LogEntry>(item);
-                    auto msg = QString("[%1] [%2/%3] [%4]: %5")
-                                   .arg(entry.timestamp.toString("HH:mm:ss"))
-                                   .arg(entry.thread)
-                                   .arg(entry.levelText)
-                                   .arg(entry.logger)
-                                   .arg(entry.message);
-                    msg = censorPrivateInfo(msg);
-                    model.append(entry.level, msg);
-                } else if (std::holds_alternative<LogParser::PlainText>(item)) {
-                    auto msg = std::get<LogParser::PlainText>(item).message;
-                    level = LogParser::guessLevel(msg, model.previousLevel());
-                    msg = censorPrivateInfo(msg);
-                    model.append(level, msg);
-                }
-            }
+    } 
+
+    if (items.isEmpty())
+        return true;
+
+    auto model = getLogModel();
+    for (auto const& item : items) {
+        if (std::holds_alternative<LogParser::LogEntry>(item)) {
+            auto entry = std::get<LogParser::LogEntry>(item);
+            auto msg = QString("[%1] [%2/%3] [%4]: %5")
+                           .arg(entry.timestamp.toString("HH:mm:ss"))
+                           .arg(entry.thread)
+                           .arg(entry.levelText)
+                           .arg(entry.logger)
+                           .arg(entry.message);
+            msg = censorPrivateInfo(msg);
+            model->append(entry.level, msg);
+        } else if (std::holds_alternative<LogParser::PlainText>(item)) {
+            auto msg = std::get<LogParser::PlainText>(item).message;
+
+            MessageLevel::Enum newLevel = MessageLevel::fromLine(msg);
+
+            if (newLevel == MessageLevel::Unknown)
+                newLevel = LogParser::guessLevel(line);
+
+            if (newLevel == MessageLevel::Unknown)
+                newLevel = model->previousLevel();
+
+            msg = censorPrivateInfo(msg);
+
+            model->append(newLevel, msg);
         }
     }
+
     return true;
 }
 
@@ -273,23 +284,10 @@ void LaunchTask::onLogLine(QString line, MessageLevel::Enum level)
         return;
     }
 
-    // if the launcher part set a log level, use it
-    auto innerLevel = MessageLevel::fromLine(line);
-    if (innerLevel != MessageLevel::Unknown) {
-        level = innerLevel;
-    }
-
-    auto& model = *getLogModel();
-
-    // If the level is still undetermined, guess level
-    if (level == MessageLevel::Unknown) {
-        level = LogParser::guessLevel(line, model.previousLevel());
-    }
-
     // censor private user info
     line = censorPrivateInfo(line);
 
-    model.append(level, line);
+    getLogModel()->append(level, line);
 }
 
 void LaunchTask::emitSucceeded()

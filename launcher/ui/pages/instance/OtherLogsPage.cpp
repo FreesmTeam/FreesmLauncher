@@ -287,16 +287,10 @@ void OtherLogsPage::reload()
             if (!m_instance) {
                 level = MessageLevel::fromLauncherLine(lineTemp);
             } else {
-                // if the launcher part set a log level, use it
-                auto innerLevel = MessageLevel::fromLine(lineTemp);
-                if (innerLevel != MessageLevel::Unknown) {
-                    level = innerLevel;
-                }
+                level = LogParser::guessLevel(line);
 
-                // If the level is still undetermined, guess level
-                if (level == MessageLevel::StdErr || level == MessageLevel::StdOut || level == MessageLevel::Unknown) {
-                    level = LogParser::guessLevel(line, last);
-                }
+                if (level == MessageLevel::Unknown)
+                    level = last;
             }
 
             last = level;
