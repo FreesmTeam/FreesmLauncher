@@ -199,13 +199,13 @@ jobs:
           build-type: ${{ steps.setup-dependencies.outputs.build-type }}
           artifact-name: ${{ matrix.artifact-name }}
 
-          apple-codesign-cert: ${{ secrets.APPLE-CODESIGN-CERT }}
-          apple-codesign-password: ${{ secrets.APPLE-CODESIGN_PASSWORD }}
-          apple-codesign-id: ${{ secrets.APPLE-CODESIGN_ID }}
+          apple-codesign-cert: ${{ secrets.APPLE_CODESIGN_CERT }}
+          apple-codesign-password: ${{ secrets.APPLE_CODESIGN_PASSWORD }}
+          apple-codesign-id: ${{ secrets.APPLE_CODESIGN_ID }}
           apple-notarize-apple-id: ${{ secrets.APPLE_NOTARIZE_APPLE_ID }}
           apple-notarize-team-id: ${{ secrets.APPLE_NOTARIZE_TEAM_ID }}
-          apple-notarize-password: ${{ secrets.APPLE-NOTARIZE_PASSWORD }}
-          sparkle-ed25519-key: ${{ secrets.SPARKLE-ED25519_KEY }}
+          apple-notarize-password: ${{ secrets.APPLE_NOTARIZE_PASSWORD }}
+          sparkle-ed25519-key: ${{ secrets.SPARKLE_ED25519_KEY }}
 
       - name: Package (Windows)
         if: ${{ runner.os == 'Windows' }}
