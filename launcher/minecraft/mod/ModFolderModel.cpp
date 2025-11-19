@@ -278,6 +278,9 @@ void ModFolderModel::onParseFinished()
     auto modsList = allMods();
     auto mods = QSet(modsList.begin(), modsList.end());
 
+    m_requires.clear();
+    m_requiredBy.clear();
+
     auto findByProjectID = [mods](QVariant modId, ModPlatform::ResourceProvider provider) -> Mod* {
         auto found = std::find_if(mods.begin(), mods.end(), [modId, provider](Mod* m) {
             return m->metadata() && m->metadata()->provider == provider && m->metadata()->project_id == modId;
@@ -314,9 +317,10 @@ void ModFolderModel::onParseFinished()
     }
 }
 
-QSet<Mod*> collectMods(QSet<Mod*> mods, QHash<QString, QSet<Mod*>> relation, std::set<QString>& seen)
+QSet<Mod*> collectMods(QSet<Mod*> mods, QHash<QString, QSet<Mod*>> relation, std::set<QString>& seen, bool shouldBeEnabled)
 {
     QSet<Mod*> affectedList = {};
+    QSet<Mod*> needToCheck = {};
     for (auto mod : mods) {
         auto id = mod->mod_id();
         if (seen.count(id) == 0) {
@@ -326,14 +330,17 @@ QSet<Mod*> collectMods(QSet<Mod*> mods, QHash<QString, QSet<Mod*>> relation, std
 
                 if (findById(mods, affectedId) == nullptr && seen.count(affectedId) == 0) {
                     seen.insert(affectedId);
-                    affectedList << affected;
+                    if (shouldBeEnabled != affected->enabled()) {
+                        affectedList << affected;
+                    }
+                    needToCheck << affected;
                 }
             }
         }
     }
     // collect the affected mods until all of them are included in the list
-    if (!affectedList.isEmpty()) {
-        affectedList += collectMods(affectedList, relation, seen);
+    if (!needToCheck.isEmpty()) {
+        affectedList += collectMods(needToCheck, relation, seen, shouldBeEnabled);
     }
     return affectedList;
 }
@@ -350,24 +357,21 @@ QModelIndexList ModFolderModel::getAffectedMods(const QModelIndexList& indexes, 
 
     switch (action) {
         case EnableAction::ENABLE: {
-            affectedMods = collectMods(affectedMods, m_requires, seen);
+            affectedMods = collectMods(affectedMods, m_requires, seen, true);
             break;
         }
         case EnableAction::DISABLE: {
-            affectedMods = collectMods(affectedMods, m_requiredBy, seen);
+            affectedMods = collectMods(affectedMods, m_requiredBy, seen, false);
             break;
         }
         case EnableAction::TOGGLE: {
             return {};  // this function should not be called with TOGGLE
         }
     }
-    bool shouldBeEnabled = action == EnableAction::ENABLE;
     for (auto affected : affectedMods) {
         auto affectedId = affected->mod_id();
-        if (shouldBeEnabled != affected->enabled()) {
-            auto row = m_resources_index[affected->internal_id()];
-            affectedList << index(row, 0);
-        }
+        auto row = m_resources_index[affected->internal_id()];
+        affectedList << index(row, 0);
     }
     return affectedList;
 }
@@ -377,7 +381,6 @@ bool ModFolderModel::setResourceEnabled(const QModelIndexList& indexes, EnableAc
     if (indexes.isEmpty())
         return {};
 
-    QModelIndexList affectedList = {};
     auto indexedModsList = selectedMods(indexes);
     auto indexedMods = QSet(indexedModsList.begin(), indexedModsList.end());
 
@@ -406,31 +409,50 @@ bool ModFolderModel::setResourceEnabled(const QModelIndexList& indexes, EnableAc
         }
     }
 
-    auto requiredToEnable = collectMods(toEnable, m_requires, seen);
-    auto requiredToDisable = collectMods(toDisable, m_requiredBy, seen);
+    auto requiredToEnable = collectMods(toEnable, m_requires, seen, true);
+    auto requiredToDisable = collectMods(toDisable, m_requiredBy, seen, false);
 
     toDisable.removeIf([toEnable](Mod* m) { return toEnable.contains(m); });
-    auto toList = [this](QSet<Mod*> mods, bool shouldBeEnabled) {
+    auto toList = [this](QSet<Mod*> mods) {
         QModelIndexList list;
         for (auto mod : mods) {
-            if (shouldBeEnabled != mod->enabled()) {
-                auto row = m_resources_index[mod->internal_id()];
-                list << index(row, 0);
-            }
+            auto row = m_resources_index[mod->internal_id()];
+            list << index(row, 0);
         }
         return list;
     };
 
     if (requiredToEnable.size() > 0 || requiredToDisable.size() > 0) {
-        auto box = CustomMessageBox::selectable(
-            nullptr, tr("Confirm toggle"),
-            tr("Toggling this mod(s) will cause changes to other mods.\n") +
-                (requiredToEnable.size() > 0 ? tr("%1 mod(s) will be enabled\n").arg(requiredToEnable.size()) : "") +
-                (requiredToDisable.size() > 0 ? tr("%1 mod(s) will be disabled\n").arg(requiredToDisable.size()) : "") +
-                tr("Do you want to automatically apply these related changes?\nIgnoring them may break the game."),
-            QMessageBox::Warning, QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel, QMessageBox::No);
-        auto b = box->button(QMessageBox::No);
-        b->setText(tr("No, just toggle selected"));
+        QString title;
+        QString message;
+        QString noButton;
+        QString yesButton;
+        if (requiredToEnable.size() > 0 && requiredToDisable.size() > 0) {
+            title = tr("Confirm toggle");
+            message = tr("Toggling this mod(s) will cause changes to other mods.\n") +
+                      tr("%n mod(s) will be enabled\n").arg(requiredToEnable.size()) +
+                      tr("%n mod(s) will be disabled\n").arg(requiredToDisable.size()) +
+                      tr("Do you want to automatically apply these related changes?\nIgnoring them may break the game.");
+            noButton = tr("Only Toggle Selected");
+            yesButton = tr("Toggle Required Mods");
+        } else if (requiredToEnable.size() > 0) {
+            title = tr("Confirm enable");
+            message = tr("The enabled mod(s) require %n additional mod(s)\n").arg(requiredToEnable.size()) +
+                      tr("Would you like to enable them as well?\nIgnoring them may break the game.");
+            noButton = tr("Only Enable Selected");
+            yesButton = tr("Enable Required");
+        } else {
+            title = tr("Confirm disable");
+            message = tr("The disabled mod(s) are required by %n additional mod(s)\n").arg(requiredToDisable.size()) +
+                      tr("Would you like to disable them as well?\nIgnoring them may break the game.");
+            noButton = tr("Only Disable Selected");
+            yesButton = tr("Disable Required");
+        }
+
+        auto box = CustomMessageBox::selectable(nullptr, title, message, QMessageBox::Warning,
+                                                QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel, QMessageBox::No);
+        box->button(QMessageBox::No)->setText(noButton);
+        box->button(QMessageBox::Yes)->setText(yesButton);
         auto response = box->exec();
 
         if (response == QMessageBox::Yes) {
@@ -441,8 +463,8 @@ bool ModFolderModel::setResourceEnabled(const QModelIndexList& indexes, EnableAc
         }
     }
 
-    auto disableStatus = ResourceFolderModel::setResourceEnabled(toList(toDisable, false), EnableAction::DISABLE);
-    auto enableStatus = ResourceFolderModel::setResourceEnabled(toList(toEnable, true), EnableAction::ENABLE);
+    auto disableStatus = ResourceFolderModel::setResourceEnabled(toList(toDisable), EnableAction::DISABLE);
+    auto enableStatus = ResourceFolderModel::setResourceEnabled(toList(toEnable), EnableAction::ENABLE);
     return disableStatus && enableStatus;
 }
 
