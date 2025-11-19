@@ -430,20 +430,20 @@ bool ModFolderModel::setResourceEnabled(const QModelIndexList& indexes, EnableAc
         if (requiredToEnable.size() > 0 && requiredToDisable.size() > 0) {
             title = tr("Confirm toggle");
             message = tr("Toggling this mod(s) will cause changes to other mods.\n") +
-                      tr("%n mod(s) will be enabled\n").arg(requiredToEnable.size()) +
-                      tr("%n mod(s) will be disabled\n").arg(requiredToDisable.size()) +
+                      tr("%n mod(s) will be enabled\n", "", requiredToEnable.size()) +
+                      tr("%n mod(s) will be disabled\n", "", requiredToDisable.size()) +
                       tr("Do you want to automatically apply these related changes?\nIgnoring them may break the game.");
             noButton = tr("Only Toggle Selected");
             yesButton = tr("Toggle Required Mods");
         } else if (requiredToEnable.size() > 0) {
             title = tr("Confirm enable");
-            message = tr("The enabled mod(s) require %n additional mod(s)\n").arg(requiredToEnable.size()) +
+            message = tr("The enabled mod(s) require %n mod(s).\n", "", requiredToEnable.size()) +
                       tr("Would you like to enable them as well?\nIgnoring them may break the game.");
             noButton = tr("Only Enable Selected");
             yesButton = tr("Enable Required");
         } else {
             title = tr("Confirm disable");
-            message = tr("The disabled mod(s) are required by %n additional mod(s)\n").arg(requiredToDisable.size()) +
+            message = tr("The disabled mod(s) are required by %n mod(s).\n", "", requiredToDisable.size()) +
                       tr("Would you like to disable them as well?\nIgnoring them may break the game.");
             noButton = tr("Only Disable Selected");
             yesButton = tr("Disable Required");
