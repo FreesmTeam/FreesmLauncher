@@ -38,6 +38,7 @@
 
 #include "ModFolderPage.h"
 #include "ui/dialogs/ExportToModListDialog.h"
+#include "ui/dialogs/InstallLoaderDialog.h"
 #include "ui_ExternalResourcesPage.h"
 
 #include <QAbstractItemModel>
@@ -65,6 +66,7 @@
 #include "tasks/Task.h"
 #include "ui/dialogs/ProgressDialog.h"
 
+inline void HandleNoModLoader(ModFolderPage* self);
 ModFolderPage::ModFolderPage(BaseInstance* inst, std::shared_ptr<ModFolderModel> model, QWidget* parent)
     : ExternalResourcesPage(inst, model, parent), m_model(model)
 {
@@ -145,7 +147,7 @@ void ModFolderPage::downloadMods()
 
     auto profile = static_cast<MinecraftInstance*>(m_instance)->getPackProfile();
     if (!profile->getModLoaders().has_value()) {
-        QMessageBox::critical(this, tr("Error"), tr("Please install a mod loader first!"));
+        HandleNoModLoader(this);
         return;
     }
 
@@ -201,7 +203,7 @@ void ModFolderPage::updateMods(bool includeDeps)
 
     auto profile = static_cast<MinecraftInstance*>(m_instance)->getPackProfile();
     if (!profile->getModLoaders().has_value()) {
-        QMessageBox::critical(this, tr("Error"), tr("Please install a mod loader first!"));
+        HandleNoModLoader(this);
         return;
     }
     if (APPLICATION->settings()->get("ModMetadataDisabled").toBool()) {
@@ -305,7 +307,7 @@ void ModFolderPage::changeModVersion()
 
     auto profile = static_cast<MinecraftInstance*>(m_instance)->getPackProfile();
     if (!profile->getModLoaders().has_value()) {
-        QMessageBox::critical(this, tr("Error"), tr("Please install a mod loader first!"));
+        HandleNoModLoader(this);
         return;
     }
     if (APPLICATION->settings()->get("ModMetadataDisabled").toBool()) {
@@ -384,4 +386,35 @@ NilModFolderPage::NilModFolderPage(BaseInstance* inst, std::shared_ptr<ModFolder
 bool NilModFolderPage::shouldDisplay() const
 {
     return m_model->dir().exists();
+}
+
+// Helper function so this doesn't need to be duplicated 3 times
+inline void HandleNoModLoader(ModFolderPage* self)
+{
+    // QMessageBox::critical(self, tr("Error"), tr("Please install a mod loader first!"));
+    int resp = QMessageBox::question(self, self->tr("Missing ModLoader"),
+                                     self->tr("You need to install a mod loader before installing mods, would you like to do so?"),
+                                     QMessageBox::Yes | QMessageBox::No, QMessageBox::Yes);
+    switch (resp) {
+        case QMessageBox::Yes: {
+            // now how do I get the values this all needs
+            if (self->m_instance->typeName() != "Minecraft") {
+                // not what we need
+                return;
+            }
+            auto profile = static_cast<MinecraftInstance*>(self->m_instance)->getPackProfile();
+            InstallLoaderDialog dialog(profile, QString(), self);
+            dialog.exec();
+            self->m_container->refreshContainer();
+            break;
+        }
+        case QMessageBox::No: {
+            // Nothing happens the dialog is already closing
+            break;
+        }
+        default: {
+            // Unreachable
+            break;
+        }
+    }
 }
