@@ -429,7 +429,7 @@ bool ModFolderModel::setResourceEnabled(const QModelIndexList& indexes, EnableAc
         QString yesButton;
         if (requiredToEnable.size() > 0 && requiredToDisable.size() > 0) {
             title = tr("Confirm toggle");
-            message = tr("Toggling this mod(s) will cause changes to other mods.\n") +
+            message = tr("Toggling these mod(s) will cause changes to other mods.\n") +
                       tr("%n mod(s) will be enabled\n", "", requiredToEnable.size()) +
                       tr("%n mod(s) will be disabled\n", "", requiredToDisable.size()) +
                       tr("Do you want to automatically apply these related changes?\nIgnoring them may break the game.");

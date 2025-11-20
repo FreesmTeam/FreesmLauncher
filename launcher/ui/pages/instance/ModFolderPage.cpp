@@ -142,7 +142,7 @@ void ModFolderPage::removeItems(const QItemSelection& selection)
     auto affected = m_model->getAffectedMods(indexes, EnableAction::DISABLE);
     if (!affected.isEmpty()) {
         auto response = CustomMessageBox::selectable(this, tr("Confirm Disable"),
-                                                     tr("The mods you are tring to disable are required by %1 mods.\n"
+                                                     tr("The mods you are trying to delete are required by %1 mods.\n"
                                                         "Do you want to disable them?")
                                                          .arg(affected.length()),
                                                      QMessageBox::Warning, QMessageBox::Yes | QMessageBox::No, QMessageBox::No)
