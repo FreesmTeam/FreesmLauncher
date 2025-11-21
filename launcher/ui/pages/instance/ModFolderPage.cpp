@@ -145,11 +145,14 @@ void ModFolderPage::removeItems(const QItemSelection& selection)
                                                      tr("The mods you are trying to delete are required by %1 mods.\n"
                                                         "Do you want to disable them?")
                                                          .arg(affected.length()),
-                                                     QMessageBox::Warning, QMessageBox::Yes | QMessageBox::No, QMessageBox::No)
+                                                     QMessageBox::Warning, QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel,
+                                                     QMessageBox::Cancel)
                             ->exec();
 
         if (response != QMessageBox::Yes) {
             m_model->setResourceEnabled(affected, EnableAction::DISABLE);
+        } else if (response != QMessageBox::Cancel) {
+            return;
         }
     }
     m_model->deleteResources(indexes);
