@@ -45,7 +45,7 @@
 class ModFolderPage : public ExternalResourcesPage {
     Q_OBJECT
 
-    bool HandleNoModLoader();
+    inline bool handleNoModLoader();
 
    public:
     explicit ModFolderPage(BaseInstance* inst, std::shared_ptr<ModFolderModel> model, QWidget* parent = nullptr);

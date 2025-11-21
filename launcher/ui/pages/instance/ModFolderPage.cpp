@@ -146,7 +146,7 @@ void ModFolderPage::downloadMods()
 
     auto profile = static_cast<MinecraftInstance*>(m_instance)->getPackProfile();
     if (!profile->getModLoaders().has_value()) {
-        if (HandleNoModLoader()) {
+        if (handleNoModLoader()) {
             return;
         }
     }
@@ -203,7 +203,7 @@ void ModFolderPage::updateMods(bool includeDeps)
 
     auto profile = static_cast<MinecraftInstance*>(m_instance)->getPackProfile();
     if (!profile->getModLoaders().has_value()) {
-        if (HandleNoModLoader()) {
+        if (handleNoModLoader()) {
             return;
         }
     }
@@ -308,7 +308,7 @@ void ModFolderPage::changeModVersion()
 
     auto profile = static_cast<MinecraftInstance*>(m_instance)->getPackProfile();
     if (!profile->getModLoaders().has_value()) {
-        if (HandleNoModLoader()) {
+        if (handleNoModLoader()) {
             return;
         }
     }
@@ -391,7 +391,7 @@ bool NilModFolderPage::shouldDisplay() const
 }
 
 // Helper function so this doesn't need to be duplicated 3 times
-inline bool ModFolderPage::HandleNoModLoader()
+inline bool ModFolderPage::handleNoModLoader()
 {
     int resp = QMessageBox::question(this, this->tr("Missing ModLoader"),
                                      this->tr("You need to install a mod loader before installing mods, would you like to do so?"),
@@ -413,7 +413,8 @@ inline bool ModFolderPage::HandleNoModLoader()
         }
         default: {
             // Unreachable
-            break;
+            // returning true as a safety measure
+            return true;
         }
     }
 }
