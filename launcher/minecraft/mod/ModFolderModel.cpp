@@ -261,7 +261,7 @@ void ModFolderModel::onParseSucceeded(int ticket, QString mod_id)
     if (result && resource)
         static_cast<Mod*>(resource.get())->finishResolvingWithDetails(std::move(result->details));
 
-    emit dataChanged(index(row), index(row, columnCount(QModelIndex()) - 1));
+    emit dataChanged(index(row, RequiresColumn), index(row, RequiredByColumn));
 }
 
 Mod* findById(QSet<Mod*> mods, QString modId)
@@ -509,7 +509,7 @@ bool ModFolderModel::deleteResources(const QModelIndexList& indexes)
         mod->setRequiredByCount(m_requiredBy[id].count());
         mod->setRequiresCount(m_requires[id].count());
         int row = m_resources_index[mod->internal_id()];
-        emit dataChanged(index(row), index(row, columnCount(QModelIndex()) - 1));
+        emit dataChanged(index(row, RequiresColumn), index(row, RequiredByColumn));
     }
     return rsp;
 }
