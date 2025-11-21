@@ -107,7 +107,7 @@ static void loadVersionLoader(ATLauncher::VersionLoader& p, QJsonObject& obj)
     p.recommended = metadata["recommended"].toBool();
 
     // Minecraft Forge
-    if (p.type == "forge") {
+    if (p.type == "forge" || p.type == "neoforge") {
         p.version = metadata["version"].toString("");
     }
 
