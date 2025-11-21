@@ -310,10 +310,12 @@ void ModFolderModel::onParseFinished()
     }
     for (auto mod : mods) {
         auto id = mod->mod_id();
-        mod->setRequiredByCount(m_requiredBy[id].count());
-        mod->setRequiresCount(m_requires[id].count());
-        int row = m_resources_index[mod->internal_id()];
-        emit dataChanged(index(row), index(row, columnCount(QModelIndex()) - 1));
+        if (mod->requiredByCount() != m_requiredBy[id].count() || mod->requiresCount() != m_requires[id].count()) {
+            mod->setRequiredByCount(m_requiredBy[id].count());
+            mod->setRequiresCount(m_requires[id].count());
+            int row = m_resources_index[mod->internal_id()];
+            emit dataChanged(index(row), index(row, columnCount(QModelIndex()) - 1));
+        }
     }
 }
 
@@ -506,10 +508,12 @@ bool ModFolderModel::deleteResources(const QModelIndexList& indexes)
         auto id = mod->mod_id();
         deleteInvalid(m_requiredBy[id]);
         deleteInvalid(m_requires[id]);
-        mod->setRequiredByCount(m_requiredBy[id].count());
-        mod->setRequiresCount(m_requires[id].count());
-        int row = m_resources_index[mod->internal_id()];
-        emit dataChanged(index(row, RequiresColumn), index(row, RequiredByColumn));
+        if (mod->requiredByCount() != m_requiredBy[id].count() || mod->requiresCount() != m_requires[id].count()) {
+            mod->setRequiredByCount(m_requiredBy[id].count());
+            mod->setRequiresCount(m_requires[id].count());
+            int row = m_resources_index[mod->internal_id()];
+            emit dataChanged(index(row, RequiresColumn), index(row, RequiredByColumn));
+        }
     }
     return rsp;
 }
