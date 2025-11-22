@@ -401,10 +401,10 @@ inline bool ModFolderPage::handleNoModLoader()
             // Should be safe
             auto profile = static_cast<MinecraftInstance*>(this->m_instance)->getPackProfile();
             InstallLoaderDialog dialog(profile, QString(), this);
-            dialog.exec();
+            bool ret = dialog.exec();
             this->m_container->refreshContainer();
             // returning false so the caller can go and open up the dialog it was originally going to
-            return false;
+            return !ret;
         }
         case QMessageBox::No: {
             // Nothing happens the dialog is already closing
