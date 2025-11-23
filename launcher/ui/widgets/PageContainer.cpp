@@ -77,6 +77,8 @@ class PageEntryFilterModel : public QSortFilterProxyModel {
 PageContainer::PageContainer(BasePageProvider* pageProvider, QString defaultId, QWidget* parent) : QWidget(parent)
 {
     createUI();
+    useSidebarStyle(true);
+
     m_model = new PageModel(this);
     m_proxyModel = new PageEntryFilterModel(this);
     int counter = 0;
@@ -179,10 +181,10 @@ void PageContainer::createUI()
 
     m_layout = new QGridLayout;
     m_layout->addLayout(headerHLayout, 0, 1, 1, 1);
-    m_layout->addWidget(m_pageList, 0, 0, 2, 1);
+    m_layout->addWidget(m_pageList, 0, 0, 3, 1);
     m_layout->addLayout(m_pageStack, 1, 1, 1, 1);
     m_layout->setColumnStretch(1, 4);
-    m_layout->setContentsMargins(0, 0, 0, 6);
+    m_layout->setContentsMargins(0, 0, 0, 0);
     setLayout(m_layout);
 }
 
@@ -197,12 +199,16 @@ void PageContainer::retranslate()
 
 void PageContainer::addButtons(QWidget* buttons)
 {
-    m_layout->addWidget(buttons, 2, 0, 1, 2);
+    m_layout->addWidget(buttons, 2, 1, 1, 2);
 }
 
 void PageContainer::addButtons(QLayout* buttons)
 {
-    m_layout->addLayout(buttons, 2, 0, 1, 2);
+    m_layout->addLayout(buttons, 2, 1, 1, 2);
+}
+
+void PageContainer::useSidebarStyle(bool sidebar) {
+    m_pageList->setProperty("_kde_side_panel_view", sidebar);
 }
 
 void PageContainer::showPage(int row)

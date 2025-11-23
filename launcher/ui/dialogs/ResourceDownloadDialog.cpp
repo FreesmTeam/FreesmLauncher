@@ -61,6 +61,8 @@ ResourceDownloadDialog::ResourceDownloadDialog(QWidget* parent, const std::share
 
     setWindowIcon(QIcon::fromTheme("new"));
 
+    m_buttons.setContentsMargins(0, 0, 6, 6);
+
     // Bonk Qt over its stupid head and make sure it understands which button is the default one...
     // See: https://stackoverflow.com/questions/24556831/qbuttonbox-set-default-button
     auto OkButton = m_buttons.button(QDialogButtonBox::Ok);
@@ -114,6 +116,8 @@ void ResourceDownloadDialog::reject()
 // won't work with subclasses if we put it in this ctor.
 void ResourceDownloadDialog::initializeContainer()
 {
+    layout()->setContentsMargins(0, 0, 0, 0);
+
     m_container = new PageContainer(this, {}, this);
     m_container->setSizePolicy(QSizePolicy::Policy::Preferred, QSizePolicy::Policy::Expanding);
     m_container->layout()->setContentsMargins(0, 0, 0, 0);
