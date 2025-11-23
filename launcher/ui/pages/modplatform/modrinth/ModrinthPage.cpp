@@ -146,7 +146,7 @@ void ModrinthPage::onSelectionChanged(QModelIndex curr, [[maybe_unused]] QModelI
 
     if (!m_current->extraDataLoaded) {
         qDebug() << "Loading modrinth modpack information";
-        ResourceAPI::Callback<ModPlatform::IndexedPack> callbacks;
+        ResourceAPI::Callback<ModPlatform::IndexedPack::Ptr> callbacks;
 
         auto id = m_current->addonId;
         callbacks.on_fail = [this](QString reason, int) {
@@ -157,10 +157,8 @@ void ModrinthPage::onSelectionChanged(QModelIndex curr, [[maybe_unused]] QModelI
                 return;  // wrong request?
             }
 
-            *m_current = pack;
-
             QVariant current_updated;
-            current_updated.setValue(m_current);
+            current_updated.setValue(pack);
 
             if (!m_model->setData(curr, current_updated, Qt::UserRole))
                 qWarning() << "Failed to cache extra info for the current pack!";
@@ -168,7 +166,7 @@ void ModrinthPage::onSelectionChanged(QModelIndex curr, [[maybe_unused]] QModelI
             suggestCurrent();
             updateUI();
         };
-        if (auto netJob = m_api.getProjectInfo({ { m_current->addonId } }, std::move(callbacks)); netJob) {
+        if (auto netJob = m_api.getProjectInfo({ m_current }, std::move(callbacks)); netJob) {
             m_job = netJob;
             m_job->start();
         }
@@ -220,7 +218,7 @@ void ModrinthPage::onSelectionChanged(QModelIndex curr, [[maybe_unused]] QModelI
             CustomMessageBox::selectable(this, tr("Error"), reason, QMessageBox::Critical)->exec();
         };
 
-        auto netJob = m_api.getProjectVersions({ *m_current, {}, {}, ModPlatform::ResourceType::Modpack }, std::move(callbacks));
+        auto netJob = m_api.getProjectVersions({ m_current, {}, {}, ModPlatform::ResourceType::Modpack }, std::move(callbacks));
 
         m_job2 = netJob;
         m_job2->start();

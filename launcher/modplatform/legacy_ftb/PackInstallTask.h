@@ -8,8 +8,6 @@
 #include "meta/VersionList.h"
 #include "net/NetJob.h"
 
-#include "net/NetJob.h"
-
 #include <optional>
 
 namespace LegacyFTB {

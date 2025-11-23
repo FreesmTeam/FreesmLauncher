@@ -126,7 +126,7 @@ class FlameAPI : public ResourceAPI {
 
     std::optional<QString> getVersionsURL(VersionSearchArgs const& args) const override
     {
-        auto addonId = args.pack.addonId.toString();
+        auto addonId = args.pack->addonId.toString();
         QString url = QString(BuildConfig.FLAME_BASE_URL + "/mods/%1/files?pageSize=10000").arg(addonId);
 
         if (args.mcVersions.has_value())
@@ -140,7 +140,7 @@ class FlameAPI : public ResourceAPI {
         return url;
     }
 
-    QJsonArray documentToArray(QJsonDocument& obj) const override { return Json::ensureArray(obj.object(), "data"); }
+    QJsonArray documentToArray(QJsonDocument& obj) const override { return obj.object()["data"].toArray(); }
     void loadIndexedPack(ModPlatform::IndexedPack& m, QJsonObject& obj) const override { FlameMod::loadIndexedPack(m, obj); }
     ModPlatform::IndexedVersion loadIndexedPackVersion(QJsonObject& obj, ModPlatform::ResourceType resourceType) const override
     {
@@ -160,10 +160,7 @@ class FlameAPI : public ResourceAPI {
     void loadExtraPackInfo(ModPlatform::IndexedPack& m, [[maybe_unused]] QJsonObject&) const override { FlameMod::loadBody(m); }
 
    private:
-    std::optional<QString> getInfoURL(QString const& id) const override
-    {
-        return QString(BuildConfig.FLAME_BASE_URL + "/mods/%1").arg(id);
-    }
+    std::optional<QString> getInfoURL(QString const& id) const override { return QString(BuildConfig.FLAME_BASE_URL + "/mods/%1").arg(id); }
     std::optional<QString> getDependencyURL(DependencySearchArgs const& args) const override
     {
         auto addonId = args.dependency.addonId.toString();

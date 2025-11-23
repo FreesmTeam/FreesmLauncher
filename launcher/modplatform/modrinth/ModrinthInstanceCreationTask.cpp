@@ -249,7 +249,7 @@ bool ModrinthCreationTask::createInstance()
     auto root_modpack_url = QUrl::fromLocalFile(root_modpack_path);
     // TODO make this work with other sorts of resource
     QHash<QString, Resource*> resources;
-    for (auto file : m_files) {
+    for (auto& file : m_files) {
         auto fileName = file.path;
         fileName = FS::RemoveInvalidPathChars(fileName);
         auto file_path = FS::PathCombine(root_modpack_path, fileName);
@@ -371,8 +371,8 @@ bool ModrinthCreationTask::parseManifest(const QString& index_path,
 
             if (set_internal_data) {
                 if (m_managed_version_id.isEmpty())
-                    m_managed_version_id = Json::ensureString(obj, "versionId", {}, "Managed ID");
-                m_managed_name = Json::ensureString(obj, "name", {}, "Managed Name");
+                    m_managed_version_id = obj["versionId"].toString();
+                m_managed_name = obj["name"].toString();
             }
 
             auto jsonFiles = Json::requireIsArrayOf<QJsonObject>(obj, "files", "modrinth.index.json");
@@ -381,10 +381,10 @@ bool ModrinthCreationTask::parseManifest(const QString& index_path,
                 File file;
                 file.path = Json::requireString(modInfo, "path").replace("\\", "/");
 
-                auto env = Json::ensureObject(modInfo, "env");
+                auto env = modInfo["env"].toObject();
                 // 'env' field is optional
                 if (!env.isEmpty()) {
-                    QString support = Json::ensureString(env, "client", "unsupported");
+                    QString support = env["client"].toString("unsupported");
                     if (support == "unsupported") {
                         continue;
                     } else if (support == "optional") {
@@ -399,7 +399,7 @@ bool ModrinthCreationTask::parseManifest(const QString& index_path,
                 // Do not use requireUrl, which uses StrictMode, instead use QUrl's default TolerantMode
                 // (as Modrinth seems to incorrectly handle spaces)
 
-                auto download_arr = Json::ensureArray(modInfo, "downloads");
+                auto download_arr = modInfo["downloads"].toArray();
                 for (auto download : download_arr) {
                     qWarning() << download.toString();
                     bool is_last = download.toString() == download_arr.last().toString();

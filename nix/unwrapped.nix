@@ -9,8 +9,8 @@
   jdk17,
   kdePackages,
   libnbtplusplus,
-  qrcodegenerator,
   ninja,
+  qrencode,
   self,
   stripJavaArchivesHook,
   tomlplusplus,
@@ -63,9 +63,6 @@ stdenv.mkDerivation {
   postUnpack = ''
     rm -rf source/libraries/libnbtplusplus
     ln -s ${libnbtplusplus} source/libraries/libnbtplusplus
-
-    rm -rf source/libraries/qrcodegenerator
-    ln -s ${qrcodegenerator} source/libraries/qrcodegenerator
   '';
 
   nativeBuildInputs = [
@@ -81,13 +78,12 @@ stdenv.mkDerivation {
     kdePackages.qtbase
     kdePackages.qtnetworkauth
     kdePackages.quazip
+    qrencode
     tomlplusplus
     zlib
   ]
   ++ lib.optionals stdenv.hostPlatform.isDarwin [ apple-sdk_11 ]
   ++ lib.optional gamemodeSupport gamemode;
-
-  hardeningEnable = lib.optionals stdenv.hostPlatform.isLinux [ "pie" ];
 
   cmakeFlags = [
     # downstream branding

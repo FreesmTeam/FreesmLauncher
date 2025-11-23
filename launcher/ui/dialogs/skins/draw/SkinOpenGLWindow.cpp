@@ -202,6 +202,13 @@ void SkinOpenGLWindow::resizeGL(int w, int h)
 
 void SkinOpenGLWindow::paintGL()
 {
+    // Adjust the viewport to account for fractional scaling
+    qreal dpr = devicePixelRatio();
+    if (dpr != 1.f) {
+        QSize scaledSize = size() * dpr;
+        glViewport(0, 0, scaledSize.width(), scaledSize.height());
+    }
+
     // Clear color and depth buffer
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -235,6 +242,13 @@ void SkinOpenGLWindow::paintGL()
 
     m_scene->draw(m_modelProgram);
     m_modelProgram->release();
+
+    // Redraw the first frame; this is necessary because the pixel ratio for Wayland fractional scaling is not negotiated properly on the
+    // first frame
+    if (m_isFirstFrame) {
+        m_isFirstFrame = false;
+        update();
+    }
 }
 
 void SkinOpenGLWindow::updateScene(SkinModel* skin)

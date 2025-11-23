@@ -23,14 +23,14 @@ ResourceAPI::SearchArgs DataPackResourceModel::createSearchArguments()
 
 ResourceAPI::VersionSearchArgs DataPackResourceModel::createVersionsArguments(const QModelIndex& entry)
 {
-    auto& pack = m_packs[entry.row()];
-    return { *pack, {}, ModPlatform::ModLoaderType::DataPack };
+    auto pack = m_packs[entry.row()];
+    return { pack, {}, ModPlatform::ModLoaderType::DataPack };
 }
 
 ResourceAPI::ProjectInfoArgs DataPackResourceModel::createInfoArguments(const QModelIndex& entry)
 {
-    auto& pack = m_packs[entry.row()];
-    return { *pack };
+    auto pack = m_packs[entry.row()];
+    return { pack };
 }
 
 void DataPackResourceModel::searchWithTerm(const QString& term, unsigned int sort)

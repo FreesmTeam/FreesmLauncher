@@ -67,7 +67,10 @@ Task::Ptr ResourceAPI::searchProjects(SearchArgs&& args, Callback<QList<ModPlatf
         }
         callbacks.on_fail(reason, network_error_code);
     });
-    QObject::connect(netJob.get(), &NetJob::aborted, [callbacks] { callbacks.on_abort(); });
+    QObject::connect(netJob.get(), &NetJob::aborted, [callbacks] {
+        if (callbacks.on_abort != nullptr)
+            callbacks.on_abort();
+    });
 
     return netJob;
 }
@@ -80,7 +83,7 @@ Task::Ptr ResourceAPI::getProjectVersions(VersionSearchArgs&& args, Callback<QVe
 
     auto versions_url = versions_url_optional.value();
 
-    auto netJob = makeShared<NetJob>(QString("%1::Versions").arg(args.pack.name), APPLICATION->network());
+    auto netJob = makeShared<NetJob>(QString("%1::Versions").arg(args.pack->name), APPLICATION->network());
     auto response = std::make_shared<QByteArray>();
 
     netJob->addNetAction(Net::ApiDownload::makeByteArray(versions_url, response));
@@ -97,14 +100,14 @@ Task::Ptr ResourceAPI::getProjectVersions(VersionSearchArgs&& args, Callback<QVe
 
         QVector<ModPlatform::IndexedVersion> unsortedVersions;
         try {
-            auto arr = doc.isObject() ? Json::ensureArray(doc.object(), "data") : doc.array();
+            auto arr = doc.isObject() ? doc.object()["data"].toArray() : doc.array();
 
             for (auto versionIter : arr) {
                 auto obj = versionIter.toObject();
 
                 auto file = loadIndexedPackVersion(obj, args.resourceType);
                 if (!file.addonId.isValid())
-                    file.addonId = args.pack.addonId;
+                    file.addonId = args.pack->addonId;
 
                 if (file.fileId.isValid() && !file.downloadUrl.isEmpty())  // Heuristic to check if the returned value is valid
                     unsortedVersions.append(file);
@@ -135,15 +138,18 @@ Task::Ptr ResourceAPI::getProjectVersions(VersionSearchArgs&& args, Callback<QVe
         }
         callbacks.on_fail(reason, network_error_code);
     });
-    QObject::connect(netJob.get(), &NetJob::aborted, [callbacks] { callbacks.on_abort(); });
+    QObject::connect(netJob.get(), &NetJob::aborted, [callbacks] {
+        if (callbacks.on_abort != nullptr)
+            callbacks.on_abort();
+    });
 
     return netJob;
 }
 
-Task::Ptr ResourceAPI::getProjectInfo(ProjectInfoArgs&& args, Callback<ModPlatform::IndexedPack>&& callbacks) const
+Task::Ptr ResourceAPI::getProjectInfo(ProjectInfoArgs&& args, Callback<ModPlatform::IndexedPack::Ptr>&& callbacks) const
 {
     auto response = std::make_shared<QByteArray>();
-    auto job = getProject(args.pack.addonId.toString(), response);
+    auto job = getProject(args.pack->addonId.toString(), response);
 
     QObject::connect(job.get(), &NetJob::succeeded, [this, response, callbacks, args] {
         auto pack = args.pack;
@@ -159,8 +165,8 @@ Task::Ptr ResourceAPI::getProjectInfo(ProjectInfoArgs&& args, Callback<ModPlatfo
             auto obj = Json::requireObject(doc);
             if (obj.contains("data"))
                 obj = Json::requireObject(obj, "data");
-            loadIndexedPack(pack, obj);
-            loadExtraPackInfo(pack, obj);
+            loadIndexedPack(*pack, obj);
+            loadExtraPackInfo(*pack, obj);
         } catch (const JSONValidationError& e) {
             qDebug() << doc;
             qWarning() << "Error while reading " << debugName() << " resource info: " << e.cause();
@@ -182,7 +188,10 @@ Task::Ptr ResourceAPI::getProjectInfo(ProjectInfoArgs&& args, Callback<ModPlatfo
         }
         callbacks.on_fail(reason, network_error_code);
     });
-    QObject::connect(job.get(), &NetJob::aborted, [callbacks] { callbacks.on_abort(); });
+    QObject::connect(job.get(), &NetJob::aborted, [callbacks] {
+        if (callbacks.on_abort != nullptr)
+            callbacks.on_abort();
+    });
     return job;
 }
 
@@ -213,7 +222,7 @@ Task::Ptr ResourceAPI::getDependencyVersion(DependencySearchArgs&& args, Callbac
         if (args.dependency.version.length() != 0 && doc.isObject()) {
             arr.append(doc.object());
         } else {
-            arr = doc.isObject() ? Json::ensureArray(doc.object(), "data") : doc.array();
+            arr = doc.isObject() ? doc.object()["data"].toArray() : doc.array();
         }
 
         QVector<ModPlatform::IndexedVersion> versions;

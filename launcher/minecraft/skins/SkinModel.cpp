@@ -21,12 +21,17 @@
 #include <QPainter>
 
 #include "FileSystem.h"
-#include "Json.h"
 
-static QImage improveSkin(const QImage& skin)
+static QImage improveSkin(QImage skin)
 {
+    // It seems some older skins may use this format, which can't be drawn onto
+    // https://github.com/PrismLauncher/PrismLauncher/issues/4032
+    // https://doc.qt.io/qt-6/qpainter.html#begin
+    if (skin.format() == QImage::Format_Indexed8) {
+        skin = skin.convertToFormat(QImage::Format_RGB32);
+    }
     if (skin.size() == QSize(64, 32)) {  // old format
-        QImage newSkin = QImage(QSize(64, 64), skin.format());
+        auto newSkin = QImage(QSize(64, 64), skin.format());
         newSkin.fill(Qt::transparent);
         QPainter p(&newSkin);
         p.drawImage(QPoint(0, 0), skin.copy(QRect(0, 0, 64, 32)));  // copy head
@@ -102,15 +107,15 @@ SkinModel::SkinModel(QString path) : m_path(path), m_texture(getSkin(path)), m_m
 }
 
 SkinModel::SkinModel(QDir skinDir, QJsonObject obj)
-    : m_capeId(Json::ensureString(obj, "capeId")), m_model(Model::CLASSIC), m_url(Json::ensureString(obj, "url"))
+    : m_capeId(obj["capeId"].toString()), m_model(Model::CLASSIC), m_url(obj["url"].toString())
 {
-    auto name = Json::ensureString(obj, "name");
+    auto name = obj["name"].toString();
 
-    if (auto model = Json::ensureString(obj, "model"); model == "SLIM") {
+    if (auto model = obj["model"].toString(); model == "SLIM") {
         m_model = Model::SLIM;
     }
     m_path = skinDir.absoluteFilePath(name) + ".png";
-    m_texture = QImage(getSkin(m_path));
+    m_texture = getSkin(m_path);
     m_preview = generatePreviews(m_texture, m_model == Model::SLIM);
 }
 

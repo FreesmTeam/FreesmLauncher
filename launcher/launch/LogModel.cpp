@@ -169,8 +169,8 @@ bool LogModel::isOverFlow()
 
 MessageLevel::Enum LogModel::previousLevel()
 {
-    if (!m_content.isEmpty()) {
-        return m_content.last().level;
+    if (m_numLines > 0) {
+        return m_content[m_numLines - 1].level;
     }
     return MessageLevel::Unknown;
 }

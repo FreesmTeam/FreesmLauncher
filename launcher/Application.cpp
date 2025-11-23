@@ -108,8 +108,6 @@
 #include "icons/IconList.h"
 #include "net/HttpMetaCache.h"
 
-#include "java/JavaInstallList.h"
-
 #include "updater/ExternalUpdater.h"
 
 #include "tools/JProfiler.h"
@@ -127,7 +125,6 @@
 #include <LocalPeer.h>
 
 #include <stdlib.h>
-#include <QStringLiteral>
 #include "SysInfo.h"
 
 #ifdef Q_OS_LINUX
@@ -708,6 +705,16 @@ Application::Application(int& argc, char** argv) : QApplication(argc, argv)
         m_settings->registerSetting("SkinsDir", "skins");
         m_settings->registerSetting("JavaDir", "java");
 
+#ifdef Q_OS_MACOS
+        // Folder security-scoped bookmarks
+        m_settings->registerSetting("InstanceDirBookmark", "");
+        m_settings->registerSetting("CentralModsDirBookmark", "");
+        m_settings->registerSetting("IconsDirBookmark", "");
+        m_settings->registerSetting("DownloadsDirBookmark", "");
+        m_settings->registerSetting("SkinsDirBookmark", "");
+        m_settings->registerSetting("JavaDirBookmark", "");
+#endif
+
         // Editors
         m_settings->registerSetting("JsonEditor", QString());
 
@@ -958,12 +965,27 @@ Application::Application(int& argc, char** argv) : QApplication(argc, argv)
     // Themes
     m_themeManager = std::make_unique<ThemeManager>();
 
+#ifdef Q_OS_MACOS
+    // for macOS: getting directory settings will generate URL security-scoped bookmarks if needed and not present
+    // this facilitates a smooth transition from a non-sandboxed version of the launcher, that likely can access the directory,
+    // and a sandboxed version that can't access the directory without a bookmark
+    // this section can likely be removed once the sandboxed version has been released for a while and migrations aren't done anymore
+    {
+        m_settings->get("InstanceDir");
+        m_settings->get("CentralModsDir");
+        m_settings->get("IconsDir");
+        m_settings->get("DownloadsDir");
+        m_settings->get("SkinsDir");
+        m_settings->get("JavaDir");
+    }
+#endif
+
     // initialize and load all instances
     {
         auto InstDirSetting = m_settings->getSetting("InstanceDir");
         // instance path: check for problems with '!' in instance path and warn the user in the log
         // and remember that we have to show him a dialog when the gui starts (if it does so)
-        QString instDir = InstDirSetting->get().toString();
+        QString instDir = m_settings->get("InstanceDir").toString();
         qInfo() << "Instance path              : " << instDir;
         if (FS::checkProblemticPathJava(QDir(instDir))) {
             qWarning() << "Your instance path contains \'!\' and this is known to cause java problems!";
