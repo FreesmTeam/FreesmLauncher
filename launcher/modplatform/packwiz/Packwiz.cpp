@@ -350,7 +350,9 @@ auto V1::getIndexForMod(const QDir& index_dir, QString slug) -> Mod
                 if (dep) {
                     ModPlatform::Dependency d;
                     d.addonId = stringEntry(*dep, "addonId");
-                    d.version = stringEntry(*dep, "version");
+                    if (dep->contains("version")) {
+                        d.version = stringEntry(*dep, "version");
+                    }
                     d.type = ModPlatform::DependencyTypeUtils::fromString(stringEntry(*dep, "type"));
                     mod.dependencies << d;
                 }
