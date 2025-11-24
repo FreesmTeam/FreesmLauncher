@@ -3,7 +3,6 @@
   stdenv,
   cmake,
   cmark,
-  apple-sdk_11,
   extra-cmake-modules,
   gamemode,
   jdk17,
@@ -82,7 +81,6 @@ stdenv.mkDerivation {
     tomlplusplus
     zlib
   ]
-  ++ lib.optionals stdenv.hostPlatform.isDarwin [ apple-sdk_11 ]
   ++ lib.optional gamemodeSupport gamemode;
 
   cmakeFlags = [
