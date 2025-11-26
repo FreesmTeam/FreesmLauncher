@@ -105,21 +105,23 @@ bool ArchiveWriter::addFile(const QString& fileName, const QString& fileDest)
     if (stat(cpath, &st) != 0) {
         qCritical() << "Failed to stat file:" << fileInfo.filePath();
     }
+    // This should handle the copying of most attributes
     archive_entry_copy_stat(entry, &st);
-    archive_entry_set_perm(entry, fileInfo.permissions());
 
+    // However:
+    // "The [filetype] constants used by stat(2) may have different numeric values from the corresponding [libarchive constants]."
+    // - `archive_entry_stat(3)`
     if (fileInfo.isSymLink()) {
+        archive_entry_set_filetype(entry, AE_IFLNK);
+
+        // We also need to manually copy some attributes from the link itself, as `stat` above operates on its target
         auto target = fileInfo.symLinkTarget().toUtf8();
         archive_entry_set_symlink(entry, target.constData());
-
-        if (archive_write_header(m_archive, entry) != ARCHIVE_OK) {
-            qCritical() << "Failed to write symlink header for:" << fileDest << "-" << archive_error_string(m_archive);
-            return false;
-        }
-        return true;
-    }
-
-    if (!fileInfo.isFile() && !fileInfo.isDir()) {
+        archive_entry_set_size(entry, 0);
+        archive_entry_set_perm(entry, fileInfo.permissions());
+    } else if (fileInfo.isFile()) {
+	archive_entry_set_filetype(entry, AE_IFREG);
+    } else {
         qCritical() << "Unsupported file type:" << fileInfo.filePath();
         return false;
     }
@@ -129,7 +131,7 @@ bool ArchiveWriter::addFile(const QString& fileName, const QString& fileDest)
         return false;
     }
 
-    if (fileInfo.isFile()) {
+    if (fileInfo.isFile() && !fileInfo.isSymLink()) {
         QFile file(fileInfo.absoluteFilePath());
         if (!file.open(QIODevice::ReadOnly)) {
             qCritical() << "Failed to open file: " << fileInfo.filePath();
@@ -153,6 +155,7 @@ bool ArchiveWriter::addFile(const QString& fileName, const QString& fileDest)
             }
         }
     }
+
     return true;
 }
 

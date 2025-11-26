@@ -84,7 +84,7 @@ auto ArchiveReader::goToFile(QString filename) -> std::unique_ptr<File>
     archive_read_support_format_all(a);
     archive_read_support_filter_all(a);
     auto fileName = m_archivePath.toUtf8();
-    if (archive_read_open_filename(a, fileName.constData(), 10240) != ARCHIVE_OK) {
+    if (archive_read_open_filename(a, fileName.constData(), m_blockSize) != ARCHIVE_OK) {
         qCritical() << "Failed to open archive file:" << m_archivePath << "-" << archive_error_string(a);
         return nullptr;
     }
@@ -158,8 +158,7 @@ bool ArchiveReader::parse(std::function<bool(File*, bool&)> doStuff)
     archive_read_support_format_all(a);
     archive_read_support_filter_all(a);
     auto fileName = m_archivePath.toUtf8();
-    const auto blockSize = 10240;
-    if (archive_read_open_filename(a, fileName.constData(), blockSize) != ARCHIVE_OK) {
+    if (archive_read_open_filename(a, fileName.constData(), m_blockSize) != ARCHIVE_OK) {
         qCritical() << "Failed to open archive file:" << m_archivePath << "-" << f->error();
         return false;
     }
