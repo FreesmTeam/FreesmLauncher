@@ -41,5 +41,6 @@ class ArchiveWriter {
    private:
     struct archive* m_archive = nullptr;
     QString m_filename;
+    QString m_format = "zip";
 };
 }  // namespace MMCZip

@@ -47,7 +47,8 @@ bool ArchiveWriter::open()
         return false;
     }
 
-    archive_write_set_format_zip(m_archive);
+    auto format = m_format.toUtf8();
+    archive_write_set_format_by_name(m_archive, format.constData());
 
     if (archive_write_set_options(m_archive, "hdrcharset=UTF-8") != ARCHIVE_OK) {
         qCritical() << "Failed to open archive file:" << m_filename << "-" << archive_error_string(m_archive);
@@ -84,7 +85,7 @@ bool ArchiveWriter::addFile(const QString& fileName, const QString& fileDest)
 {
     QFileInfo fileInfo(fileName);
     if (!fileInfo.exists()) {
-        qCritical() << "File does not exists:" << fileInfo.filePath();
+        qCritical() << "File does not exist:" << fileInfo.filePath();
         return false;
     }
 
@@ -101,16 +102,15 @@ bool ArchiveWriter::addFile(const QString& fileName, const QString& fileDest)
     QByteArray utf8 = fileInfo.absoluteFilePath().toUtf8();
     const char* cpath = utf8.constData();
     struct stat st;
-    if (stat(cpath, &st) == 0) {
-        archive_entry_copy_stat(entry, &st);
+    if (stat(cpath, &st) != 0) {
+        qCritical() << "Failed to stat file:" << fileInfo.filePath();
     }
+    archive_entry_copy_stat(entry, &st);
     archive_entry_set_perm(entry, fileInfo.permissions());
 
     if (fileInfo.isSymLink()) {
         auto target = fileInfo.symLinkTarget().toUtf8();
-        archive_entry_set_filetype(entry, AE_IFLNK);
         archive_entry_set_symlink(entry, target.constData());
-        archive_entry_set_size(entry, 0);
 
         if (archive_write_header(m_archive, entry) != ARCHIVE_OK) {
             qCritical() << "Failed to write symlink header for:" << fileDest << "-" << archive_error_string(m_archive);
@@ -119,39 +119,38 @@ bool ArchiveWriter::addFile(const QString& fileName, const QString& fileDest)
         return true;
     }
 
-    if (!fileInfo.isFile()) {
+    if (!fileInfo.isFile() && !fileInfo.isDir()) {
         qCritical() << "Unsupported file type:" << fileInfo.filePath();
         return false;
     }
-
-    QFile file(fileInfo.absoluteFilePath());
-    if (!file.open(QIODevice::ReadOnly)) {
-        qCritical() << "Failed to open file: " << fileInfo.filePath();
-        return false;
-    }
-
-    archive_entry_set_filetype(entry, AE_IFREG);
-    archive_entry_set_size(entry, file.size());
 
     if (archive_write_header(m_archive, entry) != ARCHIVE_OK) {
         qCritical() << "Failed to write header for: " << fileDest << "-" << archive_error_string(m_archive);
         return false;
     }
 
-    constexpr qint64 chunkSize = 8192;
-    QByteArray buffer;
-    buffer.resize(chunkSize);
-
-    while (!file.atEnd()) {
-        auto bytesRead = file.read(buffer.data(), chunkSize);
-        if (bytesRead < 0) {
-            qCritical() << "Read error in file: " << fileInfo.filePath();
+    if (fileInfo.isFile()) {
+        QFile file(fileInfo.absoluteFilePath());
+        if (!file.open(QIODevice::ReadOnly)) {
+            qCritical() << "Failed to open file: " << fileInfo.filePath();
             return false;
         }
 
-        if (archive_write_data(m_archive, buffer.constData(), bytesRead) < 0) {
-            qCritical() << "Write error in archive for: " << fileDest;
-            return false;
+        constexpr qint64 chunkSize = 8192;
+        QByteArray buffer;
+        buffer.resize(chunkSize);
+
+        while (!file.atEnd()) {
+            auto bytesRead = file.read(buffer.data(), chunkSize);
+            if (bytesRead < 0) {
+                qCritical() << "Read error in file: " << fileInfo.filePath();
+                return false;
+            }
+
+            if (archive_write_data(m_archive, buffer.constData(), bytesRead) < 0) {
+                qCritical() << "Write error in archive for: " << fileDest;
+                return false;
+            }
         }
     }
     return true;

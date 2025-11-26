@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: GPL-3.0-only
+// SPDX-License-Identifier: GPL-3.0-only AND LicenseRef-PublicDomain
 /*
  *  Prism Launcher - Minecraft Launcher
  *  Copyright (c) 2025 Trial97 <alexandru.tripon97@gmail.com>
@@ -14,6 +14,9 @@
  *
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ *
+ *  Additional note: Portions of this file are released into the public domain
+ *  under LicenseRef-PublicDomain.
  */
 #include "ArchiveReader.h"
 #include <archive.h>
@@ -144,7 +147,7 @@ bool ArchiveReader::File::writeFile(archive* out, QString targetFileName, bool n
     }
     auto r = archive_write_finish_entry(out);
     if (r < ARCHIVE_OK)
-        qCritical() << "Failed dinish entry:" << archive_error_string(out);
+        qCritical() << "Failed to finish writing entry:" << archive_error_string(out);
     return (r > ARCHIVE_WARN);
 }
 
@@ -155,7 +158,8 @@ bool ArchiveReader::parse(std::function<bool(File*, bool&)> doStuff)
     archive_read_support_format_all(a);
     archive_read_support_filter_all(a);
     auto fileName = m_archivePath.toUtf8();
-    if (archive_read_open_filename(a, fileName.constData(), 10240) != ARCHIVE_OK) {
+    const auto blockSize = 10240;
+    if (archive_read_open_filename(a, fileName.constData(), blockSize) != ARCHIVE_OK) {
         qCritical() << "Failed to open archive file:" << m_archivePath << "-" << f->error();
         return false;
     }
