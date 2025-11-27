@@ -104,9 +104,6 @@ endif()
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DQT_WARN_DEPRECATED_UP_TO=0x060200")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DQT_DISABLE_DEPRECATED_UP_TO=0x060000")
 
-# Fix aarch64 build for toml++
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DTOML_ENABLE_FLOAT16=0")
-
 # set CXXFLAGS for build targets
 set(CMAKE_CXX_FLAGS_RELEASE "-O2 -D_FORTIFY_SOURCE=2 ${CMAKE_CXX_FLAGS_RELEASE}")
 
@@ -174,20 +171,9 @@ endif()
 
 option(BUILD_TESTING "Build the testing tree." ON)
 
-find_package(ECM QUIET NO_MODULE)
-if(NOT ECM_FOUND)
-    if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/libraries/extra-cmake-modules/CMakeLists.txt")
-        message(STATUS "Using bundled ECM")
-        set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/libraries/extra-cmake-modules/modules;${CMAKE_MODULE_PATH}")
-    else()
-        message(FATAL_ERROR
-            " Could not find ECM\n \n"
-            " Either install ECM using the system package manager or clone submodules\n"
-            " Submodules can be cloned with 'git submodule update --init --recursive'")
-    endif()
-else()
-    set(CMAKE_MODULE_PATH "${ECM_MODULE_PATH};${CMAKE_MODULE_PATH}")
-endif()
+find_package(ECM NO_MODULE REQUIRED)
+set(CMAKE_MODULE_PATH "${ECM_MODULE_PATH};${CMAKE_MODULE_PATH}")
+
 include(CTest)
 include(ECMAddTests)
 if(BUILD_TESTING)
@@ -326,6 +312,8 @@ if(Launcher_QT_VERSION_MAJOR EQUAL 6)
     set(QT_LIBEXECS_DIR ${QT${QT_VERSION_MAJOR}_INSTALL_PREFIX}/${QT${QT_VERSION_MAJOR}_INSTALL_LIBEXECS})
 endif()
 
+find_package(cmark REQUIRED)
+
 # Find libqrencode
 ## NOTE(@getchoo): Never use pkg-config with MSVC since the vcpkg port makes our install bundle fail to find the dll
 if(MSVC)
@@ -339,26 +327,16 @@ else()
 endif()
 
 # Find libarchive through CMake packages, mainly for vcpkg
-find_package(LibArchive QUIET)
+find_package(LibArchive)
 # CMake packages aren't available in most distributions of libarchive, so fallback to pkg-config
 if(NOT LibArchive_FOUND)
     find_package(PkgConfig REQUIRED)
     pkg_check_modules(libarchive REQUIRED IMPORTED_TARGET libarchive)
 endif()
 
-# Find toml++
-find_package(tomlplusplus 3.2.0 QUIET)
-# Fallback to pkg-config (if available) if CMake files aren't found
-if(NOT tomlplusplus_FOUND)
-    find_package(PkgConfig QUIET)
-    if(PkgConfig_FOUND)
-        pkg_check_modules(tomlplusplus IMPORTED_TARGET tomlplusplus>=3.2.0)
-    endif()
-endif()
+find_package(tomlplusplus 3.2.0 REQUIRED)
+find_package(ZLIB REQUIRED)
 
-
-# Find cmark
-find_package(cmark QUIET)
 
 include(ECMQtDeclareLoggingCategory)
 
@@ -467,52 +445,8 @@ add_subdirectory(libraries/systeminfo) # system information library
 add_subdirectory(libraries/launcher) # java based launcher part for Minecraft
 add_subdirectory(libraries/javacheck) # java compatibility checker
 
-find_package(ZLIB QUIET)
-if(NOT ZLIB_FOUND)
-    message(STATUS "Using bundled zlib")
-
-    set(CMAKE_POLICY_DEFAULT_CMP0069 NEW) # Suppress cmake warnings and allow INTERPROCEDURAL_OPTIMIZATION for zlib
-    set(SKIP_INSTALL_ALL ON)
-    add_subdirectory(libraries/zlib EXCLUDE_FROM_ALL)
-
-    # On OS where unistd.h exists, zlib's generated header defines `Z_HAVE_UNISTD_H`, while the included header does not.
-    # We cannot safely undo the rename on those systems, and they generally have packages for zlib anyway.
-    check_include_file(unistd.h NEED_GENERATED_ZCONF)
-    if (EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/libraries/zlib/zconf.h.included" AND NOT NEED_GENERATED_ZCONF)
-        # zlib's cmake script renames a file, dirtying the submodule, see https://github.com/madler/zlib/issues/162
-        message(STATUS "Undoing Rename")
-        message(STATUS "    ${CMAKE_CURRENT_SOURCE_DIR}/libraries/zlib/zconf.h")
-        file(RENAME "${CMAKE_CURRENT_SOURCE_DIR}/libraries/zlib/zconf.h.included" "${CMAKE_CURRENT_SOURCE_DIR}/libraries/zlib/zconf.h")
-    endif()
-
-    set(ZLIB_INCLUDE_DIR "${CMAKE_CURRENT_BINARY_DIR}/libraries/zlib" "${CMAKE_CURRENT_SOURCE_DIR}/libraries/zlib" CACHE STRING "" FORCE)
-    set_target_properties(zlibstatic PROPERTIES INTERFACE_INCLUDE_DIRECTORIES "${ZLIB_INCLUDE_DIR}")
-    add_library(ZLIB::ZLIB ALIAS zlibstatic)
-    set(ZLIB_LIBRARY ZLIB::ZLIB CACHE STRING "zlib library name")
-
-    find_package(ZLIB REQUIRED)
-else()
-    message(STATUS "Using system zlib")
-endif()
 add_subdirectory(libraries/rainbow) # Qt extension for colors
 add_subdirectory(libraries/LocalPeer) # fork of a library from Qt solutions
-if(NOT tomlplusplus_FOUND)
-    message(STATUS "Using bundled tomlplusplus")
-    add_subdirectory(libraries/tomlplusplus) # toml parser
-else()
-    message(STATUS "Using system tomlplusplus")
-endif()
-if(NOT cmark_FOUND)
-    message(STATUS "Using bundled cmark")
-    set(ORIGINAL_BUILD_TESTING ${BUILD_TESTING})
-    set(BUILD_TESTING 0)
-    set(BUILD_SHARED_LIBS 0)
-    add_subdirectory(libraries/cmark EXCLUDE_FROM_ALL) # Markdown parser
-    add_library(cmark::cmark ALIAS cmark)
-    set(BUILD_TESTING ${ORIGINAL_BUILD_TESTING})
-else()
-    message(STATUS "Using system cmark")
-endif()
 add_subdirectory(libraries/gamemode)
 add_subdirectory(libraries/murmur2) # Hash for usage with the CurseForge API
 add_subdirectory(libraries/qdcss) # css parser
