@@ -77,7 +77,6 @@ stdenv.mkDerivation {
     cmark
     kdePackages.qtbase
     kdePackages.qtnetworkauth
-    kdePackages.qt5compat
     qrencode
     libarchive
     tomlplusplus
