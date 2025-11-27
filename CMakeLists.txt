@@ -314,6 +314,11 @@ endif()
 
 find_package(cmark REQUIRED)
 
+if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
+    find_package(PkgConfig REQUIRED)
+    pkg_check_modules(gamemode REQUIRED IMPORTED_TARGET gamemode)
+endif()
+
 # Find libqrencode
 ## NOTE(@getchoo): Never use pkg-config with MSVC since the vcpkg port makes our install bundle fail to find the dll
 if(MSVC)
@@ -447,7 +452,6 @@ add_subdirectory(libraries/javacheck) # java compatibility checker
 
 add_subdirectory(libraries/rainbow) # Qt extension for colors
 add_subdirectory(libraries/LocalPeer) # fork of a library from Qt solutions
-add_subdirectory(libraries/gamemode)
 add_subdirectory(libraries/murmur2) # Hash for usage with the CurseForge API
 add_subdirectory(libraries/qdcss) # css parser
 

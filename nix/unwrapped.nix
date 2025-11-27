@@ -15,12 +15,8 @@
   tomlplusplus,
   zlib,
   msaClientID ? null,
-  gamemodeSupport ? stdenv.hostPlatform.isLinux,
   libarchive,
 }:
-assert lib.assertMsg (
-  gamemodeSupport -> stdenv.hostPlatform.isLinux
-) "gamemodeSupport is only available on Linux.";
 
 let
   date =
@@ -83,7 +79,7 @@ stdenv.mkDerivation {
     tomlplusplus
     zlib
   ]
-  ++ lib.optional gamemodeSupport gamemode;
+  ++ lib.optional stdenv.hostPlatform.isLinux gamemode;
 
   cmakeFlags = [
     # downstream branding

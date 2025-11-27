@@ -51,7 +51,7 @@ assert lib.assertMsg (
 ) "textToSpeechSupport only has an effect on Linux.";
 
 let
-  prismlauncher' = prismlauncher-unwrapped.override { inherit msaClientID gamemodeSupport; };
+  prismlauncher' = prismlauncher-unwrapped.override { inherit msaClientID; };
 in
 
 symlinkJoin {

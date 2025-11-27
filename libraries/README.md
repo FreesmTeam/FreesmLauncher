@@ -2,14 +2,6 @@
 
 This folder has third-party or otherwise external libraries needed for other parts to work.
 
-## gamemode
-
-A performance optimization daemon.
-
-See [github repo](https://github.com/FeralInteractive/gamemode).
-
-BSD-3-Clause licensed
-
 ## javacheck
 
 Simple Java tool that prints the JVM details - version and platform bitness.
