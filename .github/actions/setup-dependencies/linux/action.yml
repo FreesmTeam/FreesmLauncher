@@ -9,9 +9,9 @@ runs:
       run: |
         sudo apt-get -y update
         sudo apt-get -y install \
-          dpkg-dev libarchive-dev \
-          ninja-build extra-cmake-modules scdoc \
-          libqrencode-dev \
+          dpkg-dev \
+          ninja-build extra-cmake-modules pkg-config scdoc \
+          cmark-dev libarchive-dev libqrencode-dev tomlplusplus-dev zlib-dev \
           appstream libxcb-cursor-dev
 
     - name: Setup AppImage tooling
