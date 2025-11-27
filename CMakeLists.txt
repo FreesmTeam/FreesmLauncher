@@ -244,7 +244,6 @@ set(Launcher_DISCORD_URL "https://prismlauncher.org/discord" CACHE STRING "URL f
 set(Launcher_SUBREDDIT_URL "https://prismlauncher.org/reddit" CACHE STRING "URL for the subreddit.")
 
 # Builds
-set(Launcher_FORCE_BUNDLED_LIBS OFF CACHE BOOL "Prevent using system libraries, if they are available as submodules")
 set(Launcher_QT_VERSION_MAJOR "6" CACHE STRING "Major Qt version to build against")
 
 # Java downloader
@@ -309,16 +308,6 @@ set(Launcher_BUILD_TIMESTAMP "${TODAY}")
 
 ################################ 3rd Party Libs ################################
 
-# Successive configurations of cmake without cleaning the build dir will cause zlib fallback to fail due to cached values
-# Record when fallback triggered and skip this find_package
-if(NOT Launcher_FORCE_BUNDLED_LIBS AND NOT FORCE_BUNDLED_ZLIB)
-    find_package(ZLIB QUIET)
-endif()
-if(NOT ZLIB_FOUND)
-    set(FORCE_BUNDLED_ZLIB TRUE CACHE BOOL "")
-    mark_as_advanced(FORCE_BUNDLED_ZLIB)
-endif()
-
 # Find the required Qt parts
 include(QtVersionlessBackport)
 if(Launcher_QT_VERSION_MAJOR EQUAL 6)
@@ -357,21 +346,19 @@ if(NOT LibArchive_FOUND)
     pkg_check_modules(libarchive REQUIRED IMPORTED_TARGET libarchive)
 endif()
 
-if(NOT Launcher_FORCE_BUNDLED_LIBS)
-    # Find toml++
-    find_package(tomlplusplus 3.2.0 QUIET)
-    # Fallback to pkg-config (if available) if CMake files aren't found
-    if(NOT tomlplusplus_FOUND)
-        find_package(PkgConfig QUIET)
-        if(PkgConfig_FOUND)
-            pkg_check_modules(tomlplusplus IMPORTED_TARGET tomlplusplus>=3.2.0)
-        endif()
+# Find toml++
+find_package(tomlplusplus 3.2.0 QUIET)
+# Fallback to pkg-config (if available) if CMake files aren't found
+if(NOT tomlplusplus_FOUND)
+    find_package(PkgConfig QUIET)
+    if(PkgConfig_FOUND)
+        pkg_check_modules(tomlplusplus IMPORTED_TARGET tomlplusplus>=3.2.0)
     endif()
-
-
-    # Find cmark
-    find_package(cmark QUIET)
 endif()
+
+
+# Find cmark
+find_package(cmark QUIET)
 
 include(ECMQtDeclareLoggingCategory)
 
@@ -479,7 +466,9 @@ add_subdirectory(libraries/libnbtplusplus)
 add_subdirectory(libraries/systeminfo) # system information library
 add_subdirectory(libraries/launcher) # java based launcher part for Minecraft
 add_subdirectory(libraries/javacheck) # java compatibility checker
-if(FORCE_BUNDLED_ZLIB)
+
+find_package(ZLIB QUIET)
+if(NOT ZLIB_FOUND)
     message(STATUS "Using bundled zlib")
 
     set(CMAKE_POLICY_DEFAULT_CMP0069 NEW) # Suppress cmake warnings and allow INTERPROCEDURAL_OPTIMIZATION for zlib
