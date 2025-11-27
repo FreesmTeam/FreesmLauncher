@@ -84,7 +84,7 @@ class PackInstallTask final : public InstanceTask {
 
     QList<int> m_fileIds;
 
-    std::shared_ptr<QByteArray> m_response;
+    std::unique_ptr<QByteArray> m_response;
 
     Modpack m_pack;
     QString m_versionName;

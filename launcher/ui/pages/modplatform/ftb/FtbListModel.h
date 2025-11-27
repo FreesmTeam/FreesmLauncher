@@ -19,6 +19,7 @@
 #include <QAbstractListModel>
 
 #include <QIcon>
+#include <memory>
 #include "modplatform/ftb/FTBPackManifest.h"
 #include "net/NetJob.h"
 
@@ -76,7 +77,7 @@ class ListModel : public QAbstractListModel {
     NetJob::Ptr m_jobPtr;
     int m_currentPack;
     QList<int> m_remainingPacks;
-    std::shared_ptr<QByteArray> m_response;
+    std::unique_ptr<QByteArray> m_response;
 };
 
 }  // namespace Ftb

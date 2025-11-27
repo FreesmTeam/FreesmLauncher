@@ -51,7 +51,7 @@ QVariant ListModel::data(const QModelIndex& index, int role) const
     } else if (role == Qt::ToolTipRole) {
         return pack.synopsis;
     } else if (role == Qt::DecorationRole) {
-        QIcon placeholder = APPLICATION->getThemedIcon("screenshot-placeholder");
+        QIcon placeholder = QIcon::fromTheme("screenshot-placeholder");
 
         auto iter = m_logoMap.find(pack.safeName);
         if (iter != m_logoMap.end()) {
@@ -97,7 +97,7 @@ void ListModel::request()
     auto netJob = makeShared<NetJob>("Ftb::Request", APPLICATION->network());
     auto url = QString(BuildConfig.FTB_API_BASE_URL + "/modpack/all");
     m_response.reset(new QByteArray());
-    netJob->addNetAction(Net::Download::makeByteArray(QUrl(url), m_response));
+    netJob->addNetAction(Net::Download::makeByteArray(QUrl(url), m_response.get()));
     m_jobPtr = netJob;
     m_jobPtr->start();
 
@@ -147,7 +147,7 @@ void ListModel::requestPack()
     auto netJob = makeShared<NetJob>("Ftb::Search", APPLICATION->network());
     auto searchUrl = QString(BuildConfig.FTB_API_BASE_URL + "/modpack/%1").arg(m_currentPack);
     m_response.reset(new QByteArray());
-    netJob->addNetAction(Net::Download::makeByteArray(QUrl(searchUrl), m_response));
+    netJob->addNetAction(Net::Download::makeByteArray(QUrl(searchUrl), m_response.get()));
     m_jobPtr = netJob;
     m_jobPtr->start();
 

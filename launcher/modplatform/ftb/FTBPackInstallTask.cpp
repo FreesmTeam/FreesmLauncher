@@ -92,7 +92,7 @@ void PackInstallTask::executeTask()
 
     auto searchUrl = QString(BuildConfig.FTB_API_BASE_URL + "/modpack/%1/%2").arg(m_pack.id).arg(version.id);
     m_response.reset(new QByteArray());
-    netJob->addNetAction(Net::Download::makeByteArray(QUrl(searchUrl), m_response));
+    netJob->addNetAction(Net::Download::makeByteArray(QUrl(searchUrl), m_response.get()));
 
     QObject::connect(netJob.get(), &NetJob::succeeded, this, &PackInstallTask::onManifestDownloadSucceeded);
     QObject::connect(netJob.get(), &NetJob::failed, this, &PackInstallTask::onManifestDownloadFailed);
@@ -233,9 +233,9 @@ void PackInstallTask::createInstance()
     QCoreApplication::processEvents();
 
     auto instanceConfigPath = FS::PathCombine(m_stagingPath, "instance.cfg");
-    auto instanceSettings = std::make_shared<INISettingsObject>(instanceConfigPath);
+    auto instanceSettings = std::make_unique<INISettingsObject>(instanceConfigPath);
 
-    MinecraftInstance instance(m_globalSettings, instanceSettings, m_stagingPath);
+    MinecraftInstance instance(m_globalSettings, std::move(instanceSettings), m_stagingPath);
     auto components = instance.getPackProfile();
     components->buildingFromScratch();
 
