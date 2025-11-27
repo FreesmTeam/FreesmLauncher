@@ -320,7 +320,6 @@ if(NOT ZLIB_FOUND)
 endif()
 
 # Find the required Qt parts
-include(QtVersionlessBackport)
 if(Launcher_QT_VERSION_MAJOR EQUAL 6)
     set(QT_VERSION_MAJOR 6)
     find_package(Qt6 REQUIRED COMPONENTS Core CoreTools Widgets Concurrent Network Test Xml Core5Compat NetworkAuth OpenGL)
