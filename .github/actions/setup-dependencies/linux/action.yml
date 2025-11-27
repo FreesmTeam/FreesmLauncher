@@ -9,7 +9,7 @@ runs:
       run: |
         sudo apt-get -y update
         sudo apt-get -y install \
-          dpkg-dev \
+          dpkg-dev libarchive-dev \
           ninja-build extra-cmake-modules scdoc \
           libqrencode-dev \
           appstream libxcb-cursor-dev

@@ -1702,4 +1702,14 @@ QString getUniqueResourceName(const QString& filePath)
 
     return newFileName;
 }
+bool removeFiles(QStringList listFile)
+{
+    bool ret = true;
+    // For each file
+    for (int i = 0; i < listFile.count(); i++) {
+        // Remove
+        ret = ret && QFile::remove(listFile.at(i));
+    }
+    return ret;
+}
 }  // namespace FS

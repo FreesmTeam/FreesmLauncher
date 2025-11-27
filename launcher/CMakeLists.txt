@@ -26,8 +26,14 @@ set(CORE_SOURCES
     NullInstance.h
     MMCZip.h
     MMCZip.cpp
-    Untar.h
-    Untar.cpp
+    archive/ArchiveReader.cpp  
+    archive/ArchiveReader.h  
+    archive/ArchiveWriter.cpp  
+    archive/ArchiveWriter.h  
+    archive/ExportToZipTask.cpp  
+    archive/ExportToZipTask.h
+    archive/ExtractZipTask.cpp  
+    archive/ExtractZipTask.h
     StringUtils.h
     StringUtils.cpp
     QVariantUtils.h
@@ -615,6 +621,10 @@ set(PRISMUPDATER_SOURCES
     # Zip
     MMCZip.h
     MMCZip.cpp
+    archive/ArchiveReader.cpp  
+    archive/ArchiveReader.h  
+    archive/ArchiveWriter.cpp  
+    archive/ArchiveWriter.h  
 
     # Time
     MMCTime.h
@@ -1320,6 +1330,11 @@ if(TARGET PkgConfig::tomlplusplus)
 else()
     target_link_libraries(Launcher_logic tomlplusplus::tomlplusplus)
 endif()
+if(TARGET PkgConfig::libarchive)
+    target_link_libraries(Launcher_logic PkgConfig::libarchive)
+else()
+    target_link_libraries(Launcher_logic LibArchive::LibArchive)
+endif()
 
 if (UNIX AND NOT CYGWIN AND NOT APPLE)
     target_link_libraries(Launcher_logic
@@ -1340,7 +1355,6 @@ target_link_libraries(Launcher_logic
     ${Launcher_QT_LIBS}
 )
 target_link_libraries(Launcher_logic
-    QuaZip::QuaZip
     cmark::cmark
     LocalPeer
     Launcher_rainbow
@@ -1407,7 +1421,6 @@ if(Launcher_BUILD_UPDATER)
     add_library(prism_updater_logic STATIC ${PRISMUPDATER_SOURCES} ${TASKS_SOURCES} ${PRISMUPDATER_UI})
     target_include_directories(prism_updater_logic PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
     target_link_libraries(prism_updater_logic
-        QuaZip::QuaZip
         ${ZLIB_LIBRARIES}
         systeminfo
         BuildConfig
@@ -1417,6 +1430,11 @@ if(Launcher_BUILD_UPDATER)
         ${Launcher_QT_LIBS}
         cmark::cmark
     )
+    if(TARGET PkgConfig::libarchive)
+        target_link_libraries(prism_updater_logic PkgConfig::libarchive)
+    else()
+        target_link_libraries(prism_updater_logic LibArchive::LibArchive)
+    endif()
 
     add_executable("${Launcher_Name}_updater" WIN32 updater/prismupdater/updater_main.cpp)
     target_sources("${Launcher_Name}_updater" PRIVATE updater/prismupdater/updater.exe.manifest)

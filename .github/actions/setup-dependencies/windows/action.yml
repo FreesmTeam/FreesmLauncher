@@ -81,7 +81,7 @@ runs:
           cmark:p
           qrencode:p
           tomlplusplus:p
-          quazip-qt6:p
+          libarchive:p
 
     - name: List pacman packages (MinGW)
       if: ${{ inputs.msystem != '' }}

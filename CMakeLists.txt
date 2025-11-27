@@ -327,14 +327,6 @@ if(Launcher_QT_VERSION_MAJOR EQUAL 6)
     find_package(Qt6 COMPONENTS DBus)
     list(APPEND Launcher_QT_DBUS Qt6::DBus)
     list(APPEND Launcher_QT_LIBS Qt6::Core5Compat)
-
-    if(NOT Launcher_FORCE_BUNDLED_LIBS)
-        find_package(QuaZip-Qt6 1.3 QUIET)
-    endif()
-    if (NOT QuaZip-Qt6_FOUND)
-        set(QUAZIP_QT_MAJOR_VERSION ${QT_VERSION_MAJOR} CACHE STRING "Qt version to use (4, 5 or 6), defaults to ${QT_VERSION_MAJOR}" FORCE)
-        set(FORCE_BUNDLED_QUAZIP 1)
-    endif()
 else()
     message(FATAL_ERROR "Qt version ${Launcher_QT_VERSION_MAJOR} is not supported")
 endif()
@@ -355,6 +347,14 @@ if(MSVC)
 else()
     find_package(PkgConfig REQUIRED)
     pkg_check_modules(libqrencode REQUIRED IMPORTED_TARGET libqrencode)
+endif()
+
+# Find libarchive through CMake packages, mainly for vcpkg
+find_package(LibArchive QUIET)
+# CMake packages aren't available in most distributions of libarchive, so fallback to pkg-config
+if(NOT LibArchive_FOUND)
+    find_package(PkgConfig REQUIRED)
+    pkg_check_modules(libarchive REQUIRED IMPORTED_TARGET libarchive)
 endif()
 
 if(NOT Launcher_FORCE_BUNDLED_LIBS)
@@ -504,14 +504,6 @@ if(FORCE_BUNDLED_ZLIB)
     find_package(ZLIB REQUIRED)
 else()
     message(STATUS "Using system zlib")
-endif()
-if (FORCE_BUNDLED_QUAZIP)
-    message(STATUS "Using bundled QuaZip")
-    set(BUILD_SHARED_LIBS 0)  # link statically to avoid conflicts.
-    set(QUAZIP_INSTALL 0)
-    add_subdirectory(libraries/quazip) # zip manipulation library
-else()
-    message(STATUS "Using system QuaZip")
 endif()
 add_subdirectory(libraries/rainbow) # Qt extension for colors
 add_subdirectory(libraries/LocalPeer) # fork of a library from Qt solutions
