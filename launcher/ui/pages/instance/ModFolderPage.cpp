@@ -38,6 +38,7 @@
 
 #include "ModFolderPage.h"
 #include "ui/dialogs/ExportToModListDialog.h"
+#include "ui/dialogs/InstallLoaderDialog.h"
 #include "ui_ExternalResourcesPage.h"
 
 #include <QAbstractItemModel>
@@ -145,8 +146,9 @@ void ModFolderPage::downloadMods()
 
     auto profile = static_cast<MinecraftInstance*>(m_instance)->getPackProfile();
     if (!profile->getModLoaders().has_value()) {
-        QMessageBox::critical(this, tr("Error"), tr("Please install a mod loader first!"));
-        return;
+        if (handleNoModLoader()) {
+            return;
+        }
     }
 
     m_downloadDialog = new ResourceDownload::ModDownloadDialog(this, m_model, m_instance);
@@ -201,8 +203,9 @@ void ModFolderPage::updateMods(bool includeDeps)
 
     auto profile = static_cast<MinecraftInstance*>(m_instance)->getPackProfile();
     if (!profile->getModLoaders().has_value()) {
-        QMessageBox::critical(this, tr("Error"), tr("Please install a mod loader first!"));
-        return;
+        if (handleNoModLoader()) {
+            return;
+        }
     }
     if (APPLICATION->settings()->get("ModMetadataDisabled").toBool()) {
         QMessageBox::critical(this, tr("Error"), tr("Mod updates are unavailable when metadata is disabled!"));
@@ -305,8 +308,9 @@ void ModFolderPage::changeModVersion()
 
     auto profile = static_cast<MinecraftInstance*>(m_instance)->getPackProfile();
     if (!profile->getModLoaders().has_value()) {
-        QMessageBox::critical(this, tr("Error"), tr("Please install a mod loader first!"));
-        return;
+        if (handleNoModLoader()) {
+            return;
+        }
     }
     if (APPLICATION->settings()->get("ModMetadataDisabled").toBool()) {
         QMessageBox::critical(this, tr("Error"), tr("Mod updates are unavailable when metadata is disabled!"));
@@ -384,4 +388,35 @@ NilModFolderPage::NilModFolderPage(BaseInstance* inst, std::shared_ptr<ModFolder
 bool NilModFolderPage::shouldDisplay() const
 {
     return m_model->dir().exists();
+}
+
+// Helper function so this doesn't need to be duplicated 3 times
+inline bool ModFolderPage::handleNoModLoader()
+{
+    int resp = QMessageBox::question(this, this->tr("Missing Mod Loader"),
+                                     this->tr("You need to install a compatible mod loader before installing mods. Would you like to do so?"),
+                                     QMessageBox::Yes | QMessageBox::No, QMessageBox::Yes);
+    switch (resp) {
+        case QMessageBox::Yes: {
+            // Should be safe
+            auto profile = static_cast<MinecraftInstance*>(this->m_instance)->getPackProfile();
+            InstallLoaderDialog dialog(profile, QString(), this);
+            bool ret = dialog.exec();
+            this->m_container->refreshContainer();
+            
+            // returning negation of dialog.exec which'll be true if the install loader dialog got canceled/closed 
+            // and false if the user went through and installed a loader
+            return !ret;
+        }
+        case QMessageBox::No: {
+            // Nothing happens the dialog is already closing
+            // returning true so the caller doesn't go and continue with opening it's dialog without a mod loader
+            return true;
+        }
+        default: {
+            // Unreachable
+            // returning true as a safety measure
+            return true;
+        }
+    }
 }
