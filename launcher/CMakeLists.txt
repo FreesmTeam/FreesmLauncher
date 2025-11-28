@@ -1336,7 +1336,7 @@ else()
     target_link_libraries(Launcher_logic LibArchive::LibArchive)
 endif()
 
-if (UNIX AND NOT CYGWIN AND NOT APPLE)
+if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
     target_link_libraries(Launcher_logic
         gamemode
     )
