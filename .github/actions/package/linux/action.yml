@@ -60,43 +60,21 @@ runs:
       run: |
         cmake --install ${{ env.BUILD_DIR }} --config ${{ inputs.build-type }} --prefix ${{ env.INSTALL_APPIMAGE_DIR }}/usr
 
-        mv ${{ env.INSTALL_APPIMAGE_DIR }}/usr/share/metainfo/org.prismlauncher.PrismLauncher.metainfo.xml ${{ env.INSTALL_APPIMAGE_DIR }}/usr/share/metainfo/org.prismlauncher.PrismLauncher.appdata.xml
-        export "NO_APPSTREAM=1" # we have to skip appstream checking because appstream on ubuntu 20.04 is outdated
-
-        export OUTPUT="PrismLauncher-Linux-$APPIMAGE_ARCH.AppImage"
-
-        chmod +x linuxdeploy-*.AppImage
-
-        mkdir -p ${{ env.INSTALL_APPIMAGE_DIR }}/usr/lib
-        mkdir -p ${{ env.INSTALL_APPIMAGE_DIR }}/usr/plugins/iconengines
-
-        cp -r ${{ runner.workspace }}/Qt/${{ inputs.qt-version }}/gcc_*64/plugins/iconengines/* ${{ env.INSTALL_APPIMAGE_DIR }}/usr/plugins/iconengines
-
-        cp /usr/lib/"$DEB_HOST_MULTIARCH"/libcrypto.so.* ${{ env.INSTALL_APPIMAGE_DIR }}/usr/lib/
-        cp /usr/lib/"$DEB_HOST_MULTIARCH"/libssl.so.* ${{ env.INSTALL_APPIMAGE_DIR }}/usr/lib/
-        cp /usr/lib/"$DEB_HOST_MULTIARCH"/libOpenGL.so.0* ${{ env.INSTALL_APPIMAGE_DIR }}/usr/lib/
-
-        LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:${{ env.INSTALL_APPIMAGE_DIR }}/usr/lib"
-        export LD_LIBRARY_PATH
-
-        chmod +x AppImageUpdate-"$APPIMAGE_ARCH".AppImage
-        cp AppImageUpdate-"$APPIMAGE_ARCH".AppImage ${{ env.INSTALL_APPIMAGE_DIR }}/usr/bin
-
-        export UPDATE_INFORMATION="gh-releases-zsync|${{ github.repository_owner }}|${{ github.event.repository.name }}|latest|PrismLauncher-Linux-$APPIMAGE_ARCH.AppImage.zsync"
+        cp ${{ env.INSTALL_APPIMAGE_DIR }}/usr/share/metainfo/org.prismlauncher.PrismLauncher.{metainfo,appdata}.xml
 
         if [ '${{ inputs.gpg-private-key-id }}' != '' ]; then
-          export SIGN=1
-          export SIGN_KEY=${{ inputs.gpg-private-key-id }}
-          mkdir -p ~/.gnupg/
-          echo "$GPG_PRIVATE_KEY" > ~/.gnupg/private.key
-          gpg --import ~/.gnupg/private.key
+          echo "$GPG_PRIVATE_KEY" > privkey.asc
+          gpg --import privkey.asc
+          gpg --export --armor 9C7A2C9B62603299 > pubkey.asc
         else
           echo ":warning: Skipped code signing for Linux AppImage, as gpg key was not present." >> $GITHUB_STEP_SUMMARY
         fi
 
-        ./linuxdeploy-"$APPIMAGE_ARCH".AppImage --appdir ${{ env.INSTALL_APPIMAGE_DIR }} --output appimage --plugin qt -i ${{ env.INSTALL_APPIMAGE_DIR }}/usr/share/icons/hicolor/scalable/apps/org.prismlauncher.PrismLauncher.svg
+        appimagetool -s deploy "$INSTALL_APPIMAGE_DIR"/usr/share/applications/*.desktop
+        cp ~/bin/AppImageUpdate.AppImage "$INSTALL_APPIMAGE_DIR"/usr/bin/
+        appimagetool "$INSTALL_APPIMAGE_DIR"
 
-        mv "PrismLauncher-Linux-$APPIMAGE_ARCH.AppImage" "PrismLauncher-Linux-${{ env.VERSION }}-${{ inputs.build-type }}-$APPIMAGE_ARCH.AppImage"
+        mv "Prism_Launcher-$VERSION-$APPIMAGE_ARCH.AppImage" "PrismLauncher-Linux-$VERSION-${{ inputs.build-type }}-$APPIMAGE_ARCH.AppImage"
 
     - name: Package portable tarball
       shell: bash
@@ -128,4 +106,4 @@ runs:
       uses: actions/upload-artifact@v5
       with:
         name: PrismLauncher-${{ runner.os }}-${{ inputs.version }}-${{ inputs.build-type }}-${{ env.APPIMAGE_ARCH }}.AppImage.zsync
-        path: PrismLauncher-${{ runner.os }}-${{ env.APPIMAGE_ARCH }}.AppImage.zsync
+        path: Prism_Launcher-${{ inputs.version }}-${{ env.APPIMAGE_ARCH }}.AppImage.zsync
