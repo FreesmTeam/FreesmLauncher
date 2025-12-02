@@ -338,6 +338,12 @@ if(NOT LibArchive_FOUND)
 endif()
 
 find_package(tomlplusplus 3.2.0 REQUIRED)
+# fallback to pkgconfig, important especially as many distros package toml++ built with meson
+if(NOT tomlplusplus_FOUND)
+    find_package(PkgConfig REQUIRED)
+    pkg_check_modules(tomlplusplus REQUIRED IMPORTED_TARGET tomlplusplus>=3.2.0)
+endif()
+
 find_package(ZLIB REQUIRED)
 
 
