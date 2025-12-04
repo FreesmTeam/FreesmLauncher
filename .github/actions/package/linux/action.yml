@@ -72,9 +72,12 @@ runs:
 
         appimagetool -s deploy "$INSTALL_APPIMAGE_DIR"/usr/share/applications/*.desktop
         cp ~/bin/AppImageUpdate.AppImage "$INSTALL_APPIMAGE_DIR"/usr/bin/
-        appimagetool "$INSTALL_APPIMAGE_DIR"
-
-        mv "Prism_Launcher-$VERSION-$APPIMAGE_ARCH.AppImage" "PrismLauncher-Linux-$VERSION-${{ inputs.build-type }}-$APPIMAGE_ARCH.AppImage"
+        # FIXME(@getchoo): Validate AppStream information when https://github.com/probonopd/go-appimage/pull/379 is merged
+        mkappimage \
+          --no-appstream \
+          --updateinformation "gh-releases-zsync|${{ github.repository_owner }}|${{ github.event.repository.name }}|latest|PrismLauncher-Linux-$APPIMAGE_ARCH.AppImage.zsync" \
+          "$INSTALL_APPIMAGE_DIR" \
+          "PrismLauncher-Linux-$VERSION-${{ inputs.build-type }}-$APPIMAGE_ARCH.AppImage"
 
     - name: Package portable tarball
       shell: bash
@@ -106,4 +109,4 @@ runs:
       uses: actions/upload-artifact@v5
       with:
         name: PrismLauncher-${{ runner.os }}-${{ inputs.version }}-${{ inputs.build-type }}-${{ env.APPIMAGE_ARCH }}.AppImage.zsync
-        path: Prism_Launcher-${{ inputs.version }}-${{ env.APPIMAGE_ARCH }}.AppImage.zsync
+        path: PrismLauncher-${{ runner.os }}-${{ inputs.version }}-${{ inputs.build-type }}-${{ env.APPIMAGE_ARCH }}.AppImage.zsync
