@@ -60,7 +60,11 @@ runs:
           --repo probonopd/go-appimage \
           --pattern "appimagetool-*-$APPIMAGE_ARCH.AppImage" \
           --output ~/bin/appimagetool
-        chmod +x ~/bin/appimagetool
+        gh release download continuous \
+          --repo probonopd/go-appimage \
+          --pattern "mkappimage-*-$APPIMAGE_ARCH.AppImage" \
+          --output ~/bin/mkappimage
+        chmod +x ~/bin/appimagetool ~/bin/mkappimage
         echo "$HOME/bin" >> "$GITHUB_PATH"
 
         gh release download \
