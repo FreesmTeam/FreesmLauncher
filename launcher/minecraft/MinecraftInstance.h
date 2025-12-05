@@ -50,6 +50,7 @@ class ShaderPackFolderModel;
 class TexturePackFolderModel;
 class WorldList;
 class LaunchStep;
+class LaunchProfile;
 class PackProfile;
 
 class MinecraftInstance : public BaseInstance {
@@ -158,6 +159,7 @@ class MinecraftInstance : public BaseInstance {
 
    protected:
     QMap<QString, QString> createCensorFilterFromSession(AuthSessionPtr session);
+    QMap<QString, QString> makeProfileVarMapping(std::shared_ptr<LaunchProfile> profile) const;
 
    protected:  // data
     std::shared_ptr<PackProfile> m_components;
