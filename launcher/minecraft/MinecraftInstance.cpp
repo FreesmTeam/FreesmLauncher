@@ -1036,6 +1036,8 @@ QMap<QString, QString> MinecraftInstance::makeProfileVarMapping(std::shared_ptr<
     result["assets_root"] = absAssetsDir;
     result["assets_index_name"] = assets->id;
 
+    result["library_directory"] = QDir("libraries/").absolutePath();
+
     return result;
 }
 
