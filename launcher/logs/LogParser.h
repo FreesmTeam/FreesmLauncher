@@ -59,7 +59,7 @@ class LogParser {
     std::optional<Error> getError();
 
     /// guess log level from a line of game log
-    static MessageLevel::Enum guessLevel(const QString& line);
+    static MessageLevel::Enum guessLevel(const QString& line, MessageLevel::Enum previous);
 
    protected:
     std::optional<LogEntry> parseAttributes();
