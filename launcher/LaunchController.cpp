@@ -148,8 +148,12 @@ bool LaunchController::askPlayDemo()
     return box.clickedButton() == demoButton;
 }
 
-QString LaunchController::askOfflineName(QString playerName, bool demo, bool& ok)
+QString LaunchController::askOfflineName(QString playerName, bool demo, bool* ok)
 {
+    if (ok) {
+        *ok = false;
+    }
+
     // we ask the user for a player name
     QString message = tr("Choose your offline mode player name.");
     if (demo) {
@@ -166,9 +170,12 @@ QString LaunchController::askOfflineName(QString playerName, bool demo, bool& ok
         return {};
     }
 
-    if (const QString name = dialog.getUsername(); !name.isEmpty()) {
-        usedname = name;
-        APPLICATION->settings()->set("LastOfflinePlayerName", usedname);
+    const QString name = dialog.getUsername();
+    usedname = name;
+    APPLICATION->settings()->set("LastOfflinePlayerName", usedname);
+
+    if (ok) {
+        *ok = true;
     }
     return usedname;
 }
@@ -185,7 +192,7 @@ void LaunchController::login()
         if (m_demo) {
             // we ask the user for a player name
             bool ok = false;
-            auto name = askOfflineName("Player", m_demo, ok);
+            auto name = askOfflineName("Player", m_demo, &ok);
             if (ok) {
                 m_session = std::make_shared<AuthSession>();
                 static const QRegularExpression s_removeChars("[{}-]");
@@ -264,7 +271,7 @@ void LaunchController::login()
                     bool ok = false;
                     QString name;
                     if (m_offlineName.isEmpty()) {
-                        name = askOfflineName(m_session->player_name, m_session->demo, ok);
+                        name = askOfflineName(m_session->player_name, m_session->demo, &ok);
                         if (!ok) {
                             tryagain = false;
                             break;
