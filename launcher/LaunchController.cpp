@@ -150,7 +150,7 @@ bool LaunchController::askPlayDemo()
 
 QString LaunchController::askOfflineName(QString playerName, bool demo, bool* ok)
 {
-    if (ok) {
+    if (ok != nullptr) {
         *ok = false;
     }
 
@@ -174,7 +174,7 @@ QString LaunchController::askOfflineName(QString playerName, bool demo, bool* ok
     usedname = name;
     APPLICATION->settings()->set("LastOfflinePlayerName", usedname);
 
-    if (ok) {
+    if (ok != nullptr) {
         *ok = true;
     }
     return usedname;
