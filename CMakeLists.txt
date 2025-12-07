@@ -104,9 +104,6 @@ endif()
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DQT_WARN_DEPRECATED_UP_TO=0x060200")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DQT_DISABLE_DEPRECATED_UP_TO=0x060000")
 
-# Fix aarch64 build for toml++
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DTOML_ENABLE_FLOAT16=0")
-
 # set CXXFLAGS for build targets
 set(CMAKE_CXX_FLAGS_RELEASE "-O2 -D_FORTIFY_SOURCE=2 ${CMAKE_CXX_FLAGS_RELEASE}")
 
@@ -174,20 +171,9 @@ endif()
 
 option(BUILD_TESTING "Build the testing tree." ON)
 
-find_package(ECM QUIET NO_MODULE)
-if(NOT ECM_FOUND)
-    if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/libraries/extra-cmake-modules/CMakeLists.txt")
-        message(STATUS "Using bundled ECM")
-        set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/libraries/extra-cmake-modules/modules;${CMAKE_MODULE_PATH}")
-    else()
-        message(FATAL_ERROR
-            " Could not find ECM\n \n"
-            " Either install ECM using the system package manager or clone submodules\n"
-            " Submodules can be cloned with 'git submodule update --init --recursive'")
-    endif()
-else()
-    set(CMAKE_MODULE_PATH "${ECM_MODULE_PATH};${CMAKE_MODULE_PATH}")
-endif()
+find_package(ECM NO_MODULE REQUIRED)
+set(CMAKE_MODULE_PATH "${ECM_MODULE_PATH};${CMAKE_MODULE_PATH}")
+
 include(CTest)
 include(ECMAddTests)
 if(BUILD_TESTING)
@@ -244,7 +230,6 @@ set(Launcher_DISCORD_URL "https://prismlauncher.org/discord" CACHE STRING "URL f
 set(Launcher_SUBREDDIT_URL "https://prismlauncher.org/reddit" CACHE STRING "URL for the subreddit.")
 
 # Builds
-set(Launcher_FORCE_BUNDLED_LIBS OFF CACHE BOOL "Prevent using system libraries, if they are available as submodules")
 set(Launcher_QT_VERSION_MAJOR "6" CACHE STRING "Major Qt version to build against")
 
 # Java downloader
@@ -309,32 +294,12 @@ set(Launcher_BUILD_TIMESTAMP "${TODAY}")
 
 ################################ 3rd Party Libs ################################
 
-# Successive configurations of cmake without cleaning the build dir will cause zlib fallback to fail due to cached values
-# Record when fallback triggered and skip this find_package
-if(NOT Launcher_FORCE_BUNDLED_LIBS AND NOT FORCE_BUNDLED_ZLIB)
-    find_package(ZLIB QUIET)
-endif()
-if(NOT ZLIB_FOUND)
-    set(FORCE_BUNDLED_ZLIB TRUE CACHE BOOL "")
-    mark_as_advanced(FORCE_BUNDLED_ZLIB)
-endif()
-
 # Find the required Qt parts
-include(QtVersionlessBackport)
 if(Launcher_QT_VERSION_MAJOR EQUAL 6)
     set(QT_VERSION_MAJOR 6)
-    find_package(Qt6 REQUIRED COMPONENTS Core CoreTools Widgets Concurrent Network Test Xml Core5Compat NetworkAuth OpenGL)
+    find_package(Qt6 REQUIRED COMPONENTS Core CoreTools Widgets Concurrent Network Test Xml NetworkAuth OpenGL)
     find_package(Qt6 COMPONENTS DBus)
     list(APPEND Launcher_QT_DBUS Qt6::DBus)
-    list(APPEND Launcher_QT_LIBS Qt6::Core5Compat)
-
-    if(NOT Launcher_FORCE_BUNDLED_LIBS)
-        find_package(QuaZip-Qt6 1.3 QUIET)
-    endif()
-    if (NOT QuaZip-Qt6_FOUND)
-        set(QUAZIP_QT_MAJOR_VERSION ${QT_VERSION_MAJOR} CACHE STRING "Qt version to use (4, 5 or 6), defaults to ${QT_VERSION_MAJOR}" FORCE)
-        set(FORCE_BUNDLED_QUAZIP 1)
-    endif()
 else()
     message(FATAL_ERROR "Qt version ${Launcher_QT_VERSION_MAJOR} is not supported")
 endif()
@@ -343,6 +308,13 @@ if(Launcher_QT_VERSION_MAJOR EQUAL 6)
     set(QT_PLUGINS_DIR  ${QT${QT_VERSION_MAJOR}_INSTALL_PREFIX}/${QT${QT_VERSION_MAJOR}_INSTALL_PLUGINS})
     set(QT_LIBS_DIR     ${QT${QT_VERSION_MAJOR}_INSTALL_PREFIX}/${QT${QT_VERSION_MAJOR}_INSTALL_LIBS})
     set(QT_LIBEXECS_DIR ${QT${QT_VERSION_MAJOR}_INSTALL_PREFIX}/${QT${QT_VERSION_MAJOR}_INSTALL_LIBEXECS})
+endif()
+
+find_package(cmark REQUIRED)
+
+if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
+    find_package(PkgConfig REQUIRED)
+    pkg_check_modules(gamemode REQUIRED IMPORTED_TARGET gamemode)
 endif()
 
 # Find libqrencode
@@ -357,21 +329,23 @@ else()
     pkg_check_modules(libqrencode REQUIRED IMPORTED_TARGET libqrencode)
 endif()
 
-if(NOT Launcher_FORCE_BUNDLED_LIBS)
-    # Find toml++
-    find_package(tomlplusplus 3.2.0 QUIET)
-    # Fallback to pkg-config (if available) if CMake files aren't found
-    if(NOT tomlplusplus_FOUND)
-        find_package(PkgConfig QUIET)
-        if(PkgConfig_FOUND)
-            pkg_check_modules(tomlplusplus IMPORTED_TARGET tomlplusplus>=3.2.0)
-        endif()
-    endif()
-
-
-    # Find cmark
-    find_package(cmark QUIET)
+# Find libarchive through CMake packages, mainly for vcpkg
+find_package(LibArchive)
+# CMake packages aren't available in most distributions of libarchive, so fallback to pkg-config
+if(NOT LibArchive_FOUND)
+    find_package(PkgConfig REQUIRED)
+    pkg_check_modules(libarchive REQUIRED IMPORTED_TARGET libarchive)
 endif()
+
+find_package(tomlplusplus 3.2.0 REQUIRED)
+# fallback to pkgconfig, important especially as many distros package toml++ built with meson
+if(NOT tomlplusplus_FOUND)
+    find_package(PkgConfig REQUIRED)
+    pkg_check_modules(tomlplusplus REQUIRED IMPORTED_TARGET tomlplusplus>=3.2.0)
+endif()
+
+find_package(ZLIB REQUIRED)
+
 
 include(ECMQtDeclareLoggingCategory)
 
@@ -438,6 +412,7 @@ elseif(UNIX)
     install(FILES ${CMAKE_CURRENT_BINARY_DIR}/${Launcher_Desktop} DESTINATION ${KDE_INSTALL_APPDIR})
     install(FILES ${CMAKE_CURRENT_BINARY_DIR}/${Launcher_MetaInfo} DESTINATION ${KDE_INSTALL_METAINFODIR})
     install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/${Launcher_SVG} DESTINATION "${KDE_INSTALL_ICONDIR}/hicolor/scalable/apps")
+    install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/${Launcher_PNG_256} DESTINATION "${KDE_INSTALL_ICONDIR}/hicolor/256x256/apps" RENAME "${Launcher_AppID}.png")
     install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/${Launcher_mrpack_MIMEInfo} DESTINATION ${KDE_INSTALL_MIMEDIR})
 
     install(FILES "${CMAKE_CURRENT_SOURCE_DIR}/launcher/qtlogging.ini" DESTINATION "share/${Launcher_Name}")
@@ -478,60 +453,9 @@ add_subdirectory(libraries/libnbtplusplus)
 
 add_subdirectory(libraries/launcher) # java based launcher part for Minecraft
 add_subdirectory(libraries/javacheck) # java compatibility checker
-if(FORCE_BUNDLED_ZLIB)
-    message(STATUS "Using bundled zlib")
 
-    set(CMAKE_POLICY_DEFAULT_CMP0069 NEW) # Suppress cmake warnings and allow INTERPROCEDURAL_OPTIMIZATION for zlib
-    set(SKIP_INSTALL_ALL ON)
-    add_subdirectory(libraries/zlib EXCLUDE_FROM_ALL)
-
-    # On OS where unistd.h exists, zlib's generated header defines `Z_HAVE_UNISTD_H`, while the included header does not.
-    # We cannot safely undo the rename on those systems, and they generally have packages for zlib anyway.
-    check_include_file(unistd.h NEED_GENERATED_ZCONF)
-    if (EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/libraries/zlib/zconf.h.included" AND NOT NEED_GENERATED_ZCONF)
-        # zlib's cmake script renames a file, dirtying the submodule, see https://github.com/madler/zlib/issues/162
-        message(STATUS "Undoing Rename")
-        message(STATUS "    ${CMAKE_CURRENT_SOURCE_DIR}/libraries/zlib/zconf.h")
-        file(RENAME "${CMAKE_CURRENT_SOURCE_DIR}/libraries/zlib/zconf.h.included" "${CMAKE_CURRENT_SOURCE_DIR}/libraries/zlib/zconf.h")
-    endif()
-
-    set(ZLIB_INCLUDE_DIR "${CMAKE_CURRENT_BINARY_DIR}/libraries/zlib" "${CMAKE_CURRENT_SOURCE_DIR}/libraries/zlib" CACHE STRING "" FORCE)
-    set_target_properties(zlibstatic PROPERTIES INTERFACE_INCLUDE_DIRECTORIES "${ZLIB_INCLUDE_DIR}")
-    add_library(ZLIB::ZLIB ALIAS zlibstatic)
-    set(ZLIB_LIBRARY ZLIB::ZLIB CACHE STRING "zlib library name")
-
-    find_package(ZLIB REQUIRED)
-else()
-    message(STATUS "Using system zlib")
-endif()
-if (FORCE_BUNDLED_QUAZIP)
-    message(STATUS "Using bundled QuaZip")
-    set(BUILD_SHARED_LIBS 0)  # link statically to avoid conflicts.
-    set(QUAZIP_INSTALL 0)
-    add_subdirectory(libraries/quazip) # zip manipulation library
-else()
-    message(STATUS "Using system QuaZip")
-endif()
 add_subdirectory(libraries/rainbow) # Qt extension for colors
 add_subdirectory(libraries/LocalPeer) # fork of a library from Qt solutions
-if(NOT tomlplusplus_FOUND)
-    message(STATUS "Using bundled tomlplusplus")
-    add_subdirectory(libraries/tomlplusplus) # toml parser
-else()
-    message(STATUS "Using system tomlplusplus")
-endif()
-if(NOT cmark_FOUND)
-    message(STATUS "Using bundled cmark")
-    set(ORIGINAL_BUILD_TESTING ${BUILD_TESTING})
-    set(BUILD_TESTING 0)
-    set(BUILD_SHARED_LIBS 0)
-    add_subdirectory(libraries/cmark EXCLUDE_FROM_ALL) # Markdown parser
-    add_library(cmark::cmark ALIAS cmark)
-    set(BUILD_TESTING ${ORIGINAL_BUILD_TESTING})
-else()
-    message(STATUS "Using system cmark")
-endif()
-add_subdirectory(libraries/gamemode)
 add_subdirectory(libraries/murmur2) # Hash for usage with the CurseForge API
 add_subdirectory(libraries/qdcss) # css parser
 

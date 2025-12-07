@@ -2,22 +2,6 @@
 
 This folder has third-party or otherwise external libraries needed for other parts to work.
 
-## gamemode
-
-A performance optimization daemon.
-
-See [github repo](https://github.com/FeralInteractive/gamemode).
-
-BSD-3-Clause licensed
-
-## cmark
-
-The C reference implementation of CommonMark, a standardized Markdown spec.
-
-See [github_repo](https://github.com/commonmark/cmark).
-
-BSD2 licensed.
-
 ## javacheck
 
 Simple Java tool that prints the JVM details - version and platform bitness.
@@ -98,20 +82,6 @@ Changes are made to make the code more generic and useful in less usual conditio
 Canonical implementation of the murmur2 hash, taken from [SMHasher](https://github.com/aappleby/smhasher).
 
 Public domain (the author disclaimed the copyright).
-
-## QR-Code-generator
-
-A simple library for generating QR codes
-
-See [github repo](https://github.com/nayuki/QR-Code-generator).
-
-MIT
-
-## quazip
-
-A zip manipulation library.
-
-LGPL 2.1 with linking exception.
 
 ## rainbow
 

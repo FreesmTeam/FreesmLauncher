@@ -27,6 +27,9 @@ finish-args:
   - --filesystem=/sys/kernel/mm/transparent_hugepage:ro
 
 modules:
+  - cmark.yml
+  - tomlplusplus.yml
+
   # Might be needed by some Controller mods (see https://github.com/isXander/Controlify/issues/31)
   - shared-modules/libusb/libusb.json
 

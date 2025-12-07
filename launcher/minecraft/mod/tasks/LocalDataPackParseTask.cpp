@@ -23,11 +23,8 @@
 
 #include "FileSystem.h"
 #include "Json.h"
+#include "archive/ArchiveReader.h"
 #include "minecraft/mod/ResourcePack.h"
-
-#include <quazip/quazip.h>
-#include <quazip/quazipdir.h>
-#include <quazip/quazipfile.h>
 
 #include <QCryptographicHash>
 
@@ -106,67 +103,62 @@ bool processZIP(DataPack* pack, ProcessingLevel level)
 {
     Q_ASSERT(pack->type() == ResourceType::ZIPFILE);
 
-    QuaZip zip(pack->fileinfo().filePath());
-    if (!zip.open(QuaZip::mdUnzip))
+    MMCZip::ArchiveReader zip(pack->fileinfo().filePath());
+
+    bool metaParsed = false;
+    bool iconParsed = false;
+    bool mcmeta_result = false;
+    bool pack_png_result = false;
+    if (!zip.parse(
+            [&metaParsed, &iconParsed, &mcmeta_result, &pack_png_result, pack, level](MMCZip::ArchiveReader::File* f, bool& breakControl) {
+                bool skip = true;
+                if (!metaParsed && f->filename() == "pack.mcmeta") {
+                    metaParsed = true;
+                    skip = false;
+                    auto data = f->readAll();
+
+                    mcmeta_result = DataPackUtils::processMCMeta(pack, std::move(data));
+
+                    if (!mcmeta_result) {
+                        breakControl = true;
+                        return true;  // mcmeta invalid
+                    }
+                }
+                if (!iconParsed && level != ProcessingLevel::BasicInfoOnly && f->filename() == "pack.png") {
+                    iconParsed = true;
+                    skip = false;
+                    auto data = f->readAll();
+
+                    pack_png_result = DataPackUtils::processPackPNG(pack, std::move(data));
+                    if (!pack_png_result) {
+                        breakControl = true;
+                        return true;  // pack.png invalid
+                    }
+                }
+                if (skip) {
+                    f->skip();
+                }
+                if (metaParsed && (level == ProcessingLevel::BasicInfoOnly || iconParsed)) {
+                    breakControl = true;
+                }
+
+                return true;
+            })) {
         return false;  // can't open zip file
-
-    QuaZipFile file(&zip);
-
-    auto mcmeta_invalid = [&pack]() {
+    }
+    if (!mcmeta_result) {
         qWarning() << "Data pack at" << pack->fileinfo().filePath() << "does not have a valid pack.mcmeta";
         return false;  // the mcmeta is not optional
-    };
-
-    if (zip.setCurrentFile("pack.mcmeta")) {
-        if (!file.open(QIODevice::ReadOnly)) {
-            qCritical() << "Failed to open file in zip.";
-            zip.close();
-            return mcmeta_invalid();
-        }
-
-        auto data = file.readAll();
-
-        bool mcmeta_result = DataPackUtils::processMCMeta(pack, std::move(data));
-
-        file.close();
-        if (!mcmeta_result) {
-            return mcmeta_invalid();  // mcmeta invalid
-        }
-    } else {
-        return mcmeta_invalid();  // could not set pack.mcmeta as current file.
     }
 
     if (level == ProcessingLevel::BasicInfoOnly) {
-        zip.close();
         return true;  // only need basic info already checked
     }
 
-    auto png_invalid = [&pack]() {
+    if (!pack_png_result) {
         qWarning() << "Data pack at" << pack->fileinfo().filePath() << "does not have a valid pack.png";
         return true;  // the png is optional
-    };
-
-    if (zip.setCurrentFile("pack.png")) {
-        if (!file.open(QIODevice::ReadOnly)) {
-            qCritical() << "Failed to open file in zip.";
-            zip.close();
-            return png_invalid();
-        }
-
-        auto data = file.readAll();
-
-        bool pack_png_result = DataPackUtils::processPackPNG(pack, std::move(data));
-
-        file.close();
-        zip.close();
-        if (!pack_png_result) {
-            return png_invalid();  // pack.png invalid
-        }
-    } else {
-        zip.close();
-        return png_invalid();  // could not set pack.mcmeta as current file.
     }
-    zip.close();
 
     return true;
 }
@@ -311,28 +303,17 @@ bool processPackPNG(const DataPack* pack)
             return false;  // not processed correctly; https://github.com/PrismLauncher/PrismLauncher/issues/1740
         }
         case ResourceType::ZIPFILE: {
-            QuaZip zip(pack->fileinfo().filePath());
-            if (!zip.open(QuaZip::mdUnzip))
-                return false;  // can't open zip file
+            MMCZip::ArchiveReader zip(pack->fileinfo().filePath());
+            auto f = zip.goToFile("pack.png");
+            if (!f) {
+                return png_invalid();
+            }
+            auto data = f->readAll();
 
-            QuaZipFile file(&zip);
-            if (zip.setCurrentFile("pack.png")) {
-                if (!file.open(QIODevice::ReadOnly)) {
-                    qCritical() << "Failed to open file in zip.";
-                    zip.close();
-                    return png_invalid();
-                }
+            bool pack_png_result = DataPackUtils::processPackPNG(pack, std::move(data));
 
-                auto data = file.readAll();
-
-                bool pack_png_result = DataPackUtils::processPackPNG(pack, std::move(data));
-
-                file.close();
-                if (!pack_png_result) {
-                    return png_invalid();  // pack.png invalid
-                }
-            } else {
-                return png_invalid();  // could not set pack.mcmeta as current file.
+            if (!pack_png_result) {
+                return png_invalid();  // pack.png invalid
             }
             return false;  // not processed correctly; https://github.com/PrismLauncher/PrismLauncher/issues/1740
         }

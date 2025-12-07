@@ -3,7 +3,6 @@
   stdenv,
   cmake,
   cmark,
-  apple-sdk_11,
   extra-cmake-modules,
   gamemode,
   jdk17,
@@ -16,11 +15,8 @@
   tomlplusplus,
   zlib,
   msaClientID ? null,
-  gamemodeSupport ? stdenv.hostPlatform.isLinux,
+  libarchive,
 }:
-assert lib.assertMsg (
-  gamemodeSupport -> stdenv.hostPlatform.isLinux
-) "gamemodeSupport is only available on Linux.";
 
 let
   date =
@@ -77,13 +73,12 @@ stdenv.mkDerivation {
     cmark
     kdePackages.qtbase
     kdePackages.qtnetworkauth
-    kdePackages.quazip
     qrencode
+    libarchive
     tomlplusplus
     zlib
   ]
-  ++ lib.optionals stdenv.hostPlatform.isDarwin [ apple-sdk_11 ]
-  ++ lib.optional gamemodeSupport gamemode;
+  ++ lib.optional stdenv.hostPlatform.isLinux gamemode;
 
   cmakeFlags = [
     # downstream branding
