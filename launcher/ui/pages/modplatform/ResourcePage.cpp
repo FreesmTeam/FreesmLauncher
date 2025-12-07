@@ -297,8 +297,8 @@ void ResourcePage::versionListUpdated(const QModelIndex& index)
                     continue;
 
                 auto versionText = version.version;
-                if (version.version_type.isValid()) {
-                    versionText += QString(" [%1]").arg(version.version_type.toString());
+                if (version.version_type != ModPlatform::IndexedVersionType::Unknown) {
+                    versionText += QString(" [%1]").arg(ModPlatform::indexedVersionTypeToString(version.version_type));
                 }
                 if (version.fileId == installedVersion) {
                     versionText += tr(" [installed]", "Mod version select");

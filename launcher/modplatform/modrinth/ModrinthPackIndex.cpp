@@ -145,7 +145,7 @@ ModPlatform::IndexedVersion Modrinth::loadIndexedPackVersion(QJsonObject& obj, Q
     }
     file.version = Json::requireString(obj, "name");
     file.version_number = Json::requireString(obj, "version_number");
-    file.version_type = ModPlatform::IndexedVersionType(Json::requireString(obj, "version_type"));
+    file.version_type = ModPlatform::indexedVersionTypeFromString(Json::requireString(obj, "version_type"));
 
     file.changelog = Json::requireString(obj, "changelog");
 

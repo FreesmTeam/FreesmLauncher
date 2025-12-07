@@ -187,7 +187,8 @@ void ResourceDownloadDialog::confirm()
         auto extraInfo = dependencyExtraInfo.value(task->getPack()->addonId.toString());
         confirm_dialog->appendResource({ task->getName(), task->getFilename(), task->getCustomPath(),
                                          ModPlatform::ProviderCapabilities::name(task->getProvider()), extraInfo.required_by,
-                                         task->getVersion().version_type.toString(), !extraInfo.maybe_installed });
+                                         ModPlatform::indexedVersionTypeToString(task->getVersion().version_type),
+                                         !extraInfo.maybe_installed });
     }
 
     if (confirm_dialog->exec()) {

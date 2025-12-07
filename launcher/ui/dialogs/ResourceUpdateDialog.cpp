@@ -453,8 +453,8 @@ void ResourceUpdateDialog::appendResource(CheckUpdateTask::Update const& info, Q
 
     if (info.new_version_type.has_value()) {
         auto new_version_type_item = new QTreeWidgetItem(item_top);
-        new_version_type_item->setText(0, tr("New Version Type: %1").arg(info.new_version_type.value().toString()));
-        new_version_type_item->setData(0, Qt::UserRole, info.new_version_type.value().toString());
+        new_version_type_item->setText(0, tr("New Version Type: %1").arg(indexedVersionTypeToString(info.new_version_type.value())));
+        new_version_type_item->setData(0, Qt::UserRole, indexedVersionTypeToString(info.new_version_type.value()));
     }
 
     if (!requiredBy.isEmpty()) {

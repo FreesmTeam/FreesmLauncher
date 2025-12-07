@@ -195,9 +195,9 @@ auto Mod::mcVersions() const -> QString
 auto Mod::releaseType() const -> QString
 {
     if (metadata())
-        return metadata()->releaseType.toString();
+        return ModPlatform::indexedVersionTypeToString(metadata()->releaseType);
 
-    return ModPlatform::IndexedVersionType().toString();
+    return ModPlatform::indexedVersionTypeToString(ModPlatform::IndexedVersionType::Unknown);
 }
 
 auto Mod::description() const -> QString

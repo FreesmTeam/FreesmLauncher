@@ -143,21 +143,22 @@ auto FlameMod::loadIndexedPackVersion(QJsonObject& obj, bool load_changelog) -> 
     file.fileName = Json::requireString(obj, "fileName");
     file.fileName = FS::RemoveInvalidPathChars(file.fileName);
 
-    ModPlatform::IndexedVersionType::VersionType ver_type;
+    ModPlatform::IndexedVersionType ver_type;
     switch (Json::requireInteger(obj, "releaseType")) {
         case 1:
-            ver_type = ModPlatform::IndexedVersionType::VersionType::Release;
+            ver_type = ModPlatform::IndexedVersionType::Release;
             break;
         case 2:
-            ver_type = ModPlatform::IndexedVersionType::VersionType::Beta;
+            ver_type = ModPlatform::IndexedVersionType::Beta;
             break;
         case 3:
-            ver_type = ModPlatform::IndexedVersionType::VersionType::Alpha;
+            ver_type = ModPlatform::IndexedVersionType::Alpha;
             break;
         default:
-            ver_type = ModPlatform::IndexedVersionType::VersionType::Unknown;
+            ver_type = ModPlatform::IndexedVersionType::Unknown;
+	    break;
     }
-    file.version_type = ModPlatform::IndexedVersionType(ver_type);
+    file.version_type = ver_type;
 
     auto hash_list = obj["hashes"].toArray();
     for (auto h : hash_list) {
