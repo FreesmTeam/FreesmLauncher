@@ -56,7 +56,7 @@ LauncherPartLaunch::LauncherPartLaunch(LaunchTask* parent)
         static const QRegularExpression s_settingUser(".*Setting user.+", QRegularExpression::CaseInsensitiveOption);
         std::shared_ptr<QMetaObject::Connection> connection{ new QMetaObject::Connection };
         *connection = connect(&m_process, &LoggedProcess::log, this,
-                              [connection](const QStringList& lines, [[maybe_unused]] MessageLevel::Enum level) {
+                              [connection](const QStringList& lines, [[maybe_unused]] MessageLevel level) {
                                   qDebug() << lines;
                                   if (lines.filter(s_settingUser).length() != 0) {
                                       APPLICATION->closeAllWindows();

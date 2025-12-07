@@ -1,6 +1,6 @@
 #include "MessageLevel.h"
 
-MessageLevel::Enum MessageLevel::getLevel(const QString& levelName)
+MessageLevel messageLevelFromName(const QString& levelName)
 {
     QString name = levelName.toUpper();
     if (name == "LAUNCHER")
@@ -25,7 +25,7 @@ MessageLevel::Enum MessageLevel::getLevel(const QString& levelName)
         return MessageLevel::Unknown;
 }
 
-MessageLevel::Enum MessageLevel::getLevel(QtMsgType type)
+MessageLevel messageLevelFromQtMsgType(QtMsgType type)
 {
     switch (type) {
         case QtDebugMsg:
@@ -43,19 +43,19 @@ MessageLevel::Enum MessageLevel::getLevel(QtMsgType type)
     }
 }
 
-MessageLevel::Enum MessageLevel::fromLine(QString& line)
+MessageLevel messageLevelFromLine(QString& line)
 {
     // Level prefix
     int endmark = line.indexOf("]!");
     if (line.startsWith("!![") && endmark != -1) {
-        auto level = MessageLevel::getLevel(line.left(endmark).mid(3));
+        auto level = messageLevelFromName(line.left(endmark).mid(3));
         line = line.mid(endmark + 2);
         return level;
     }
     return MessageLevel::Unknown;
 }
 
-MessageLevel::Enum MessageLevel::fromLauncherLine(QString& line)
+MessageLevel messageLevelFromLauncherLine(QString& line)
 {
     // Level prefix
     int startMark = 0;
@@ -63,7 +63,7 @@ MessageLevel::Enum MessageLevel::fromLauncherLine(QString& line)
         ++startMark;
     int endmark = line.indexOf(":");
     if (startMark < line.size() && endmark != -1) {
-        auto level = MessageLevel::getLevel(line.left(endmark).mid(startMark));
+        auto level = messageLevelFromName(line.left(endmark).mid(startMark));
         line = line.mid(endmark + 2);
         return level;
     }

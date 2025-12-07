@@ -60,7 +60,7 @@ std::optional<LogParser::LogEntry> LogParser::parseAttributes()
             entry.timestamp = QDateTime::fromSecsSinceEpoch(value.trimmed().toLongLong());
         } else if (name == "level"_L1) {
             entry.levelText = value.trimmed().toString();
-            entry.level = MessageLevel::getLevel(entry.levelText);
+            entry.level = messageLevelFromName(entry.levelText);
         } else if (name == "thread"_L1) {
             entry.thread = value.trimmed().toString();
         }
@@ -320,7 +320,7 @@ std::optional<LogParser::ParsedItem> LogParser::parseLog4J()
     throw std::runtime_error("unreachable: already verified this was a complete log4j:Event");
 }
 
-MessageLevel::Enum LogParser::guessLevel(const QString& line)
+MessageLevel LogParser::guessLevel(const QString& line)
 {
     static const QRegularExpression LINE_WITH_LEVEL("^\\[(?<timestamp>[0-9:]+)\\] \\[[^/]+/(?<level>[^\\]]+)\\]");
     auto match = LINE_WITH_LEVEL.match(line);
@@ -329,7 +329,7 @@ MessageLevel::Enum LogParser::guessLevel(const QString& line)
         QString timestamp = match.captured("timestamp");
         QString levelStr = match.captured("level");
 
-        return MessageLevel::getLevel(levelStr);
+        return messageLevelFromName(levelStr);
     } else {
         // Old style forge logs
         if (line.contains("[INFO]") || line.contains("[CONFIG]") || line.contains("[FINE]") || line.contains("[FINER]") ||
