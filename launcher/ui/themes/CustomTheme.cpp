@@ -229,7 +229,7 @@ bool CustomTheme::read(const QString& path, bool& hasCustomLogColors)
                 hasCustomLogColors = true;
 
                 auto logColorsRoot = Json::requireObject(root, "logColors");
-                auto readAndSetLogColor = [this, readColor, logColorsRoot](MessageLevel::Enum level, bool fg, const QString& colorName) {
+                auto readAndSetLogColor = [this, readColor, logColorsRoot](MessageLevel level, bool fg, const QString& colorName) {
                     auto color = readColor(logColorsRoot, colorName);
                     if (color.isValid()) {
                         if (fg)

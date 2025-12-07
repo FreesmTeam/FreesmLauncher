@@ -214,7 +214,7 @@ shared_qobject_ptr<LogModel> LaunchTask::getLogModel()
     return m_logModel;
 }
 
-bool LaunchTask::parseXmlLogs(QString const& line, MessageLevel::Enum level)
+bool LaunchTask::parseXmlLogs(QString const& line, MessageLevel level)
 {
     LogParser* parser;
     switch (level) {
@@ -254,7 +254,7 @@ bool LaunchTask::parseXmlLogs(QString const& line, MessageLevel::Enum level)
         } else if (std::holds_alternative<LogParser::PlainText>(item)) {
             auto msg = std::get<LogParser::PlainText>(item).message;
 
-            MessageLevel::Enum newLevel = MessageLevel::fromLine(msg);
+            MessageLevel newLevel = messageLevelFromLine(msg);
 
             if (newLevel == MessageLevel::Unknown)
                 newLevel = LogParser::guessLevel(line);
@@ -271,14 +271,14 @@ bool LaunchTask::parseXmlLogs(QString const& line, MessageLevel::Enum level)
     return true;
 }
 
-void LaunchTask::onLogLines(const QStringList& lines, MessageLevel::Enum defaultLevel)
+void LaunchTask::onLogLines(const QStringList& lines, MessageLevel defaultLevel)
 {
     for (auto& line : lines) {
         onLogLine(line, defaultLevel);
     }
 }
 
-void LaunchTask::onLogLine(QString line, MessageLevel::Enum level)
+void LaunchTask::onLogLine(QString line, MessageLevel level)
 {
     if (parseXmlLogs(line, level)) {
         return;

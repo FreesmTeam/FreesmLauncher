@@ -25,10 +25,10 @@
 
 namespace ModPlatform {
 
-static const QMap<QString, IndexedVersionType::VersionType> s_indexed_version_type_names = {
-    { "release", IndexedVersionType::VersionType::Release },
-    { "beta", IndexedVersionType::VersionType::Beta },
-    { "alpha", IndexedVersionType::VersionType::Alpha }
+static const QMap<QString, IndexedVersionType> s_indexed_version_type_names = {
+    { "release", IndexedVersionType::Release },
+    { "beta", IndexedVersionType::Beta },
+    { "alpha", IndexedVersionType::Alpha }
 };
 
 static const QList<ModLoaderType> loaderList = { NeoForge, Forge, Cauldron,     LiteLoader, Quilt, Fabric,
@@ -45,32 +45,12 @@ QList<ModLoaderType> modLoaderTypesToList(ModLoaderTypes flags)
     return flagList;
 }
 
-IndexedVersionType::IndexedVersionType(const QString& type) : IndexedVersionType(enumFromString(type)) {}
-
-IndexedVersionType::IndexedVersionType(const IndexedVersionType::VersionType& type)
-{
-    m_type = type;
-}
-
-IndexedVersionType::IndexedVersionType(const IndexedVersionType& other)
-{
-    m_type = other.m_type;
-}
-
-IndexedVersionType& IndexedVersionType::operator=(const IndexedVersionType& other)
-{
-    m_type = other.m_type;
-    return *this;
-}
-
-const QString IndexedVersionType::toString(const IndexedVersionType::VersionType& type)
-{
+QString indexedVersionTypeToString(IndexedVersionType type) {
     return s_indexed_version_type_names.key(type, "unknown");
 }
 
-IndexedVersionType::VersionType IndexedVersionType::enumFromString(const QString& type)
-{
-    return s_indexed_version_type_names.value(type, IndexedVersionType::VersionType::Unknown);
+IndexedVersionType indexedVersionTypeFromString(const QString& type) {
+    return s_indexed_version_type_names.value(type, IndexedVersionType::Unknown);
 }
 
 const char* ProviderCapabilities::name(ResourceProvider p)

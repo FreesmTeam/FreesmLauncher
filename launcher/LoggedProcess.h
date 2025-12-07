@@ -58,7 +58,7 @@ class LoggedProcess : public QProcess {
     void setDetachable(bool detachable);
 
    signals:
-    void log(QStringList lines, MessageLevel::Enum level);
+    void log(QStringList lines, MessageLevel level);
     void stateChanged(LoggedProcess::State state);
 
    public slots:
