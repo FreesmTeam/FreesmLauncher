@@ -21,9 +21,11 @@
 
 #include "Application.h"
 
+#include "FileSystem.h"
 #include "minecraft/mod/ModFolderModel.h"
 #include "minecraft/mod/ResourceFolderModel.h"
 
+#include "minecraft/mod/ShaderPackFolderModel.h"
 #include "modplatform/helpers/HashUtils.h"
 #include "net/ApiDownload.h"
 #include "net/ChecksumValidator.h"
@@ -55,7 +57,9 @@ ResourceDownloadTask::ResourceDownloadTask(ModPlatform::IndexedPack::Ptr pack,
         }
     }
 
-    auto action = Net::ApiDownload::makeFile(m_pack_version.downloadUrl, dir.absoluteFilePath(getFilename()));
+    m_targetPath = dir.absoluteFilePath(getFilename());
+
+    auto action = Net::ApiDownload::makeFile(m_pack_version.downloadUrl, m_targetPath);
     if (!m_pack_version.hash_type.isEmpty() && !m_pack_version.hash.isEmpty()) {
         switch (Hashing::algorithmFromString(m_pack_version.hash_type)) {
             case Hashing::Algorithm::Md4:
@@ -91,8 +95,25 @@ void ResourceDownloadTask::downloadSucceeded()
     m_filesNetJob.reset();
     auto name = std::get<0>(to_delete);
     auto filename = std::get<1>(to_delete);
-    if (!name.isEmpty() && filename != m_pack_version.fileName)
-        m_pack_model->uninstallResource(filename, true);
+
+    if (name.isEmpty() || filename == m_pack_version.fileName)
+        return;
+
+    m_pack_model->uninstallResource(filename, true);
+
+    // also rename the shader config file
+    if (dynamic_cast<ShaderPackFolderModel*>(m_pack_model.get()) != nullptr) {
+        QFileInfo config(m_pack_model->dir(), filename + ".txt");
+
+        if (config.exists()) {
+            QString src = config.filePath();
+            QString dest = m_targetPath + ".txt";
+            bool success = QFile::rename(src, dest);
+
+            if (!success)
+                emit logWarning(tr("Failed to rename shader config '%1' to '%2'").arg(src, dest));
+        }
+    }
 }
 
 void ResourceDownloadTask::downloadFailed(QString reason)

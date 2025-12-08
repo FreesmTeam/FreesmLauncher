@@ -48,6 +48,7 @@ class ResourceDownloadTask : public SequentialTask {
     ModPlatform::IndexedVersion m_pack_version;
     const std::shared_ptr<ResourceFolderModel> m_pack_model;
     QString m_custom_target_folder;
+    QString m_targetPath;
 
     NetJob::Ptr m_filesNetJob;
     LocalResourceUpdateTask::Ptr m_update_task;

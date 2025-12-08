@@ -99,7 +99,7 @@ class ResourceFolderModel : public QAbstractListModel {
      *
      *  Returns whether the removal was successful.
      */
-    virtual bool uninstallResource(QString file_name, bool preserve_metadata = false);
+    virtual bool uninstallResource(const QString& file_name, bool preserve_metadata = false);
     virtual bool deleteResources(const QModelIndexList&);
     virtual void deleteMetadata(const QModelIndexList&);
 

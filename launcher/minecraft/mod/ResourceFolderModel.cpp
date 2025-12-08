@@ -204,7 +204,7 @@ void ResourceFolderModel::installResourceWithFlameMetadata(QString path, ModPlat
     }
 }
 
-bool ResourceFolderModel::uninstallResource(QString file_name, bool preserve_metadata)
+bool ResourceFolderModel::uninstallResource(const QString& file_name, bool preserve_metadata)
 {
     for (auto& resource : m_resources) {
         if (resource->fileinfo().fileName() == file_name) {
