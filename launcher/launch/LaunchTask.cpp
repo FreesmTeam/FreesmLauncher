@@ -257,10 +257,7 @@ bool LaunchTask::parseXmlLogs(QString const& line, MessageLevel level)
             MessageLevel newLevel = messageLevelFromLine(msg);
 
             if (newLevel == MessageLevel::Unknown)
-                newLevel = LogParser::guessLevel(line);
-
-            if (newLevel == MessageLevel::Unknown)
-                newLevel = model->previousLevel();
+                newLevel = LogParser::guessLevel(line, model->previousLevel());
 
             msg = censorPrivateInfo(msg);
 

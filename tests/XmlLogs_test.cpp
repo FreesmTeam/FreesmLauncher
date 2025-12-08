@@ -126,10 +126,7 @@ class XmlLogParseTest : public QObject {
                     last = entry.level;
                 } else if (std::holds_alternative<LogParser::PlainText>(item)) {
                     auto msg = std::get<LogParser::PlainText>(item).message;
-                    auto level = LogParser::guessLevel(msg);
-
-                    if (level == MessageLevel::Unknown)
-                        level = last;
+                    auto level = LogParser::guessLevel(msg, last);
 
                     out.append(std::make_pair(level, msg));
                     last = level;

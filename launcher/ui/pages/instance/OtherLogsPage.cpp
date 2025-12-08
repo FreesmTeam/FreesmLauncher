@@ -287,10 +287,7 @@ void OtherLogsPage::reload()
             if (!m_instance) {
                 level = messageLevelFromLauncherLine(lineTemp);
             } else {
-                level = LogParser::guessLevel(line);
-
-                if (level == MessageLevel::Unknown)
-                    level = last;
+                level = LogParser::guessLevel(line, last);
             }
 
             last = level;

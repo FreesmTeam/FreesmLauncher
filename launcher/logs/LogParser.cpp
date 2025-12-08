@@ -320,7 +320,7 @@ std::optional<LogParser::ParsedItem> LogParser::parseLog4J()
     throw std::runtime_error("unreachable: already verified this was a complete log4j:Event");
 }
 
-MessageLevel LogParser::guessLevel(const QString& line)
+MessageLevel LogParser::guessLevel(const QString& line, MessageLevel previous)
 {
     static const QRegularExpression LINE_WITH_LEVEL("^\\[(?<timestamp>[0-9:]+)\\] \\[[^/]+/(?<level>[^\\]]+)\\]");
     auto match = LINE_WITH_LEVEL.match(line);
@@ -343,11 +343,17 @@ MessageLevel LogParser::guessLevel(const QString& line)
             return MessageLevel::Debug;
     }
 
+    if (line.contains("Exception: ") || line.contains("Throwable: "))
+        return MessageLevel::Error;
+
+    if (line.startsWith("Caused by: ") || line.startsWith("Exception in thread"))
+        return MessageLevel::Error;
+
     if (line.contains("overwriting existing"))
         return MessageLevel::Fatal;
 
-    if (line == "---- Minecraft Crash Report ----")
-        return MessageLevel::Error;
+    if (line.startsWith("\t") || line.startsWith(" "))
+        return previous;
 
     return MessageLevel::Unknown;
 }
