@@ -103,15 +103,16 @@ void ResourceDownloadTask::downloadSucceeded()
 
     // also rename the shader config file
     if (dynamic_cast<ShaderPackFolderModel*>(m_pack_model.get()) != nullptr) {
-        QFileInfo config(m_pack_model->dir(), filename + ".txt");
+        QFileInfo oldConfig(m_pack_model->dir(), filename + ".txt");
+        QFileInfo newConfig(m_targetPath + ".txt");
 
-        if (config.exists()) {
-            QString src = config.filePath();
-            QString dest = m_targetPath + ".txt";
-            bool success = QFile::rename(src, dest);
+        if (oldConfig.exists() && !newConfig.exists()) {
+            bool success = FS::move(oldConfig.filePath(), newConfig.filePath());
 
-            if (!success)
-                emit logWarning(tr("Failed to rename shader config '%1' to '%2'").arg(src, dest));
+            if (!success) {
+                emit logWarning(
+                    tr("Failed to rename shader config from '%1' to '%2'").arg(oldConfig.absoluteFilePath(), newConfig.absoluteFilePath()));
+            }
         }
     }
 }
