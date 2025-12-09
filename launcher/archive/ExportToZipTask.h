@@ -30,12 +30,12 @@ class ExportToZipTask : public Task {
     Q_OBJECT
    public:
     ExportToZipTask(QString outputPath, QDir dir, QFileInfoList files, QString destinationPrefix = "", bool followSymlinks = false)
-        : m_output_path(outputPath)
+        : m_outputPath(outputPath)
         , m_output(outputPath)
         , m_dir(dir)
         , m_files(files)
-        , m_destination_prefix(destinationPrefix)
-        , m_follow_symlinks(followSymlinks)
+        , m_destinationPrefix(destinationPrefix)
+        , m_followSymlinks(followSymlinks)
     {
         setAbortable(true);
     };
@@ -44,8 +44,8 @@ class ExportToZipTask : public Task {
 
     virtual ~ExportToZipTask() = default;
 
-    void setExcludeFiles(QStringList excludeFiles) { m_exclude_files = excludeFiles; }
-    void addExtraFile(QString fileName, QByteArray data) { m_extra_files.insert(fileName, data); }
+    void setExcludeFiles(QStringList excludeFiles) { m_excludeFiles = excludeFiles; }
+    void addExtraFile(QString fileName, QByteArray data) { m_extraFiles.insert(fileName, data); }
 
     using ZipResult = std::optional<QString>;
 
@@ -57,16 +57,16 @@ class ExportToZipTask : public Task {
     void finish();
 
    private:
-    QString m_output_path;
+    QString m_outputPath;
     ArchiveWriter m_output;
     QDir m_dir;
     QFileInfoList m_files;
-    QString m_destination_prefix;
-    bool m_follow_symlinks;
-    QStringList m_exclude_files;
-    QHash<QString, QByteArray> m_extra_files;
+    QString m_destinationPrefix;
+    bool m_followSymlinks;
+    QStringList m_excludeFiles;
+    QHash<QString, QByteArray> m_extraFiles;
 
-    QFuture<ZipResult> m_build_zip_future;
-    QFutureWatcher<ZipResult> m_build_zip_watcher;
+    QFuture<ZipResult> m_buildZipFuture;
+    QFutureWatcher<ZipResult> m_buildZipWatcher;
 };
 }  // namespace MMCZip

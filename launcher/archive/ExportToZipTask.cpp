@@ -26,9 +26,9 @@ void ExportToZipTask::executeTask()
 {
     setStatus("Adding files...");
     setProgress(0, m_files.length());
-    m_build_zip_future = QtConcurrent::run(QThreadPool::globalInstance(), [this]() { return exportZip(); });
-    connect(&m_build_zip_watcher, &QFutureWatcher<ZipResult>::finished, this, &ExportToZipTask::finish);
-    m_build_zip_watcher.setFuture(m_build_zip_future);
+    m_buildZipFuture = QtConcurrent::run(QThreadPool::globalInstance(), [this]() { return exportZip(); });
+    connect(&m_buildZipWatcher, &QFutureWatcher<ZipResult>::finished, this, &ExportToZipTask::finish);
+    m_buildZipWatcher.setFuture(m_buildZipFuture);
 }
 
 auto ExportToZipTask::exportZip() -> ZipResult
@@ -40,30 +40,30 @@ auto ExportToZipTask::exportZip() -> ZipResult
         return ZipResult(tr("Could not create file"));
     }
 
-    for (auto fileName : m_extra_files.keys()) {
-        if (m_build_zip_future.isCanceled())
+    for (auto fileName : m_extraFiles.keys()) {
+        if (m_buildZipFuture.isCanceled())
             return ZipResult();
-        if (!m_output.addFile(fileName, m_extra_files[fileName])) {
+        if (!m_output.addFile(fileName, m_extraFiles[fileName])) {
             return ZipResult(tr("Could not add:") + fileName);
         }
     }
 
     for (const QFileInfo& file : m_files) {
-        if (m_build_zip_future.isCanceled())
+        if (m_buildZipFuture.isCanceled())
             return ZipResult();
 
         auto absolute = file.absoluteFilePath();
         auto relative = m_dir.relativeFilePath(absolute);
         setStatus("Compressing: " + relative);
         setProgress(m_progress + 1, m_progressTotal);
-        if (m_follow_symlinks) {
+        if (m_followSymlinks) {
             if (file.isSymLink())
                 absolute = file.symLinkTarget();
             else
                 absolute = file.canonicalFilePath();
         }
 
-        if (!m_exclude_files.contains(relative) && !m_output.addFile(absolute, m_destination_prefix + relative)) {
+        if (!m_excludeFiles.contains(relative) && !m_output.addFile(absolute, m_destinationPrefix + relative)) {
             return ZipResult(tr("Could not read and compress %1").arg(relative));
         }
     }
@@ -76,11 +76,11 @@ auto ExportToZipTask::exportZip() -> ZipResult
 
 void ExportToZipTask::finish()
 {
-    if (m_build_zip_future.isCanceled()) {
-        FS::deletePath(m_output_path);
+    if (m_buildZipFuture.isCanceled()) {
+        FS::deletePath(m_outputPath);
         emitAborted();
-    } else if (auto result = m_build_zip_future.result(); result.has_value()) {
-        FS::deletePath(m_output_path);
+    } else if (auto result = m_buildZipFuture.result(); result.has_value()) {
+        FS::deletePath(m_outputPath);
         emitFailed(result.value());
     } else {
         emitSucceeded();
@@ -89,8 +89,8 @@ void ExportToZipTask::finish()
 
 bool ExportToZipTask::abort()
 {
-    if (m_build_zip_future.isRunning()) {
-        m_build_zip_future.cancel();
+    if (m_buildZipFuture.isRunning()) {
+        m_buildZipFuture.cancel();
         // NOTE: Here we don't do `emitAborted()` because it will be done when `m_build_zip_future` actually cancels, which may not occur
         // immediately.
         return true;

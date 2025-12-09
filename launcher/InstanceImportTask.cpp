@@ -121,7 +121,6 @@ QString cleanPath(QString path)
 void InstanceImportTask::processZipPack()
 {
     setStatus(tr("Attempting to determine instance type"));
-    setDetails("");
     QDir extractDir(m_stagingPath);
     qDebug() << "Attempting to create instance from" << m_archivePath;
 
