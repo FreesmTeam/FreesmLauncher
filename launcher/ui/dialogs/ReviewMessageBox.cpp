@@ -68,17 +68,6 @@ void ReviewMessageBox::appendResource(ResourceInformation&& info)
     filenameItem->setText(0, tr("Filename: %1").arg(info.filename));
     filenameItem->setData(0, Qt::UserRole, info.filename);
 
-    if (!info.custom_file_path.isEmpty()) {
-        auto customPathItem = new QTreeWidgetItem(itemTop);
-        customPathItem->setText(0, tr("This download will be placed in: %1").arg(info.custom_file_path));
-        customPathItem->setData(0, Qt::UserRole, info.custom_file_path);
-
-        itemTop->setIcon(1, QIcon(QIcon::fromTheme("status-yellow")));
-        itemTop->setToolTip(
-            1,
-            tr("This file will be downloaded to a folder location different from the default, possibly due to its loader requiring it."));
-    }
-
     auto providerItem = new QTreeWidgetItem(itemTop);
     providerItem->setText(0, tr("Provider: %1").arg(info.provider));
     providerItem->setData(0, Qt::UserRole, info.provider);
