@@ -165,7 +165,7 @@ bool ArchiveReader::parse(std::function<bool(File*, bool&)> doStuff)
 
     bool breakControl = false;
     while (f->readNextHeader() == ARCHIVE_OK) {
-        if (!doStuff(f.get(), breakControl)) {
+        if (f && !doStuff(f.get(), breakControl)) {
             qCritical() << "Failed to parse file:" << f->filename() << "-" << f->error();
             return false;
         }
