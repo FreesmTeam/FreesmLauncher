@@ -33,12 +33,12 @@ struct MessageLevel {
     explicit operator int() const { return static_cast<int>(m_type); }
     explicit operator MessageLevel::Enum() { return m_type; }
 
+    /* Get message level from a line. Line is modified if it was successful. */
+    static MessageLevel takeFromLine(QString& line);
+
+    /* Get message level from a line from the launcher log. Line is modified if it was successful. */
+    static MessageLevel takeFromLauncherLine(QString& line);
+
    private:
     Enum m_type;
 };
-
-/* Get message level from a line. Line is modified if it was successful. */
-MessageLevel messageLevelFromLine(QString& line);
-
-/* Get message level from a line from the launcher log. Line is modified if it was successful. */
-MessageLevel messageLevelFromLauncherLine(QString& line);

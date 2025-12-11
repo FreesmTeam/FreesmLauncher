@@ -254,7 +254,7 @@ bool LaunchTask::parseXmlLogs(QString const& line, MessageLevel level)
         } else if (std::holds_alternative<LogParser::PlainText>(item)) {
             auto msg = std::get<LogParser::PlainText>(item).message;
 
-            MessageLevel newLevel = messageLevelFromLine(msg);
+            MessageLevel newLevel = MessageLevel::takeFromLine(msg);
 
             if (newLevel == MessageLevel::Unknown)
                 newLevel = LogParser::guessLevel(line, model->previousLevel());

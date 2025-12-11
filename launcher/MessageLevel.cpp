@@ -44,7 +44,7 @@ MessageLevel MessageLevel::fromQtMsgType(const QtMsgType& type)
 }
 
 /* Get message level from a line. Line is modified if it was successful. */
-MessageLevel messageLevelFromLine(QString& line)
+MessageLevel MessageLevel::takeFromLine(QString& line)
 {
     // Level prefix
     int endmark = line.indexOf("]!");
@@ -57,7 +57,7 @@ MessageLevel messageLevelFromLine(QString& line)
 }
 
 /* Get message level from a line from the launcher log. Line is modified if it was successful. */
-MessageLevel messageLevelFromLauncherLine(QString& line)
+MessageLevel MessageLevel::takeFromLauncherLine(QString& line)
 {
     // Level prefix
     int startMark = 0;
