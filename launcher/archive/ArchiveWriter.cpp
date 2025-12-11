@@ -132,8 +132,8 @@ bool ArchiveWriter::addFile(const QString& fileName, const QString& fileDest)
     }
 #else
     {
-        // this only works for myltibyte encoded filenames if the local is properly set,
-        // a wide charater version doens't seem to exist: here's hopeing...
+        // this only works for multibyte encoded filenames if the local is properly set,
+        // a wide character version doesn't seem to exist: here's hoping...
 
         QByteArray utf8 = fileInfo.absoluteFilePath().toUtf8();
         const char* cpath = utf8.constData();
