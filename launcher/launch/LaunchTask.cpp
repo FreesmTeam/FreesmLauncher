@@ -217,7 +217,7 @@ shared_qobject_ptr<LogModel> LaunchTask::getLogModel()
 bool LaunchTask::parseXmlLogs(QString const& line, MessageLevel level)
 {
     LogParser* parser;
-    switch (level) {
+    switch (static_cast<MessageLevel::Enum>(level)) {
         case MessageLevel::StdErr:
             parser = &m_stderrParser;
             break;
@@ -234,7 +234,7 @@ bool LaunchTask::parseXmlLogs(QString const& line, MessageLevel level)
         auto& model = *getLogModel();
         model.append(MessageLevel::Error, tr("[Log4j Parse Error] Failed to parse log4j log event: %1").arg(err.value().errMessage));
         return false;
-    } 
+    }
 
     if (items.isEmpty())
         return true;
@@ -254,7 +254,7 @@ bool LaunchTask::parseXmlLogs(QString const& line, MessageLevel level)
         } else if (std::holds_alternative<LogParser::PlainText>(item)) {
             auto msg = std::get<LogParser::PlainText>(item).message;
 
-            MessageLevel newLevel = messageLevelFromLine(msg);
+            MessageLevel newLevel = MessageLevel::takeFromLine(msg);
 
             if (newLevel == MessageLevel::Unknown)
                 newLevel = LogParser::guessLevel(line, model->previousLevel());

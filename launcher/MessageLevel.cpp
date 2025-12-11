@@ -1,6 +1,6 @@
 #include "MessageLevel.h"
 
-MessageLevel messageLevelFromName(const QString& levelName)
+MessageLevel MessageLevel::fromName(const QString& levelName)
 {
     QString name = levelName.toUpper();
     if (name == "LAUNCHER")
@@ -25,7 +25,7 @@ MessageLevel messageLevelFromName(const QString& levelName)
         return MessageLevel::Unknown;
 }
 
-MessageLevel messageLevelFromQtMsgType(QtMsgType type)
+MessageLevel MessageLevel::fromQtMsgType(const QtMsgType& type)
 {
     switch (type) {
         case QtDebugMsg:
@@ -43,19 +43,21 @@ MessageLevel messageLevelFromQtMsgType(QtMsgType type)
     }
 }
 
-MessageLevel messageLevelFromLine(QString& line)
+/* Get message level from a line. Line is modified if it was successful. */
+MessageLevel MessageLevel::takeFromLine(QString& line)
 {
     // Level prefix
     int endmark = line.indexOf("]!");
     if (line.startsWith("!![") && endmark != -1) {
-        auto level = messageLevelFromName(line.left(endmark).mid(3));
+        auto level = MessageLevel::fromName(line.left(endmark).mid(3));
         line = line.mid(endmark + 2);
         return level;
     }
     return MessageLevel::Unknown;
 }
 
-MessageLevel messageLevelFromLauncherLine(QString& line)
+/* Get message level from a line from the launcher log. Line is modified if it was successful. */
+MessageLevel MessageLevel::takeFromLauncherLine(QString& line)
 {
     // Level prefix
     int startMark = 0;
@@ -63,7 +65,7 @@ MessageLevel messageLevelFromLauncherLine(QString& line)
         ++startMark;
     int endmark = line.indexOf(":");
     if (startMark < line.size() && endmark != -1) {
-        auto level = messageLevelFromName(line.left(endmark).mid(startMark));
+        auto level = MessageLevel::fromName(line.left(endmark).mid(startMark));
         line = line.mid(endmark + 2);
         return level;
     }

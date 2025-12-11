@@ -45,11 +45,11 @@ QList<ModLoaderType> modLoaderTypesToList(ModLoaderTypes flags)
     return flagList;
 }
 
-QString indexedVersionTypeToString(IndexedVersionType type) {
-    return s_indexed_version_type_names.key(type, "unknown");
+QString IndexedVersionType::toString() const {
+    return s_indexed_version_type_names.key(m_type, "unknown");
 }
 
-IndexedVersionType indexedVersionTypeFromString(const QString& type) {
+IndexedVersionType IndexedVersionType::fromString(const QString& type) {
     return s_indexed_version_type_names.value(type, IndexedVersionType::Unknown);
 }
 

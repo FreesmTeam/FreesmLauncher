@@ -60,7 +60,7 @@ std::optional<LogParser::LogEntry> LogParser::parseAttributes()
             entry.timestamp = QDateTime::fromSecsSinceEpoch(value.trimmed().toLongLong());
         } else if (name == "level"_L1) {
             entry.levelText = value.trimmed().toString();
-            entry.level = messageLevelFromName(entry.levelText);
+            entry.level = MessageLevel::fromName(entry.levelText);
         } else if (name == "thread"_L1) {
             entry.thread = value.trimmed().toString();
         }
@@ -329,7 +329,7 @@ MessageLevel LogParser::guessLevel(const QString& line, MessageLevel previous)
         QString timestamp = match.captured("timestamp");
         QString levelStr = match.captured("level");
 
-        return messageLevelFromName(levelStr);
+        return MessageLevel::fromName(levelStr);
     } else {
         // Old style forge logs
         if (line.contains("[INFO]") || line.contains("[CONFIG]") || line.contains("[FINE]") || line.contains("[FINER]") ||

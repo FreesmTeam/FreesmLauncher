@@ -23,6 +23,7 @@
 #include <QMetaType>
 #include <QString>
 #include <QVariant>
+#include <compare>
 #include <memory>
 
 class QIODevice;
@@ -74,9 +75,22 @@ struct DonationData {
     QString url;
 };
 
-enum class IndexedVersionType { Unknown, Release = 1, Beta, Alpha };
-IndexedVersionType indexedVersionTypeFromString(const QString& type);
-QString indexedVersionTypeToString(IndexedVersionType type);
+struct IndexedVersionType {
+    enum class Enum { Unknown, Release = 1, Beta, Alpha };
+    using enum Enum;
+    constexpr IndexedVersionType(Enum e = Unknown) : m_type(e) {}
+    static IndexedVersionType fromString(const QString& type);
+    inline bool isValid() const { return m_type != Unknown; }
+    std::strong_ordering operator<=>(const IndexedVersionType& other) const = default;
+    std::strong_ordering operator<=>(const IndexedVersionType::Enum& other) const { return m_type <=> other; }
+    QString toString() const;
+    explicit operator int() const { return static_cast<int>(m_type); }
+    explicit operator IndexedVersionType::Enum() { return m_type; }
+
+   private:
+    Enum m_type;
+};
+
 
 struct Dependency {
     QVariant addonId;
@@ -107,7 +121,8 @@ struct IndexedVersion {
 
     QString getVersionDisplayString() const
     {
-        auto release_type = version_type != IndexedVersionType::Unknown ? QString(" [%1]").arg(indexedVersionTypeToString(version_type)) : "";
+        auto release_type =
+            version_type.isValid() ? QString(" [%1]").arg(version_type.toString()) : "";
         auto versionStr = !version.contains(version_number) ? version_number : "";
         QString gameVersion = "";
         for (auto v : mcVersion) {

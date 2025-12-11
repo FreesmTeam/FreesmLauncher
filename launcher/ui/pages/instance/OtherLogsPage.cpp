@@ -285,7 +285,7 @@ void OtherLogsPage::reload()
 
             QString lineTemp = line;  // don't edit out the time and level for clarity
             if (!m_instance) {
-                level = messageLevelFromLauncherLine(lineTemp);
+                level = MessageLevel::takeFromLauncherLine(lineTemp);
             } else {
                 level = LogParser::guessLevel(line, last);
             }
