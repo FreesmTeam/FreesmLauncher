@@ -241,7 +241,7 @@ void appDebugOutput(QtMsgType type, const QMessageLogContext& context, const QSt
 
     QString out = qFormatLogMessage(type, context, msg);
     if (APPLICATION->logModel) {
-        APPLICATION->logModel->append(messageLevelFromQtMsgType(type), out);
+        APPLICATION->logModel->append(MessageLevel::fromQtMsgType(type), out);
     }
 
     out += QChar::LineFeed;
