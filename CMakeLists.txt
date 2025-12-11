@@ -414,8 +414,39 @@ if(UNIX AND APPLE)
     endif()
 
     # Add the icon
-    install(FILES ${Launcher_Branding_ICNS} DESTINATION ${RESOURCES_DEST_DIR} RENAME ${Launcher_Name}.icns)
-    install(FILES ${Launcher_Branding_macos_ASSETSCAR} DESTINATION ${RESOURCES_DEST_DIR} )
+    find_program(ACTOOL_EXE actool DOC "Path to the apple asset catalog compiler")
+    if(ACTOOL_EXE)
+        set(ASSETS_OUT_DIR "${CMAKE_BINARY_DIR}/program_info")
+        set(GENERATED_ASSETS_CAR "${ASSETS_OUT_DIR}/Assets.car")
+		set(GENERATED_LAUNCHER_ICNS "${ASSETS_OUT_DIR}/${Launcher_Name}.icns")
+        set(ICON_SOURCE "${CMAKE_CURRENT_SOURCE_DIR}/${Launcher_Branding_macos_ICON}")
+
+        add_custom_command(
+            OUTPUT "${GENERATED_ASSETS_CAR}" "${GENERATED_LAUNCHER_ICNS}"
+            COMMAND ${ACTOOL_EXE} "${ICON_SOURCE}"
+                    --compile "${ASSETS_OUT_DIR}"
+                    --output-partial-info-plist /dev/null
+                    --app-icon PrismLauncher
+                    --include-all-app-icons
+                    --enable-on-demand-resources NO
+                    --target-device mac
+                    --minimum-deployment-target 10.13
+                    --platform macosx
+					> /dev/null
+            DEPENDS "${ICON_SOURCE}"
+            COMMENT "Compiling asset catalog (${ICON_SOURCE})"
+            VERBATIM
+        )
+        add_custom_target(compile_assets ALL DEPENDS "${GENERATED_ASSETS_CAR}" "${GENERATED_LAUNCHER_ICNS}")
+        install(
+            FILES "${GENERATED_ASSETS_CAR}" "${GENERATED_LAUNCHER_ICNS}"
+            DESTINATION "${RESOURCES_DEST_DIR}"
+        )
+    else()
+        message(FATAL_ERROR "actool not found. Cannot compile macOS app icons.\n"
+				"Install Xcode command line tools: 'xcode-select --install'")
+    endif()
+    
 
 elseif(UNIX)
     include(KDEInstallDirs)
