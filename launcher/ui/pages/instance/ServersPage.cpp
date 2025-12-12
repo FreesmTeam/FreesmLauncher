@@ -112,11 +112,7 @@ struct Server {
     QByteArray m_icon;
 
     // Data - temporary
-    bool m_checked = false;
-    bool m_up = false;
-    QString m_motd;                       // https://mctools.org/motd-creator
     std::optional<int> m_currentPlayers;  // nullopt if not calculated/calculating
-    int m_maxPlayers = 0;
 };
 
 static std::unique_ptr<nbt::tag_compound> parseServersDat(const QString& filename)
