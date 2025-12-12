@@ -315,6 +315,7 @@ void InstallDialog::done(int result)
                         QString error = QString(tr("Could not determine Java download type!"));
                         CustomMessageBox::selectable(this, tr("Error"), error, QMessageBox::Warning)->show();
                         deletePath();
+                        return;
                 }
 #if defined(Q_OS_MACOS)
                 auto seq = makeShared<SequentialTask>(tr("Install Java"));
