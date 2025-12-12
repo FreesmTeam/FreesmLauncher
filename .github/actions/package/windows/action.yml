@@ -164,19 +164,19 @@ runs:
         exclude-interactive-browser-credential: true
 
     - name: Upload binary zip
-      uses: actions/upload-artifact@v5
+      uses: actions/upload-artifact@v6
       with:
         name: PrismLauncher-${{ inputs.artifact-name }}-${{ inputs.version }}-${{ inputs.build-type }}
         path: install/**
 
     - name: Upload portable zip
-      uses: actions/upload-artifact@v5
+      uses: actions/upload-artifact@v6
       with:
         name: PrismLauncher-${{ inputs.artifact-name }}-Portable-${{ inputs.version }}-${{ inputs.build-type }}
         path: install-portable/**
 
     - name: Upload installer
-      uses: actions/upload-artifact@v5
+      uses: actions/upload-artifact@v6
       with:
         name: PrismLauncher-${{ inputs.artifact-name }}-Setup-${{ inputs.version }}-${{ inputs.build-type }}
         path: PrismLauncher-Setup.exe
