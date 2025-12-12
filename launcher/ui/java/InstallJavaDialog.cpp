@@ -187,11 +187,14 @@ InstallDialog::InstallDialog(const QString& uid, BaseInstance* instance, QWidget
     : QDialog(parent), container(new PageContainer(this, QString(), this)), buttons(new QDialogButtonBox(this))
 {
     auto layout = new QVBoxLayout(this);
+    layout->setContentsMargins(0, 0, 0, 0);
 
     container->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Expanding);
     layout->addWidget(container);
 
     auto buttonLayout = new QHBoxLayout(this);
+    buttonLayout->setContentsMargins(0, 0, 6, 6);
+
     auto refreshLayout = new QHBoxLayout(this);
 
     auto refreshButton = new QPushButton(tr("&Refresh"), this);
@@ -217,7 +220,7 @@ InstallDialog::InstallDialog(const QString& uid, BaseInstance* instance, QWidget
     connect(buttons, &QDialogButtonBox::rejected, this, &QDialog::reject);
     buttonLayout->addWidget(buttons);
 
-    layout->addLayout(buttonLayout);
+    container->addButtons(buttonLayout);
 
     setWindowTitle(dialogTitle());
     setWindowModality(Qt::WindowModal);

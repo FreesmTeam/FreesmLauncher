@@ -76,7 +76,7 @@ InstanceWindow::InstanceWindow(InstancePtr instance, QWidget* parent) : QMainWin
     {
         auto horizontalLayout = new QHBoxLayout(this);
         horizontalLayout->setObjectName(QStringLiteral("horizontalLayout"));
-        horizontalLayout->setContentsMargins(6, -1, 6, -1);
+        horizontalLayout->setContentsMargins(0, 0, 6, 6);
 
         auto btnHelp = new QPushButton(this);
         btnHelp->setText(tr("Help"));
