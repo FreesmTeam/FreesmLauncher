@@ -29,7 +29,7 @@ class ExtractZipTask : public Task {
     Q_OBJECT
    public:
     ExtractZipTask(QString input, QDir outputDir, QString subdirectory = "")
-        : m_input(input), m_output_dir(outputDir), m_subdirectory(subdirectory)
+        : m_input(input), m_outputDir(outputDir), m_subdirectory(subdirectory)
     {}
     virtual ~ExtractZipTask() = default;
 
@@ -44,10 +44,10 @@ class ExtractZipTask : public Task {
 
    private:
     ArchiveReader m_input;
-    QDir m_output_dir;
+    QDir m_outputDir;
     QString m_subdirectory;
 
-    QFuture<ZipResult> m_zip_future;
-    QFutureWatcher<ZipResult> m_zip_watcher;
+    QFuture<ZipResult> m_zipFuture;
+    QFutureWatcher<ZipResult> m_zipWatcher;
 };
 }  // namespace MMCZip

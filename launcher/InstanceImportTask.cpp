@@ -108,35 +108,14 @@ void InstanceImportTask::downloadFromUrl()
     filesNetJob->start();
 }
 
-QString InstanceImportTask::getRootFromZip(QStringList files)
+QString cleanPath(QString path)
 {
-    if (!isRunning()) {
-        return {};
-    }
-    auto cleanPath = [](QString path) {
-        if (path == ".")
-            return QString();
-        QString result = path;
-        if (result.startsWith("./"))
-            result = result.mid(2);
-        return result;
-    };
-    for (auto&& fileName : files) {
-        setDetails(fileName);
-        QFileInfo fileInfo(fileName);
-        if (fileInfo.fileName() == "instance.cfg") {
-            qDebug() << "MultiMC:" << true;
-            m_modpackType = ModpackType::MultiMC;
-            return cleanPath(fileInfo.path());
-        }
-        if (fileInfo.fileName() == "manifest.json") {
-            qDebug() << "Flame:" << true;
-            m_modpackType = ModpackType::Flame;
-            return cleanPath(fileInfo.path());
-        }
-        QCoreApplication::processEvents();
-    }
-    return {};
+    if (path == ".")
+        return QString();
+    QString result = path;
+    if (result.startsWith("./"))
+        result = result.mid(2);
+    return result;
 }
 
 void InstanceImportTask::processZipPack()
@@ -147,31 +126,53 @@ void InstanceImportTask::processZipPack()
 
     // open the zip and find relevant files in it
     MMCZip::ArchiveReader packZip(m_archivePath);
-    if (!packZip.collectFiles()) {
-        emitFailed(tr("Unable to open supplied modpack zip file."));
-        return;
-    }
-
     qDebug() << "Attempting to determine instance type";
 
     QString root;
-
     // NOTE: Prioritize modpack platforms that aren't searched for recursively.
     // Especially Flame has a very common filename for its manifest, which may appear inside overrides for example
     // https://docs.modrinth.com/docs/modpacks/format_definition/#storage
-    if (packZip.exists("/modrinth.index.json")) {
-        // process as Modrinth pack
-        qDebug() << "Modrinth:" << true;
-        m_modpackType = ModpackType::Modrinth;
-    } else if (packZip.exists("/bin/modpack.jar") || packZip.exists("/bin/version.json")) {
-        // process as Technic pack
-        qDebug() << "Technic:" << true;
-        extractDir.mkpath("minecraft");
-        extractDir.cd("minecraft");
-        m_modpackType = ModpackType::Technic;
-    } else {
-        root = getRootFromZip(packZip.getFiles());
-        setDetails("");
+    auto detectInstance = [this, &extractDir, &root](MMCZip::ArchiveReader::File* f, bool& stop) {
+        if (!isRunning()) {
+            stop = true;
+            return true;
+        }
+        auto fileName = f->filename();
+        if (fileName == "/modrinth.index.json") {
+            // process as Modrinth pack
+            qDebug() << "Modrinth:" << true;
+            m_modpackType = ModpackType::Modrinth;
+            stop = true;
+        } else if (fileName == "/bin/modpack.jar" || fileName == "/bin/version.json") {
+            // process as Technic pack
+            qDebug() << "Technic:" << true;
+            extractDir.mkpath("minecraft");
+            extractDir.cd("minecraft");
+            m_modpackType = ModpackType::Technic;
+            stop = true;
+        } else {
+            QFileInfo fileInfo(fileName);
+            if (fileInfo.fileName() == "instance.cfg") {
+                qDebug() << "MultiMC:" << true;
+                m_modpackType = ModpackType::MultiMC;
+                root = cleanPath(fileInfo.path());
+                stop = true;
+                return true;
+            }
+            if (fileInfo.fileName() == "manifest.json") {
+                qDebug() << "Flame:" << true;
+                m_modpackType = ModpackType::Flame;
+                root = cleanPath(fileInfo.path());
+                stop = true;
+                return true;
+            }
+        }
+        QCoreApplication::processEvents();
+        return true;
+    };
+    if (!packZip.parse(detectInstance)) {
+        emitFailed(tr("Unable to open supplied modpack zip file."));
+        return;
     }
     if (m_modpackType == ModpackType::Unknown) {
         emitFailed(tr("Archive does not contain a recognized modpack type."));
