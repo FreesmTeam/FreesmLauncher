@@ -113,7 +113,7 @@ jobs:
             vcvars-arch: amd64_arm64
             qt-architecture: win64_msvc2022_arm64_cross_compiled
 
-          - os: macos-14
+          - os: macos-26
             artifact-name: macOS
             base-cmake-preset: ${{ (inputs.build-type || 'Debug') == 'Debug' && 'macos_universal' || 'macos' }}
             macosx-deployment-target: 12.0
