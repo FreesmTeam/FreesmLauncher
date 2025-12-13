@@ -138,12 +138,12 @@ void InstanceImportTask::processZipPack()
             return true;
         }
         auto fileName = f->filename();
-        if (fileName == "/modrinth.index.json") {
+        if (fileName == "modrinth.index.json") {
             // process as Modrinth pack
             qDebug() << "Modrinth:" << true;
             m_modpackType = ModpackType::Modrinth;
             stop = true;
-        } else if (fileName == "/bin/modpack.jar" || fileName == "/bin/version.json") {
+        } else if (fileName == "bin/modpack.jar" || fileName == "bin/version.json") {
             // process as Technic pack
             qDebug() << "Technic:" << true;
             extractDir.mkpath("minecraft");
