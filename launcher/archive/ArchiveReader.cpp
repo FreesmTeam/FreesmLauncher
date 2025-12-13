@@ -23,6 +23,7 @@
 #include <archive_entry.h>
 #include <QDir>
 #include <QFileInfo>
+#include <memory>
 
 namespace MMCZip {
 QStringList ArchiveReader::getFiles()
@@ -130,8 +131,10 @@ static int copy_data(struct archive* ar, struct archive* aw, bool notBlock = fal
 bool ArchiveReader::File::writeFile(archive* out, QString targetFileName, bool notBlock)
 {
     auto entry = m_entry;
+    std::unique_ptr<archive_entry, decltype(&archive_entry_free)> entryClone(nullptr, &archive_entry_free);
     if (!targetFileName.isEmpty()) {
-        entry = archive_entry_clone(m_entry);
+        entryClone.reset(archive_entry_clone(m_entry));
+        entry = entryClone.get();
         auto nameUtf8 = targetFileName.toUtf8();
         archive_entry_set_pathname(entry, nameUtf8.constData());
     }
