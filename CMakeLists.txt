@@ -428,7 +428,6 @@ if(UNIX AND APPLE)
                     --compile "${ASSETS_OUT_DIR}"
                     --output-partial-info-plist /dev/null
                     --app-icon PrismLauncher
-                    --include-all-app-icons
                     --enable-on-demand-resources NO
                     --target-device mac
                     --minimum-deployment-target ${CMAKE_OSX_DEPLOYMENT_TARGET}
@@ -438,7 +437,9 @@ if(UNIX AND APPLE)
             VERBATIM
         )
         add_custom_target(compile_assets ALL DEPENDS "${GENERATED_ASSETS_CAR}")
-        install(FILES "${GENERATED_ASSETS_CAR}" DESTINATION "${RESOURCES_DEST_DIR}")
+        if(EXISTS "${GENERATED_ASSETS_CAR}")
+            install(FILES "${GENERATED_ASSETS_CAR}" DESTINATION "${RESOURCES_DEST_DIR}")
+        endif()
     else()
         message(FATAL_ERROR "actool not found. Cannot compile macOS app icons.\n"
 				"Install Xcode command line tools: 'xcode-select --install'")
