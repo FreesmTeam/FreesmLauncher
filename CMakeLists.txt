@@ -453,7 +453,7 @@ if(UNIX AND APPLE)
             add_custom_target(compile_assets ALL DEPENDS "${GENERATED_ASSETS_CAR}")
             install(FILES "${GENERATED_ASSETS_CAR}" DESTINATION "${RESOURCES_DEST_DIR}")
         else()
-            message(WARNING "Xcode ${XCODE_VERSION} is too old. Minimum required version is 26.0")
+            message(WARNING "Xcode ${XCODE_VERSION} is too old. Minimum required version is 26.0. Not compiling liquid glass icons.")
         endif()
         
     else()
