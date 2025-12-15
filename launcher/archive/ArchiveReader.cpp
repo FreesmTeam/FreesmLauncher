@@ -42,7 +42,7 @@ bool ArchiveReader::collectFiles(bool onlyFiles)
 
 QString ArchiveReader::File::filename()
 {
-    return QString::fromUtf8(archive_entry_pathname(m_entry));
+    return QString::fromUtf8(archive_entry_pathname_utf8(m_entry));
 }
 
 QByteArray ArchiveReader::File::readAll(int* outStatus)
@@ -84,8 +84,8 @@ auto ArchiveReader::goToFile(QString filename) -> std::unique_ptr<File>
     auto a = f->m_archive.get();
     archive_read_support_format_all(a);
     archive_read_support_filter_all(a);
-    auto fileName = m_archivePath.toUtf8();
-    if (archive_read_open_filename(a, fileName.constData(), m_blockSize) != ARCHIVE_OK) {
+    auto fileName = m_archivePath.toStdWString();
+    if (archive_read_open_filename_w(a, fileName.data(), m_blockSize) != ARCHIVE_OK) {
         qCritical() << "Failed to open archive file:" << m_archivePath << "-" << archive_error_string(a);
         return nullptr;
     }
@@ -136,7 +136,7 @@ bool ArchiveReader::File::writeFile(archive* out, QString targetFileName, bool n
         entryClone.reset(archive_entry_clone(m_entry));
         entry = entryClone.get();
         auto nameUtf8 = targetFileName.toUtf8();
-        archive_entry_set_pathname(entry, nameUtf8.constData());
+        archive_entry_set_pathname_utf8(entry, nameUtf8.constData());
     }
     if (archive_write_header(out, entry) < ARCHIVE_OK) {
         qCritical() << "Failed to write header to entry:" << filename() << "-" << archive_error_string(out);
@@ -160,8 +160,8 @@ bool ArchiveReader::parse(std::function<bool(File*, bool&)> doStuff)
     auto a = f->m_archive.get();
     archive_read_support_format_all(a);
     archive_read_support_filter_all(a);
-    auto fileName = m_archivePath.toUtf8();
-    if (archive_read_open_filename(a, fileName.constData(), m_blockSize) != ARCHIVE_OK) {
+    auto fileName = m_archivePath.toStdWString();
+    if (archive_read_open_filename_w(a, fileName.data(), m_blockSize) != ARCHIVE_OK) {
         qCritical() << "Failed to open archive file:" << m_archivePath << "-" << f->error();
         return false;
     }
