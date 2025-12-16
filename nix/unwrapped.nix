@@ -68,10 +68,6 @@ assert lib.assertMsg (
       ]
       ++ lib.optional gamemodeSupport gamemode;
 
-    hardeningEnable = lib.optionals stdenv.hostPlatform.isLinux [
-      "pie"
-    ];
-
     cmakeFlags =
       [
         (lib.cmakeFeature "Launcher_BUILD_PLATFORM" "nixpkgs")
