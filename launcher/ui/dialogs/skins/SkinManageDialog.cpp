@@ -21,7 +21,6 @@
 #include "ui_SkinManageDialog.h"
 
 #include <FileSystem.h>
-#include <qnamespace.h>
 #include <QAction>
 #include <QDialog>
 #include <QEventLoop>
