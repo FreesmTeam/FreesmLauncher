@@ -7,7 +7,6 @@ on:
     paths-ignore:
       - "docs"
       - "**.md"
-      - "flake.lock"
       - "packages"
       - ".github/ISSUE_TEMPLATE"
       - ".markdownlint"
