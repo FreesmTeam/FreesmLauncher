@@ -169,15 +169,9 @@ bool processZIP(DataPack* pack, ProcessingLevel level)
 bool processMCMeta(DataPack* pack, QByteArray&& raw_data)
 {
     QJsonParseError parse_error;
-    auto json_doc = QJsonDocument::fromJson(raw_data, &parse_error);
+    auto json_doc = Json::parseUntilMalformed(raw_data, &parse_error);
     if (parse_error.error != QJsonParseError::NoError) {
-        QByteArray validJson = raw_data.left(parse_error.offset);
-        json_doc = QJsonDocument::fromJson(validJson, &parse_error);
-
-        if (parse_error.error != QJsonParseError::NoError) {
-            qWarning() << "Failed to parse JSON:" << parse_error.errorString();
-            return false;
-        }
+        qWarning() << "Failed to parse JSON:" << parse_error.errorString();
     }
 
     try {

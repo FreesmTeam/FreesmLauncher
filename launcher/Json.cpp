@@ -101,6 +101,17 @@ QJsonArray requireArray(const QJsonDocument& doc, const QString& what)
     return doc.array();
 }
 
+QJsonDocument parseUntilMalformed(const QByteArray& json, QJsonParseError* error)
+{
+    auto doc = QJsonDocument::fromJson(json, error);
+    if (error->error != QJsonParseError::NoError) {
+        QByteArray validJson = json.left(error->offset);
+        doc = QJsonDocument::fromJson(validJson, error);
+    }
+
+    return doc;
+}
+
 void writeString(QJsonObject& to, const QString& key, const QString& value)
 {
     if (!value.isEmpty()) {

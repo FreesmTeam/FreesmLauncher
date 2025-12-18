@@ -107,6 +107,9 @@ QJsonArray toJsonArray(const QList<T>& container)
 
 ////////////////// READING ////////////////////
 
+// Attempt to parse JSON up until unexpected data is encountered
+QJsonDocument parseUntilMalformed(const QByteArray& json, QJsonParseError* error = nullptr);
+
 /// @throw JsonException
 template <typename T>
 T requireIsType(const QJsonValue& value, const QString& what = "Value");
