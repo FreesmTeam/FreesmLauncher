@@ -18,13 +18,11 @@
 
 #pragma once
 
+#include <QFileSystemWatcher>
 #include <QObject>
-#include <memory>
-
-class QFileSystemWatcher;
-class QString;
-class QObject;
-class MinecraftInstance;
+#include <QString>
+#include <QTimer>
+#include <cstddef>
 
 class ScreenshotsWatcher : public QObject {
     Q_OBJECT
@@ -32,9 +30,15 @@ class ScreenshotsWatcher : public QObject {
     explicit ScreenshotsWatcher(const QString& path);
 
    private slots:
-    void dirUpdated();
+    void dirUpdated(const QString& path);
+    void tryCopy();
 
    private:
-    std::unique_ptr<QFileSystemWatcher> m_watcher;
-    const QString m_path;
+    void scheduleRetry();
+
+    QFileSystemWatcher m_watcher;
+    QString m_pendingPath;
+    std::size_t m_attempt{};
+    std::size_t m_lastSize{};
+    QTimer m_retryTimer;
 };
