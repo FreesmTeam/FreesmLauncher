@@ -101,12 +101,16 @@ QJsonArray requireArray(const QJsonDocument& doc, const QString& what)
     return doc.array();
 }
 
-QJsonDocument parseUntilMalformed(const QByteArray& json, QJsonParseError* error)
+QJsonDocument parseUntilGarbage(const QByteArray& json, QJsonParseError* error, QString* garbage)
 {
     auto doc = QJsonDocument::fromJson(json, error);
-    if (error->error != QJsonParseError::NoError) {
-        QByteArray validJson = json.left(error->offset);
+    if (error->error == QJsonParseError::GarbageAtEnd) {
+        qsizetype offset = error->offset;
+        QByteArray validJson = json.left(offset);
         doc = QJsonDocument::fromJson(validJson, error);
+
+        if (garbage)
+            *garbage = json.right(json.size() - offset);
     }
 
     return doc;
