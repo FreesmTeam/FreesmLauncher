@@ -183,17 +183,17 @@ void SkinManageDialog::on_fileBtn_clicked()
 QPixmap previewCape(QImage capeImage, bool elytra = false)
 {
     if (elytra) {
-        auto wing = capeImage.copy(34, 0, 12, 22);
+        auto wing = capeImage.copy(34, 2, 12, 20);
         QImage mirrored = wing.mirrored(true, false);
 
-        QImage combined(wing.width() * 2 - 2, wing.height(), capeImage.format());
+        QImage combined(wing.width() * 2 + 1, wing.height() + 14, capeImage.format());
         combined.fill(Qt::transparent);
 
         QPainter painter(&combined);
-        painter.drawImage(0, 0, wing);
-        painter.drawImage(wing.width() - 2, 0, mirrored);
+        painter.drawImage(0, 7, wing);
+        painter.drawImage(wing.width() + 1, 7, mirrored);
         painter.end();
-        return QPixmap::fromImage(combined.scaled(96, 176, Qt::IgnoreAspectRatio, Qt::FastTransformation));
+        return QPixmap::fromImage(combined.scaled(84, 128, Qt::KeepAspectRatio, Qt::FastTransformation));
     }
     return QPixmap::fromImage(capeImage.copy(1, 1, 10, 16).scaled(80, 128, Qt::IgnoreAspectRatio, Qt::FastTransformation));
 }
