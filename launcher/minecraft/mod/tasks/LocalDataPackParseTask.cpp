@@ -168,10 +168,15 @@ bool processZIP(DataPack* pack, ProcessingLevel level)
 // https://minecraft.wiki/w/Tutorials/Creating_a_resource_pack#Formatting_pack.mcmeta
 bool processMCMeta(DataPack* pack, QByteArray&& raw_data)
 {
-    try {
-        auto json_doc = QJsonDocument::fromJson(raw_data);
-        auto pack_obj = Json::requireObject(json_doc.object(), "pack", {});
+    QJsonParseError parse_error;
+    auto json_doc = Json::parseUntilGarbage(raw_data, &parse_error);
+    if (parse_error.error != QJsonParseError::NoError) {
+        qWarning() << "Failed to parse JSON:" << parse_error.errorString();
+        return false;
+    }
 
+    try {
+        auto pack_obj = Json::requireObject(json_doc.object(), "pack", {});
         pack->setPackFormat(pack_obj["pack_format"].toInt());
         pack->setDescription(DataPackUtils::processComponent(pack_obj.value("description")));
     } catch (Json::JsonException& e) {

@@ -101,6 +101,21 @@ QJsonArray requireArray(const QJsonDocument& doc, const QString& what)
     return doc.array();
 }
 
+QJsonDocument parseUntilGarbage(const QByteArray& json, QJsonParseError* error, QString* garbage)
+{
+    auto doc = QJsonDocument::fromJson(json, error);
+    if (error->error == QJsonParseError::GarbageAtEnd) {
+        qsizetype offset = error->offset;
+        QByteArray validJson = json.left(offset);
+        doc = QJsonDocument::fromJson(validJson, error);
+
+        if (garbage)
+            *garbage = json.right(json.size() - offset);
+    }
+
+    return doc;
+}
+
 void writeString(QJsonObject& to, const QString& key, const QString& value)
 {
     if (!value.isEmpty()) {

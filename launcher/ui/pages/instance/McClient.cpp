@@ -81,16 +81,11 @@ void McClient::parseResponse()
 
     // 'resp' should now be the JSON string
     QJsonParseError parseError;
-    QJsonDocument doc = QJsonDocument::fromJson(m_resp, &parseError);
+    QJsonDocument doc = Json::parseUntilGarbage(m_resp, &parseError);
     if (parseError.error != QJsonParseError::NoError) {
-        QByteArray validJson = m_resp.left(parseError.offset);
-        doc = QJsonDocument::fromJson(validJson, &parseError);
-
-        if (parseError.error != QJsonParseError::NoError) {
-            qDebug() << "Failed to parse JSON:" << parseError.errorString();
-            emitFail(parseError.errorString());
-            return;
-        }
+        qDebug() << "Failed to parse JSON:" << parseError.errorString();
+        emitFail(parseError.errorString());
+        return;
     }
     emitSucceed(doc.object());
 }
