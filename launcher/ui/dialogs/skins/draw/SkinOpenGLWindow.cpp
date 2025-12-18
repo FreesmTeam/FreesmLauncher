@@ -325,3 +325,9 @@ void SkinOpenGLWindow::setElytraVisible(bool visible)
     if (m_scene)
         m_scene->setElytraVisible(visible);
 }
+
+bool SkinOpenGLWindow::hasOpenGL()
+{
+    QOpenGLContext ctx;
+    return ctx.create();
+}
