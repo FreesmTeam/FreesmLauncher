@@ -172,6 +172,7 @@ bool processMCMeta(DataPack* pack, QByteArray&& raw_data)
     auto json_doc = Json::parseUntilMalformed(raw_data, &parse_error);
     if (parse_error.error != QJsonParseError::NoError) {
         qWarning() << "Failed to parse JSON:" << parse_error.errorString();
+        return false;
     }
 
     try {
