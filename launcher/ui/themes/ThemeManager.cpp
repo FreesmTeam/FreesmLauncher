@@ -310,7 +310,8 @@ void ThemeManager::initializeCatPacks()
     QList<std::pair<QString, QString>> freesmCats{ { "typescript", QObject::tr("You should have used Typescript") },
                                                    { "miside-screenshot", QObject::tr("MiSide Screenshot") },
                                                    { "maxwell-christmas-gif", QObject::tr("Maxwell Christmas Cat") },
-                                                   { "konata-gif", QObject::tr("Low-poly Konata") } };
+                                                   { "konata-gif", QObject::tr("Low-poly Konata") },
+                                                   { "cucumbers", QObject::tr("Cucumbers") } };
     for (const auto& [id, name] : freesmCats) {
         addCatPack(std::make_unique<FreesmCatPack>(id, name));
     }
