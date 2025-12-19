@@ -118,7 +118,7 @@ jobs:
             cmake-preset: windows_msvc
             vcvars-arch: arm64
 
-          - os: macos-14
+          - os: macos-26
             artifact-name: macOS
             cmake-preset: macos_universal
             macosx-deployment-target: 12.0

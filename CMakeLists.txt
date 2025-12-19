@@ -399,6 +399,52 @@ if(UNIX AND APPLE)
     # Add the icon
     install(FILES ${Launcher_Branding_ICNS} DESTINATION ${RESOURCES_DEST_DIR} RENAME ${Launcher_Name}.icns)
 
+    find_program(ACTOOL_EXE actool DOC "Path to the apple asset catalog compiler")
+    if(ACTOOL_EXE)
+        execute_process(
+            COMMAND xcodebuild -version
+            OUTPUT_VARIABLE XCODE_VERSION_OUTPUT
+            OUTPUT_STRIP_TRAILING_WHITESPACE
+        )
+        
+        string(REGEX MATCH "Xcode ([0-9]+\.[0-9]+)" XCODE_VERSION_MATCH "${XCODE_VERSION_OUTPUT}")
+        if(XCODE_VERSION_MATCH)
+            set(XCODE_VERSION ${CMAKE_MATCH_1})
+        else()
+            set(XCODE_VERSION 0.0)
+        endif()
+        
+        if(XCODE_VERSION VERSION_GREATER_EQUAL 26.0)
+            set(ASSETS_OUT_DIR "${CMAKE_BINARY_DIR}/program_info")
+            set(GENERATED_ASSETS_CAR "${ASSETS_OUT_DIR}/Assets.car")
+            set(ICON_SOURCE "${CMAKE_CURRENT_SOURCE_DIR}/${Launcher_Branding_MAC_ICON}")
+
+            add_custom_command(
+                OUTPUT "${GENERATED_ASSETS_CAR}"
+                COMMAND ${ACTOOL_EXE} "${ICON_SOURCE}"
+                        --compile "${ASSETS_OUT_DIR}"
+                        --output-partial-info-plist /dev/null
+                        --app-icon PrismLauncher
+                        --enable-on-demand-resources NO
+                        --target-device mac
+                        --minimum-deployment-target ${CMAKE_OSX_DEPLOYMENT_TARGET}
+                        --platform macosx
+                DEPENDS "${ICON_SOURCE}"
+                COMMENT "Compiling asset catalog (${ICON_SOURCE})"
+                VERBATIM
+            )
+            add_custom_target(compile_assets ALL DEPENDS "${GENERATED_ASSETS_CAR}")
+            install(FILES "${GENERATED_ASSETS_CAR}" DESTINATION "${RESOURCES_DEST_DIR}")
+        else()
+            message(WARNING "Xcode ${XCODE_VERSION} is too old. Minimum required version is 26.0. Not compiling liquid glass icons.")
+        endif()
+        
+    else()
+        message(WARNING "actool not found. Cannot compile macOS app icons.\n"
+				"Install Xcode command line tools: 'xcode-select --install'")
+    endif()
+    
+
 elseif(UNIX)
     include(KDEInstallDirs)
 
