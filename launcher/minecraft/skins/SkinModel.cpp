@@ -66,8 +66,8 @@ static QImage generatePreviews(QImage texture, bool slim)
     paint.drawImage(4, 22, texture.copy(4, 20, 4, 12));
     paint.drawImage(4, 22, texture.copy(4, 36, 4, 12));
     // left leg
-    paint.drawImage(8, 22, texture.copy(4, 52, 4, 12));
     paint.drawImage(8, 22, texture.copy(20, 52, 4, 12));
+    paint.drawImage(8, 22, texture.copy(4, 52, 4, 12));
 
     auto armWidth = slim ? 3 : 4;
     auto armPosX = slim ? 1 : 0;
@@ -89,8 +89,8 @@ static QImage generatePreviews(QImage texture, bool slim)
     paint.drawImage(24, 22, texture.copy(12, 20, 4, 12));
     paint.drawImage(24, 22, texture.copy(12, 36, 4, 12));
     // left leg
-    paint.drawImage(28, 22, texture.copy(12, 52, 4, 12));
     paint.drawImage(28, 22, texture.copy(28, 52, 4, 12));
+    paint.drawImage(28, 22, texture.copy(12, 52, 4, 12));
 
     // right arm
     paint.drawImage(armPosX + 20, 10, texture.copy(48 + armWidth, 20, armWidth, 12));
