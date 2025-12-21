@@ -49,7 +49,11 @@ assert lib.assertMsg (
   freesmlauncher' = freesmlauncher-unwrapped.override {inherit msaClientID gamemodeSupport;};
 in
   symlinkJoin {
-    name = "freesmlauncher-${freesmlauncher'.version}";
+    pname = "freesmlauncher-${freesmlauncher'.version}";
+    inherit
+      (freesmlauncher')
+      version
+      ;
 
     paths = [
       freesmlauncher'
