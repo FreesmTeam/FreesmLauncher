@@ -203,7 +203,7 @@ void ModrinthPage::onSelectionChanged(QModelIndex curr, [[maybe_unused]] QModelI
                     ++it;
 #endif
             for (const auto& version : m_current->versions) {
-                m_ui->versionSelectionBox->addItem(version.getVersionDisplayString(), QVariant(version.addonId));
+                m_ui->versionSelectionBox->addItem(version.getVersionDisplayString(), QVariant(version.fileId));
             }
 
             QVariant current_updated;
@@ -227,9 +227,9 @@ void ModrinthPage::onSelectionChanged(QModelIndex curr, [[maybe_unused]] QModelI
         for (auto version : m_current->versions) {
             if (!version.version.contains(version.version))
                 m_ui->versionSelectionBox->addItem(QString("%1 - %2").arg(version.version, version.version_number),
-                                                   QVariant(version.addonId));
+                                                   QVariant(version.fileId));
             else
-                m_ui->versionSelectionBox->addItem(version.version, QVariant(version.addonId));
+                m_ui->versionSelectionBox->addItem(version.version, QVariant(version.fileId));
         }
 
         suggestCurrent();
@@ -312,7 +312,7 @@ void ModrinthPage::suggestCurrent()
     }
 
     for (auto& ver : m_current->versions) {
-        if (ver.addonId == m_selectedVersion) {
+        if (ver.fileId == m_selectedVersion) {
             QMap<QString, QString> extra_info;
             extra_info.insert("pack_id", m_current->addonId.toString());
             extra_info.insert("pack_version_id", ver.fileId.toString());
