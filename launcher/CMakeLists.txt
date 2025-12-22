@@ -1625,3 +1625,15 @@ if(WIN32 OR (UNIX AND APPLE))
         COMPONENT bundle
     )
 endif()
+
+find_program(CLANG_FORMAT clang-format OPTIONAL)
+if(CLANG_FORMAT)
+    message(STATUS "Creating clang-format target")
+    add_custom_target(
+        clang-format
+        COMMAND ${CLANG_FORMAT} -i --style=file:${CMAKE_SOURCE_DIR}/.clang-format ${LOGIC_SOURCES} ${LAUNCHER_SOURCES} ${PRISMUPDATER_SOURCES} ${LINKEXE_SOURCES} ${PRECOMPILED_HEADERS}
+        WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
+    )
+else()
+    message(WARNING "Unable to find `clang-format`. Not creating custom target")
+endif()
