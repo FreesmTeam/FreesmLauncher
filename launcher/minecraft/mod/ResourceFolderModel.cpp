@@ -207,7 +207,13 @@ void ResourceFolderModel::installResourceWithFlameMetadata(QString path, ModPlat
 bool ResourceFolderModel::uninstallResource(const QString& file_name, bool preserve_metadata)
 {
     for (auto& resource : m_resources) {
-        if (resource->fileinfo().fileName() == file_name) {
+        auto resourceFileInfo = resource->fileinfo();
+        auto resourceFileName = resource->fileinfo().fileName();
+        if (!resource->enabled() && resourceFileName.endsWith(".disabled")) {
+            resourceFileName.chop(9);
+        }
+
+        if (resourceFileName == file_name) {
             auto res = resource->destroy(indexDir(), preserve_metadata, false);
 
             update();
