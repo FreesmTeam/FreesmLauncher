@@ -79,15 +79,6 @@ else()
     if(WIN32)
         set(CMAKE_EXE_LINKER_FLAGS "-Wl,--stack,8388608 ${CMAKE_EXE_LINKER_FLAGS}")
 
-        # Emit PDBs for WinDbg, etc.
-        add_compile_options($<$<AND:$<CONFIG:Debug,RelWithDebInfo>,$<COMPILE_LANGUAGE:C,CXX>>:-gcodeview>)
-        add_link_options($<$<AND:$<CONFIG:Debug,RelWithDebInfo>,$<COMPILE_LANGUAGE:C,CXX>>:-Wl,--pdb=>)
-        foreach(lang C CXX)
-            # Force-enabling this to use generator expressions like TARGET_PDB_FILE
-            # (and because we can actually emit PDBs)
-            set("CMAKE_${lang}_LINKER_SUPPORTS_PDB" ON)
-        endforeach()
-
         # -ffunction-sections and -fdata-sections help reduce binary size
         # -mguard=cf enables Control Flow Guard
         # TODO: Look into -gc-sections to further reduce binary size
