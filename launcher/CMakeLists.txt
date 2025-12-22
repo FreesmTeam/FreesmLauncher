@@ -1412,8 +1412,8 @@ install(TARGETS ${Launcher_Name}
 )
 
 # Deploy PDBs
-if(WIN32 AND (CMAKE_BUILD_TYPE STREQUAL "Debug" OR CMAKE_BUILD_TYPE STREQUAL "RelWithDebInfo"))
-    install(FILES $<TARGET_PDB_FILE:${Launcher_Name}> DESTINATION ${BINARY_DEST_DIR})
+if(CMAKE_CXX_LINKER_SUPPORTS_PDB)
+    install(FILES $<TARGET_PDB_FILE:${Launcher_Name}> DESTINATION ${BINARY_DEST_DIR} OPTIONAL)
 endif()
 
 if(Launcher_BUILD_UPDATER)
@@ -1455,8 +1455,8 @@ if(Launcher_BUILD_UPDATER)
     )
 
     # Deploy PDBs
-    if(WIN32 AND (CMAKE_BUILD_TYPE STREQUAL "Debug" OR CMAKE_BUILD_TYPE STREQUAL "RelWithDebInfo"))
-        install(FILES $<TARGET_PDB_FILE:${Launcher_Name}_updater> DESTINATION ${BINARY_DEST_DIR})
+    if(CMAKE_CXX_LINKER_SUPPORTS_PDB)
+        install(FILES $<TARGET_PDB_FILE:${Launcher_Name}_updater> DESTINATION ${BINARY_DEST_DIR} OPTIONAL)
     endif()
 endif()
 
@@ -1506,8 +1506,8 @@ if(WIN32 OR (DEFINED Launcher_BUILD_FILELINKER AND Launcher_BUILD_FILELINKER))
     )
 
     # Deploy PDBs
-    if(WIN32 AND (CMAKE_BUILD_TYPE STREQUAL "Debug" OR CMAKE_BUILD_TYPE STREQUAL "RelWithDebInfo"))
-        install(FILES $<TARGET_PDB_FILE:${Launcher_Name}_filelink> DESTINATION ${BINARY_DEST_DIR})
+    if(CMAKE_CXX_LINKER_SUPPORTS_PDB)
+        install(FILES $<TARGET_PDB_FILE:${Launcher_Name}_filelink> DESTINATION ${BINARY_DEST_DIR} OPTIONAL)
     endif()
 endif()
 
