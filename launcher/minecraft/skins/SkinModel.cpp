@@ -1,7 +1,8 @@
 // SPDX-License-Identifier: GPL-3.0-only
 /*
  *  Prism Launcher - Minecraft Launcher
- *  Copyright (c) 2023 Trial97 <alexandru.tripon97@gmail.com>
+ *  Copyright (c) 2023-2025 Trial97 <alexandru.tripon97@gmail.com>
+ *  Copyright (c) 2025 Rinth, Inc.
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -22,29 +23,89 @@
 
 #include "FileSystem.h"
 
+static void setAlpha(QImage& image, const QRect& region, const int alpha)
+{
+    for (int y = region.top(); y < region.bottom(); ++y) {
+        QRgb* line = reinterpret_cast<QRgb*>(image.scanLine(y));
+        for (int x = region.left(); x < region.right(); ++x) {
+            QRgb pixel = line[x];
+            line[x] = qRgba(qRed(pixel), qGreen(pixel), qBlue(pixel), alpha);
+        }
+    }
+}
+
+static void doNotchTransparencyHack(QImage& image)
+{
+    for (int y = 0; y < 32; y++) {
+        QRgb* line = reinterpret_cast<QRgb*>(image.scanLine(y));
+        for (int x = 32; x < 64; x++) {
+            if (qAlpha(line[x]) < 128) {
+                return;
+            }
+        }
+    }
+
+    setAlpha(image, { 32, 0, 32, 32 }, 0);
+}
+
 static QImage improveSkin(QImage skin)
 {
+    int height = skin.height();
+    int width = skin.width();
+    if (width != 64 || (height != 32 && height != 64)) {  // this is no minecraft skin
+        return skin;
+    }
     // It seems some older skins may use this format, which can't be drawn onto
     // https://github.com/PrismLauncher/PrismLauncher/issues/4032
     // https://doc.qt.io/qt-6/qpainter.html#begin
     if (skin.format() == QImage::Format_Indexed8) {
-        skin = skin.convertToFormat(QImage::Format_RGB32);
+        skin = skin.convertToFormat(QImage::Format_ARGB32);
     }
-    if (skin.size() == QSize(64, 32)) {  // old format
+
+    auto isLegacy = height == 32;  // old format
+    if (isLegacy) {
         auto newSkin = QImage(QSize(64, 64), skin.format());
         newSkin.fill(Qt::transparent);
         QPainter p(&newSkin);
-        p.drawImage(QPoint(0, 0), skin.copy(QRect(0, 0, 64, 32)));  // copy head
+        p.drawImage(0, 0, skin);
 
-        auto leg = skin.copy(QRect(0, 16, 16, 16));
-        p.drawImage(QPoint(16, 48), leg);  // copy leg
+        auto copyRect = [&p, &newSkin](int startX, int startY, int offsetX, int offsetY, int sizeX, int sizeY) {
+            QImage region = newSkin.copy(startX, startY, sizeX, sizeY);
+            region = region.mirrored(true, false);
 
-        auto arm = skin.copy(QRect(40, 16, 16, 16));
-        p.drawImage(QPoint(32, 48), arm);  // copy arm
-        return newSkin;
+            p.drawImage(startX + offsetX, startY + offsetY, region);
+        };
+        static const struct {
+            int x;
+            int y;
+            int offsetX;
+            int offsetY;
+            int width;
+            int height;
+        } faces[] = {
+            { 4, 16, 16, 32, 4, 4 },  { 8, 16, 16, 32, 4, 4 },   { 0, 20, 24, 32, 4, 12 },   { 4, 20, 16, 32, 4, 12 },
+            { 8, 20, 8, 32, 4, 12 },  { 12, 20, 16, 32, 4, 12 }, { 44, 16, -8, 32, 4, 4 },   { 48, 16, -8, 32, 4, 4 },
+            { 40, 20, 0, 32, 4, 12 }, { 44, 20, -8, 32, 4, 12 }, { 48, 20, -16, 32, 4, 12 }, { 52, 20, -8, 32, 4, 12 },
+        };
+
+        for (const auto& face : faces) {
+            copyRect(face.x, face.y, face.offsetX, face.offsetY, face.width, face.height);
+        }
+        doNotchTransparencyHack(newSkin);
+        skin = newSkin;
+    }
+    static const QRect opaqueParts[] = {
+        { 0, 0, 32, 16 },
+        { 0, 16, 64, 16 },
+        { 16, 48, 32, 16 },
+    };
+
+    for (const auto& p : opaqueParts) {
+        setAlpha(skin, p, 255);
     }
     return skin;
 }
+
 static QImage getSkin(const QString path)
 {
     return improveSkin(QImage(path));
