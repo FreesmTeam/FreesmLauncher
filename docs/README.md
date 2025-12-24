@@ -83,6 +83,8 @@ Based on Prism Launcher **9.4**
 
 Download Freesm Launcher from our [official website](https://freesmlauncher.org/) or the [GitHub Releases](https://github.com/FreesmTeam/FreesmLauncher/releases) page. Packages are available for **Linux, Windows, and macOS**.
 
+Freesm Launcher also has a [Flake](https://github.com/FreesmTeam/FreesmLauncher/tree/develop/nix) for NixOS users.
+
 ### Development builds
 
 Please understand that these builds are not intended for most users. There may be bugs and other instabilities. You have been warned.
