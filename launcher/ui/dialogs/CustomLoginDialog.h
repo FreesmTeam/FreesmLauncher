@@ -18,6 +18,7 @@
 #include <QDialog>
 
 #include "minecraft/auth/custom/CustomAccount.h"
+#include "net/Download.h"
 #include "tasks/Task.h"
 
 namespace Ui {
@@ -40,6 +41,8 @@ class CustomLoginDialog : public QDialog {
    protected slots:
     void accept();
 
+    void onUrlResolving();
+
     void onTaskFailed(const QString& reason);
     void onTaskSucceeded();
     void onTaskStatus(const QString& status);
@@ -53,4 +56,6 @@ class CustomLoginDialog : public QDialog {
     Ui::CustomLoginDialog* ui;
     CustomAccountPtr m_account;
     Task::Ptr m_loginTask;
+    Net::Download::Ptr m_requestTask;
+    std::shared_ptr<QByteArray> m_response;
 };
