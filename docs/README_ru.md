@@ -10,7 +10,7 @@
 
 Этот форк **не** поддерживается Prism Launcher'ом
 
-Основана на Prism Launcher **9.4**
+Основан на Prism Launcher **9.4**
 
 <p align="center">
 <a style="color:#f5c2e7" href="./README.md">English</a> | <strong>Русский</strong>
@@ -82,6 +82,8 @@
 ### Стабильные версии
 
 Скачайте Freesm Launcher с нашего [официального сайта](https://freesmlauncher.org/) или через страницу [GitHub Releases](https://github.com/FreesmTeam/FreesmLauncher/releases). Лаунчер доступен на **Linux, Windows и macOS**.
+
+Для пользователей NixOS доступен [Flake](https://github.com/FreesmTeam/FreesmLauncher/tree/develop/nix).
 
 ### Нестабильные сборки
 
