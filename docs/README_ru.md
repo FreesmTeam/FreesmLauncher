@@ -10,6 +10,8 @@
 
 Этот форк **не** поддерживается Prism Launcher'ом
 
+Основана на Prism Launcher **9.4**
+
 <p align="center">
 <a style="color:#f5c2e7" href="./README.md">English</a> | <strong>Русский</strong>
 </p>
