@@ -91,6 +91,7 @@
 #include <QActionGroup>
 #include <QMainWindow>
 #include <QScreen>
+#include <QStandardPaths>
 #include <QWindow>
 
 #ifdef Q_OS_LINUX
@@ -586,6 +587,16 @@ QStringList MinecraftInstance::javaArguments()
     args << QString(
         "-XX:HeapDumpPath=MojangTricksIntelDriversForPerformance_javaw.exe_"
         "minecraft.exe.heapdump");
+#endif
+
+    // LWJGL2 reads `LWJGL_DISABLE_XRANDR` to force disable xrandr usage and fall back to xf86videomode.
+    // It *SHOULD* check for the executable to exist before trying to use it for queries but it doesnt,
+    // so WE can and force disable xrandr if it is not available.
+#ifdef Q_OS_LINUX
+    // LWJGL2 is "org.lwjgl" LWJGL3 is "org.lwjgl3"
+    if (m_components->getComponent("org.lwjgl") != nullptr && QStandardPaths::findExecutable("xrandr").isEmpty()) {
+        args << QString("-DLWJGL_DISABLE_XRANDR=true");
+    }
 #endif
 
     int min = settings()->get("MinMemAlloc").toInt();
