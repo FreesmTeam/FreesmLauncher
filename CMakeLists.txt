@@ -1,6 +1,9 @@
 cmake_minimum_required(VERSION 3.22)  # minimum version required by Qt
 
-project(Launcher)
+project(Launcher LANGUAGES C CXX)
+if(APPLE)
+    enable_language(OBJC OBJCXX)
+endif()
 
 string(COMPARE EQUAL "${CMAKE_SOURCE_DIR}" "${CMAKE_BUILD_DIR}" IS_IN_SOURCE_BUILD)
 if(IS_IN_SOURCE_BUILD)
