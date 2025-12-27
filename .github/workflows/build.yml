@@ -83,15 +83,11 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - os: ubuntu-22.04
+          - os: ubuntu-24.04
             artifact-name: Linux
             cmake-preset: linux
             qt-version: 6.10.1
 
-            # NOTE(@getchoo): Yes, we're intentionally using 24.04 here!!!
-            #
-            # It's not really documented anywhere AFAICT, but upstream Qt binaries
-            # *for the same version* are compiled against 24.04 on ARM, and *not* 22.04 like x64
           - os: ubuntu-24.04-arm
             artifact-name: Linux-aarch64
             cmake-preset: linux

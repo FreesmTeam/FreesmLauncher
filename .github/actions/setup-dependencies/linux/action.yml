@@ -12,29 +12,7 @@ runs:
           dpkg-dev \
           ninja-build extra-cmake-modules pkg-config scdoc \
           cmark gamemode-dev libarchive-dev libcmark-dev libqrencode-dev zlib1g-dev \
-          libxcb-cursor-dev
-
-      # TODO(@getchoo): Install with the above when all targets use Ubuntu 24.04
-    - name: Install tomlplusplus
-      if: ${{ runner.arch == 'ARM64' }}
-      shell: bash
-      run: |
-        sudo apt-get -y install libtomlplusplus-dev
-
-      # FIXME(@getchoo): THIS IS HORRIBLE TO DO!
-      # Install tomlplusplus from Ubuntu 24.04, since it never got backported to 22.04
-      # I've done too much to continue keeping this as a submodule....
-    - name: Install tomlplusplus from 24.04
-      if: ${{ runner.arch != 'ARM64' }}
-      shell: bash
-      run: |
-        deb_arch="$(dpkg-architecture -q DEB_HOST_ARCH)"
-        curl -Lo libtomlplusplus-dev.deb http://mirrors.kernel.org/ubuntu/pool/universe/t/tomlplusplus/libtomlplusplus-dev_3.4.0+ds-0.2build1_"$deb_arch".deb
-        curl -Lo libtomlplusplus3t64.deb http://mirrors.kernel.org/ubuntu/pool/universe/t/tomlplusplus/libtomlplusplus3t64_3.4.0+ds-0.2build1_"$deb_arch".deb
-        sudo dpkg -i libtomlplusplus3t64.deb
-        sudo dpkg -i libtomlplusplus-dev.deb
-        rm *.deb
-        sudo apt-get install -f
+          libxcb-cursor-dev libtomlplusplus-dev
 
     - name: Setup AppImage tooling
       shell: bash
