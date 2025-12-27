@@ -99,9 +99,14 @@ runs:
         cmake --install ${{ env.BUILD_DIR }} --config ${{ inputs.build-type }} --prefix ${{ env.INSTALL_PORTABLE_DIR }}
         cmake --install ${{ env.BUILD_DIR }} --config ${{ inputs.build-type }} --prefix ${{ env.INSTALL_PORTABLE_DIR }} --component portable
 
-        #the linked cmark .so is of the version that ubuntu uses, so without this it breaks on most updated distros
-        mkdir ${{ env.INSTALL_PORTABLE_DIR }}/lib
-        cp /lib/$APPIMAGE_ARCH-linux-gnu/libcmark.so.0.* ${{ env.INSTALL_PORTABLE_DIR }}/lib
+        sharun lib4bin \
+          --with-hooks \
+          --hard-links \
+          --dst-dir "$INSTALL_PORTABLE_DIR" \
+          "$INSTALL_PORTABLE_DIR"/bin/* "$QT_PLUGIN_PATH"/*/*.so
+
+        # FIXME(@getchoo): gamemode doesn't seem to be very portable with DBus. Find a way to make it work!
+        find "$INSTALL_PORTABLE_DIR" -name '*gamemode*' -exec rm {} +
 
         for l in $(find ${{ env.INSTALL_PORTABLE_DIR }} -type f); do l=${l#$(pwd)/}; l=${l#${{ env.INSTALL_PORTABLE_DIR }}/}; l=${l#./}; echo $l; done > ${{ env.INSTALL_PORTABLE_DIR }}/manifest.txt
         cd ${{ env.INSTALL_PORTABLE_DIR }}
