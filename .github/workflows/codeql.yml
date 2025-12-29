@@ -79,6 +79,7 @@ jobs:
         uses: ./.github/actions/setup-dependencies
         with:
           build-type: Debug
+          qt-version: 6.10.1
 
       - name: Configure and Build
         run: |
