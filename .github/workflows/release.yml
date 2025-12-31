@@ -89,6 +89,7 @@ jobs:
           name: Prism Launcher ${{ env.VERSION }}
           draft: true
           prerelease: false
+          fail_on_unmatched_files: true
           files: |
             PrismLauncher-Linux-x86_64.AppImage
             PrismLauncher-Linux-x86_64.AppImage.zsync
