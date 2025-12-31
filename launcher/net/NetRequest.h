@@ -72,6 +72,8 @@ class NetRequest : public Task {
     void setNetwork(shared_qobject_ptr<QNetworkAccessManager> network) { m_network = network; }
     void addHeaderProxy(Net::HeaderProxy* proxy) { m_headerProxies.push_back(std::shared_ptr<Net::HeaderProxy>(proxy)); }
 
+    QList<QNetworkReply::RawHeaderPair> getRawHeaders() const;
+
     QUrl url() const;
     void setUrl(QUrl url) { m_url = url; }
     int replyStatusCode() const;

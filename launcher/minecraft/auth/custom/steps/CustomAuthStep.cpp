@@ -21,6 +21,7 @@
 #include "Application.h"
 #include "Logging.h"
 #include "net/NetUtils.h"
+#include "net/RawHeaderProxy.h"
 
 #include <utility>
 
@@ -35,6 +36,11 @@ void CustomAuthStep::perform()
 
     m_response.reset(new QByteArray());
     m_request = Net::Upload::makeByteArray(url, m_response, requestData.toUtf8());
+
+    const auto headerProxy =
+        new Net::RawHeaderProxy(QList<Net::HeaderPair>{ { "Content-Type", "application/json" }, { "Accept", "application/json" } });
+    m_request->addHeaderProxy(headerProxy);
+    // RawHeaderProxy::addHeaderProxy takes ownership of the proxy, so no cleanup is required
 
     m_task.reset(new NetJob(authType() + "AuthStep", APPLICATION->network()));
     m_task->setAskRetry(false);
@@ -59,7 +65,11 @@ QString CustomAuthStep::requestTemplate()
     "username": "%1",
     "password": "%2",
     "clientToken": "%3",
-    "requestUser": false
+    "requestUser": false,
+    "agent": {
+	"name":"Minecraft",
+	"version":1
+    }
 }
 )XXX";
     } else {

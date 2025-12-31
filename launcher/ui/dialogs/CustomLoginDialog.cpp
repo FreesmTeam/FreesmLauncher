@@ -19,6 +19,9 @@
 #include <QPushButton>
 #include <QUrl>
 
+#include "Application.h"
+#include "net/Download.h"
+
 CustomLoginDialog::CustomLoginDialog(QWidget* parent) : QDialog(parent), ui(new Ui::CustomLoginDialog)
 {
     ui->setupUi(this);
@@ -45,7 +48,7 @@ CustomLoginDialog::~CustomLoginDialog()
 // Stage 1: User interaction
 void CustomLoginDialog::accept()
 {
-    QUrl url = ui->authUrlTextBox->text();
+    const QUrl url = ui->authUrlTextBox->text();
     if (!url.isValid()) {
         emit onTaskFailed(tr("Provided URL isn't valid"));
         return;
@@ -57,6 +60,42 @@ void CustomLoginDialog::accept()
 
     setUserInputsEnabled(false);
     ui->progressBar->setVisible(true);
+
+    m_response = std::make_shared<QByteArray>();
+
+    m_requestTask = Net::Download::makeByteArray(url, m_response);
+    m_requestTask->setNetwork(APPLICATION->network());
+
+    connect(m_requestTask.get(), &Task::finished, this, &CustomLoginDialog::onUrlResolving);
+
+    m_requestTask->start();
+}
+
+void CustomLoginDialog::onUrlResolving()
+{
+    disconnect(m_requestTask.get(), &Task::finished, this, &CustomLoginDialog::onUrlResolving);
+
+    if (m_requestTask->error() != QNetworkReply::NoError) {
+        emit onTaskFailed(m_requestTask->errorString());
+        return;
+    }
+
+    // modify url if header say so
+    QUrl url;
+    auto headers = m_requestTask->getRawHeaders();
+    if (const auto it =
+            std::find_if(headers.begin(), headers.end(),
+                         [](const auto& pair) { return QString::fromUtf8(pair.first).toLower() == "x-authlib-injector-api-location"; });
+        it != headers.end()) {
+        const QUrl location = QString::fromUtf8(it->second);
+        if (location.isRelative()) {
+            url = m_requestTask->url().resolved(location);
+        } else {
+            url = location;
+        }
+    } else {
+        url = m_requestTask->url();
+    }
 
     // Setup the login task and start it
     m_account = CustomAccount::createCustom(ui->userTextBox->text(), url.toString(QUrl::StripTrailingSlash), ui->loginUrlTextBox->text(),
