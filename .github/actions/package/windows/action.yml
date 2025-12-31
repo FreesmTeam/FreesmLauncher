@@ -140,7 +140,7 @@ runs:
         makensis -NOCD "${{ github.workspace }}/${{ env.BUILD_DIR }}/program_info/win_install.nsi"
 
     - name: Sign installer
-      if: ${{ github.ref_name == 'develop' && inputs.azure-client-id != '' }}
+      if: ${{ env.CI_HAS_ACCESS_TO_AZURE != '' && inputs.azure-client-id != '' }}
       uses: azure/trusted-signing-action@v0
       with:
         endpoint: https://eus.codesigning.azure.net/

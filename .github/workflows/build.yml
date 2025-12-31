@@ -62,6 +62,9 @@ on:
         description: Type of build (Debug or Release)
         type: string
         default: Debug
+      environment:
+        description: Deployment environment to run under
+        type: string
   workflow_dispatch:
     inputs:
       build-type:
@@ -72,6 +75,8 @@ on:
 jobs:
   build:
     name: Build (${{ matrix.artifact-name }})
+
+    environment: ${{ inputs.environment || '' }}
 
     permissions:
       # Required for Azure Trusted Signing
