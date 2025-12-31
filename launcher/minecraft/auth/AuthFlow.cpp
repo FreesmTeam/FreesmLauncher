@@ -23,6 +23,7 @@
 
 // Custom
 #include "custom/steps/CustomAuthStep.h"
+#include "custom/steps/CustomGetSkinStep.h"
 
 #include "tasks/Task.h"
 
@@ -70,6 +71,7 @@ AuthFlow::AuthFlow(AccountData* data, Action action, QString password) : Task(),
         } break;
         case AccountType::Custom: {
             m_steps.append(makeShared<CustomAuthStep>(m_data, action, std::move(password)));
+            m_steps.append(makeShared<CustomGetSkinStep>(m_data));
         } break;
         default:
             break;

@@ -343,6 +343,14 @@ QNetworkReply::NetworkError NetRequest::error() const
     return m_reply ? m_reply->error() : QNetworkReply::NoError;
 }
 
+QList<QNetworkReply::RawHeaderPair> NetRequest::getRawHeaders() const
+{
+    if (!m_reply.isNull()) {
+        return m_reply->rawHeaderPairs();
+    }
+    return {};
+}
+
 QUrl NetRequest::url() const
 {
     return m_url;
