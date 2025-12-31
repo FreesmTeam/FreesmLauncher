@@ -86,9 +86,6 @@ jobs:
           - os: ubuntu-22.04-arm
             system: aarch64-linux
 
-          - os: macos-15-intel
-            system: x86_64-darwin
-
           - os: macos-14
             system: aarch64-darwin
 
