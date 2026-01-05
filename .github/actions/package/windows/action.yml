@@ -54,13 +54,13 @@ runs:
         Get-ChildItem ${{ env.INSTALL_DIR }} -Recurse | ForEach FullName | Resolve-Path -Relative | %{ $_.TrimStart('.\') } | %{ $_.TrimStart('${{ env.INSTALL_DIR }}') } | %{ $_.TrimStart('\') } | Out-File -FilePath ${{ env.INSTALL_DIR }}/manifest.txt
 
     - name: Emit warning for unsigned builds
-      if: ${{ github.ref_name != 'develop' || inputs.azure-client-id == '' }}
+      if: ${{ env.CI_HAS_ACCESS_TO_AZURE == '' || inputs.azure-client-id == '' }}
       shell: pwsh
       run: |
         ":warning: Skipped code signing for Windows, as certificate was not present." >> $env:GITHUB_STEP_SUMMARY
 
     - name: Login to Azure
-      if: ${{ github.ref_name == 'develop' && inputs.azure-client-id != '' }}
+      if: ${{ env.CI_HAS_ACCESS_TO_AZURE != '' && inputs.azure-client-id != '' }}
       uses: azure/login@v2
       with:
         client-id: ${{ inputs.azure-client-id }}
@@ -68,7 +68,7 @@ runs:
         subscription-id: ${{ inputs.azure-subscription-id }}
 
     - name: Sign executables
-      if: ${{ github.ref_name == 'develop' && inputs.azure-client-id != '' }}
+      if: ${{ env.CI_HAS_ACCESS_TO_AZURE != '' && inputs.azure-client-id != '' }}
       uses: azure/trusted-signing-action@v0
       with:
         endpoint: https://eus.codesigning.azure.net/

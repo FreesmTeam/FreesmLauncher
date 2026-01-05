@@ -220,6 +220,8 @@ jobs:
       - name: Package (Windows)
         if: ${{ runner.os == 'Windows' }}
         uses: ./.github/actions/package/windows
+        env:
+          CI_HAS_ACCESS_TO_AZURE: ${{ vars.CI_HAS_ACCESS_TO_AZURE || '' }}
         with:
           version: ${{ steps.short-version.outputs.version }}
           build-type: ${{ steps.setup-dependencies.outputs.build-type }}
