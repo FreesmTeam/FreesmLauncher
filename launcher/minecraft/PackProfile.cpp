@@ -38,7 +38,6 @@
  */
 
 #include <Version.h>
-#include <qlogging.h>
 #include <QCryptographicHash>
 #include <QDebug>
 #include <QDir>

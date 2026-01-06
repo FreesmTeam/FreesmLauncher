@@ -36,7 +36,6 @@
 #include "WorldList.h"
 
 #include <FileSystem.h>
-#include <qmimedata.h>
 #include <QDebug>
 #include <QDirIterator>
 #include <QFileSystemWatcher>

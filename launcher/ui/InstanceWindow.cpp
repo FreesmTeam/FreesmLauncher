@@ -37,7 +37,6 @@
 #include "InstanceWindow.h"
 #include "Application.h"
 
-#include <qlayoutitem.h>
 #include <QCloseEvent>
 #include <QHBoxLayout>
 #include <QMessageBox>

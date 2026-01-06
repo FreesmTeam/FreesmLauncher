@@ -36,8 +36,6 @@
  */
 
 #include "DataPackFolderModel.h"
-#include <qnamespace.h>
-#include <qsize.h>
 
 #include <QIcon>
 #include <QStyle>
