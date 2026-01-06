@@ -57,7 +57,7 @@ runs:
       if: ${{ inputs.msystem == '' }}
       shell: bash
       run: |
-        echo "CMAKE_TOOLCHAIN_FILE=$VCPKG_INSTALLATION_ROOT/scripts/buildsystems/vcpkg.cmake" >> "$GITHUB_ENV"
+        echo "VCPKG_ROOT=$VCPKG_INSTALLATION_ROOT" >> "$GITHUB_ENV"
 
     - name: Setup MSYS2 (MinGW)
       if: ${{ inputs.msystem != '' }}
