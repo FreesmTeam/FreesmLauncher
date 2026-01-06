@@ -42,7 +42,6 @@
 #include "ui_AboutDialog.h"
 
 #include <net/NetJob.h>
-#include <qobject.h>
 
 namespace {
 QString getCreditsHtml()

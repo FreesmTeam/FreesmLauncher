@@ -36,7 +36,6 @@
  */
 
 #include "Mod.h"
-#include <qpixmap.h>
 
 #include <QDir>
 #include <QRegularExpression>
