@@ -1076,42 +1076,13 @@ std::optional<QDir> PrismUpdaterApp::unpackArchive(QFileInfo archive)
     FS::ensureFolderPathExists(temp_extract_path);
     auto tmp_extract_dir = QDir(temp_extract_path);
 
-    if (archive.fileName().endsWith(".zip")) {
-        auto result = MMCZip::extractDir(archive.absoluteFilePath(), tmp_extract_dir.absolutePath());
-        if (result) {
-            logUpdate(tr("Extracted the following to \"%1\":\n  %2").arg(tmp_extract_dir.absolutePath()).arg(result->join("\n  ")));
-        } else {
-            logUpdate(tr("Failed to extract %1 to %2").arg(archive.absoluteFilePath()).arg(tmp_extract_dir.absolutePath()));
-            showFatalErrorMessage("Failed to extract archive",
-                                  tr("Failed to extract %1 to %2").arg(archive.absoluteFilePath()).arg(tmp_extract_dir.absolutePath()));
-            return std::nullopt;
-        }
-
-    } else if (archive.fileName().endsWith(".tar.gz")) {
-        QString cmd = "tar";
-        QStringList args = { "-xvf", archive.absoluteFilePath(), "-C", tmp_extract_dir.absolutePath() };
-        logUpdate(tr("Running: `%1 %2`").arg(cmd).arg(args.join(" ")));
-        QProcess proc = QProcess();
-        proc.start(cmd, args);
-        if (!proc.waitForStarted(5000)) {  // wait 5 seconds to start
-            auto msg = tr("Failed to launch child process \"%1 %2\".").arg(cmd).arg(args.join(" "));
-            logUpdate(msg);
-            showFatalErrorMessage(tr("Failed extract archive"), msg);
-            return std::nullopt;
-        }
-        auto result = proc.waitForFinished(5000);
-        auto out = proc.readAll();
-        logUpdate(out);
-        if (!result) {
-            auto msg = tr("Child process \"%1 %2\" failed.").arg(cmd).arg(args.join(" "));
-            logUpdate(msg);
-            showFatalErrorMessage(tr("Failed to extract archive"), msg);
-            return std::nullopt;
-        }
-
+    auto result = MMCZip::extractDir(archive.absoluteFilePath(), tmp_extract_dir.absolutePath());
+    if (result) {
+        logUpdate(tr("Extracted the following to \"%1\":\n  %2").arg(tmp_extract_dir.absolutePath()).arg(result->join("\n  ")));
     } else {
-        logUpdate(tr("Unknown archive format for %1").arg(archive.absoluteFilePath()));
-        showFatalErrorMessage("Can not extract", QStringLiteral("Unknown archive format %1").arg(archive.absoluteFilePath()));
+        logUpdate(tr("Failed to extract %1 to %2").arg(archive.absoluteFilePath()).arg(tmp_extract_dir.absolutePath()));
+        showFatalErrorMessage("Failed to extract archive",
+                              tr("Failed to extract %1 to %2").arg(archive.absoluteFilePath()).arg(tmp_extract_dir.absolutePath()));
         return std::nullopt;
     }
 
