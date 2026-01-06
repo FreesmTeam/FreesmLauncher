@@ -23,6 +23,7 @@
 #include "modplatform/flame/FlameAPI.h"
 #include "modplatform/flame/FlameModIndex.h"
 #include "settings/Setting.h"
+#include "tasks/SequentialTask.h"
 #include "tasks/Task.h"
 #include "ui/dialogs/CustomMessageBox.h"
 
@@ -334,7 +335,17 @@ bool ResourceFolderModel::update()
         },
         Qt::ConnectionType::QueuedConnection);
 
-    QThreadPool::globalInstance()->start(m_current_update_task.get());
+    auto task = new SequentialTask("ResourceFolderModel::update");
+
+    Task::Ptr preUpdate(createPreUpdateTask());
+    if (preUpdate != nullptr)
+        task->addTask(preUpdate);
+
+    task->addTask(m_current_update_task);
+
+    connect(task, &Task::finished, [task] { task->deleteLater(); });
+
+    QThreadPool::globalInstance()->start(task);
 
     return true;
 }
