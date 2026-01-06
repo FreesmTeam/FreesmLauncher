@@ -35,7 +35,7 @@ class ShaderPackIndexMigrateTask : public Task {
             return;
         }
 
-        if (!m_indexDir.removeRecursively()) {
+        if (FS::deletePath(m_indexDir.absolutePath())) {
             emitFailed(tr("Failed to remove old .index dir"));
             return;
         }
