@@ -84,7 +84,7 @@ class ResourceFolderModel : public QAbstractListModel {
     virtual bool startWatching() { return startWatching({ indexDir().absolutePath(), m_dir.absolutePath() }); }
     virtual bool stopWatching() { return stopWatching({ indexDir().absolutePath(), m_dir.absolutePath() }); }
 
-    QDir indexDir() { return { QString("%1/.index").arg(dir().absolutePath()) }; }
+    virtual QDir indexDir() const { return { QString("%1/.index").arg(dir().absolutePath()) }; }
 
     /** Given a path in the system, install that resource, moving it to its place in the
      *  instance file hierarchy.
@@ -188,6 +188,7 @@ class ResourceFolderModel : public QAbstractListModel {
     void parseFinished();
 
    protected:
+    [[nodiscard]] virtual Task* createPreUpdateTask() { return nullptr; }
     /** This creates a new update task to be executed by update().
      *
      *  The task should load and parse all resources necessary, and provide a way of accessing such results.

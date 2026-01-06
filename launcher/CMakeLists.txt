@@ -346,6 +346,7 @@ set(MINECRAFT_SOURCES
     minecraft/mod/TexturePackFolderModel.h
     minecraft/mod/TexturePackFolderModel.cpp
     minecraft/mod/ShaderPackFolderModel.h
+    minecraft/mod/ShaderPackFolderModel.cpp
     minecraft/mod/tasks/ResourceFolderLoadTask.h
     minecraft/mod/tasks/ResourceFolderLoadTask.cpp
     minecraft/mod/tasks/LocalModParseTask.h
