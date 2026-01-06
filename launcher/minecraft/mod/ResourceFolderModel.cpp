@@ -335,17 +335,20 @@ bool ResourceFolderModel::update()
         },
         Qt::ConnectionType::QueuedConnection);
 
-    auto task = new SequentialTask("ResourceFolderModel::update");
+    Task::Ptr preUpdate{createPreUpdateTask()};
 
-    Task::Ptr preUpdate(createPreUpdateTask());
-    if (preUpdate != nullptr)
+    if (preUpdate != nullptr) {
+        auto task = new SequentialTask("ResourceFolderModel::update");
+
         task->addTask(preUpdate);
+        task->addTask(m_current_update_task);
 
-    task->addTask(m_current_update_task);
+        connect(task, &Task::finished, [task] { task->deleteLater(); });
 
-    connect(task, &Task::finished, [task] { task->deleteLater(); });
-
-    QThreadPool::globalInstance()->start(task);
+        QThreadPool::globalInstance()->start(task);
+    } else {
+        QThreadPool::globalInstance()->start(m_current_update_task.get());
+    }
 
     return true;
 }

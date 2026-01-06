@@ -1,3 +1,4 @@
+#include "FileSystem.h"
 #include "ShaderPackFolderModel.h"
 
 namespace {
@@ -21,21 +22,20 @@ class ShaderPackIndexMigrateTask : public Task {
             QString src = m_indexDir.filePath(file);
             QString dest = m_resourceDir.filePath(file);
 
-            if (QFile::rename(src, dest)) {
+            if (FS::move(src, dest)) {
                 qDebug() << "Moved" << src << "to" << dest;
             } else {
                 movedAll = false;
-                qDebug() << "Error moving" << src << "to" << dest;
             }
         }
 
         if (!movedAll) {
             // FIXME: not shown in the UI
-            emitFailed(tr("Failed to migrate everything from .index"));
+            emitFailed(tr("Failed to migrate shaderpack metadata from .index"));
             return;
         }
 
-        if (FS::deletePath(m_indexDir.absolutePath())) {
+        if (!FS::deletePath(m_indexDir.absolutePath())) {
             emitFailed(tr("Failed to remove old .index dir"));
             return;
         }

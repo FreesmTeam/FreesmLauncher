@@ -112,7 +112,7 @@ ExportPackDialog::ExportPackDialog(MinecraftInstancePtr instance, QWidget* paren
                 continue;
             }
 
-            if (resourceModel->indexDir() == resourceModel->indexDir()) {
+            if (resourceModel->dir() == resourceModel->indexDir()) {
                 continue;
             }
 
