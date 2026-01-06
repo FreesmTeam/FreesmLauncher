@@ -52,7 +52,7 @@ runs:
     - name: Package AppImage
       shell: bash
       env:
-        VERSION: ${{ inputs.version }}
+        VERSION: ${{ github.ref_type == 'tag' && github.ref_name || inputs.version }}
         BUILD_DIR: build
         INSTALL_APPIMAGE_DIR: install-appdir
 
@@ -84,10 +84,16 @@ runs:
         mv "$INSTALL_APPIMAGE_DIR"/{sharun,AppRun}
         ls -la "$INSTALL_APPIMAGE_DIR"
 
+        if [[ "${{ github.ref_type }}" == "tag" ]]; then
+          APPIMAGE_DEST="PrismLauncher-Linux-$APPIMAGE_ARCH.AppImage"
+        else
+          APPIMAGE_DEST="PrismLauncher-Linux-$VERSION-${{ inputs.build-type }}-$APPIMAGE_ARCH.AppImage"
+        fi
+
         mkappimage \
           --updateinformation "gh-releases-zsync|${{ github.repository_owner }}|${{ github.event.repository.name }}|latest|PrismLauncher-Linux-$APPIMAGE_ARCH.AppImage.zsync" \
           "$INSTALL_APPIMAGE_DIR" \
-          "PrismLauncher-Linux-$VERSION-${{ inputs.build-type }}-$APPIMAGE_ARCH.AppImage"
+          "$APPIMAGE_DEST"
 
     - name: Package portable tarball
       shell: bash
@@ -122,10 +128,10 @@ runs:
       uses: actions/upload-artifact@v6
       with:
         name: PrismLauncher-${{ runner.os }}-${{ inputs.version }}-${{ inputs.build-type }}-${{ env.APPIMAGE_ARCH }}.AppImage
-        path: PrismLauncher-${{ runner.os }}-${{ inputs.version }}-${{ inputs.build-type }}-${{ env.APPIMAGE_ARCH }}.AppImage
+        path: PrismLauncher-${{ runner.os }}-*${{ env.APPIMAGE_ARCH }}.AppImage
 
     - name: Upload AppImage Zsync
       uses: actions/upload-artifact@v6
       with:
         name: PrismLauncher-${{ runner.os }}-${{ inputs.version }}-${{ inputs.build-type }}-${{ env.APPIMAGE_ARCH }}.AppImage.zsync
-        path: PrismLauncher-${{ runner.os }}-${{ inputs.version }}-${{ inputs.build-type }}-${{ env.APPIMAGE_ARCH }}.AppImage.zsync
+        path: PrismLauncher-${{ runner.os }}-*${{ env.APPIMAGE_ARCH }}.AppImage.zsync
