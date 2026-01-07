@@ -37,7 +37,6 @@
 
 #include "InstanceView.h"
 #include "ui/themes/ThemeManager.h"
-#include "ui/widgets/ThemeCustomizationWidget.h"
 
 #include <QAccessible>
 #include <QApplication>
@@ -58,6 +57,8 @@
 #include <QtMath>
 
 #include "VisualGroup.h"
+#include "ui/themes/CatPainter.h"
+#include "ui/themes/ThemeManager.h"
 
 #include <Application.h>
 #include <InstanceList.h>
@@ -88,6 +89,9 @@ InstanceView::~InstanceView()
 {
     qDeleteAll(m_groups);
     m_groups.clear();
+    if (m_cat) {
+        m_cat->deleteLater();
+    }
 }
 
 void InstanceView::setModel(QAbstractItemModel* model)
@@ -99,7 +103,7 @@ void InstanceView::setModel(QAbstractItemModel* model)
 
 void InstanceView::dataChanged([[maybe_unused]] const QModelIndex& topLeft,
                                [[maybe_unused]] const QModelIndex& bottomRight,
-                               [[maybe_unused]] const QVector<int>& roles)
+                               [[maybe_unused]] const QList<int>& roles)
 {
     scheduleDelayedItemsLayout();
 }
@@ -182,7 +186,7 @@ void InstanceView::updateScrollbar()
 
 void InstanceView::updateGeometries()
 {
-    geometryCache.clear();
+    m_geometryCache.clear();
 
     QMap<LocaleString, VisualGroup*> cats;
 
@@ -196,8 +200,8 @@ void InstanceView::updateGeometries()
                 cat->update();
             } else {
                 auto cat = new VisualGroup(groupName, this);
-                if (fVisibility) {
-                    cat->collapsed = fVisibility(groupName);
+                if (m_fVisibility) {
+                    cat->collapsed = m_fVisibility(groupName);
                 }
                 cats.insert(groupName, cat);
                 cat->update();
@@ -410,12 +414,8 @@ void InstanceView::mouseReleaseEvent(QMouseEvent* event)
         if (event->button() == Qt::LeftButton) {
             emit clicked(index);
         }
-#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
         QStyleOptionViewItem option;
         initViewItemOption(&option);
-#else
-        QStyleOptionViewItem option = viewOptions();
-#endif
         if (m_pressedAlreadySelected) {
             option.state |= QStyle::State_Selected;
         }
@@ -432,7 +432,7 @@ void InstanceView::mouseDoubleClickEvent(QMouseEvent* event)
 
     QModelIndex index = indexAt(event->pos());
     if (!index.isValid() || !(index.flags() & Qt::ItemIsEnabled) || (m_pressedIndex != index)) {
-        QMouseEvent me(QEvent::MouseButtonPress, event->localPos(), event->windowPos(), event->screenPos(), event->button(),
+        QMouseEvent me(QEvent::MouseButtonPress, event->position(), event->scenePosition(), event->globalPosition(), event->button(),
                        event->buttons(), event->modifiers());
         mousePressEvent(&me);
         return;
@@ -441,12 +441,8 @@ void InstanceView::mouseDoubleClickEvent(QMouseEvent* event)
     QPersistentModelIndex persistent = index;
     emit doubleClicked(persistent);
 
-#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
     QStyleOptionViewItem option;
     initViewItemOption(&option);
-#else
-    QStyleOptionViewItem option = viewOptions();
-#endif
     if ((model()->flags(index) & Qt::ItemIsEnabled) && !style()->styleHint(QStyle::SH_ItemView_ActivateItemOnSingleClick, &option, this)) {
         emit activated(index);
     }
@@ -548,88 +544,79 @@ void InstanceView::onCurrentSnowChanged(bool visible)
  */
 void InstanceView::setPaintCat(bool visible)
 {
-    m_catVisible = visible;
-
+    if (m_cat) {
+        disconnect(m_cat, &CatPainter::updateFrame, this, nullptr);
+        delete m_cat;
+        m_cat = nullptr;
+    }
     if (visible) {
-        // Get the cat name from the theme manager
-        const QString& catName = APPLICATION->themeManager()->getCatPack();
-
-        // Disconnect the movie's frame changed signal if it exists
-        if (m_catMovie) {
-            disconnect(m_catMovie, &QMovie::frameChanged, this, nullptr);
-            delete m_catMovie;
-            m_catMovie = nullptr;
-        } else {
-            // Clear the cat pixmap
-            m_catPixmap = QPixmap();
-        }
-
-        if (catName.endsWith("gif")) {
-            m_catMovie = new QMovie(catName);
-            m_catMovie->setCacheMode(QMovie::CacheNone);
-            m_catMovie->setProperty("loopCount", -1);
-
-            if (!m_catMovie->isValid()) {
-                delete m_catMovie;
-                m_catMovie = nullptr;
-            } else {
-                connect(m_catMovie, &QMovie::frameChanged, this, [this](int) { this->viewport()->update(); });
-                m_catMovie->start();
-            }
-
-            m_catIsScreenshot = false;
-        } else {
-            m_catPixmap = QPixmap();
-            m_catPixmap.load(catName);
-        }
-
-        m_catIsScreenshot = catName.contains("screenshot", Qt::CaseInsensitive) || catName.contains("fullscreen", Qt::CaseInsensitive);
-
-        viewport()->update();  // repaint
-    } else {
-        delete m_catMovie;
-        m_catMovie = nullptr;
-        m_catPixmap = QPixmap();
+        m_cat = new CatPainter(APPLICATION->themeManager()->getCatPack(), this);
+        connect(m_cat, &CatPainter::updateFrame, this, [this] { viewport()->update(); });
     }
 }
 
-/**
- * Handles the paint event for the InstanceView.
- * Paints the cat image if visible, and draws the visual representation of the model.
- *
- * @param event The paint event.
- */
 void InstanceView::paintEvent([[maybe_unused]] QPaintEvent* event)
 {
     executeDelayedItemsLayout();
 
     QPainter painter(this->viewport());
 
-    if (m_catVisible) {
-        drawCat(painter);
+    if (m_cat) {
+        m_cat->paint(&painter, this->viewport()->rect());
     }
 
     if (m_snowVisible) {
         drawSnow(painter);
     }
 
-#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
     QStyleOptionViewItem option;
     initViewItemOption(&option);
-#else
-    QStyleOptionViewItem option = viewOptions();
-#endif
     option.widget = this;
 
-    // Return early if the model is empty
     if (model()->rowCount() == 0) {
+        painter.save();
+        QString emptyString = tr("Welcome!") + "\n" + tr("Click \"Add Instance\" to get started.");
+
+        // calculate the rect for the overlay
+        painter.setRenderHint(QPainter::Antialiasing, true);
+        QFont font("sans", 20);
+        font.setBold(true);
+
+        QRect bounds = viewport()->geometry();
+        bounds.moveTop(0);
+        auto innerBounds = bounds;
+        innerBounds.adjust(10, 10, -10, -10);
+
+        QColor background = QApplication::palette().color(QPalette::WindowText);
+        QColor foreground = QApplication::palette().color(QPalette::Base);
+        foreground.setAlpha(190);
+        painter.setFont(font);
+        auto fontMetrics = painter.fontMetrics();
+        auto textRect = fontMetrics.boundingRect(innerBounds, Qt::AlignHCenter | Qt::TextWordWrap, emptyString);
+        textRect.moveCenter(bounds.center());
+
+        auto wrapRect = textRect;
+        wrapRect.adjust(-10, -10, 10, 10);
+
+        // check if we are allowed to draw in our area
+        if (!event->rect().intersects(wrapRect)) {
+            return;
+        }
+
+        painter.setBrush(QBrush(background));
+        painter.setPen(foreground);
+        painter.drawRoundedRect(wrapRect, 5.0, 5.0);
+
+        painter.setPen(foreground);
+        painter.setFont(font);
+        painter.drawText(textRect, Qt::AlignHCenter | Qt::TextWordWrap, emptyString);
+
+        painter.restore();
         return;
     }
 
     int wpWidth = viewport()->width();
     option.rect.setWidth(wpWidth);
-
-    // Draw headers for all visual groups
     for (int i = 0; i < m_groups.size(); ++i) {
         VisualGroup* category = m_groups.at(i);
         int y = category->verticalPosition();
@@ -645,7 +632,6 @@ void InstanceView::paintEvent([[maybe_unused]] QPaintEvent* event)
         option.rect = backup;
     }
 
-    // Iterate over each row in the model and paint it
     for (int i = 0; i < model()->rowCount(); ++i) {
         const QModelIndex index = model()->index(i, 0);
         if (isIndexHidden(index)) {
@@ -670,18 +656,22 @@ void InstanceView::paintEvent([[maybe_unused]] QPaintEvent* event)
      * Drop indicators for manual reordering...
      */
 #if 0
-    // Uncomment to enable drawing drop indicators
-    if (!m_lastDragPosition.isNull()) {
+    if (!m_lastDragPosition.isNull())
+    {
         std::pair<VisualGroup *, VisualGroup::HitResults> pair = rowDropPos(m_lastDragPosition);
         VisualGroup *category = pair.first;
         VisualGroup::HitResults row = pair.second;
-        if (category) {
+        if (category)
+        {
             int internalRow = row - category->firstItemIndex;
             QLine line;
-            if (internalRow >= category->numItems()) {
+            if (internalRow >= category->numItems())
+            {
                 QRect toTheRightOfRect = visualRect(category->lastItem());
                 line = QLine(toTheRightOfRect.topRight(), toTheRightOfRect.bottomRight());
-            } else {
+            }
+            else
+            {
                 QRect toTheLeftOfRect = visualRect(model()->index(row, 0));
                 line = QLine(toTheLeftOfRect.topLeft(), toTheLeftOfRect.bottomLeft());
             }
@@ -713,7 +703,7 @@ void InstanceView::dragEnterEvent(QDragEnterEvent* event)
     if (!isDragEventAccepted(event)) {
         return;
     }
-    m_lastDragPosition = event->pos() + offset();
+    m_lastDragPosition = event->position().toPoint() + offset();
     viewport()->update();
     event->accept();
 }
@@ -725,7 +715,7 @@ void InstanceView::dragMoveEvent(QDragMoveEvent* event)
     if (!isDragEventAccepted(event)) {
         return;
     }
-    m_lastDragPosition = event->pos() + offset();
+    m_lastDragPosition = event->position().toPoint() + offset();
     viewport()->update();
     event->accept();
 }
@@ -751,7 +741,7 @@ void InstanceView::dropEvent(QDropEvent* event)
 
     if (event->source() == this) {
         if (event->possibleActions() & Qt::MoveAction) {
-            std::pair<VisualGroup*, VisualGroup::HitResults> dropPos = rowDropPos(event->pos());
+            std::pair<VisualGroup*, VisualGroup::HitResults> dropPos = rowDropPos(event->position().toPoint());
             const VisualGroup* group = dropPos.first;
             auto hitResult = dropPos.second;
 
@@ -826,8 +816,8 @@ QRect InstanceView::geometryRect(const QModelIndex& index) const
     }
 
     int row = index.row();
-    if (geometryCache.contains(row)) {
-        return *geometryCache[row];
+    if (m_geometryCache.contains(row)) {
+        return *m_geometryCache[row];
     }
 
     const VisualGroup* cat = category(index);
@@ -835,18 +825,14 @@ QRect InstanceView::geometryRect(const QModelIndex& index) const
     int x = pos.first;
     // int y = pos.second;
 
-#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
     QStyleOptionViewItem option;
     initViewItemOption(&option);
-#else
-    QStyleOptionViewItem option = viewOptions();
-#endif
 
     QRect out;
     out.setTop(cat->verticalPosition() + cat->headerHeight() + 5 + cat->rowTopOf(index));
     out.setLeft(m_spacing + x * (itemWidth() + m_spacing));
     out.setSize(itemDelegate()->sizeHint(option, index));
-    geometryCache.insert(row, new QRect(out));
+    m_geometryCache.insert(row, new QRect(out));
     return out;
 }
 
@@ -887,12 +873,8 @@ QPixmap InstanceView::renderToPixmap(const QModelIndexList& indices, QRect* r) c
     QPixmap pixmap(r->size());
     pixmap.fill(Qt::transparent);
     QPainter painter(&pixmap);
-#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
     QStyleOptionViewItem option;
     initViewItemOption(&option);
-#else
-    QStyleOptionViewItem option = viewOptions();
-#endif
     option.state |= QStyle::State_Selected;
     for (int j = 0; j < paintPairs.count(); ++j) {
         option.rect = paintPairs.at(j).first.translated(-r->topLeft());
@@ -945,39 +927,6 @@ InstanceView::Snowflake InstanceView::createSnowflake() const
     snowflake.oscillationAmplitude = QRandomGenerator::global()->bounded(1, 5) / 10.0;
 
     return snowflake;
-}
-
-void InstanceView::drawCat(QPainter& painter)
-{
-    // Set the opacity for the cat image
-    painter.setOpacity(APPLICATION->settings()->get("CatOpacity").toFloat() / 100);
-    int widWidth = this->viewport()->width();
-    int widHeight = this->viewport()->height();
-
-    // Adjust width and height if the cat is not a screenshot
-    if (!m_catIsScreenshot) {
-        const QPixmap pixmap = m_catMovie ? m_catMovie->currentPixmap() : m_catPixmap;
-        if (!pixmap.isNull()) {
-            widWidth = std::min(widWidth, pixmap.width());
-            widHeight = std::min(widHeight, pixmap.height());
-        }
-    }
-
-    // Draw the cat image based on its type (animated or static)
-    const QPixmap& rawPixmap = m_catMovie ? m_catMovie->currentPixmap() : m_catPixmap;
-    const QPixmap& pixmap = rawPixmap.scaled(widWidth, widHeight, m_catIsScreenshot ? Qt::KeepAspectRatioByExpanding : Qt::KeepAspectRatio);
-
-    if (!pixmap.isNull()) {
-        const QRect pixmapRect = pixmap.rect();
-        const QRect targetRect = m_catIsScreenshot
-                                     ? QRect(this->viewport()->rect().center() - pixmapRect.center(), pixmapRect.size())
-                                     : QRect(this->viewport()->rect().bottomRight() - pixmapRect.bottomRight(), pixmapRect.size());
-
-        painter.drawPixmap(targetRect, pixmap, pixmapRect);
-    }
-
-    // Reset opacity
-    painter.setOpacity(1.0);
 }
 
 void InstanceView::drawSnow(QPainter& painter)

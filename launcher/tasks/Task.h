@@ -79,7 +79,6 @@ Q_DECLARE_METATYPE(TaskStepProgress)
 
 using TaskStepProgressList = QList<std::shared_ptr<TaskStepProgress>>;
 
-
 /*!
  * Represents a task that has to be done.
  * To create a task, you need to subclass this class, implement the executeTask() method and call
@@ -146,6 +145,7 @@ class Task : public QObject, public QRunnable {
     void failed(QString reason);
     void status(QString status);
     void details(QString details);
+    void warningLogged(const QString& warning);
     void stepProgress(TaskStepProgress const& task_progress);
 
     //! Emitted when the canAbort() status has changed. */
@@ -177,9 +177,9 @@ class Task : public QObject, public QRunnable {
     virtual void executeTask() = 0;
 
    protected slots:
-    //! The Task subclass must call this method when the task has succeeded 
+    //! The Task subclass must call this method when the task has succeeded
     virtual void emitSucceeded();
-    //! **The Task subclass** must call this method when the task has aborted. External code should call abort() instead. 
+    //! **The Task subclass** must call this method when the task has aborted. External code should call abort() instead.
     virtual void emitAborted();
     //! The Task subclass must call this method when the task has failed
     virtual void emitFailed(QString reason = "");

@@ -38,10 +38,11 @@
 
 #include "Application.h"
 #include "FileSystem.h"
-#include "MMCZip.h"
 #include "NullInstance.h"
 
 #include "QObjectPtr.h"
+#include "archive/ArchiveReader.h"
+#include "archive/ExtractZipTask.h"
 #include "icons/IconList.h"
 #include "icons/IconUtils.h"
 
@@ -54,11 +55,9 @@
 
 #include "net/ApiDownload.h"
 
+#include <QFileInfo>
 #include <QtConcurrentRun>
-#include <algorithm>
 #include <memory>
-
-#include <quazip/quazipdir.h>
 
 InstanceImportTask::InstanceImportTask(const QUrl& sourceUrl, QWidget* parent, QMap<QString, QString>&& extra_info)
     : m_sourceUrl(sourceUrl), m_extra_info(extra_info), m_parent(parent)
@@ -72,7 +71,6 @@ bool InstanceImportTask::abort()
     bool wasAborted = false;
     if (m_task)
         wasAborted = m_task->abort();
-    Task::abort();
     return wasAborted;
 }
 
@@ -110,39 +108,14 @@ void InstanceImportTask::downloadFromUrl()
     filesNetJob->start();
 }
 
-QString InstanceImportTask::getRootFromZip(QuaZip* zip, const QString& root)
+QString cleanPath(QString path)
 {
-    if (!isRunning()) {
-        return {};
-    }
-    QuaZipDir rootDir(zip, root);
-    for (auto&& fileName : rootDir.entryList(QDir::Files)) {
-        setDetails(fileName);
-        if (fileName == "instance.cfg") {
-            qDebug() << "MultiMC:" << true;
-            m_modpackType = ModpackType::MultiMC;
-            return root;
-        }
-        if (fileName == "manifest.json") {
-            qDebug() << "Flame:" << true;
-            m_modpackType = ModpackType::Flame;
-            return root;
-        }
-
-        QCoreApplication::processEvents();
-    }
-
-    // Recurse the search to non-ignored subfolders
-    for (auto&& fileName : rootDir.entryList(QDir::Dirs)) {
-        if ("overrides/" == fileName)
-            continue;
-
-        QString result = getRootFromZip(zip, root + fileName);
-        if (!result.isEmpty())
-            return result;
-    }
-
-    return {};
+    if (path == ".")
+        return QString();
+    QString result = path;
+    if (result.startsWith("./"))
+        result = result.mid(2);
+    return result;
 }
 
 void InstanceImportTask::processZipPack()
@@ -152,33 +125,54 @@ void InstanceImportTask::processZipPack()
     qDebug() << "Attempting to create instance from" << m_archivePath;
 
     // open the zip and find relevant files in it
-    auto packZip = std::make_shared<QuaZip>(m_archivePath);
-    if (!packZip->open(QuaZip::mdUnzip)) {
-        emitFailed(tr("Unable to open supplied modpack zip file."));
-        return;
-    }
-
-    QuaZipDir packZipDir(packZip.get());
+    MMCZip::ArchiveReader packZip(m_archivePath);
     qDebug() << "Attempting to determine instance type";
 
     QString root;
-
     // NOTE: Prioritize modpack platforms that aren't searched for recursively.
     // Especially Flame has a very common filename for its manifest, which may appear inside overrides for example
     // https://docs.modrinth.com/docs/modpacks/format_definition/#storage
-    if (packZipDir.exists("/modrinth.index.json")) {
-        // process as Modrinth pack
-        qDebug() << "Modrinth:" << true;
-        m_modpackType = ModpackType::Modrinth;
-    } else if (packZipDir.exists("/bin/modpack.jar") || packZipDir.exists("/bin/version.json")) {
-        // process as Technic pack
-        qDebug() << "Technic:" << true;
-        extractDir.mkpath("minecraft");
-        extractDir.cd("minecraft");
-        m_modpackType = ModpackType::Technic;
-    } else {
-        root = getRootFromZip(packZip.get());
-        setDetails("");
+    auto detectInstance = [this, &extractDir, &root](MMCZip::ArchiveReader::File* f, bool& stop) {
+        if (!isRunning()) {
+            stop = true;
+            return true;
+        }
+        auto fileName = f->filename();
+        if (fileName == "modrinth.index.json") {
+            // process as Modrinth pack
+            qDebug() << "Modrinth:" << true;
+            m_modpackType = ModpackType::Modrinth;
+            stop = true;
+        } else if (fileName == "bin/modpack.jar" || fileName == "bin/version.json") {
+            // process as Technic pack
+            qDebug() << "Technic:" << true;
+            extractDir.mkpath("minecraft");
+            extractDir.cd("minecraft");
+            m_modpackType = ModpackType::Technic;
+            stop = true;
+        } else {
+            QFileInfo fileInfo(fileName);
+            if (fileInfo.fileName() == "instance.cfg") {
+                qDebug() << "MultiMC:" << true;
+                m_modpackType = ModpackType::MultiMC;
+                root = cleanPath(fileInfo.path());
+                stop = true;
+                return true;
+            }
+            if (fileInfo.fileName() == "manifest.json") {
+                qDebug() << "Flame:" << true;
+                m_modpackType = ModpackType::Flame;
+                root = cleanPath(fileInfo.path());
+                stop = true;
+                return true;
+            }
+        }
+        QCoreApplication::processEvents();
+        return true;
+    };
+    if (!packZip.parse(detectInstance)) {
+        emitFailed(tr("Unable to open supplied modpack zip file."));
+        return;
     }
     if (m_modpackType == ModpackType::Unknown) {
         emitFailed(tr("Archive does not contain a recognized modpack type."));
@@ -187,7 +181,7 @@ void InstanceImportTask::processZipPack()
     setStatus(tr("Extracting modpack"));
 
     // make sure we extract just the pack
-    auto zipTask = makeShared<MMCZip::ExtractZipTask>(packZip, extractDir, root);
+    auto zipTask = makeShared<MMCZip::ExtractZipTask>(m_archivePath, extractDir, root);
 
     auto progressStep = std::make_shared<TaskStepProgress>();
     connect(zipTask.get(), &Task::finished, this, [this, progressStep] {
@@ -212,6 +206,7 @@ void InstanceImportTask::processZipPack()
         progressStep->status = status;
         stepProgress(*progressStep);
     });
+    connect(zipTask.get(), &Task::warningLogged, this, [this](const QString& line) { m_Warnings.append(line); });
     m_task.reset(zipTask);
     zipTask->start();
 }
@@ -263,6 +258,25 @@ void InstanceImportTask::extractFinished()
     }
 }
 
+bool installIcon(QString root, QString instIconKey)
+{
+    auto importIconPath = IconUtils::findBestIconIn(root, instIconKey);
+    if (importIconPath.isNull() || !QFile::exists(importIconPath))
+        importIconPath = IconUtils::findBestIconIn(root, "icon.png");
+    if (importIconPath.isNull() || !QFile::exists(importIconPath))
+        importIconPath = IconUtils::findBestIconIn(FS::PathCombine(root, "overrides"), "icon.png");
+    if (!importIconPath.isNull() && QFile::exists(importIconPath)) {
+        // import icon
+        auto iconList = APPLICATION->icons();
+        if (iconList->iconFileExists(instIconKey)) {
+            iconList->deleteIcon(instIconKey);
+        }
+        iconList->installIcon(importIconPath, instIconKey + "." + QFileInfo(importIconPath).suffix());
+        return true;
+    }
+    return false;
+}
+
 void InstanceImportTask::processFlame()
 {
     shared_qobject_ptr<FlameCreationTask> inst_creation_task = nullptr;
@@ -288,6 +302,14 @@ void InstanceImportTask::processFlame()
     }
 
     inst_creation_task->setName(*this);
+    // if the icon was specified by user, use that. otherwise pull icon from the pack
+    if (m_instIcon == "default") {
+        auto iconKey = QString("Flame_%1_Icon").arg(name());
+
+        if (installIcon(m_stagingPath, iconKey)) {
+            m_instIcon = iconKey;
+        }
+    }
     inst_creation_task->setIcon(m_instIcon);
     inst_creation_task->setGroup(m_instGroup);
     inst_creation_task->setConfirmUpdate(shouldConfirmUpdate());
@@ -305,8 +327,10 @@ void InstanceImportTask::processFlame()
     connect(inst_creation_task.get(), &Task::status, this, &InstanceImportTask::setStatus);
     connect(inst_creation_task.get(), &Task::details, this, &InstanceImportTask::setDetails);
 
-    connect(inst_creation_task.get(), &Task::aborted, this, &Task::abort);
+    connect(inst_creation_task.get(), &Task::aborted, this, &InstanceImportTask::emitAborted);
     connect(inst_creation_task.get(), &Task::abortStatusChanged, this, &Task::setAbortable);
+
+    connect(inst_creation_task.get(), &Task::warningLogged, this, [this](const QString& line) { m_Warnings.append(line); });
 
     m_task.reset(inst_creation_task);
     setAbortable(true);
@@ -340,17 +364,7 @@ void InstanceImportTask::processMultiMC()
     } else {
         m_instIcon = instance.iconKey();
 
-        auto importIconPath = IconUtils::findBestIconIn(instance.instanceRoot(), m_instIcon);
-        if (importIconPath.isNull() || !QFile::exists(importIconPath))
-            importIconPath = IconUtils::findBestIconIn(instance.instanceRoot(), "icon.png");
-        if (!importIconPath.isNull() && QFile::exists(importIconPath)) {
-            // import icon
-            auto iconList = APPLICATION->icons();
-            if (iconList->iconFileExists(m_instIcon)) {
-                iconList->deleteIcon(m_instIcon);
-            }
-            iconList->installIcon(importIconPath, m_instIcon);
-        }
+        installIcon(instance.instanceRoot(), m_instIcon);
     }
     emitSucceeded();
 }
@@ -378,8 +392,8 @@ void InstanceImportTask::processModrinth()
     } else {
         QString pack_id;
         if (!m_sourceUrl.isEmpty()) {
-            QRegularExpression regex(R"(data\/([^\/]*)\/versions)");
-            pack_id = regex.match(m_sourceUrl.toString()).captured(1);
+            static const QRegularExpression s_regex(R"(data\/([^\/]*)\/versions)");
+            pack_id = s_regex.match(m_sourceUrl.toString()).captured(1);
         }
 
         // FIXME: Find a way to get the ID in directly imported ZIPs
@@ -387,6 +401,14 @@ void InstanceImportTask::processModrinth()
     }
 
     inst_creation_task->setName(*this);
+    // if the icon was specified by user, use that. otherwise pull icon from the pack
+    if (m_instIcon == "default") {
+        auto iconKey = QString("Modrinth_%1_Icon").arg(name());
+
+        if (installIcon(m_stagingPath, iconKey)) {
+            m_instIcon = iconKey;
+        }
+    }
     inst_creation_task->setIcon(m_instIcon);
     inst_creation_task->setGroup(m_instGroup);
     inst_creation_task->setConfirmUpdate(shouldConfirmUpdate());
@@ -404,8 +426,10 @@ void InstanceImportTask::processModrinth()
     connect(inst_creation_task.get(), &Task::status, this, &InstanceImportTask::setStatus);
     connect(inst_creation_task.get(), &Task::details, this, &InstanceImportTask::setDetails);
 
-    connect(inst_creation_task.get(), &Task::aborted, this, &Task::abort);
+    connect(inst_creation_task.get(), &Task::aborted, this, &InstanceImportTask::emitAborted);
     connect(inst_creation_task.get(), &Task::abortStatusChanged, this, &Task::setAbortable);
+
+    connect(inst_creation_task.get(), &Task::warningLogged, this, [this](const QString& line) { m_Warnings.append(line); });
 
     m_task.reset(inst_creation_task);
     setAbortable(true);

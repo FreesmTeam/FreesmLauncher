@@ -222,6 +222,7 @@
     </property>
     <addaction name="actionClearMetadata"/>
     <addaction name="actionReportBug"/>
+       <addaction name="actionViewLog"/>
     <addaction name="actionAddToPATH"/>
     <addaction name="separator"/>
     <addaction name="actionTELEGRAM"/>
@@ -245,7 +246,7 @@
     <iconset theme="news"/>
    </property>
    <property name="text">
-    <string>More news...</string>
+       <string>More News...</string>
    </property>
    <property name="toolTip">
     <string>Open the development blog to read more news about %1.</string>
@@ -490,7 +491,7 @@
     <string>Create Shortcut</string>
    </property>
    <property name="toolTip">
-    <string>Creates a shortcut on your desktop to launch the selected instance.</string>
+       <string>Creates a shortcut on a selected folder to launch the selected instance.</string>
    </property>
   </action>
   <action name="actionNoAccountsAdded">
@@ -667,6 +668,19 @@
    </property>
    <property name="toolTip">
     <string>Clear cached metadata</string>
+   </property>
+  </action>
+     <action name="actionViewLog">
+         <property name="icon">
+             <iconset theme="log">
+                 <normaloff>.</normaloff>.
+             </iconset>
+         </property>
+         <property name="text">
+             <string>View logs</string>
+         </property>
+         <property name="toolTip">
+             <string>View current and previous launcher logs</string>
    </property>
   </action>
   <action name="actionAddToPATH">

@@ -1,11 +1,8 @@
-cmake_minimum_required(VERSION 3.9.4)
+cmake_minimum_required(VERSION 3.15)
 project(LocalPeer)
 
-if(QT_VERSION_MAJOR EQUAL 5)
-    find_package(Qt5 COMPONENTS Core Network REQUIRED)
-elseif(Launcher_QT_VERSION_MAJOR EQUAL 6)
-    find_package(Qt6 COMPONENTS Core Network Core5Compat REQUIRED)
-    list(APPEND LocalPeer_LIBS Qt${QT_VERSION_MAJOR}::Core5Compat)
+if (Launcher_QT_VERSION_MAJOR EQUAL 6)
+    find_package(Qt6 COMPONENTS Core Network REQUIRED)
 endif()
 
 set(SINGLE_SOURCES

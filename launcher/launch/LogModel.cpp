@@ -24,13 +24,13 @@ QVariant LogModel::data(const QModelIndex& index, int role) const
         return m_content[realRow].line;
     }
     if (role == LevelRole) {
-        return m_content[realRow].level;
+        return static_cast<int>(m_content[realRow].level);
     }
 
     return QVariant();
 }
 
-void LogModel::append(MessageLevel::Enum level, QString line)
+void LogModel::append(MessageLevel level, QString line)
 {
     if (m_suspended) {
         return;
@@ -100,7 +100,7 @@ void LogModel::setMaxLines(int maxLines)
         return;
     }
     // otherwise, we need to reorganize the data because it crosses the wrap boundary
-    QVector<entry> newContent;
+    QList<entry> newContent;
     newContent.resize(maxLines);
     if (m_numLines <= maxLines) {
         // if it all fits in the new buffer, just copy it over
@@ -148,4 +148,29 @@ void LogModel::setLineWrap(bool state)
 bool LogModel::wrapLines() const
 {
     return m_lineWrap;
+}
+
+void LogModel::setColorLines(bool state)
+{
+    if (m_colorLines != state) {
+        m_colorLines = state;
+    }
+}
+
+bool LogModel::colorLines() const
+{
+    return m_colorLines;
+}
+
+bool LogModel::isOverFlow()
+{
+    return m_numLines >= m_maxLines && m_stopOnOverflow;
+}
+
+MessageLevel LogModel::previousLevel()
+{
+    if (m_numLines > 0) {
+        return m_content[m_numLines - 1].level;
+    }
+    return MessageLevel::Unknown;
 }

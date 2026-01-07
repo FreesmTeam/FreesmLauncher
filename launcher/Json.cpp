@@ -101,6 +101,21 @@ QJsonArray requireArray(const QJsonDocument& doc, const QString& what)
     return doc.array();
 }
 
+QJsonDocument parseUntilGarbage(const QByteArray& json, QJsonParseError* error, QString* garbage)
+{
+    auto doc = QJsonDocument::fromJson(json, error);
+    if (error->error == QJsonParseError::GarbageAtEnd) {
+        qsizetype offset = error->offset;
+        QByteArray validJson = json.left(offset);
+        doc = QJsonDocument::fromJson(validJson, error);
+
+        if (garbage)
+            *garbage = json.right(json.size() - offset);
+    }
+
+    return doc;
+}
+
 void writeString(QJsonObject& to, const QString& key, const QString& value)
 {
     if (!value.isEmpty()) {
@@ -153,7 +168,7 @@ QJsonValue toJson<QVariant>(const QVariant& variant)
 template <>
 QByteArray requireIsType<QByteArray>(const QJsonValue& value, const QString& what)
 {
-    const QString string = ensureIsType<QString>(value, what);
+    const QString string = value.toString(what);
     // ensure that the string can be safely cast to Latin1
     if (string != QString::fromLatin1(string.toLatin1())) {
         throw JsonException(what + " is not encodable as Latin1");
@@ -221,7 +236,7 @@ QDateTime requireIsType<QDateTime>(const QJsonValue& value, const QString& what)
 template <>
 QUrl requireIsType<QUrl>(const QJsonValue& value, const QString& what)
 {
-    const QString string = ensureIsType<QString>(value, what);
+    const QString string = value.toString(what);
     if (string.isEmpty()) {
         return QUrl();
     }
@@ -277,6 +292,50 @@ QJsonValue requireIsType<QJsonValue>(const QJsonValue& value, const QString& wha
         throw JsonException(what + " is null or undefined");
     }
     return value;
+}
+
+QStringList toStringList(const QString& jsonString)
+{
+    QJsonParseError parseError;
+    QJsonDocument doc = QJsonDocument::fromJson(jsonString.toUtf8(), &parseError);
+
+    if (parseError.error != QJsonParseError::NoError || !doc.isArray())
+        return {};
+    try {
+        return requireIsArrayOf<QString>(doc);
+    } catch (Json::JsonException& e) {
+        return {};
+    }
+}
+
+QString fromStringList(const QStringList& list)
+{
+    QJsonArray array;
+    for (const QString& str : list) {
+        array.append(str);
+    }
+
+    QJsonDocument doc(toJsonArray(list));
+    return QString::fromUtf8(doc.toJson(QJsonDocument::Compact));
+}
+
+QVariantMap toMap(const QString& jsonString)
+{
+    QJsonParseError parseError;
+    QJsonDocument doc = QJsonDocument::fromJson(jsonString.toUtf8(), &parseError);
+
+    if (parseError.error != QJsonParseError::NoError || !doc.isObject())
+        return {};
+
+    QJsonObject obj = doc.object();
+    return obj.toVariantMap();
+}
+
+QString fromMap(const QVariantMap& map)
+{
+    QJsonObject obj = QJsonObject::fromVariantMap(map);
+    QJsonDocument doc(obj);
+    return QString::fromUtf8(doc.toJson(QJsonDocument::Compact));
 }
 
 }  // namespace Json

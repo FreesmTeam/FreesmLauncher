@@ -14,6 +14,7 @@ CMakeLists.txt.user.*
 CMakeSettings.json
 /CMakeFiles
 CMakeCache.txt
+CMakeUserPresets.json
 /.project
 /.settings
 /.idea
