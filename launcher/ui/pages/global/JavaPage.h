@@ -35,13 +35,12 @@
 
 #pragma once
 
-#include <Application.h>
 #include <QObjectPtr.h>
-#include "ui/widgets/JavaSettingsWidget.h"
 #include <QDialog>
 #include <QStringListModel>
 #include "JavaCommon.h"
 #include "ui/pages/BasePage.h"
+#include "ui/widgets/JavaSettingsWidget.h"
 
 class SettingsObject;
 
@@ -57,7 +56,7 @@ class JavaPage : public QWidget, public BasePage {
     ~JavaPage();
 
     QString displayName() const override { return tr("Java"); }
-    QIcon icon() const override { return APPLICATION->getThemedIcon("java"); }
+    QIcon icon() const override { return QIcon::fromTheme("java"); }
     QString id() const override { return "java-settings"; }
     QString helpPage() const override { return "Java-settings"; }
     void retranslate() override;

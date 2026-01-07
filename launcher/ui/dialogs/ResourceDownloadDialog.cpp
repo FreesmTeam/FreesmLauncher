@@ -57,9 +57,11 @@ ResourceDownloadDialog::ResourceDownloadDialog(QWidget* parent, const std::share
 {
     setObjectName(QStringLiteral("ResourceDownloadDialog"));
 
-    resize(std::max(0.5 * parent->width(), 400.0), std::max(0.75 * parent->height(), 400.0));
+    resize(static_cast<int>(std::max(0.5 * parent->width(), 400.0)), static_cast<int>(std::max(0.75 * parent->height(), 400.0)));
 
-    setWindowIcon(APPLICATION->getThemedIcon("new"));
+    setWindowIcon(QIcon::fromTheme("new"));
+
+    m_buttons.setContentsMargins(0, 0, 6, 6);
 
     // Bonk Qt over its stupid head and make sure it understands which button is the default one...
     // See: https://stackoverflow.com/questions/24556831/qbuttonbox-set-default-button
@@ -84,7 +86,7 @@ ResourceDownloadDialog::ResourceDownloadDialog(QWidget* parent, const std::share
 void ResourceDownloadDialog::accept()
 {
     if (!geometrySaveKey().isEmpty())
-        APPLICATION->settings()->set(geometrySaveKey(), saveGeometry().toBase64());
+        APPLICATION->settings()->set(geometrySaveKey(), QString::fromUtf8(saveGeometry().toBase64()));
 
     QDialog::accept();
 }
@@ -105,7 +107,7 @@ void ResourceDownloadDialog::reject()
     }
 
     if (!geometrySaveKey().isEmpty())
-        APPLICATION->settings()->set(geometrySaveKey(), saveGeometry().toBase64());
+        APPLICATION->settings()->set(geometrySaveKey(), QString::fromUtf8(saveGeometry().toBase64()));
 
     QDialog::reject();
 }
@@ -114,6 +116,8 @@ void ResourceDownloadDialog::reject()
 // won't work with subclasses if we put it in this ctor.
 void ResourceDownloadDialog::initializeContainer()
 {
+    layout()->setContentsMargins(0, 0, 0, 0);
+
     m_container = new PageContainer(this, {}, this);
     m_container->setSizePolicy(QSizePolicy::Policy::Preferred, QSizePolicy::Policy::Expanding);
     m_container->layout()->setContentsMargins(0, 0, 0, 0);
@@ -185,9 +189,8 @@ void ResourceDownloadDialog::confirm()
     });
     for (auto& task : selected) {
         auto extraInfo = dependencyExtraInfo.value(task->getPack()->addonId.toString());
-        confirm_dialog->appendResource({ task->getName(), task->getFilename(), task->getCustomPath(),
-                                         ModPlatform::ProviderCapabilities::name(task->getProvider()), extraInfo.required_by,
-                                         task->getVersion().version_type.toString(), !extraInfo.maybe_installed });
+        confirm_dialog->appendResource({ task->getName(), task->getFilename(), ModPlatform::ProviderCapabilities::name(task->getProvider()),
+                                         extraInfo.required_by, task->getVersion().version_type.toString(), !extraInfo.maybe_installed });
     }
 
     if (confirm_dialog->exec()) {
@@ -275,7 +278,7 @@ ModDownloadDialog::ModDownloadDialog(QWidget* parent, const std::shared_ptr<ModF
     connectButtons();
 
     if (!geometrySaveKey().isEmpty())
-        restoreGeometry(QByteArray::fromBase64(APPLICATION->settings()->get(geometrySaveKey()).toByteArray()));
+        restoreGeometry(QByteArray::fromBase64(APPLICATION->settings()->get(geometrySaveKey()).toString().toUtf8()));
 }
 
 QList<BasePage*> ModDownloadDialog::getPages()
@@ -318,7 +321,7 @@ ResourcePackDownloadDialog::ResourcePackDownloadDialog(QWidget* parent,
     connectButtons();
 
     if (!geometrySaveKey().isEmpty())
-        restoreGeometry(QByteArray::fromBase64(APPLICATION->settings()->get(geometrySaveKey()).toByteArray()));
+        restoreGeometry(QByteArray::fromBase64(APPLICATION->settings()->get(geometrySaveKey()).toString().toUtf8()));
 }
 
 QList<BasePage*> ResourcePackDownloadDialog::getPages()
@@ -343,7 +346,7 @@ TexturePackDownloadDialog::TexturePackDownloadDialog(QWidget* parent,
     connectButtons();
 
     if (!geometrySaveKey().isEmpty())
-        restoreGeometry(QByteArray::fromBase64(APPLICATION->settings()->get(geometrySaveKey()).toByteArray()));
+        restoreGeometry(QByteArray::fromBase64(APPLICATION->settings()->get(geometrySaveKey()).toString().toUtf8()));
 }
 
 QList<BasePage*> TexturePackDownloadDialog::getPages()
@@ -368,7 +371,7 @@ ShaderPackDownloadDialog::ShaderPackDownloadDialog(QWidget* parent,
     connectButtons();
 
     if (!geometrySaveKey().isEmpty())
-        restoreGeometry(QByteArray::fromBase64(APPLICATION->settings()->get(geometrySaveKey()).toByteArray()));
+        restoreGeometry(QByteArray::fromBase64(APPLICATION->settings()->get(geometrySaveKey()).toString().toUtf8()));
 }
 
 QList<BasePage*> ShaderPackDownloadDialog::getPages()
@@ -396,4 +399,28 @@ void ResourceDownloadDialog::setResourceMetadata(const std::shared_ptr<Metadata:
     auto page = selectedPage();
     page->openProject(meta->project_id);
 }
+
+DataPackDownloadDialog::DataPackDownloadDialog(QWidget* parent,
+                                               const std::shared_ptr<DataPackFolderModel>& data_packs,
+                                               BaseInstance* instance)
+    : ResourceDownloadDialog(parent, data_packs), m_instance(instance)
+{
+    setWindowTitle(dialogTitle());
+
+    initializeContainer();
+    connectButtons();
+
+    if (!geometrySaveKey().isEmpty())
+        restoreGeometry(QByteArray::fromBase64(APPLICATION->settings()->get(geometrySaveKey()).toByteArray()));
+}
+
+QList<BasePage*> DataPackDownloadDialog::getPages()
+{
+    QList<BasePage*> pages;
+    pages.append(ModrinthDataPackPage::create(this, *m_instance));
+    if (APPLICATION->capabilities() & Application::SupportsFlame)
+        pages.append(FlameDataPackPage::create(this, *m_instance));
+    return pages;
+}
+
 }  // namespace ResourceDownload

@@ -17,14 +17,13 @@
  */
 
 #include "ExportPackDialog.h"
-#include "minecraft/mod/ModFolderModel.h"
+#include "minecraft/mod/ResourceFolderModel.h"
 #include "modplatform/ModIndex.h"
 #include "modplatform/flame/FlamePackExportTask.h"
 #include "ui/dialogs/CustomMessageBox.h"
 #include "ui/dialogs/ProgressDialog.h"
 #include "ui_ExportPackDialog.h"
 
-#include <QDir>
 #include <QFileDialog>
 #include <QFileSystemModel>
 #include <QJsonDocument>
@@ -34,7 +33,7 @@
 #include "MMCZip.h"
 #include "modplatform/modrinth/ModrinthPackExportTask.h"
 
-ExportPackDialog::ExportPackDialog(InstancePtr instance, QWidget* parent, ModPlatform::ResourceProvider provider)
+ExportPackDialog::ExportPackDialog(MinecraftInstancePtr instance, QWidget* parent, ModPlatform::ResourceProvider provider)
     : QDialog(parent), m_instance(instance), m_ui(new Ui::ExportPackDialog), m_provider(provider)
 {
     Q_ASSERT(m_provider == ModPlatform::ResourceProvider::MODRINTH || m_provider == ModPlatform::ResourceProvider::FLAME);
@@ -45,11 +44,15 @@ ExportPackDialog::ExportPackDialog(InstancePtr instance, QWidget* parent, ModPla
     m_ui->version->setText(instance->settings()->get("ExportVersion").toString());
     m_ui->optionalFiles->setChecked(instance->settings()->get("ExportOptionalFiles").toBool());
 
+    connect(m_ui->recommendedMemoryCheckBox, &QCheckBox::toggled, m_ui->recommendedMemory, &QWidget::setEnabled);
+
     if (m_provider == ModPlatform::ResourceProvider::MODRINTH) {
         setWindowTitle(tr("Export Modrinth Pack"));
 
         m_ui->authorLabel->hide();
         m_ui->author->hide();
+
+        m_ui->recommendedMemoryWidget->hide();
 
         m_ui->summary->setPlainText(instance->settings()->get("ExportSummary").toString());
     } else {
@@ -57,6 +60,19 @@ ExportPackDialog::ExportPackDialog(InstancePtr instance, QWidget* parent, ModPla
 
         m_ui->summaryLabel->hide();
         m_ui->summary->hide();
+
+        const int recommendedRAM = instance->settings()->get("ExportRecommendedRAM").toInt();
+
+        if (recommendedRAM > 0) {
+            m_ui->recommendedMemoryCheckBox->setChecked(true);
+            m_ui->recommendedMemory->setValue(recommendedRAM);
+        } else {
+            m_ui->recommendedMemoryCheckBox->setChecked(false);
+
+            // recommend based on setting - limited to 12 GiB (CurseForge warns above this amount)
+            const int defaultRecommendation = qMin(m_instance->settings()->get("MaxMemAlloc").toInt(), 1024 * 12);
+            m_ui->recommendedMemory->setValue(defaultRecommendation);
+        }
 
         m_ui->author->setText(instance->settings()->get("ExportAuthor").toString());
     }
@@ -86,9 +102,10 @@ ExportPackDialog::ExportPackDialog(InstancePtr instance, QWidget* parent, ModPla
 
     MinecraftInstance* mcInstance = dynamic_cast<MinecraftInstance*>(instance.get());
     if (mcInstance) {
-        for (auto& resourceModel : mcInstance->resourceLists())
-            if (resourceModel->indexDir().exists())
+        for (auto resourceModel : mcInstance->resourceLists()) {
+            if (resourceModel && resourceModel->indexDir().exists())
                 m_proxy->ignoreFilesWithPath().insert(instanceRoot.relativeFilePath(resourceModel->indexDir().absolutePath()));
+        }
     }
 
     m_ui->files->setModel(m_proxy);
@@ -121,8 +138,14 @@ void ExportPackDialog::done(int result)
 
     if (m_provider == ModPlatform::ResourceProvider::MODRINTH)
         settings->set("ExportSummary", m_ui->summary->toPlainText());
-    else
+    else {
         settings->set("ExportAuthor", m_ui->author->text());
+
+        if (m_ui->recommendedMemoryCheckBox->isChecked())
+            settings->set("ExportRecommendedRAM", m_ui->recommendedMemory->value());
+        else
+            settings->reset("ExportRecommendedRAM");
+    }
 
     if (result == Accepted) {
         const QString name = m_ui->name->text().isEmpty() ? m_instance->name() : m_ui->name->text();
@@ -146,17 +169,22 @@ void ExportPackDialog::done(int result)
         }
 
         Task* task;
-        // The filter considers the instance folder to be the root folder, while MMCZip considers the root game folder to be the root
-        // folder.
-        const QString gameFolder = QDir(m_instance->instanceRoot()).relativeFilePath(m_instance->gameRoot());
         if (m_provider == ModPlatform::ResourceProvider::MODRINTH) {
-            task = new ModrinthPackExportTask(
-                name, m_ui->version->text(), m_ui->summary->toPlainText(), m_ui->optionalFiles->isChecked(), m_instance, output,
-                [this, gameFolder](const QString& path) { return m_proxy->filterFile(FS::PathCombine(gameFolder, path)); });
+            task = new ModrinthPackExportTask(name, m_ui->version->text(), m_ui->summary->toPlainText(), m_ui->optionalFiles->isChecked(),
+                                              m_instance, output, std::bind(&FileIgnoreProxy::filterFile, m_proxy, std::placeholders::_1));
         } else {
-            task = new FlamePackExportTask(
-                name, m_ui->version->text(), m_ui->author->text(), m_ui->optionalFiles->isChecked(), m_instance, output,
-                [this, gameFolder](const QString& path) { return m_proxy->filterFile(FS::PathCombine(gameFolder, path)); });
+            FlamePackExportOptions options{};
+
+            options.name = name;
+            options.version = m_ui->version->text();
+            options.author = m_ui->author->text();
+            options.optionalFiles = m_ui->optionalFiles->isChecked();
+            options.instance = m_instance;
+            options.output = output;
+            options.filter = std::bind(&FileIgnoreProxy::filterFile, m_proxy, std::placeholders::_1);
+            options.recommendedRAM = m_ui->recommendedMemoryCheckBox->isChecked() ? m_ui->recommendedMemory->value() : 0;
+
+            task = new FlamePackExportTask(std::move(options));
         }
 
         connect(task, &Task::failed,

@@ -37,9 +37,9 @@
 #include "VersionProxyModel.h"
 #include <Version.h>
 #include <meta/VersionList.h>
+#include <QIcon>
 #include <QPixmapCache>
 #include <QSortFilterProxyModel>
-#include "Application.h"
 
 class VersionFilterModel : public QSortFilterProxyModel {
     Q_OBJECT
@@ -63,7 +63,7 @@ class VersionFilterModel : public QSortFilterProxyModel {
         for (auto it = filters.begin(); it != filters.end(); ++it) {
             auto data = sourceModel()->data(idx, it.key());
             auto match = data.toString();
-            if (!it.value()->accepts(match)) {
+            if (!it.value()(match)) {
                 return false;
             }
         }
@@ -206,11 +206,11 @@ QVariant VersionProxyModel::data(const QModelIndex& index, int role) const
             if (column == Name && hasRecommended) {
                 auto recommenced = sourceModel()->data(parentIndex, BaseVersionList::RecommendedRole);
                 if (recommenced.toBool()) {
-                    return APPLICATION->getThemedIcon("star");
+                    return QIcon::fromTheme("star");
                 } else if (hasLatest) {
                     auto latest = sourceModel()->data(parentIndex, BaseVersionList::LatestRole);
                     if (latest.toBool()) {
-                        return APPLICATION->getThemedIcon("bug");
+                        return QIcon::fromTheme("bug");
                     }
                 }
                 QPixmap pixmap;
@@ -295,13 +295,11 @@ void VersionProxyModel::sourceDataChanged(const QModelIndex& source_top_left, co
 void VersionProxyModel::setSourceModel(QAbstractItemModel* replacingRaw)
 {
     auto replacing = dynamic_cast<BaseVersionList*>(replacingRaw);
-    beginResetModel();
 
     m_columns.clear();
     if (!replacing) {
         roles.clear();
         filterModel->setSourceModel(replacing);
-        endResetModel();
         return;
     }
 
@@ -343,8 +341,6 @@ void VersionProxyModel::setSourceModel(QAbstractItemModel* replacingRaw)
         hasLatest = true;
     }
     filterModel->setSourceModel(replacing);
-
-    endResetModel();
 }
 
 QModelIndex VersionProxyModel::getRecommended() const
@@ -384,9 +380,9 @@ void VersionProxyModel::clearFilters()
     filterModel->filterChanged();
 }
 
-void VersionProxyModel::setFilter(const BaseVersionList::ModelRoles column, Filter* f)
+void VersionProxyModel::setFilter(const BaseVersionList::ModelRoles column, Filter f)
 {
-    m_filters[column].reset(f);
+    m_filters[column] = std::move(f);
     filterModel->filterChanged();
 }
 

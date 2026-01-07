@@ -84,7 +84,7 @@ void CheckComboBox::setSourceModel(QAbstractItemModel* new_model)
     proxy->setSourceModel(new_model);
     model()->disconnect(this);
     QComboBox::setModel(proxy);
-    connect(this, QOverload<int>::of(&QComboBox::activated), this, &CheckComboBox::toggleCheckState);
+    connect(this, &QComboBox::activated, this, &CheckComboBox::toggleCheckState);
     connect(proxy, &CheckComboModel::checkStateChanged, this, &CheckComboBox::emitCheckedItemsChanged);
     connect(model(), &CheckComboModel::rowsInserted, this, &CheckComboBox::emitCheckedItemsChanged);
     connect(model(), &CheckComboModel::rowsRemoved, this, &CheckComboBox::emitCheckedItemsChanged);
@@ -178,7 +178,7 @@ QStringList CheckComboBox::checkedItems() const
 
 void CheckComboBox::setCheckedItems(const QStringList& items)
 {
-    foreach (auto text, items) {
+    for (auto text : items) {
         auto index = findText(text);
         setItemCheckState(index, index != -1 ? Qt::Checked : Qt::Unchecked);
     }

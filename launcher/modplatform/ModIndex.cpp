@@ -25,13 +25,12 @@
 
 namespace ModPlatform {
 
-static const QMap<QString, IndexedVersionType::VersionType> s_indexed_version_type_names = {
-    { "release", IndexedVersionType::VersionType::Release },
-    { "beta", IndexedVersionType::VersionType::Beta },
-    { "alpha", IndexedVersionType::VersionType::Alpha }
-};
+static const QMap<QString, IndexedVersionType> s_indexed_version_type_names = { { "release", IndexedVersionType::Release },
+                                                                                { "beta", IndexedVersionType::Beta },
+                                                                                { "alpha", IndexedVersionType::Alpha } };
 
-static const QList<ModLoaderType> loaderList = { NeoForge, Forge, Cauldron, LiteLoader, Quilt, Fabric };
+static const QList<ModLoaderType> loaderList = { NeoForge, Forge, Cauldron,     LiteLoader, Quilt, Fabric,
+                                                 Babric,   BTA,   LegacyFabric, Ornithe,    Rift };
 
 QList<ModLoaderType> modLoaderTypesToList(ModLoaderTypes flags)
 {
@@ -44,32 +43,14 @@ QList<ModLoaderType> modLoaderTypesToList(ModLoaderTypes flags)
     return flagList;
 }
 
-IndexedVersionType::IndexedVersionType(const QString& type) : IndexedVersionType(enumFromString(type)) {}
-
-IndexedVersionType::IndexedVersionType(const IndexedVersionType::VersionType& type)
+QString IndexedVersionType::toString() const
 {
-    m_type = type;
+    return s_indexed_version_type_names.key(m_type, "unknown");
 }
 
-IndexedVersionType::IndexedVersionType(const IndexedVersionType& other)
+IndexedVersionType IndexedVersionType::fromString(const QString& type)
 {
-    m_type = other.m_type;
-}
-
-IndexedVersionType& IndexedVersionType::operator=(const IndexedVersionType& other)
-{
-    m_type = other.m_type;
-    return *this;
-}
-
-const QString IndexedVersionType::toString(const IndexedVersionType::VersionType& type)
-{
-    return s_indexed_version_type_names.key(type, "unknown");
-}
-
-IndexedVersionType::VersionType IndexedVersionType::enumFromString(const QString& type)
-{
-    return s_indexed_version_type_names.value(type, IndexedVersionType::VersionType::Unknown);
+    return s_indexed_version_type_names.value(type, IndexedVersionType::Unknown);
 }
 
 const char* ProviderCapabilities::name(ResourceProvider p)
@@ -127,6 +108,18 @@ auto getModLoaderAsString(ModLoaderType type) -> const QString
             return "fabric";
         case Quilt:
             return "quilt";
+        case DataPack:
+            return "datapack";
+        case Babric:
+            return "babric";
+        case BTA:
+            return "bta-babric";
+        case LegacyFabric:
+            return "legacy-fabric";
+        case Ornithe:
+            return "ornithe";
+        case Rift:
+            return "rift";
         default:
             break;
     }
@@ -147,7 +140,42 @@ auto getModLoaderFromString(QString type) -> ModLoaderType
         return Fabric;
     if (type == "quilt")
         return Quilt;
+    if (type == "babric")
+        return Babric;
+    if (type == "bta-babric")
+        return BTA;
+    if (type == "legacy-fabric")
+        return LegacyFabric;
+    if (type == "ornithe")
+        return Ornithe;
+    if (type == "rift")
+        return Rift;
     return {};
 }
 
+QString SideUtils::toString(Side side)
+{
+    switch (side) {
+        case Side::ClientSide:
+            return "client";
+        case Side::ServerSide:
+            return "server";
+        case Side::UniversalSide:
+            return "both";
+        case Side::NoSide:
+            break;
+    }
+    return {};
+}
+
+Side SideUtils::fromString(QString side)
+{
+    if (side == "client")
+        return Side::ClientSide;
+    if (side == "server")
+        return Side::ServerSide;
+    if (side == "both")
+        return Side::UniversalSide;
+    return Side::UniversalSide;
+}
 }  // namespace ModPlatform

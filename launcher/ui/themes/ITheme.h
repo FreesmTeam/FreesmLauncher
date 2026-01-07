@@ -42,11 +42,12 @@
 class QStyle;
 
 struct LogColors {
-    QMap<MessageLevel::Enum, QColor> background;
-    QMap<MessageLevel::Enum, QColor> foreground;
+    QMap<MessageLevel, QColor> background;
+    QMap<MessageLevel, QColor> foreground;
 };
 
 // TODO: rename to Theme; this is not an interface as it contains method implementations
+// TODO: make methods const
 class ITheme {
    public:
     virtual ~ITheme() {}

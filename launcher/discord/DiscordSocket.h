@@ -30,7 +30,7 @@ class DiscordSocket : public QObject {
    public:
     DiscordSocket();
 
-    ~DiscordSocket() override = default;
+    ~DiscordSocket() override;
 
     virtual void connectSocket() = 0;
 

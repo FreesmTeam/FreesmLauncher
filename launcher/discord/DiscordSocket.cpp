@@ -44,6 +44,11 @@ DiscordSocket::DiscordSocket()
     connect(&m_socket, &QLocalSocket::errorOccurred, this, &DiscordSocket::errorOccurred);
 }
 
+DiscordSocket::~DiscordSocket()
+{
+    m_socket.abort();
+}
+
 void DiscordSocket::onConnected()
 {
     connect(&m_socket, &QLocalSocket::readyRead, this, &DiscordSocket::read);

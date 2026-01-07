@@ -1,13 +1,13 @@
 [Desktop Entry]
 Version=1.0
-Name=Freesm Launcher
+Name=@Launcher_DisplayName@
 Comment=Discover, manage, and play Minecraft instances
 Type=Application
 Terminal=false
 Exec=@Launcher_APP_BINARY_NAME@ %U
 StartupNotify=true
-Icon=org.freesmTeam.freesmlauncher
-Categories=Game;ActionGame;AdventureGame;Simulation;
+Icon=@Launcher_AppID@
+Categories=Game;ActionGame;AdventureGame;Simulation;PackageManager;
 Keywords=game;minecraft;mc;
-StartupWMClass=FreesmLauncher
+StartupWMClass=@Launcher_CommonName@
 MimeType=application/zip;application/x-modrinth-modpack+zip;x-scheme-handler/curseforge;x-scheme-handler/@Launcher_APP_BINARY_NAME@;
