@@ -67,8 +67,8 @@ void MSADeviceCodeStep::perform()
         { "Accept", "application/json" },
     };
     m_response.reset(new QByteArray());
-    m_request = Net::Upload::makeByteArray(url, m_response, payload);
-    m_request->addHeaderProxy(new Net::RawHeaderProxy(headers));
+    m_request = Net::Upload::makeByteArray(url, m_response.get(), payload);
+    m_request->addHeaderProxy(std::make_unique<Net::RawHeaderProxy>(headers));
 
     m_task.reset(new NetJob("MSADeviceCodeStep", APPLICATION->network()));
     m_task->setAskRetry(false);
@@ -181,8 +181,8 @@ void MSADeviceCodeStep::authenticateUser()
         { "Accept", "application/json" },
     };
     m_response.reset(new QByteArray());
-    m_request = Net::Upload::makeByteArray(url, m_response, payload);
-    m_request->addHeaderProxy(new Net::RawHeaderProxy(headers));
+    m_request = Net::Upload::makeByteArray(url, m_response.get(), payload);
+    m_request->addHeaderProxy(std::make_unique<Net::RawHeaderProxy>(headers));
 
     connect(m_request.get(), &Task::finished, this, &MSADeviceCodeStep::authenticationFinished);
 
