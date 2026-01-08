@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>648</width>
+    <width>653</width>
     <height>600</height>
    </rect>
   </property>
@@ -59,8 +59,8 @@
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>603</width>
-            <height>1042</height>
+            <width>623</width>
+            <height>1352</height>
            </rect>
           </property>
           <layout class="QVBoxLayout" name="verticalLayout_5">
@@ -516,6 +516,41 @@ It is most likely you will need to change the path - please refer to the mod's w
                 </property>
                </widget>
               </item>
+              <item>
+               <widget class="QCheckBox" name="babric">
+                <property name="text">
+                 <string>Babric</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QCheckBox" name="btaBabric">
+                <property name="text">
+                 <string>BTA (Babric)</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QCheckBox" name="legacyFabric">
+                <property name="text">
+                 <string>Legacy Fabric</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QCheckBox" name="ornithe">
+                <property name="text">
+                 <string>Ornithe</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QCheckBox" name="rift">
+                <property name="text">
+                 <string>Rift</string>
+                </property>
+               </widget>
+              </item>
              </layout>
             </widget>
            </item>
@@ -553,8 +588,8 @@ It is most likely you will need to change the path - please refer to the mod's w
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>100</width>
-            <height>30</height>
+            <width>623</width>
+            <height>484</height>
            </rect>
           </property>
          </widget>
@@ -577,8 +612,8 @@ It is most likely you will need to change the path - please refer to the mod's w
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>261</width>
-            <height>434</height>
+            <width>609</width>
+            <height>499</height>
            </rect>
           </property>
           <layout class="QVBoxLayout" name="verticalLayout_7">
