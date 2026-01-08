@@ -1,9 +1,9 @@
 cmake_minimum_required(VERSION 3.22)  # minimum version required by Qt
 
 project(Launcher LANGUAGES C CXX)
-if (APPLE)
+if(APPLE)
     enable_language(OBJC OBJCXX)
-endif ()
+endif()
 
 string(COMPARE EQUAL "${CMAKE_SOURCE_DIR}" "${CMAKE_BUILD_DIR}" IS_IN_SOURCE_BUILD)
 if(IS_IN_SOURCE_BUILD)
@@ -99,7 +99,7 @@ set(CMAKE_CXX_FLAGS_RELEASE "-O2 -D_FORTIFY_SOURCE=2 ${CMAKE_CXX_FLAGS_RELEASE}"
 
 # Export compile commands for debug builds if we can (useful in LSPs like clangd)
 # https://cmake.org/cmake/help/v3.31/variable/CMAKE_EXPORT_COMPILE_COMMANDS.html
-if (CMAKE_GENERATOR STREQUAL "Unix Makefiles" OR CMAKE_GENERATOR MATCHES "^Ninja")
+if(CMAKE_GENERATOR STREQUAL "Unix Makefiles" OR CMAKE_GENERATOR MATCHES "^Ninja")
     set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 endif()
 
@@ -294,7 +294,7 @@ set(Launcher_BUILD_TIMESTAMP "${TODAY}")
 ################################ 3rd Party Libs ################################
 
 # Find the required Qt parts
-if (Launcher_QT_VERSION_MAJOR EQUAL 6)
+if(Launcher_QT_VERSION_MAJOR EQUAL 6)
     set(QT_VERSION_MAJOR 6)
     find_package(Qt6 REQUIRED COMPONENTS Core CoreTools Widgets Concurrent Network Test Xml NetworkAuth OpenGL)
     find_package(Qt6 COMPONENTS DBus)
@@ -303,7 +303,7 @@ else()
     message(FATAL_ERROR "Qt version ${Launcher_QT_VERSION_MAJOR} is not supported")
 endif()
 
-if (Launcher_QT_VERSION_MAJOR EQUAL 6)
+if(Launcher_QT_VERSION_MAJOR EQUAL 6)
     set(QT_PLUGINS_DIR  ${QT${QT_VERSION_MAJOR}_INSTALL_PREFIX}/${QT${QT_VERSION_MAJOR}_INSTALL_PLUGINS})
     set(QT_LIBS_DIR     ${QT${QT_VERSION_MAJOR}_INSTALL_PREFIX}/${QT${QT_VERSION_MAJOR}_INSTALL_LIBS})
     set(QT_LIBEXECS_DIR ${QT${QT_VERSION_MAJOR}_INSTALL_PREFIX}/${QT${QT_VERSION_MAJOR}_INSTALL_LIBEXECS})
@@ -311,34 +311,34 @@ endif()
 
 find_package(cmark REQUIRED)
 
-if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
+if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
     find_package(PkgConfig REQUIRED)
     pkg_check_modules(gamemode REQUIRED IMPORTED_TARGET gamemode)
 endif()
 
 # Find libqrencode
 ## NOTE(@getchoo): Never use pkg-config with MSVC since the vcpkg port makes our install bundle fail to find the dll
-if (MSVC)
+if(MSVC)
     find_path(LIBQRENCODE_INCLUDE_DIR qrencode.h REQUIRED)
     find_library(LIBQRENCODE_LIBRARY_RELEASE qrencode REQUIRED)
     find_library(LIBQRENCODE_LIBRARY_DEBUG qrencoded)
     set(LIBQRENCODE_LIBRARIES optimized ${LIBQRENCODE_LIBRARY_RELEASE} debug ${LIBQRENCODE_LIBRARY_DEBUG})
-else ()
+else()
     find_package(PkgConfig REQUIRED)
     pkg_check_modules(libqrencode REQUIRED IMPORTED_TARGET libqrencode)
-endif ()
+endif()
 
 # Find libarchive through CMake packages, mainly for vcpkg
 find_package(LibArchive)
 # CMake packages aren't available in most distributions of libarchive, so fallback to pkg-config
-if (NOT LibArchive_FOUND)
+if(NOT LibArchive_FOUND)
     find_package(PkgConfig REQUIRED)
     pkg_check_modules(libarchive REQUIRED IMPORTED_TARGET libarchive)
-endif ()
+endif()
 
 find_package(tomlplusplus 3.2.0)
 # fallback to pkgconfig, important especially as many distros package toml++ built with meson
-if (NOT tomlplusplus_FOUND)
+if(NOT tomlplusplus_FOUND)
     find_package(PkgConfig REQUIRED)
     pkg_check_modules(tomlplusplus REQUIRED IMPORTED_TARGET tomlplusplus>=3.2.0)
 endif()
@@ -399,49 +399,49 @@ if(UNIX AND APPLE)
     install(FILES ${Launcher_Branding_ICNS} DESTINATION ${RESOURCES_DEST_DIR} RENAME ${Launcher_Name}.icns)
 
     find_program(ACTOOL_EXE actool DOC "Path to the apple asset catalog compiler")
-    if (ACTOOL_EXE)
+    if(ACTOOL_EXE)
         execute_process(
-                COMMAND xcodebuild -version
-                OUTPUT_VARIABLE XCODE_VERSION_OUTPUT
-                OUTPUT_STRIP_TRAILING_WHITESPACE
+            COMMAND xcodebuild -version
+            OUTPUT_VARIABLE XCODE_VERSION_OUTPUT
+            OUTPUT_STRIP_TRAILING_WHITESPACE
         )
 
         string(REGEX MATCH "Xcode ([0-9]+\.[0-9]+)" XCODE_VERSION_MATCH "${XCODE_VERSION_OUTPUT}")
-        if (XCODE_VERSION_MATCH)
+        if(XCODE_VERSION_MATCH)
             set(XCODE_VERSION ${CMAKE_MATCH_1})
-        else ()
+        else()
             set(XCODE_VERSION 0.0)
-        endif ()
+        endif()
 
-        if (XCODE_VERSION VERSION_GREATER_EQUAL 26.0)
+        if(XCODE_VERSION VERSION_GREATER_EQUAL 26.0)
             set(ASSETS_OUT_DIR "${CMAKE_BINARY_DIR}/program_info")
             set(GENERATED_ASSETS_CAR "${ASSETS_OUT_DIR}/Assets.car")
             set(ICON_SOURCE "${CMAKE_CURRENT_SOURCE_DIR}/${Launcher_Branding_MAC_ICON}")
 
             add_custom_command(
-                    OUTPUT "${GENERATED_ASSETS_CAR}"
-                    COMMAND ${ACTOOL_EXE} "${ICON_SOURCE}"
-                    --compile "${ASSETS_OUT_DIR}"
-                    --output-partial-info-plist /dev/null
-                    --app-icon PrismLauncher
-                    --enable-on-demand-resources NO
-                    --target-device mac
-                    --minimum-deployment-target ${CMAKE_OSX_DEPLOYMENT_TARGET}
-                    --platform macosx
-                    DEPENDS "${ICON_SOURCE}"
-                    COMMENT "Compiling asset catalog (${ICON_SOURCE})"
-                    VERBATIM
+                OUTPUT "${GENERATED_ASSETS_CAR}"
+                COMMAND ${ACTOOL_EXE} "${ICON_SOURCE}"
+                        --compile "${ASSETS_OUT_DIR}"
+                        --output-partial-info-plist /dev/null
+                        --app-icon PrismLauncher
+                        --enable-on-demand-resources NO
+                        --target-device mac
+                        --minimum-deployment-target ${CMAKE_OSX_DEPLOYMENT_TARGET}
+                        --platform macosx
+                DEPENDS "${ICON_SOURCE}"
+                COMMENT "Compiling asset catalog (${ICON_SOURCE})"
+                VERBATIM
             )
             add_custom_target(compile_assets ALL DEPENDS "${GENERATED_ASSETS_CAR}")
             install(FILES "${GENERATED_ASSETS_CAR}" DESTINATION "${RESOURCES_DEST_DIR}")
-        else ()
+        else()
             message(WARNING "Xcode ${XCODE_VERSION} is too old. Minimum required version is 26.0. Not compiling liquid glass icons.")
-        endif ()
+        endif()
 
-    else ()
+    else()
         message(WARNING "actool not found. Cannot compile macOS app icons.\n"
-                "Install Xcode command line tools: 'xcode-select --install'")
-    endif ()
+				"Install Xcode command line tools: 'xcode-select --install'")
+    endif()
 
 
 elseif(UNIX)
