@@ -26,14 +26,14 @@ set(CORE_SOURCES
     NullInstance.h
     MMCZip.h
     MMCZip.cpp
-        archive/ArchiveReader.cpp
-        archive/ArchiveReader.h
-        archive/ArchiveWriter.cpp
-        archive/ArchiveWriter.h
-        archive/ExportToZipTask.cpp
-        archive/ExportToZipTask.h
-        archive/ExtractZipTask.cpp
-        archive/ExtractZipTask.h
+    archive/ArchiveReader.cpp
+    archive/ArchiveReader.h
+    archive/ArchiveWriter.cpp
+    archive/ArchiveWriter.h
+    archive/ExportToZipTask.cpp
+    archive/ExportToZipTask.h
+    archive/ExtractZipTask.cpp
+    archive/ExtractZipTask.h
     StringUtils.h
     StringUtils.cpp
     QVariantUtils.h
@@ -171,8 +171,8 @@ set(LAUNCH_SOURCES
     launch/LogModel.h
     launch/TaskStepWrapper.cpp
     launch/TaskStepWrapper.h
-        logs/LogParser.cpp
-        logs/LogParser.h
+    logs/LogParser.cpp
+    logs/LogParser.h
 )
 
 # Old update system
@@ -267,8 +267,8 @@ set(MINECRAFT_SOURCES
 
     minecraft/auth/custom/steps/CustomAuthStep.cpp
     minecraft/auth/custom/steps/CustomAuthStep.h
-        minecraft/auth/custom/steps/CustomGetSkinStep.cpp
-        minecraft/auth/custom/steps/CustomGetSkinStep.h
+    minecraft/auth/custom/steps/CustomGetSkinStep.cpp
+    minecraft/auth/custom/steps/CustomGetSkinStep.h
 
     minecraft/update/AssetUpdateTask.h
     minecraft/update/AssetUpdateTask.cpp
@@ -333,8 +333,8 @@ set(MINECRAFT_SOURCES
     minecraft/ProfileUtils.h
     minecraft/ScreenshotsWatcher.cpp
     minecraft/ScreenshotsWatcher.h
-        minecraft/ShortcutUtils.cpp
-        minecraft/ShortcutUtils.h
+    minecraft/ShortcutUtils.cpp
+    minecraft/ShortcutUtils.h
     minecraft/Library.cpp
     minecraft/Library.h
     minecraft/MojangDownloadInfo.h
@@ -361,8 +361,8 @@ set(MINECRAFT_SOURCES
     minecraft/mod/ResourceFolderModel.cpp
     minecraft/mod/DataPack.h
     minecraft/mod/DataPack.cpp
-        minecraft/mod/DataPackFolderModel.h
-        minecraft/mod/DataPackFolderModel.cpp
+    minecraft/mod/DataPackFolderModel.h
+    minecraft/mod/DataPackFolderModel.cpp
     minecraft/mod/ResourcePack.h
     minecraft/mod/ResourcePack.cpp
     minecraft/mod/ResourcePackFolderModel.h
@@ -518,11 +518,11 @@ set(META_SOURCES
 set(API_SOURCES
     modplatform/ModIndex.h
     modplatform/ModIndex.cpp
-        modplatform/ResourceType.h
-        modplatform/ResourceType.cpp
+    modplatform/ResourceType.h
+    modplatform/ResourceType.cpp
 
     modplatform/ResourceAPI.h
-        modplatform/ResourceAPI.cpp
+    modplatform/ResourceAPI.cpp
 
     modplatform/EnsureMetadataTask.h
     modplatform/EnsureMetadataTask.cpp
@@ -614,8 +614,8 @@ set(ATLAUNCHER_SOURCES
 )
 
 set(LINKEXE_SOURCES
-        console/WindowsConsole.h
-        console/WindowsConsole.cpp
+    console/WindowsConsole.h
+    console/WindowsConsole.cpp
 
     filelink/FileLink.h
     filelink/FileLink.cpp
@@ -652,10 +652,10 @@ set(PRISMUPDATER_SOURCES
     # Zip
     MMCZip.h
     MMCZip.cpp
-        archive/ArchiveReader.cpp
-        archive/ArchiveReader.h
-        archive/ArchiveWriter.cpp
-        archive/ArchiveWriter.h
+    archive/ArchiveReader.cpp
+    archive/ArchiveReader.h
+    archive/ArchiveWriter.cpp
+    archive/ArchiveWriter.h
 
     # Time
     MMCTime.h
@@ -702,9 +702,9 @@ set(DISCORD_SOURCES
 
 if (WIN32)
     set(PRISMUPDATER_SOURCES
-            console/WindowsConsole.h
-            console/WindowsConsole.cpp
-            ${PRISMUPDATER_SOURCES}
+        console/WindowsConsole.h
+        console/WindowsConsole.cpp
+        ${PRISMUPDATER_SOURCES}
     )
 endif ()
 
@@ -835,8 +835,8 @@ SET(LAUNCHER_SOURCES
     SysInfo.h
     SysInfo.cpp
 
-        # console utils
-        console/Console.h
+    # console utils
+    console/Console.h
 
     # GUI - general utilities
     DesktopServices.h
@@ -875,9 +875,9 @@ SET(LAUNCHER_SOURCES
     icons/IconList.h
     icons/IconList.cpp
 
-        # log utils
-        logs/AnonymizeLog.cpp
-        logs/AnonymizeLog.h
+    # log utils
+    logs/AnonymizeLog.cpp
+    logs/AnonymizeLog.h
 
     # GUI - windows
     ui/GuiUtil.h
@@ -886,8 +886,8 @@ SET(LAUNCHER_SOURCES
     ui/MainWindow.cpp
     ui/InstanceWindow.h
     ui/InstanceWindow.cpp
-        ui/ViewLogWindow.h
-        ui/ViewLogWindow.cpp
+    ui/ViewLogWindow.h
+    ui/ViewLogWindow.cpp
 
     # FIXME: maybe find a better home for this.
     FileIgnoreProxy.cpp
@@ -938,8 +938,8 @@ SET(LAUNCHER_SOURCES
     ui/themes/ThemeManager.h
     ui/themes/CatPack.cpp
     ui/themes/CatPack.h
-        ui/themes/CatPainter.cpp
-        ui/themes/CatPainter.h
+    ui/themes/CatPainter.cpp
+    ui/themes/CatPainter.h
 
     # Processes
     LaunchController.h
@@ -964,8 +964,8 @@ SET(LAUNCHER_SOURCES
     ui/pages/instance/VersionPage.h
     ui/pages/instance/ManagedPackPage.cpp
     ui/pages/instance/ManagedPackPage.h
-        ui/pages/instance/DataPackPage.h
-        ui/pages/instance/DataPackPage.cpp
+    ui/pages/instance/DataPackPage.h
+    ui/pages/instance/DataPackPage.cpp
     ui/pages/instance/TexturePackPage.h
     ui/pages/instance/TexturePackPage.cpp
     ui/pages/instance/ResourcePackPage.h
@@ -1006,7 +1006,7 @@ SET(LAUNCHER_SOURCES
     ui/pages/global/MinecraftPage.h
     ui/pages/global/LauncherPage.cpp
     ui/pages/global/LauncherPage.h
-        ui/pages/global/AppearancePage.h
+    ui/pages/global/AppearancePage.h
     ui/pages/global/ProxyPage.cpp
     ui/pages/global/ProxyPage.h
     ui/pages/global/APIPage.cpp
@@ -1036,8 +1036,8 @@ SET(LAUNCHER_SOURCES
     ui/pages/modplatform/ShaderPackPage.cpp
     ui/pages/modplatform/ShaderPackModel.cpp
 
-        ui/pages/modplatform/DataPackPage.cpp
-        ui/pages/modplatform/DataPackModel.cpp
+    ui/pages/modplatform/DataPackPage.cpp
+    ui/pages/modplatform/DataPackModel.cpp
 
     ui/pages/modplatform/ModpackProviderBasePage.h
 
@@ -1099,8 +1099,8 @@ SET(LAUNCHER_SOURCES
     ui/dialogs/ProfileSetupDialog.h
     ui/dialogs/CopyInstanceDialog.cpp
     ui/dialogs/CopyInstanceDialog.h
-        ui/dialogs/CreateShortcutDialog.cpp
-        ui/dialogs/CreateShortcutDialog.h
+    ui/dialogs/CreateShortcutDialog.cpp
+    ui/dialogs/CreateShortcutDialog.h
     ui/dialogs/CustomMessageBox.cpp
     ui/dialogs/CustomMessageBox.h
     ui/dialogs/ExportInstanceDialog.cpp
@@ -1147,8 +1147,8 @@ SET(LAUNCHER_SOURCES
     ui/dialogs/ResourceUpdateDialog.h
     ui/dialogs/InstallLoaderDialog.cpp
     ui/dialogs/InstallLoaderDialog.h
-        ui/dialogs/ChooseOfflineNameDialog.cpp
-        ui/dialogs/ChooseOfflineNameDialog.h
+    ui/dialogs/ChooseOfflineNameDialog.cpp
+    ui/dialogs/ChooseOfflineNameDialog.h
 
     ui/dialogs/skins/SkinManageDialog.cpp
     ui/dialogs/skins/SkinManageDialog.h
@@ -1204,8 +1204,8 @@ SET(LAUNCHER_SOURCES
     ui/widgets/ProgressWidget.cpp
     ui/widgets/WideBar.h
     ui/widgets/WideBar.cpp
-        ui/widgets/AppearanceWidget.h
-        ui/widgets/AppearanceWidget.cpp
+    ui/widgets/AppearanceWidget.h
+    ui/widgets/AppearanceWidget.cpp
     ui/widgets/MinecraftSettingsWidget.h
     ui/widgets/MinecraftSettingsWidget.cpp
     ui/widgets/JavaSettingsWidget.h
@@ -1227,8 +1227,8 @@ SET(LAUNCHER_SOURCES
 
 if (APPLE)
     set(LAUNCHER_SOURCES
-            ${LAUNCHER_SOURCES}
-            ui/themes/ThemeManager.mm
+        ${LAUNCHER_SOURCES}
+        ui/themes/ThemeManager.mm
     )
 endif ()
 
@@ -1243,17 +1243,17 @@ endif()
 
 if (APPLE)
     set(LAUNCHER_SOURCES
-            ${LAUNCHER_SOURCES}
+        ${LAUNCHER_SOURCES}
 
-            macsandbox/SecurityBookmarkFileAccess.h
-            macsandbox/SecurityBookmarkFileAccess.mm
+        macsandbox/SecurityBookmarkFileAccess.h
+        macsandbox/SecurityBookmarkFileAccess.mm
     )
 endif ()
 
 if(WIN32)
     set(LAUNCHER_SOURCES
-            console/WindowsConsole.h
-            console/WindowsConsole.cpp
+        console/WindowsConsole.h
+        console/WindowsConsole.cpp
         ${LAUNCHER_SOURCES}
     )
 endif()
@@ -1294,11 +1294,11 @@ qt_wrap_ui(LAUNCHER_UI
     ui/widgets/InfoFrame.ui
     ui/widgets/ModFilterWidget.ui
     ui/widgets/SubTaskProgressBar.ui
-        ui/widgets/AppearanceWidget.ui
+    ui/widgets/AppearanceWidget.ui
     ui/widgets/MinecraftSettingsWidget.ui
     ui/widgets/JavaSettingsWidget.ui
     ui/dialogs/CopyInstanceDialog.ui
-        ui/dialogs/CreateShortcutDialog.ui
+    ui/dialogs/CreateShortcutDialog.ui
     ui/dialogs/ProfileSetupDialog.ui
     ui/dialogs/ProgressDialog.ui
     ui/dialogs/NewInstanceDialog.ui
@@ -1313,14 +1313,14 @@ qt_wrap_ui(LAUNCHER_UI
     ui/dialogs/MSALoginDialog.ui
     ui/dialogs/OfflineLoginDialog.ui
     ui/dialogs/ElybyLoginDialog.ui
-        ui/dialogs/CustomLoginDialog.ui
+    ui/dialogs/CustomLoginDialog.ui
     ui/dialogs/AboutDialog.ui
     ui/dialogs/ReviewMessageBox.ui
     ui/dialogs/ScrollMessageBox.ui
     ui/dialogs/BlockedModsDialog.ui
     ui/dialogs/ChooseProviderDialog.ui
     ui/dialogs/skins/SkinManageDialog.ui
-        ui/dialogs/ChooseOfflineNameDialog.ui
+    ui/dialogs/ChooseOfflineNameDialog.ui
 )
 
 qt_wrap_ui(PRISM_UPDATE_UI
@@ -1364,9 +1364,9 @@ include(CompilerWarnings)
 ######## Precompiled Headers ###########
 
 set(PRECOMPILED_HEADERS
-        include/base.pch.hpp
-        include/qtcore.pch.hpp
-        include/qtgui.pch.hpp
+    include/base.pch.hpp
+    include/qtcore.pch.hpp
+    include/qtgui.pch.hpp
 )
 
 ####### Targets ########
