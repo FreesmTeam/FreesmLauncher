@@ -19,7 +19,8 @@
 
 #include "ToolTipFilter.h"
 
-bool ToolTipFilter::eventFilter(QObject* obj, QEvent* ev) {
+bool ToolTipFilter::eventFilter(QObject* obj, QEvent* ev)
+{
     if (ev->type() == QEvent::ToolTip) {
         return true;
     } else {

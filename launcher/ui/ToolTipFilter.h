@@ -18,12 +18,11 @@
 
 #pragma once
 
-#include <qobject.h>
-#include <qevent.h>
+#include <QEvent>
+#include <QObject>
 
-class ToolTipFilter : public QObject
-{
+class ToolTipFilter : public QObject {
     Q_OBJECT
-protected:
-    bool eventFilter(QObject *obj, QEvent *event);
+   protected:
+    bool eventFilter(QObject* obj, QEvent* event);
 };

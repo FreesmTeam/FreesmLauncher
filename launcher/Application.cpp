@@ -50,8 +50,8 @@
 #include "tools/GenericProfiler.h"
 #include "ui/InstanceWindow.h"
 #include "ui/MainWindow.h"
-#include "ui/ViewLogWindow.h"
 #include "ui/ToolTipFilter.h"
+#include "ui/ViewLogWindow.h"
 
 #include "ui/dialogs/ProgressDialog.h"
 #include "ui/instanceview/AccessibleInstanceView.h"
