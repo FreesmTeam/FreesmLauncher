@@ -44,8 +44,9 @@
 
 #include <QDebug>
 
-#include "ui/dialogs/CustomLoginDialog.h"
+#include "ui/dialogs/ChooseOfflineNameDialog.h"
 #include "ui/dialogs/CustomMessageBox.h"
+#include "ui/dialogs/CustomLoginDialog.h"
 #include "ui/dialogs/ElybyLoginDialog.h"
 #include "ui/dialogs/MSALoginDialog.h"
 #include "ui/dialogs/OfflineLoginDialog.h"
