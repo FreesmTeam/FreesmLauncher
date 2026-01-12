@@ -79,7 +79,7 @@ bool processZIP(ShaderPack& pack, ProcessingLevel level)
       // there are multiple, the first one is picked.
       bool isShaderPresent = false;
       for (QString f : files) {
-        if (zip.exists(f + "/shaders")) {
+        if (f.contains("/shaders/", Qt::CaseInsensitive)) {
 	  isShaderPresent = true;
 	  break;
 	}
