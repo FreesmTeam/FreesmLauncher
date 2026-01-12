@@ -78,7 +78,7 @@ bool processZIP(ShaderPack& pack, ProcessingLevel level)
       // folder with the "shader" subfolder. In case
       // there are multiple, the first one is picked.
       bool isShaderPresent = false;
-      for (QString f: files) {
+      for (QString f : files) {
         if (zip.exists(f + "/shaders"))
           isShaderPresent = true;
       }
