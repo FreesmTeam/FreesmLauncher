@@ -79,13 +79,13 @@ bool processZIP(ShaderPack& pack, ProcessingLevel level)
       // there are multiple, the first one is picked.
       bool isShaderPresent = false;
       for (QString f: files) {
-	if (zip.exists(f + "/shaders"))
-	  isShaderPresent = true;
+        if (zip.exists(f + "/shaders"))
+          isShaderPresent = true;
       }
-      
+     
       if (!isShaderPresent)
-	// assets dir does not exist.
-	return false;
+        // assets dir does not exist.
+        return false;
       
     }
     pack.setPackFormat(ShaderPackFormat::VALID);
