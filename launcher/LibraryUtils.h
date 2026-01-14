@@ -21,9 +21,9 @@
 #include <QString>
 #include <QStringList>
 
-namespace MangoHud {
+namespace LibraryUtils {
 
-QString getLibraryString();
+QString findMangoHud();
 
-QString findLibrary(QString libName);
-}  // namespace MangoHud
+QString find(QString libName);
+}  // namespace LibraryUtils
