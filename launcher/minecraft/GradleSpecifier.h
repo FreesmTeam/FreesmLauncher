@@ -125,20 +125,7 @@ struct GradleSpecifier {
     {
         return other.artifactId() == artifactId() && other.groupId() == groupId() && other.classifier() == classifier();
     }
-    bool operator==(const GradleSpecifier& other) const
-    {
-        if (m_groupId != other.m_groupId)
-            return false;
-        if (m_artifactId != other.m_artifactId)
-            return false;
-        if (m_version != other.m_version)
-            return false;
-        if (m_classifier != other.m_classifier)
-            return false;
-        if (m_extension != other.m_extension)
-            return false;
-        return true;
-    }
+    bool operator ==(const GradleSpecifier &other) const = default;
 
    private:
     QString m_invalidValue;
