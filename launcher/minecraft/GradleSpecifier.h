@@ -41,8 +41,7 @@
 
 struct GradleSpecifier {
     GradleSpecifier() { m_valid = false; }
-    GradleSpecifier(QString value) { operator=(value); }
-    GradleSpecifier& operator=(const QString& value)
+    GradleSpecifier(const QString& value)
     {
         /*
         org.gradle.test.classifiers : service : 1.0 : jdk15 @ jar
@@ -61,7 +60,7 @@ struct GradleSpecifier {
         m_valid = match.hasMatch();
         if (!m_valid) {
             m_invalidValue = value;
-            return *this;
+            return;
         }
         auto elements = match.captured();
         m_groupId = match.captured(1);
@@ -71,7 +70,6 @@ struct GradleSpecifier {
         if (match.lastCapturedIndex() >= 5) {
             m_extension = match.captured(5);
         }
-        return *this;
     }
     QString serialize() const
     {
