@@ -38,7 +38,6 @@
 #include <QRegularExpression>
 #include <QString>
 #include <QStringList>
-#include "DefaultVariable.h"
 
 struct GradleSpecifier {
     GradleSpecifier() { m_valid = false; }
@@ -83,8 +82,8 @@ struct GradleSpecifier {
         if (!m_classifier.isEmpty()) {
             retval += ":" + m_classifier;
         }
-        if (m_extension.isExplicit()) {
-            retval += "@" + m_extension;
+        if (m_extension.has_value()) {
+            retval += "@" + m_extension.value();
         }
         return retval;
     }
@@ -97,7 +96,7 @@ struct GradleSpecifier {
         if (!m_classifier.isEmpty()) {
             filename += "-" + m_classifier;
         }
-        filename += "." + m_extension;
+        filename += "." + m_extension.value_or("jar");
         return filename;
     }
     QString toPath(const QString& filenameOverride = QString()) const
@@ -122,7 +121,7 @@ struct GradleSpecifier {
     inline QString artifactId() const { return m_artifactId; }
     inline void setClassifier(const QString& classifier) { m_classifier = classifier; }
     inline QString classifier() const { return m_classifier; }
-    inline QString extension() const { return m_extension; }
+    inline std::optional<QString> extension() const { return m_extension; }
     inline QString artifactPrefix() const { return m_groupId + ":" + m_artifactId; }
     bool matchName(const GradleSpecifier& other) const
     {
@@ -149,6 +148,6 @@ struct GradleSpecifier {
     QString m_artifactId;
     QString m_version;
     QString m_classifier;
-    DefaultVariable<QString> m_extension = DefaultVariable<QString>("jar");
+    std::optional<QString> m_extension;
     bool m_valid = false;
 };
