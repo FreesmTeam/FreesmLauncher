@@ -91,7 +91,6 @@ class Index;
 #define APPLICATION_DYN (dynamic_cast<Application*>(QCoreApplication::instance()))
 
 class Application : public QApplication {
-    // friends for the purpose of limiting access to deprecated stuff
     Q_OBJECT
    public:
     enum Status { StartingUp, Failed, Succeeded, Initialized };
