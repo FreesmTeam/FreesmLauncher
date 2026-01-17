@@ -310,9 +310,7 @@ GetModDependenciesTask::Ptr ModDownloadDialog::getModDependenciesTask()
     return nullptr;
 }
 
-ResourcePackDownloadDialog::ResourcePackDownloadDialog(QWidget* parent,
-                                                       ResourcePackFolderModel* resource_packs,
-                                                       BaseInstance* instance)
+ResourcePackDownloadDialog::ResourcePackDownloadDialog(QWidget* parent, ResourcePackFolderModel* resource_packs, BaseInstance* instance)
     : ResourceDownloadDialog(parent, resource_packs), m_instance(instance)
 {
     setWindowTitle(dialogTitle());
@@ -335,9 +333,7 @@ QList<BasePage*> ResourcePackDownloadDialog::getPages()
     return pages;
 }
 
-TexturePackDownloadDialog::TexturePackDownloadDialog(QWidget* parent,
-                                                     TexturePackFolderModel* resource_packs,
-                                                     BaseInstance* instance)
+TexturePackDownloadDialog::TexturePackDownloadDialog(QWidget* parent, TexturePackFolderModel* resource_packs, BaseInstance* instance)
     : ResourceDownloadDialog(parent, resource_packs), m_instance(instance)
 {
     setWindowTitle(dialogTitle());
@@ -360,9 +356,7 @@ QList<BasePage*> TexturePackDownloadDialog::getPages()
     return pages;
 }
 
-ShaderPackDownloadDialog::ShaderPackDownloadDialog(QWidget* parent,
-                                                   ShaderPackFolderModel* shaders,
-                                                   BaseInstance* instance)
+ShaderPackDownloadDialog::ShaderPackDownloadDialog(QWidget* parent, ShaderPackFolderModel* shaders, BaseInstance* instance)
     : ResourceDownloadDialog(parent, shaders), m_instance(instance)
 {
     setWindowTitle(dialogTitle());
@@ -400,9 +394,7 @@ void ResourceDownloadDialog::setResourceMetadata(const std::shared_ptr<Metadata:
     page->openProject(meta->project_id);
 }
 
-DataPackDownloadDialog::DataPackDownloadDialog(QWidget* parent,
-                                               DataPackFolderModel* data_packs,
-                                               BaseInstance* instance)
+DataPackDownloadDialog::DataPackDownloadDialog(QWidget* parent, DataPackFolderModel* data_packs, BaseInstance* instance)
     : ResourceDownloadDialog(parent, data_packs), m_instance(instance)
 {
     setWindowTitle(dialogTitle());
