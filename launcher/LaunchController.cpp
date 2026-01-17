@@ -220,7 +220,10 @@ void LaunchController::login()
         if (tries > 0 && tries % 3 == 0) {
             auto result =
                 QMessageBox::question(m_parentWidget, tr("Continue launch?"),
-                                      tr("It looks like we couldn't launch after %1 tries. Do you want to continue trying?").arg(tries));
+                                      tr("It looks like we couldn't launch after %1 tries. Usually this can be fixed by logging out and "
+                                         "logging back in your Microsoft account. If that doesn't work, Minecraft authentication servers "
+                                         "may be having an outage or you may need a VPN in your region. Do you want to continue trying?")
+                                          .arg(tries));
 
             if (result == QMessageBox::No) {
                 emitAborted();
