@@ -39,6 +39,7 @@
 
 #include <QDir>
 #include <QFile>
+#include <QIcon>
 #include <QIODevice>
 #include <QJsonArray>
 #include <QJsonDocument>
