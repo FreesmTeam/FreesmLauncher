@@ -427,7 +427,7 @@ if(UNIX AND APPLE)
 
     else()
         message(WARNING "actool not found. Cannot compile macOS app icons.\n"
-				"Install Xcode command line tools: 'xcode-select --install'")
+                "Install Xcode command line tools: 'xcode-select --install'")
     endif()
 
 
