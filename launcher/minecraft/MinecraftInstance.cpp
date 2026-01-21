@@ -683,12 +683,7 @@ QProcessEnvironment MinecraftInstance::createEnvironment()
             env.insert(iter.key(), iter.value().toString());
     };
 
-    bool overrideEnv = settings()->get("OverrideEnv").toBool();
-
-    if (!overrideEnv)
-        insertEnv(APPLICATION->settings()->get("Env").toString());
-    else
-        insertEnv(settings()->get("Env").toString());
+    insertEnv(settings()->get("Env").toString());
     return env;
 }
 
@@ -1010,7 +1005,7 @@ QStringList MinecraftInstance::verboseDescription(AuthSessionPtr session, Minecr
     out << emptyLine;
 
     // environment variables
-    const QString env = settings->get("OverrideEnv").toBool() ? settings->get("Env").toString() : APPLICATION->settings()->get("Env").toString();
+    const QString env = settings->get("Env").toString();
     if (auto envMap = Json::toMap(env); !envMap.isEmpty()) {
         out << "Custom environment variables:";
         for (auto [key, value] : envMap.asKeyValueRange()) {
