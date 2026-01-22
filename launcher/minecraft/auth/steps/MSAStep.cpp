@@ -56,13 +56,14 @@ bool isSchemeHandlerRegistered()
     process.waitForFinished();
     QString output = process.readAllStandardOutput().trimmed();
 
-    return output.contains(BuildConfig.LAUNCHER_APP_BINARY_NAME);
+    return output.contains(APPLICATION->desktopFileName());
 
 #elif defined(Q_OS_WIN)
     QString regPath = QString("HKEY_CURRENT_USER\\Software\\Classes\\%1").arg(BuildConfig.LAUNCHER_APP_BINARY_NAME);
     QSettings settings(regPath, QSettings::NativeFormat);
 
-    return settings.contains("shell/open/command/.");
+    const QString registeredRunCommand = settings.value("shell/open/command/.").toString().replace("\\", "/");
+    return registeredRunCommand.contains(QCoreApplication::applicationFilePath());
 #endif
     return true;
 }
