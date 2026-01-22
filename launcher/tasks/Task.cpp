@@ -38,7 +38,7 @@
 
 #include <QDebug>
 
-#include "Assert.h"
+#include "AssertHelpers.h"
 
 Q_LOGGING_CATEGORY(taskLogC, "launcher.task")
 

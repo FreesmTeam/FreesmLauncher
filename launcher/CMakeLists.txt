@@ -104,7 +104,7 @@ set(CORE_SOURCES
     MTPixmapCache.h
 
     # Assertion helper
-    Assert.h
+    AssertHelpers.h
 )
 if (UNIX AND NOT CYGWIN AND NOT APPLE)
     set(CORE_SOURCES
