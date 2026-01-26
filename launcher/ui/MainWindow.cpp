@@ -941,10 +941,20 @@ void MainWindow::processURLs(QList<QUrl> urls)
         QUrl local_url;
         if (!url.isLocalFile()) {  // download the remote resource and identify
             QUrl dl_url;
-            if (url.scheme() == "curseforge") {
+            if (url.scheme() == "curseforge" || (url.scheme() == BuildConfig.LAUNCHER_APP_BINARY_NAME && url.host() == "install")) {
                 // need to find the download link for the modpack / resource
                 // format of url curseforge://install?addonId=IDHERE&fileId=IDHERE
+                // format of url binaryname://install?platform=curseforge&addonId=IDHERE&fileId=IDHERE
                 QUrlQuery query(url);
+                
+                // check if this is a binaryname:// url
+                if (url.scheme() == BuildConfig.LAUNCHER_APP_BINARY_NAME) {
+                    // check this is an curseforge platform request
+                    if (query.queryItemValue("platform").toLower() != "curseforge") {
+                        qDebug() << "Invalid mod distribution platform:" << query.queryItemValue("platform");
+                        continue;
+                    }
+                }
 
                 if (query.allQueryItemValues("addonId").isEmpty() || query.allQueryItemValues("fileId").isEmpty()) {
                     qDebug() << "Invalid curseforge link:" << url;
