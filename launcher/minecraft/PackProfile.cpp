@@ -167,6 +167,7 @@ static bool savePackProfile(const QString& filename, const ComponentContainer& c
     }
     if (!outFile.commit()) {
         qCCritical(instanceProfileC) << "Couldn't save" << outFile.fileName() << "because:" << outFile.errorString();
+        return false;
     }
     return true;
 }
@@ -229,9 +230,8 @@ static PackProfile::Result loadPackProfile(PackProfile* parent,
 
 void PackProfile::saveNow()
 {
-    if (saveIsScheduled()) {
+    if (saveIsScheduled() && save_internal()) {
         d->m_saveTimer.stop();
-        save_internal();
     }
 }
 
@@ -279,12 +279,15 @@ QString PackProfile::patchFilePathForUid(const QString& uid) const
     return patchesPattern().arg(uid);
 }
 
-void PackProfile::save_internal()
+bool PackProfile::save_internal()
 {
     qDebug() << d->m_instance->name() << "|" << "Component list save performed now";
     auto filename = componentsFilePath();
-    savePackProfile(filename, d->components);
-    d->dirty = false;
+    if (savePackProfile(filename, d->components)) {
+        d->dirty = false;
+        return true;
+    }
+    return false;
 }
 
 PackProfile::Result PackProfile::load()
