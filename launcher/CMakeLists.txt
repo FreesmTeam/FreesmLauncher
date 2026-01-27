@@ -902,6 +902,7 @@ SET(LAUNCHER_SOURCES
     ui/themes/CatPainter.h
 
     # Processes
+    LaunchMode.h
     LaunchController.h
     LaunchController.cpp
 

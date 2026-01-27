@@ -313,8 +313,8 @@ void MinecraftInstance::populateLaunchMenu(QMenu* menu)
     normalLaunchDemo->setEnabled(supportsDemo());
 
     connect(normalLaunch, &QAction::triggered, [this] { APPLICATION->launch(this); });
-    connect(normalLaunchOffline, &QAction::triggered, [this] { APPLICATION->launch(this, false, false); });
-    connect(normalLaunchDemo, &QAction::triggered, [this] { APPLICATION->launch(this, false, true); });
+    connect(normalLaunchOffline, &QAction::triggered, [this] { APPLICATION->launch(this, LaunchMode::Offline); });
+    connect(normalLaunchDemo, &QAction::triggered, [this] { APPLICATION->launch(this, LaunchMode::Demo); });
 
     QString profilersTitle = tr("Profilers");
     menu->addSeparator()->setText(profilersTitle);
@@ -774,7 +774,7 @@ QStringList MinecraftInstance::processMinecraftArgs(AuthSessionPtr session, Mine
         tokenMapping["user_properties"] = session->serializeUserProperties();
         tokenMapping["user_type"] = session->user_type;
 
-        if (session->demo) {
+        if (session->launchMode == LaunchMode::Demo) {
             args_pattern += " --demo";
         }
     }
@@ -1153,7 +1153,7 @@ LaunchTask* MinecraftInstance::createLaunchTask(AuthSessionPtr session, Minecraf
 
     // load meta
     {
-        auto mode = session->status != AuthSession::PlayableOffline ? Net::Mode::Online : Net::Mode::Offline;
+        auto mode = session->launchMode != LaunchMode::Offline ? Net::Mode::Online : Net::Mode::Offline;
         process->appendStep(makeShared<TaskStepWrapper>(pptr, makeShared<MinecraftLoadAndCheck>(this, mode)));
     }
 
@@ -1170,11 +1170,9 @@ LaunchTask* MinecraftInstance::createLaunchTask(AuthSessionPtr session, Minecraf
         process->appendStep(step);
     }
 
-    // if we aren't in offline mode,.
-    if (session->status != AuthSession::PlayableOffline) {
-        if (!session->demo) {
-            process->appendStep(makeShared<ClaimAccount>(pptr, session));
-        }
+    // if we aren't in offline mode
+    if (session->launchMode != LaunchMode::Offline) {
+        process->appendStep(makeShared<ClaimAccount>(pptr, session));
         for (auto t : createUpdateTask()) {
             process->appendStep(makeShared<TaskStepWrapper>(pptr, t));
         }

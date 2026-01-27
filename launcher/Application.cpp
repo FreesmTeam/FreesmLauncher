@@ -333,7 +333,7 @@ Application::Application(int& argc, char** argv) : QApplication(argc, argv)
     m_worldToJoin = parser.value("world");
     m_profileToUse = parser.value("profile");
     if (parser.isSet("offline")) {
-        m_offline = true;
+        m_launchOffline = true;
         m_offlineName = parser.value("offline");
     }
     m_liveCheck = parser.isSet("alive");
@@ -350,7 +350,7 @@ Application::Application(int& argc, char** argv) : QApplication(argc, argv)
     }
 
     // error if --launch is missing with --server or --profile
-    if ((!m_serverToJoin.isEmpty() || !m_worldToJoin.isEmpty() || !m_profileToUse.isEmpty() || m_offline) &&
+    if ((!m_serverToJoin.isEmpty() || !m_worldToJoin.isEmpty() || !m_profileToUse.isEmpty() || m_launchOffline) &&
         m_instanceIdToLaunch.isEmpty()) {
         std::cerr << "--server, --profile and --offline can only be used in combination with --launch!" << std::endl;
         m_status = Application::Failed;
@@ -478,7 +478,7 @@ Application::Application(int& argc, char** argv) : QApplication(argc, argv)
                 if (!m_profileToUse.isEmpty()) {
                     launch.args["profile"] = m_profileToUse;
                 }
-                if (m_offline) {
+                if (m_launchOffline) {
                     launch.args["offline_enabled"] = "true";
                     launch.args["offline_name"] = m_offlineName;
                 }
@@ -1348,7 +1348,7 @@ void Application::performMainStartupAction()
                 qDebug() << "   Launching with account" << m_profileToUse;
             }
 
-            launch(inst, !m_offline, false, targetToJoin, accountToUse, m_offlineName);
+            launch(inst, m_launchOffline ? LaunchMode::Offline : LaunchMode::Normal, targetToJoin, accountToUse, m_offlineName);
             return;
         }
     }
@@ -1471,7 +1471,7 @@ void Application::messageReceived(const QByteArray& message)
             }
         }
 
-        launch(instance, !offline, false, serverObject, accountObject, offlineName);
+        launch(instance, offline ? LaunchMode::Offline : LaunchMode::Normal, serverObject, accountObject, offlineName);
     } else {
         qWarning() << "Received invalid message" << message;
     }
@@ -1507,8 +1507,7 @@ bool Application::openJsonEditor(const QString& filename)
 }
 
 bool Application::launch(BaseInstance* instance,
-                         bool online,
-                         bool demo,
+                         LaunchMode mode,
                          MinecraftTarget::Ptr targetToJoin,
                          MinecraftAccountPtr accountToUse,
                          const QString& offlineName)
@@ -1527,8 +1526,7 @@ bool Application::launch(BaseInstance* instance,
         auto& controller = extras.controller;
         controller.reset(new LaunchController());
         controller->setInstance(instance);
-        controller->setOnline(online);
-        controller->setDemo(demo);
+        controller->setLaunchMode(mode);
         controller->setProfiler(profilers().value(instance->settings()->get("Profiler").toString(), nullptr).get());
         controller->setTargetToJoin(targetToJoin);
         controller->setAccountToUse(accountToUse);
