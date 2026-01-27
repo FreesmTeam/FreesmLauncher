@@ -45,7 +45,7 @@
 #include "minecraft/launch/ExtractNatives.h"
 #include "minecraft/launch/PrintInstanceInfo.h"
 #include "minecraft/update/AssetUpdateTask.h"
-#include "minecraft/update/FMLLibrariesTask.h"
+#include "minecraft/update/LegacyFMLLibrariesTask.h"
 #include "minecraft/update/LibrariesTask.h"
 #include "settings/Setting.h"
 #include "settings/SettingsObject.h"
@@ -1113,7 +1113,7 @@ QList<LaunchStep::Ptr> MinecraftInstance::createUpdateTask()
         // libraries download
         makeShared<LibrariesTask>(this),
         // FML libraries download and copy into the instance
-        makeShared<FMLLibrariesTask>(this),
+        makeShared<LegacyFMLLibrariesTask>(this),
         // assets update
         makeShared<AssetUpdateTask>(this),
     };
