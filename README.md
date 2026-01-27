@@ -33,6 +33,8 @@ These have debug information in the binaries, so their file sizes are relatively
 
 Prebuilt Development builds are provided for **Linux**, **Windows** and **macOS**.
 
+On Linux, we also offer our own [Flatpak nightly repository](https://github.com/PrismLauncher/flatpak). Most software centers are able to install it by opening [this link](https://flatpak.prismlauncher.org/prismlauncher-nightly.flatpakref).
+
 ## Community & Support
 
 Feel free to create a GitHub issue if you find a bug or want to suggest a new feature. We have multiple community spaces where other community members can help you:
