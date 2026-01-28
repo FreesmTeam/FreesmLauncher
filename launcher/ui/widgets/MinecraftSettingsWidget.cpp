@@ -202,14 +202,14 @@ void MinecraftSettingsWidget::loadSettings()
     // Native Libraries
     m_ui->nativeWorkaroundsGroupBox->setChecked(m_instance == nullptr || settings->get("OverrideNativeWorkarounds").toBool());
     m_ui->useNativeGLFWCheck->setChecked(settings->get("UseNativeGLFW").toBool());
-    m_ui->lineEditGLFWPath->setText(settings->get("CustomGLFWPath").toString());
+    m_ui->lineEditGLFWPath->setText(settings->get("CustomGLFWPath").toString().trimmed());
 #ifdef Q_OS_LINUX
     m_ui->lineEditGLFWPath->setPlaceholderText(APPLICATION->m_detectedGLFWPath);
 #else
     m_ui->lineEditGLFWPath->setPlaceholderText(tr("Path to %1 library file").arg(BuildConfig.GLFW_LIBRARY_NAME));
 #endif
     m_ui->useNativeOpenALCheck->setChecked(settings->get("UseNativeOpenAL").toBool());
-    m_ui->lineEditOpenALPath->setText(settings->get("CustomOpenALPath").toString());
+    m_ui->lineEditOpenALPath->setText(settings->get("CustomOpenALPath").toString().trimmed());
 #ifdef Q_OS_LINUX
     m_ui->lineEditOpenALPath->setPlaceholderText(APPLICATION->m_detectedOpenALPath);
 #else
@@ -293,7 +293,7 @@ void MinecraftSettingsWidget::loadSettings()
     m_ui->globalDataPacksGroupBox->blockSignals(true);
     m_ui->dataPacksPathEdit->blockSignals(true);
     m_ui->globalDataPacksGroupBox->setChecked(settings->get("GlobalDataPacksEnabled").toBool());
-    m_ui->dataPacksPathEdit->setText(settings->get("GlobalDataPacksPath").toString());
+    m_ui->dataPacksPathEdit->setText(settings->get("GlobalDataPacksPath").toString().trimmed());
     m_ui->globalDataPacksGroupBox->blockSignals(false);
     m_ui->dataPacksPathEdit->blockSignals(false);
 }
