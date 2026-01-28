@@ -142,16 +142,16 @@ bool LaunchController::decideLaunchMode()
         }
     }
 
+    const auto accounts = APPLICATION->accounts();
     MinecraftAccountPtr accountToCheck = nullptr;
 
     if (m_accountToUse->accountType() != AccountType::Offline) {
         accountToCheck = m_accountToUse->ownsMinecraft() ? m_accountToUse : nullptr;
-    } else if (const MinecraftAccountPtr defaultAccount = APPLICATION->accounts()->defaultAccount();
-               defaultAccount && defaultAccount->ownsMinecraft()) {
+    } else if (const auto defaultAccount = accounts->defaultAccount(); defaultAccount && defaultAccount->ownsMinecraft()) {
         accountToCheck = defaultAccount;
     } else {
-        for (int i = 0; i < APPLICATION->accounts()->count(); i++) {
-            if (const MinecraftAccountPtr account = APPLICATION->accounts()->at(i); account->ownsMinecraft()) {
+        for (int i = 0; i < accounts->count(); i++) {
+            if (const auto account = accounts->at(i); account->ownsMinecraft()) {
                 accountToCheck = account;
                 break;
             }
@@ -187,20 +187,19 @@ bool LaunchController::decideLaunchMode()
     QString reauthReason;
     switch (state) {
         case AccountState::Errored:
-        case AccountState::Expired: {
+        case AccountState::Expired:
             reauthReason = tr("'%1' has expired and needs to be reauthenticated").arg(accountToCheck->profileName());
-        } break;
-        case AccountState::Disabled: {
+            break;
+        case AccountState::Disabled:
             reauthReason = tr("The launcher's client identification has changed");
-        } break;
-        case AccountState::Gone: {
+            break;
+        case AccountState::Gone:
             reauthReason = tr("'%1' no longer exists on the servers").arg(accountToCheck->profileName());
-        } break;
-        default: {
+            break;
+        default:
             m_actualLaunchMode =
                 state == AccountState::Online && m_wantedLaunchMode == LaunchMode::Normal ? LaunchMode::Normal : LaunchMode::Offline;
             return true;  // All good to go
-        }
     }
 
     if (reauthenticateAccount(accountToCheck, reauthReason)) {
