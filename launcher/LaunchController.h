@@ -42,6 +42,8 @@
 
 class InstanceWindow;
 
+enum class LaunchDecision { Undecided, Continue, Abort };
+
 class LaunchController : public Task {
     Q_OBJECT
    public:
@@ -74,7 +76,7 @@ class LaunchController : public Task {
     void login();
     void launchInstance();
     void decideAccount();
-    bool decideLaunchMode();
+    LaunchDecision decideLaunchMode();
     bool askPlayDemo();
     QString askOfflineName(QString playerName, bool* ok = nullptr);
     bool reauthenticateAccount(MinecraftAccountPtr account, QString reason);

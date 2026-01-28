@@ -127,11 +127,11 @@ void LaunchController::decideAccount()
     }
 }
 
-bool LaunchController::decideLaunchMode()
+LaunchDecision LaunchController::decideLaunchMode()
 {
     if (!m_accountToUse || m_wantedLaunchMode == LaunchMode::Demo) {
         m_actualLaunchMode = LaunchMode::Demo;
-        return true;
+        return LaunchDecision::Continue;
     }
 
     if (m_wantedLaunchMode == LaunchMode::Normal) {
@@ -160,7 +160,7 @@ bool LaunchController::decideLaunchMode()
 
     if (!accountToCheck) {
         m_actualLaunchMode = LaunchMode::Demo;
-        return true;
+        return LaunchDecision::Continue;
     }
 
     auto state = accountToCheck->accountState();
@@ -178,7 +178,7 @@ bool LaunchController::decideLaunchMode()
         progDialog.execWithTask(task.get());
 
         if (task->getState() == State::AbortedByUser) {
-            return false;
+            return LaunchDecision::Abort;
         }
 
         state = accountToCheck->accountState();
@@ -199,14 +199,14 @@ bool LaunchController::decideLaunchMode()
         default:
             m_actualLaunchMode =
                 state == AccountState::Online && m_wantedLaunchMode == LaunchMode::Normal ? LaunchMode::Normal : LaunchMode::Offline;
-            return true;  // All good to go
+            return LaunchDecision::Continue;  // All good to go
     }
 
     if (reauthenticateAccount(accountToCheck, reauthReason)) {
-        return decideLaunchMode();
+        return LaunchDecision::Undecided;
     }
 
-    return false;
+    return LaunchDecision::Abort;
 }
 
 bool LaunchController::askPlayDemo()
@@ -270,7 +270,11 @@ void LaunchController::login()
 {
     decideAccount();
 
-    if (!decideLaunchMode()) {
+    LaunchDecision decision = decideLaunchMode();
+    while (decision == LaunchDecision::Undecided) {
+        decision = decideLaunchMode();
+    }
+    if (decision == LaunchDecision::Abort) {
         emitAborted();
         return;
     }
