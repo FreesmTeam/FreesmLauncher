@@ -40,13 +40,6 @@
 #include "BuildConfig.h"
 #include "Json.h"
 #include "QObjectPtr.h"
-#include "minecraft/launch/AutoInstallJava.h"
-#include "minecraft/launch/CreateGameFolders.h"
-#include "minecraft/launch/ExtractNatives.h"
-#include "minecraft/launch/PrintInstanceInfo.h"
-#include "minecraft/update/AssetUpdateTask.h"
-#include "minecraft/update/LegacyFMLLibrariesTask.h"
-#include "minecraft/update/LibrariesTask.h"
 #include "settings/Setting.h"
 #include "settings/SettingsObject.h"
 
@@ -63,12 +56,22 @@
 #include "launch/steps/QuitAfterGameStop.h"
 #include "launch/steps/TextPrint.h"
 
+#include "minecraft/launch/AutoInstallJava.h"
 #include "minecraft/launch/ClaimAccount.h"
+#include "minecraft/launch/CreateGameFolders.h"
+#include "minecraft/launch/EnsureOfflineLibraries.h"
+#include "minecraft/launch/ExtractNatives.h"
 #include "minecraft/launch/LauncherPartLaunch.h"
 #include "minecraft/launch/ModMinecraftJar.h"
+#include "minecraft/launch/PrintInstanceInfo.h"
 #include "minecraft/launch/ReconstructAssets.h"
 #include "minecraft/launch/ScanModFolders.h"
 #include "minecraft/launch/VerifyJavaInstall.h"
+
+#include "minecraft/update/AssetUpdateTask.h"
+#include "minecraft/update/FoldersTask.h"
+#include "minecraft/update/LegacyFMLLibrariesTask.h"
+#include "minecraft/update/LibrariesTask.h"
 
 #include "java/JavaUtils.h"
 
@@ -84,7 +87,6 @@
 #include "AssetsUtils.h"
 #include "MinecraftLoadAndCheck.h"
 #include "PackProfile.h"
-#include "minecraft/update/FoldersTask.h"
 
 #include "tools/BaseProfiler.h"
 
@@ -93,8 +95,6 @@
 #include <QScreen>
 #include <QStandardPaths>
 #include <QWindow>
-
-#include "launch/EnsureOfflineLibraries.h"
 
 #ifdef Q_OS_LINUX
 #include "MangoHud.h"
