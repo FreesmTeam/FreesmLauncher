@@ -686,7 +686,7 @@ Application::Application(int& argc, char** argv) : QApplication(argc, argv)
         QString resolvedDefaultMonospace = consoleFontInfo.family();
         QFont resolvedFont(resolvedDefaultMonospace);
         qDebug().nospace() << "Detected default console font: " << resolvedDefaultMonospace
-                 << ", substitutions: " << resolvedFont.substitutions().join(',');
+                           << ", substitutions: " << resolvedFont.substitutions().join(',');
 
         m_settings->registerSetting("ConsoleFont", resolvedDefaultMonospace);
         m_settings->registerSetting("ConsoleFontSize", defaultSize);
