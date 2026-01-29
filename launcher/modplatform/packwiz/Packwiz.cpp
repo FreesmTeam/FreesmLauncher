@@ -50,7 +50,7 @@ auto getRealIndexName(const QDir& index_dir, QString normalized_fname, bool shou
 
         if (should_find_match && !QString::compare(normalized_fname, real_fname, Qt::CaseSensitive)) {
             qCritical() << "Could not find a match for a valid metadata file!";
-            qCritical() << "File: " << normalized_fname;
+            qCritical() << "File:" << normalized_fname;
             return {};
         }
     }
@@ -251,14 +251,14 @@ auto V1::getIndexForMod(const QDir& index_dir, QString slug) -> Mod
         table = toml::parse_file(StringUtils::toStdString(index_dir.absoluteFilePath(real_fname)));
     } catch (const toml::parse_error& err) {
         qWarning() << QString("Could not open file %1!").arg(normalized_fname);
-        qWarning() << "Reason: " << QString(err.what());
+        qWarning() << "Reason:" << QString(err.what());
         return {};
     }
 #else
     toml::parse_result result = toml::parse_file(StringUtils::toStdString(index_dir.absoluteFilePath(real_fname)));
     if (!result) {
         qWarning() << QString("Could not open file %1!").arg(normalized_fname);
-        qWarning() << "Reason: " << result.error().description();
+        qWarning() << "Reason:" << result.error().description();
         return {};
     }
     table = result.table();

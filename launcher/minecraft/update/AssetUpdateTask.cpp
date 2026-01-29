@@ -43,7 +43,7 @@ void AssetUpdateTask::executeTask()
     connect(downloadJob.get(), &NetJob::progress, this, &AssetUpdateTask::progress);
     connect(downloadJob.get(), &NetJob::stepProgress, this, &AssetUpdateTask::propagateStepProgress);
 
-    qDebug() << m_inst->name() << ": Starting asset index download";
+    qDebug() << "Starting asset index download for" << m_inst->name();
     downloadJob->start();
 }
 
@@ -55,7 +55,7 @@ bool AssetUpdateTask::canAbort() const
 void AssetUpdateTask::assetIndexFinished()
 {
     AssetsIndex index;
-    qDebug() << m_inst->name() << ": Finished asset index download";
+    qDebug() << "Finished asset index download for" << m_inst->name();
 
     auto components = m_inst->getPackProfile();
     auto profile = components->getProfile();

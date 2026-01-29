@@ -115,7 +115,7 @@ void FileLinkApp::joinServer(QString server)
                 qDebug() << ("The connection was closed by the peer. ");
                 break;
             default:
-                qDebug() << "The following error occurred: " << socket.errorString();
+                qDebug() << "The following error occurred:" << socket.errorString();
         }
     });
 
