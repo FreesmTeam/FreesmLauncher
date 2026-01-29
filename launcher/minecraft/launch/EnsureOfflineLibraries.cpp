@@ -30,10 +30,9 @@ void EnsureOfflineLibraries::executeTask()
     profile->getLibraryFiles(m_instance->runtimeContext(), allJars, allJars, m_instance->getLocalLibraryPath(), m_instance->binRoot());
     for (const auto& jar : allJars) {
         if (!QFileInfo::exists(jar)) {
-            emit logLine(
-                tr("This instance cannot be launched in offline mode because libraries have not been downloaded yet. Please try again in "
-                   "online mode with a working Internet connection"),
-                MessageLevel::Fatal);
+            emit logLine(tr("This instance cannot be launched because some libraries are missing or have not been downloaded yet. Please "
+                            "try again in online mode with a working Internet connection"),
+                         MessageLevel::Fatal);
             emitFailed("Required libraries are missing");
             return;
         }
