@@ -94,6 +94,8 @@
 #include <QStandardPaths>
 #include <QWindow>
 
+#include "launch/EnsureOfflineLibraries.h"
+
 #ifdef Q_OS_LINUX
 #include "MangoHud.h"
 #endif
@@ -920,21 +922,13 @@ QStringList MinecraftInstance::verboseDescription(AuthSessionPtr session, Minecr
         out << "Libraries:";
         QStringList jars, nativeJars;
         profile->getLibraryFiles(runtimeContext(), jars, nativeJars, getLocalLibraryPath(), binRoot());
-        auto printLibFile = [&out](const QString& path) {
-            QFileInfo info(path);
-            if (info.exists()) {
-                out << indent + path;
-            } else {
-                out << indent + path + " (missing)";
-            }
-        };
         for (auto file : jars) {
-            printLibFile(file);
+            out << indent + file;
         }
         out << emptyLine;
         out << "Native libraries:";
         for (auto file : nativeJars) {
-            printLibFile(file);
+            out << indent + file;
         }
         out << emptyLine;
     }
@@ -1184,6 +1178,8 @@ LaunchTask* MinecraftInstance::createLaunchTask(AuthSessionPtr session, Minecraf
         for (auto t : createUpdateTask()) {
             process->appendStep(makeShared<TaskStepWrapper>(pptr, t));
         }
+    } else {
+        process->appendStep(makeShared<EnsureOfflineLibraries>(pptr, this));
     }
 
     // if there are any jar mods
