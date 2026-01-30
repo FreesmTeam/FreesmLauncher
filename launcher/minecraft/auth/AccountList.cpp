@@ -612,7 +612,7 @@ void AccountList::fillQueue()
     if (m_defaultAccount && m_defaultAccount->shouldRefresh()) {
         auto idToRefresh = m_defaultAccount->internalId();
         m_refreshQueue.push_back(idToRefresh);
-        qDebug() << "AccountList: Queued default account with internal ID " << idToRefresh << " to refresh first";
+        qDebug() << "AccountList: Queued default account with internal ID" << idToRefresh << "to refresh first";
     }
 
     for (int i = 0; i < count(); i++) {
@@ -636,7 +636,7 @@ void AccountList::requestRefresh(QString accountId)
         m_refreshQueue.removeAt(index);
     }
     m_refreshQueue.push_front(accountId);
-    qDebug() << "AccountList: Pushed account with internal ID " << accountId << " to the front of the queue";
+    qDebug() << "AccountList: Pushed account with internal ID" << accountId << "to the front of the queue";
     if (!isActive()) {
         tryNext();
     }
@@ -648,7 +648,7 @@ void AccountList::queueRefresh(QString accountId)
         return;
     }
     m_refreshQueue.push_back(accountId);
-    qDebug() << "AccountList: Queued account with internal ID " << accountId << " to refresh";
+    qDebug() << "AccountList: Queued account with internal ID" << accountId << "to refresh";
 }
 
 void AccountList::tryNext()
@@ -664,13 +664,13 @@ void AccountList::tryNext()
                     connect(m_currentTask.get(), &Task::succeeded, this, &AccountList::authSucceeded);
                     connect(m_currentTask.get(), &Task::failed, this, &AccountList::authFailed);
                     m_currentTask->start();
-                    qDebug() << "RefreshSchedule: Processing account " << account->accountDisplayString() << " with internal ID "
+                    qDebug() << "RefreshSchedule: Processing account" << account->accountDisplayString() << "with internal ID"
                              << accountId;
                     return;
                 }
             }
         }
-        qDebug() << "RefreshSchedule: Account with with internal ID " << accountId << " not found.";
+        qDebug() << "RefreshSchedule: Account with internal ID" << accountId << "not found.";
     }
     // if we get here, no account needed refreshing. Schedule refresh in an hour.
     m_refreshTimer->start(1000 * 3600);
@@ -685,7 +685,7 @@ void AccountList::authSucceeded()
 
 void AccountList::authFailed(QString reason)
 {
-    qDebug() << "RefreshSchedule: Background account refresh failed: " << reason;
+    qDebug() << "RefreshSchedule: Background account refresh failed:" << reason;
     m_currentTask.reset();
     m_nextTimer->start(1000 * 20);
 }

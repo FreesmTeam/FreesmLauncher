@@ -113,12 +113,12 @@ void Task::emitFailed(QString reason)
 {
     // Don't fail twice.
     if (ASSERT_NEVER(!isRunning())) {
-        qCCritical(taskLogC) << "Task" << describe() << "failed while not running!!!!: " << reason;
+        qCCritical(taskLogC) << "Task" << describe() << "failed while not running!!!!:" << reason;
         return;
     }
     m_state = State::Failed;
     m_failReason = reason;
-    qCCritical(taskLogC) << "Task" << describe() << "failed: " << reason;
+    qCCritical(taskLogC) << "Task" << describe() << "failed:" << reason;
     emit failed(reason);
     emit finished();
 }

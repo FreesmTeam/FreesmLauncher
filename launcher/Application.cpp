@@ -603,25 +603,25 @@ Application::Application(int& argc, char** argv) : QApplication(argc, argv)
 
     {
         qInfo() << qPrintable(BuildConfig.LAUNCHER_DISPLAYNAME + ", " + QString(BuildConfig.LAUNCHER_COPYRIGHT).replace("\n", ", "));
-        qInfo() << "Version                    : " << BuildConfig.printableVersionString();
-        qInfo() << "Platform                   : " << BuildConfig.BUILD_PLATFORM;
-        qInfo() << "Git commit                 : " << BuildConfig.GIT_COMMIT;
-        qInfo() << "Git refspec                : " << BuildConfig.GIT_REFSPEC;
-        qInfo() << "Compiled for               : " << BuildConfig.systemID();
-        qInfo() << "Compiled by                : " << BuildConfig.compilerID();
-        qInfo() << "Build Artifact             : " << BuildConfig.BUILD_ARTIFACT;
-        qInfo() << "Updates Enabled           : " << (updaterEnabled() ? "Yes" : "No");
+        qInfo() << "Version                    :" << BuildConfig.printableVersionString();
+        qInfo() << "Platform                   :" << BuildConfig.BUILD_PLATFORM;
+        qInfo() << "Git commit                 :" << BuildConfig.GIT_COMMIT;
+        qInfo() << "Git refspec                :" << BuildConfig.GIT_REFSPEC;
+        qInfo() << "Compiled for               :" << BuildConfig.systemID();
+        qInfo() << "Compiled by                :" << BuildConfig.compilerID();
+        qInfo() << "Build Artifact             :" << BuildConfig.BUILD_ARTIFACT;
+        qInfo() << "Updates Enabled            :" << (updaterEnabled() ? "Yes" : "No");
         if (adjustedBy.size()) {
-            qInfo() << "Work dir before adjustment : " << origcwdPath;
-            qInfo() << "Work dir after adjustment  : " << QDir::currentPath();
-            qInfo() << "Adjusted by                : " << adjustedBy;
+            qInfo() << "Work dir before adjustment :" << origcwdPath;
+            qInfo() << "Work dir after adjustment  :" << QDir::currentPath();
+            qInfo() << "Adjusted by                :" << adjustedBy;
         } else {
-            qInfo() << "Work dir                   : " << QDir::currentPath();
+            qInfo() << "Work dir                   :" << QDir::currentPath();
         }
-        qInfo() << "Binary path                : " << binPath;
-        qInfo() << "Application root path      : " << m_rootPath;
+        qInfo() << "Binary path                :" << binPath;
+        qInfo() << "Application root path      :" << m_rootPath;
         if (!m_instanceIdToLaunch.isEmpty()) {
-            qInfo() << "ID of instance to launch   : " << m_instanceIdToLaunch;
+            qInfo() << "ID of instance to launch   :" << m_instanceIdToLaunch;
         }
         if (!m_serverToJoin.isEmpty()) {
             qInfo() << "Address of server to join  :" << m_serverToJoin;
@@ -685,8 +685,8 @@ Application::Application(int& argc, char** argv) : QApplication(argc, argv)
         QFontInfo consoleFontInfo(consoleFont);
         QString resolvedDefaultMonospace = consoleFontInfo.family();
         QFont resolvedFont(resolvedDefaultMonospace);
-        qDebug() << "Detected default console font:" << resolvedDefaultMonospace
-                 << ", substitutions:" << resolvedFont.substitutions().join(',');
+        qDebug().nospace() << "Detected default console font: " << resolvedDefaultMonospace
+                           << ", substitutions: " << resolvedFont.substitutions().join(',');
 
         m_settings->registerSetting("ConsoleFont", resolvedDefaultMonospace);
         m_settings->registerSetting("ConsoleFontSize", defaultSize);
@@ -985,7 +985,7 @@ Application::Application(int& argc, char** argv) : QApplication(argc, argv)
         // instance path: check for problems with '!' in instance path and warn the user in the log
         // and remember that we have to show him a dialog when the gui starts (if it does so)
         QString instDir = m_settings->get("InstanceDir").toString();
-        qInfo() << "Instance path              : " << instDir;
+        qInfo() << "Instance path              :" << instDir;
         if (FS::checkProblemticPathJava(QDir(instDir))) {
             qWarning() << "Your instance path contains \'!\' and this is known to cause java problems!";
         }

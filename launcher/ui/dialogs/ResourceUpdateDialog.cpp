@@ -163,7 +163,7 @@ void ResourceUpdateDialog::checkCandidates()
             const auto& reason = std::get<1>(failed);
             const auto& recover_url = std::get<2>(failed);
 
-            qDebug() << mod->name() << " failed to check for updates!";
+            qDebug() << mod->name() << "failed to check for updates!";
 
             text += tr("Mod name: %1").arg(mod->name()) + "<br>";
             if (!reason.isEmpty())

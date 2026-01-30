@@ -366,7 +366,7 @@ void PackProfile::updateSucceeded()
 
 void PackProfile::updateFailed(const QString& error)
 {
-    qCDebug(instanceProfileC) << d->m_instance->name() << "|" << "Component list update/resolve task failed " << "Reason:" << error;
+    qCDebug(instanceProfileC) << d->m_instance->name() << "|" << "Component list update/resolve task failed. Reason:" << error;
     d->m_updateTask.reset();
     invalidateLaunchProfile();
 }
@@ -954,7 +954,7 @@ std::shared_ptr<LaunchProfile> PackProfile::getProfile() const
             }
             d->m_profile = profile;
         } catch (const Exception& error) {
-            qCWarning(instanceProfileC) << d->m_instance->name() << "|" << "Couldn't apply profile patches because: " << error.cause();
+            qCWarning(instanceProfileC) << d->m_instance->name() << "|" << "Couldn't apply profile patches because:" << error.cause();
         }
     }
     return d->m_profile;

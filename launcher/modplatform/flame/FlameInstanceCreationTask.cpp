@@ -194,8 +194,8 @@ bool FlameCreationTask::updateInstance()
             QJsonParseError parse_error{};
             auto doc = QJsonDocument::fromJson(*raw_response, &parse_error);
             if (parse_error.error != QJsonParseError::NoError) {
-                qWarning() << "Error while parsing JSON response from Flame files task at " << parse_error.offset
-                           << " reason: " << parse_error.errorString();
+                qWarning() << "Error while parsing JSON response from Flame files task at" << parse_error.offset
+                           << "reason:" << parse_error.errorString();
                 qWarning() << *raw_response;
                 return;
             }
@@ -235,7 +235,7 @@ bool FlameCreationTask::updateInstance()
                 }
             }
         });
-        connect(job.get(), &Task::failed, this, [](QString reason) { qCritical() << "Failed to get files: " << reason; });
+        connect(job.get(), &Task::failed, this, [](QString reason) { qCritical() << "Failed to get files:" << reason; });
         connect(job.get(), &Task::finished, &loop, &QEventLoop::quit);
 
         m_processUpdateFileInfoJob = job;
@@ -551,7 +551,7 @@ void FlameCreationTask::idResolverSucceeded(QEventLoop& loop)
         message_dialog.setModal(true);
 
         if (message_dialog.exec()) {
-            qDebug() << "Post dialog blocked mods list: " << blocked_mods;
+            qDebug() << "Post dialog blocked mods list:" << blocked_mods;
             copyBlockedMods(blocked_mods);
             setupDownloadJob(loop);
         } else {
