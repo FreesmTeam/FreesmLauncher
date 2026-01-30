@@ -43,9 +43,14 @@
 
 #include <QApplication>
 #include <QClipboard>
+#include <QColor>
+#include <QPainter>
 #include <QPixmap>
+#include <QSize>
 #include <QUrl>
 #include <QtWidgets/QPushButton>
+
+#include "qrencode.h"
 
 MSALoginDialog::MSALoginDialog(QWidget* parent) : QDialog(parent), ui(new Ui::MSALoginDialog)
 {
@@ -60,7 +65,6 @@ MSALoginDialog::MSALoginDialog(QWidget* parent) : QDialog(parent), ui(new Ui::MS
     ui->code->setFont(font);
 
     connect(ui->copyCode, &QPushButton::clicked, this, [this] { QApplication::clipboard()->setText(ui->code->text()); });
-    ui->qr->setPixmap(QIcon((":/documents/login-qr.svg")).pixmap(QSize(150, 150)));
     connect(ui->loginButton, &QPushButton::clicked, this, [this] {
         if (m_url.isValid()) {
             if (!DesktopServices::openUrl(m_url)) {
@@ -135,34 +139,86 @@ void MSALoginDialog::onTaskFailed(QString reason)
 void MSALoginDialog::authorizeWithBrowser(const QUrl& url)
 {
     ui->stackedWidget2->setCurrentIndex(1);
+    ui->stackedWidget2->adjustSize();
+    ui->stackedWidget2->updateGeometry();
+    this->adjustSize();
     ui->loginButton->setToolTip(QString("<div style='width: 200px;'>%1</div>").arg(url.toString()));
     m_url = url;
 }
 
-void MSALoginDialog::authorizeWithBrowserWithExtra(QString url, QString code, int expiresIn)
+void paintQR(QPainter& painter, const QSize canvasSize, const QString& data, QColor fg)
+{
+    const auto* qr = QRcode_encodeString(data.toUtf8().constData(), 0, QRecLevel::QR_ECLEVEL_M, QRencodeMode::QR_MODE_8, 1);
+    if (!qr) {
+        qWarning() << "Unable to encode" << data << "as QR code";
+        return;
+    }
+
+    painter.setPen(Qt::NoPen);
+    painter.setBrush(fg);
+
+    // Make sure the QR code fits in the canvas with some padding
+    const auto qrSize = qr->width;
+    const auto canvasWidth = canvasSize.width();
+    const auto canvasHeight = canvasSize.height();
+    const auto scale = 0.8 * std::min(canvasWidth / qrSize, canvasHeight / qrSize);
+
+    // Find an offset to center it in the canvas
+    const auto offsetX = (canvasWidth - qrSize * scale) / 2;
+    const auto offsetY = (canvasHeight - qrSize * scale) / 2;
+
+    for (int y = 0; y < qrSize; y++) {
+        for (int x = 0; x < qrSize; x++) {
+            auto shouldFillIn = qr->data[y * qrSize + x] & 1;
+            if (shouldFillIn) {
+                QRectF r(offsetX + x * scale, offsetY + y * scale, scale, scale);
+                painter.drawRects(&r, 1);
+            }
+        }
+    }
+}
+
+void MSALoginDialog::authorizeWithBrowserWithExtra(QString url, QString code, [[maybe_unused]] int expiresIn)
 {
     ui->stackedWidget->setCurrentIndex(1);
+    ui->stackedWidget->adjustSize();
+    ui->stackedWidget->updateGeometry();
+    this->adjustSize();
 
     const auto linkString = QString("<a href=\"%1\">%2</a>").arg(url, url);
-    ui->code->setText(code);
-    auto isDefaultUrl = url == "https://www.microsoft.com/link";
-    ui->qr->setVisible(isDefaultUrl);
-    if (isDefaultUrl) {
-        ui->qrMessage->setText(tr("Open %1 or scan the QR and enter the above code.").arg(linkString));
-    } else {
-        ui->qrMessage->setText(tr("Open %1 and enter the above code.").arg(linkString));
+    if (url == "https://www.microsoft.com/link" && !code.isEmpty()) {
+        url += QString("?otc=%1").arg(code);
     }
+    ui->code->setText(code);
+
+    auto size = QSize(150, 150);
+    QPixmap pixmap(size);
+    pixmap.fill(Qt::white);
+
+    QPainter painter(&pixmap);
+    paintQR(painter, size, url, Qt::black);
+
+    // Set the generated pixmap to the label
+    ui->qr->setPixmap(pixmap);
+
+    ui->qrMessage->setText(tr("Open %1 or scan the QR and enter the above code if needed.").arg(linkString));
 }
 
 void MSALoginDialog::onDeviceFlowStatus(QString status)
 {
     ui->stackedWidget->setCurrentIndex(0);
+    ui->stackedWidget->adjustSize();
+    ui->stackedWidget->updateGeometry();
+    this->adjustSize();
     ui->status->setText(status);
 }
 
 void MSALoginDialog::onAuthFlowStatus(QString status)
 {
     ui->stackedWidget2->setCurrentIndex(0);
+    ui->stackedWidget2->adjustSize();
+    ui->stackedWidget2->updateGeometry();
+    this->adjustSize();
     ui->status2->setText(status);
 }
 

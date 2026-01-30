@@ -135,7 +135,9 @@ void TechnicPage::onSelectionChanged(QModelIndex first, [[maybe_unused]] QModelI
         return;
     }
 
-    current = model->data(first, Qt::UserRole).value<Technic::Modpack>();
+    QVariant raw = model->data(first, Qt::UserRole);
+    Q_ASSERT(raw.canConvert<Technic::Modpack>());
+    current = raw.value<Technic::Modpack>();
     suggestCurrent();
 }
 
@@ -162,7 +164,7 @@ void TechnicPage::suggestCurrent()
     QString slug = current.slug;
     netJob->addNetAction(Net::ApiDownload::makeByteArray(
         QString("%1modpack/%2?build=%3").arg(BuildConfig.TECHNIC_API_BASE_URL, slug, BuildConfig.TECHNIC_API_BUILD), response));
-    QObject::connect(netJob.get(), &NetJob::succeeded, this, [this, slug] {
+    connect(netJob.get(), &NetJob::succeeded, this, [this, slug] {
         jobPtr.reset();
 
         if (current.slug != slug) {
@@ -200,11 +202,11 @@ void TechnicPage::suggestCurrent()
             }
         }
 
-        current.minecraftVersion = Json::ensureString(obj, "minecraft", QString(), "__placeholder__");
-        current.websiteUrl = Json::ensureString(obj, "platformUrl", QString(), "__placeholder__");
-        current.author = Json::ensureString(obj, "user", QString(), "__placeholder__");
-        current.description = Json::ensureString(obj, "description", QString(), "__placeholder__");
-        current.currentVersion = Json::ensureString(obj, "version", QString(), "__placeholder__");
+        current.minecraftVersion = obj["minecraft"].toString();
+        current.websiteUrl = obj["platformUrl"].toString();
+        current.author = obj["user"].toString();
+        current.description = obj["description"].toString();
+        current.currentVersion = obj["version"].toString();
         current.metadataLoaded = true;
 
         metadataLoaded();
@@ -260,7 +262,7 @@ void TechnicPage::metadataLoaded()
         auto url = QString("%1/modpack/%2").arg(current.url, current.slug);
         netJob->addNetAction(Net::ApiDownload::makeByteArray(QUrl(url), response));
 
-        QObject::connect(netJob.get(), &NetJob::succeeded, this, &TechnicPage::onSolderLoaded);
+        connect(netJob.get(), &NetJob::succeeded, this, &TechnicPage::onSolderLoaded);
         connect(jobPtr.get(), &NetJob::failed,
                 [this](QString reason) { CustomMessageBox::selectable(this, tr("Error"), reason, QMessageBox::Critical)->exec(); });
 

@@ -55,9 +55,9 @@ class AtlOptionalModListModel : public QAbstractListModel {
         DescriptionColumn,
     };
 
-    AtlOptionalModListModel(QWidget* parent, const ATLauncher::PackVersion& version, QVector<ATLauncher::VersionMod> mods);
+    AtlOptionalModListModel(QWidget* parent, const ATLauncher::PackVersion& version, QList<ATLauncher::VersionMod> mods);
 
-    QVector<QString> getResult();
+    QList<QString> getResult();
 
     int rowCount(const QModelIndex& parent) const override;
     int columnCount(const QModelIndex& parent) const override;
@@ -86,21 +86,21 @@ class AtlOptionalModListModel : public QAbstractListModel {
     std::shared_ptr<QByteArray> m_response = std::make_shared<QByteArray>();
 
     ATLauncher::PackVersion m_version;
-    QVector<ATLauncher::VersionMod> m_mods;
+    QList<ATLauncher::VersionMod> m_mods;
 
     QMap<QString, bool> m_selection;
     QMap<QString, int> m_index;
-    QMap<QString, QVector<QString>> m_dependents;
+    QMap<QString, QList<QString>> m_dependents;
 };
 
 class AtlOptionalModDialog : public QDialog {
     Q_OBJECT
 
    public:
-    AtlOptionalModDialog(QWidget* parent, const ATLauncher::PackVersion& version, QVector<ATLauncher::VersionMod> mods);
+    AtlOptionalModDialog(QWidget* parent, const ATLauncher::PackVersion& version, QList<ATLauncher::VersionMod> mods);
     ~AtlOptionalModDialog() override;
 
-    QVector<QString> getResult() { return listModel->getResult(); }
+    QList<QString> getResult() { return listModel->getResult(); }
 
     void useShareCode();
 

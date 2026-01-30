@@ -393,11 +393,12 @@ Section "@Launcher_DisplayName@"
   WriteRegStr HKCU Software\Classes\curseforge "URL Protocol" ""
   WriteRegStr HKCU Software\Classes\curseforge\shell\open\command "" '"$INSTDIR\@Launcher_APP_BINARY_NAME@.exe" "%1"'
 
-; Write the URL Handler into registry for freesmlauncher
-  WriteRegStr HKCU Software\Classes\freesmlauncher "URL Protocol" ""
-  WriteRegStr HKCU Software\Classes\freesmlauncher\shell\open\command "" '"$INSTDIR\@Launcher_APP_BINARY_NAME@.exe" "%1"'
+  ; Write the URL Handler into registry for launcher
+  WriteRegStr HKCU Software\Classes\@Launcher_APP_BINARY_NAME@ "URL Protocol" ""
+  WriteRegStr HKCU Software\Classes\@Launcher_APP_BINARY_NAME@\shell\open\command "" '"$INSTDIR\@Launcher_APP_BINARY_NAME@.exe" "%1"'
 
   ; Write the uninstall keys for Windows
+  ; https://learn.microsoft.com/en-us/windows/win32/msi/uninstall-registry-key
   ${GetParameters} $R0
   ${GetOptions} $R0 "/NoUninstaller" $R1
   ${If} ${Errors}
@@ -406,7 +407,7 @@ Section "@Launcher_DisplayName@"
     WriteRegStr HKCU "${UNINST_KEY}" "UninstallString" '"$INSTDIR\uninstall.exe" _?=$INSTDIR'
     WriteRegStr HKCU "${UNINST_KEY}" "QuietUninstallString" '"$INSTDIR\uninstall.exe" /S _?=$INSTDIR'
     WriteRegStr HKCU "${UNINST_KEY}" "InstallLocation" "$INSTDIR"
-    WriteRegStr HKCU "${UNINST_KEY}" "Publisher" "@Launcher_DisplayName@"
+    WriteRegStr HKCU "${UNINST_KEY}" "Publisher" "@Launcher_DisplayName@ Contributors"
     WriteRegStr HKCU "${UNINST_KEY}" "Version" "@Launcher_VERSION_NAME4_WINDOWS@"
     WriteRegStr HKCU "${UNINST_KEY}" "DisplayVersion" "@Launcher_VERSION_NAME_WINDOWS@"
     WriteRegStr HKCU "${UNINST_KEY}" "VersionMajor" "@Launcher_VERSION_MAJOR@"

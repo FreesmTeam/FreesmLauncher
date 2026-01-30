@@ -50,12 +50,14 @@
 
 #include <BaseInstance.h>
 
+#include "launch/LogModel.h"
 #include "minecraft/launch/MinecraftTarget.h"
 
 class LaunchController;
 class LocalPeer;
 class InstanceWindow;
 class MainWindow;
+class ViewLogWindow;
 class SetupWizard;
 class GenericPageProvider;
 class QFile;
@@ -117,7 +119,7 @@ class Application : public QApplication {
 
     qint64 timeSinceStart() const { return m_startTime.msecsTo(QDateTime::currentDateTime()); }
 
-    QIcon getThemedIcon(const QString& name);
+    QIcon logo();
 
     ThemeManager* themeManager() { return m_themeManager.get(); }
 
@@ -166,7 +168,6 @@ class Application : public QApplication {
     QString getFlameAPIKey();
     QString getModrinthAPIToken();
     QString getUserAgent();
-    QString getUserAgentUncached();
 
     /// this is the root of the 'installation'. Used for automatic updates
     const QString& root() { return m_rootPath; }
@@ -189,6 +190,7 @@ class Application : public QApplication {
 
     InstanceWindow* showInstanceWindow(InstancePtr instance, QString page = QString());
     MainWindow* showMainWindow(bool minimized = false);
+    ViewLogWindow* showLogWindow();
 
     void updateIsRunning(bool running);
     bool updatesAreAllowed();
@@ -203,8 +205,8 @@ class Application : public QApplication {
    signals:
     void updateAllowedChanged(bool status);
     void globalSettingsAboutToOpen();
-    void globalSettingsClosed();
-    void currentCatChanged(int index);
+    void globalSettingsApplied();
+    int currentCatChanged(int index);
     void currentSnowChanged(bool visible);
 
     void oauthReplyRecieved(QVariantMap);
@@ -218,7 +220,8 @@ class Application : public QApplication {
                 bool online = true,
                 bool demo = false,
                 MinecraftTarget::Ptr targetToJoin = nullptr,
-                BaseAccountPtr accountToUse = nullptr);
+                BaseAccountPtr accountToUse = nullptr,
+                const QString& offlineName = QString());
     bool kill(InstancePtr instance);
     void closeCurrentWindow();
 
@@ -297,6 +300,9 @@ class Application : public QApplication {
     // main window, if any
     MainWindow* m_mainWindow = nullptr;
 
+    // log window, if any
+    ViewLogWindow* m_viewLogWindow = nullptr;
+
     // peer launcher instance connector - used to implement single instance launcher and signalling
     LocalPeer* m_peerInstance = nullptr;
 
@@ -309,10 +315,13 @@ class Application : public QApplication {
     QString m_serverToJoin;
     QString m_worldToJoin;
     QString m_profileToUse;
+    bool m_offline = false;
+    QString m_offlineName;
     bool m_liveCheck = false;
     QList<QUrl> m_urlsToImport;
     QString m_instanceIdToShowWindowOf;
     std::unique_ptr<QFile> logFile;
+    shared_qobject_ptr<LogModel> logModel;
 
    public:
     void addQSavePath(QString);

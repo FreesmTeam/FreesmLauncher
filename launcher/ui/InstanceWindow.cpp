@@ -37,7 +37,6 @@
 #include "InstanceWindow.h"
 #include "Application.h"
 
-#include <qlayoutitem.h>
 #include <QCloseEvent>
 #include <QHBoxLayout>
 #include <QMessageBox>
@@ -76,7 +75,7 @@ InstanceWindow::InstanceWindow(InstancePtr instance, QWidget* parent) : QMainWin
     {
         auto horizontalLayout = new QHBoxLayout(this);
         horizontalLayout->setObjectName(QStringLiteral("horizontalLayout"));
-        horizontalLayout->setContentsMargins(6, -1, 6, -1);
+        horizontalLayout->setContentsMargins(0, 0, 6, 6);
 
         auto btnHelp = new QPushButton(this);
         btnHelp->setText(tr("Help"));
@@ -111,14 +110,14 @@ InstanceWindow::InstanceWindow(InstancePtr instance, QWidget* parent) : QMainWin
         m_container->addButtons(horizontalLayout);
 
         connect(m_instance.get(), &BaseInstance::profilerChanged, this, &InstanceWindow::updateButtons);
-        connect(APPLICATION, &Application::globalSettingsClosed, this, &InstanceWindow::updateButtons);
+        connect(APPLICATION, &Application::globalSettingsApplied, this, &InstanceWindow::updateButtons);
     }
 
     // restore window state
     {
-        auto base64State = APPLICATION->settings()->get("ConsoleWindowState").toByteArray();
+        auto base64State = APPLICATION->settings()->get("ConsoleWindowState").toString().toUtf8();
         restoreState(QByteArray::fromBase64(base64State));
-        auto base64Geometry = APPLICATION->settings()->get("ConsoleWindowGeometry").toByteArray();
+        auto base64Geometry = APPLICATION->settings()->get("ConsoleWindowGeometry").toString().toUtf8();
         restoreGeometry(QByteArray::fromBase64(base64Geometry));
     }
 
@@ -190,8 +189,8 @@ void InstanceWindow::closeEvent(QCloseEvent* event)
         return;
     }
 
-    APPLICATION->settings()->set("ConsoleWindowState", saveState().toBase64());
-    APPLICATION->settings()->set("ConsoleWindowGeometry", saveGeometry().toBase64());
+    APPLICATION->settings()->set("ConsoleWindowState", QString::fromUtf8(saveState().toBase64()));
+    APPLICATION->settings()->set("ConsoleWindowGeometry", QString::fromUtf8(saveGeometry().toBase64()));
     emit isClosing();
     event->accept();
 }

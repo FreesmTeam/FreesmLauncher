@@ -39,7 +39,7 @@
 - (id)initWithUpdater:(SPUUpdater*)updater {
     self = [super init];
     _updater = updater;
-    [self addObserver:self forKeyPath:@"updater.canCheckForUpdates" options:NSKeyValueObservingOptionNew context:nil];
+    [self addObserver:self forKeyPath:@ "updater.canCheckForUpdates" options:NSKeyValueObservingOptionNew context:nil];
 
     return self;
 }
@@ -48,7 +48,7 @@
                       ofObject:(id)object
                         change:(NSDictionary<NSKeyValueChangeKey, id>*)change
                        context:(void*)context {
-    if ([keyPath isEqualToString:@"updater.canCheckForUpdates"]) {
+    if ([keyPath isEqualToString:@ "updater.canCheckForUpdates"]) {
         bool canCheck = [change[NSKeyValueChangeNewKey] boolValue];
         self.callback(canCheck);
     }
@@ -101,7 +101,7 @@ MacSparkleUpdater::MacSparkleUpdater() {
 }
 
 MacSparkleUpdater::~MacSparkleUpdater() {
-    [priv->updaterObserver removeObserver:priv->updaterObserver forKeyPath:@"updater.canCheckForUpdates"];
+    [priv->updaterObserver removeObserver:priv->updaterObserver forKeyPath:@ "updater.canCheckForUpdates"];
 
     [priv->updaterController release];
     [priv->updaterObserver release];
@@ -166,7 +166,7 @@ void MacSparkleUpdater::setAllowedChannels(const QSet<QString>& channels) {
     QString channelsConfig = "";
     // Convert QSet<QString> -> NSSet<NSString>
     NSMutableSet<NSString*>* nsChannels = [NSMutableSet setWithCapacity:channels.count()];
-    foreach (const QString channel, channels) {
+    for (const QString& channel : channels) {
         [nsChannels addObject:channel.toNSString()];
         channelsConfig += channel + " ";
     }

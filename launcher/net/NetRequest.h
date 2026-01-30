@@ -39,7 +39,6 @@
 
 #pragma once
 
-#include <qloggingcategory.h>
 #include <QNetworkReply>
 #include <QUrl>
 #include <chrono>
@@ -107,6 +106,7 @@ class NetRequest : public Task {
 
     /// the network reply
     unique_qobject_ptr<QNetworkReply> m_reply;
+    QByteArray m_errorResponse;
 
     /// source URL
     QUrl m_url;

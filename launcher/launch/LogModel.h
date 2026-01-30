@@ -12,7 +12,7 @@ class LogModel : public QAbstractListModel {
     int rowCount(const QModelIndex& parent = QModelIndex()) const;
     QVariant data(const QModelIndex& index, int role) const;
 
-    void append(MessageLevel::Enum, QString line);
+    void append(MessageLevel, QString line);
     void clear();
 
     void suspend(bool suspend);
@@ -24,20 +24,25 @@ class LogModel : public QAbstractListModel {
     void setMaxLines(int maxLines);
     void setStopOnOverflow(bool stop);
     void setOverflowMessage(const QString& overflowMessage);
+    bool isOverFlow();
 
     void setLineWrap(bool state);
     bool wrapLines() const;
+    void setColorLines(bool state);
+    bool colorLines() const;
+
+    MessageLevel previousLevel();
 
     enum Roles { LevelRole = Qt::UserRole };
 
    private /* types */:
     struct entry {
-        MessageLevel::Enum level = MessageLevel::Enum::Unknown;
+        MessageLevel level = MessageLevel::Unknown;
         QString line;
     };
 
    private: /* data */
-    QVector<entry> m_content;
+    QList<entry> m_content;
     int m_maxLines = 1000;
     // first line in the circular buffer
     int m_firstLine = 0;
@@ -47,6 +52,7 @@ class LogModel : public QAbstractListModel {
     QString m_overflowMessage = "OVERFLOW";
     bool m_suspended = false;
     bool m_lineWrap = true;
+    bool m_colorLines = true;
 
    private:
     Q_DISABLE_COPY(LogModel)

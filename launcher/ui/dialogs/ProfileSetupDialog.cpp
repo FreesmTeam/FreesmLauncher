@@ -55,13 +55,13 @@ ProfileSetupDialog::ProfileSetupDialog(BaseAccountPtr accountToSetup, QWidget* p
     ui->setupUi(this);
     ui->errorLabel->setVisible(false);
 
-    goodIcon = APPLICATION->getThemedIcon("status-good");
-    yellowIcon = APPLICATION->getThemedIcon("status-yellow");
-    badIcon = APPLICATION->getThemedIcon("status-bad");
+    goodIcon = QIcon::fromTheme("status-good");
+    yellowIcon = QIcon::fromTheme("status-yellow");
+    badIcon = QIcon::fromTheme("status-bad");
 
-    QRegularExpression permittedNames("[a-zA-Z0-9_]{3,16}");
+    static const QRegularExpression s_permittedNames("[a-zA-Z0-9_]{3,16}");
     auto nameEdit = ui->nameEdit;
-    nameEdit->setValidator(new QRegularExpressionValidator(permittedNames));
+    nameEdit->setValidator(new QRegularExpressionValidator(s_permittedNames));
     nameEdit->setClearButtonEnabled(true);
     validityAction = nameEdit->addAction(yellowIcon, QLineEdit::LeadingPosition);
     connect(nameEdit, &QLineEdit::textEdited, this, &ProfileSetupDialog::nameEdited);
@@ -267,7 +267,6 @@ void ProfileSetupDialog::setupProfileFinished()
 
         QString errorMessage =
             tr("Network Error: %1\nHTTP Status: %2").arg(m_profile_task->errorString(), QString::number(m_profile_task->replyStatusCode()));
-
 
         if (parsedError.fullyParsed) {
             errorMessage += "Path: " + parsedError.path + "\n";

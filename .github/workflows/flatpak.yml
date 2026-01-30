@@ -1,23 +1,66 @@
 name: Flatpak
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 on:
   push:
-    paths-ignore:
-      - "**.md"
-      - "**/LICENSE"
-      - ".github/ISSUE_TEMPLATE/**"
-      - ".markdownlint**"
-      - "nix/**"
+    branches:
+      - "develop"
+      - "release-*"
     # We don't do anything with these artifacts on releases. They go to Flathub
     tags-ignore:
       - "*"
+    paths:
+      # File types
+      - "**.cpp"
+      - "**.h"
+      - "**.java"
+      - "**.ui"
+
+      # Build files
+      - "flatpak/**"
+
+      # Directories
+      - "buildconfig/**"
+      - "cmake/**"
+      - "launcher/**"
+      - "libraries/**"
+      - "program_info/**"
+      - "tests/**"
+
+      # Files
+      - "CMakeLists.txt"
+      - "COPYING.md"
+
+      # Workflows
+      - ".github/workflows/flatpak.yml"
   pull_request:
-    paths-ignore:
-      - "**.md"
-      - "**/LICENSE"
-      - ".github/ISSUE_TEMPLATE/**"
-      - ".markdownlint**"
-      - "nix/**"
+    paths:
+      # File types
+      - "**.cpp"
+      - "**.h"
+      - "**.java"
+      - "**.ui"
+
+      # Build files
+      - "flatpak/**"
+
+      # Directories
+      - "buildconfig/**"
+      - "cmake/**"
+      - "launcher/**"
+      - "libraries/**"
+      - "program_info/**"
+      - "tests/**"
+
+      # Files
+      - "CMakeLists.txt"
+      - "COPYING.md"
+
+      # Workflows
+      - ".github/workflows/flatpak.yml"
   workflow_dispatch:
 
 permissions:
@@ -34,18 +77,15 @@ jobs:
           - os: ubuntu-22.04
             arch: x86_64
 
-          - os: ubuntu-22.04-arm
-            arch: aarch64
-
     runs-on: ${{ matrix.os }}
 
     container:
-      image: ghcr.io/flathub-infra/flatpak-github-actions:kde-6.8
+      image: ghcr.io/flathub-infra/flatpak-github-actions:kde-6.10
       options: --privileged
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           submodules: true
 
