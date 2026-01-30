@@ -12,10 +12,12 @@
   ninja,
   jdk17,
   cmark,
+  qrencode,
   clangStdenv,
   gamemode,
   nix-filter,
   libnbtplusplus,
+  libarchive,
   extra-cmake-modules,
   msaClientID ? null,
   gamemodeSupport ? stdenv.hostPlatform.isLinux,
@@ -71,7 +73,9 @@ assert lib.assertMsg (
         kdePackages.qtbase
         kdePackages.qtnetworkauth
         kdePackages.quazip
+        libarchive
         tomlplusplus
+        qrencode
         zlib
       ]
       ++ lib.optionals stdenv.hostPlatform.isDarwin [
