@@ -17,6 +17,7 @@
   gamemode,
   nix-filter,
   libnbtplusplus,
+  libarchive,
   extra-cmake-modules,
   msaClientID ? null,
   gamemodeSupport ? stdenv.hostPlatform.isLinux,
@@ -72,6 +73,7 @@ assert lib.assertMsg (
         kdePackages.qtbase
         kdePackages.qtnetworkauth
         kdePackages.quazip
+        libarchive
         tomlplusplus
         qrencode
         zlib
