@@ -265,6 +265,8 @@ set(MINECRAFT_SOURCES
     minecraft/launch/ClaimAccount.h
     minecraft/launch/CreateGameFolders.cpp
     minecraft/launch/CreateGameFolders.h
+    minecraft/launch/EnsureOfflineLibraries.cpp
+    minecraft/launch/EnsureOfflineLibraries.h
     minecraft/launch/ModMinecraftJar.cpp
     minecraft/launch/ModMinecraftJar.h
     minecraft/launch/ExtractNatives.cpp
