@@ -43,6 +43,7 @@
 #include <QMessageBox>
 #include "FileIgnoreProxy.h"
 #include "QObjectPtr.h"
+#include "archive/ExportToZipTask.h"
 #include "ui/dialogs/CustomMessageBox.h"
 #include "ui/dialogs/ProgressDialog.h"
 #include "ui_ExportInstanceDialog.h"
@@ -79,7 +80,7 @@ ExportInstanceDialog::ExportInstanceDialog(InstancePtr instance, QWidget* parent
     m_ui->treeView->setRootIndex(m_proxyModel->mapFromSource(model->index(root)));
     m_ui->treeView->sortByColumn(0, Qt::AscendingOrder);
 
-    connect(m_proxyModel, SIGNAL(rowsInserted(QModelIndex, int, int)), SLOT(rowsInserted(QModelIndex, int, int)));
+    connect(m_proxyModel, &QAbstractItemModel::rowsInserted, this, &ExportInstanceDialog::rowsInserted);
 
     model->setFilter(QDir::AllEntries | QDir::NoDotAndDotDot | QDir::AllDirs | QDir::Hidden);
     model->setRootPath(root);
@@ -150,7 +151,7 @@ void ExportInstanceDialog::doExport()
         return;
     }
 
-    auto task = makeShared<MMCZip::ExportToZipTask>(output, m_instance->instanceRoot(), files, "", true, true);
+    auto task = makeShared<MMCZip::ExportToZipTask>(output, m_instance->instanceRoot(), files, "", true);
 
     connect(task.get(), &Task::failed, this,
             [this, output](QString reason) { CustomMessageBox::selectable(this, tr("Error"), reason, QMessageBox::Critical)->show(); });

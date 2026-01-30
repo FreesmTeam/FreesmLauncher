@@ -66,15 +66,6 @@ enum InstSortMode {
     Sort_LastLaunch
 };
 
-enum InstRenamingMode {
-    // Rename metadata only.
-    Rename_Always,
-    // Ask everytime.
-    Rename_Ask,
-    // Rename physical directory too.
-    Rename_Never
-};
-
 LauncherPage::LauncherPage(QWidget* parent) : QWidget(parent), ui(new Ui::LauncherPage)
 {
     ui->setupUi(this);
@@ -82,26 +73,14 @@ LauncherPage::LauncherPage(QWidget* parent) : QWidget(parent), ui(new Ui::Launch
     ui->sortingModeGroup->setId(ui->sortByNameBtn, Sort_Name);
     ui->sortingModeGroup->setId(ui->sortLastLaunchedBtn, Sort_LastLaunch);
 
-    defaultFormat = new QTextCharFormat(ui->fontPreview->currentCharFormat());
-
-    m_languageModel = APPLICATION->translations();
     loadSettings();
 
     ui->updateSettingsBox->setHidden(!APPLICATION->updater());
-
-    connect(ui->fontSizeBox, QOverload<int>::of(&QSpinBox::valueChanged), this, &LauncherPage::refreshFontPreview);
-    connect(ui->consoleFont, &QFontComboBox::currentFontChanged, this, &LauncherPage::refreshFontPreview);
-    connect(ui->themeCustomizationWidget, &ThemeCustomizationWidget::currentWidgetThemeChanged, this, &LauncherPage::refreshFontPreview);
-
-    connect(ui->themeCustomizationWidget, &ThemeCustomizationWidget::currentCatChanged, APPLICATION, &Application::currentCatChanged);
-
-    connect(ui->themeCustomizationWidget, &ThemeCustomizationWidget::currentSnowChanged, APPLICATION, &Application::currentSnowChanged);
 }
 
 LauncherPage::~LauncherPage()
 {
     delete ui;
-    delete defaultFormat;
 }
 
 bool LauncherPage::apply()
@@ -206,9 +185,9 @@ void LauncherPage::on_skinsDirBrowseBtn_clicked()
     }
 }
 
-void LauncherPage::on_metadataDisableBtn_clicked()
+void LauncherPage::on_metadataEnableBtn_clicked()
 {
-    ui->metadataWarningLabel->setHidden(!ui->metadataDisableBtn->isChecked());
+    ui->metadataWarningLabel->setHidden(ui->metadataEnableBtn->isChecked());
 }
 
 void LauncherPage::applySettings()
@@ -229,9 +208,6 @@ void LauncherPage::applySettings()
     s->set("RequestTimeout", ui->timeoutSecondsSpinBox->value());
 
     // Console settings
-    QString consoleFontFamily = ui->consoleFont->currentFont().family();
-    s->set("ConsoleFont", consoleFontFamily);
-    s->set("ConsoleFontSize", ui->fontSizeBox->value());
     s->set("ConsoleMaxLines", ui->lineLimitSpinBox->value());
     s->set("ConsoleOverflowStop", ui->checkStopLogging->checkState() != Qt::Unchecked);
 
@@ -258,29 +234,19 @@ void LauncherPage::applySettings()
             break;
     }
 
-    auto renamingMode = (InstRenamingMode)ui->renamingBehaviorComboBox->currentIndex();
-    switch (renamingMode) {
-        case Rename_Always:
-            s->set("InstRenamingMode", "MetadataOnly");
-            break;
-        case Rename_Never:
-            s->set("InstRenamingMode", "PhysicalDir");
-            break;
-        case Rename_Ask:
-        default:
-            s->set("InstRenamingMode", "AskEverytime");
-            break;
+    if (ui->askToRenameDirBtn->isChecked()) {
+        s->set("InstRenamingMode", "AskEverytime");
+    } else if (ui->alwaysRenameDirBtn->isChecked()) {
+        s->set("InstRenamingMode", "PhysicalDir");
+    } else if (ui->neverRenameDirBtn->isChecked()) {
+        s->set("InstRenamingMode", "MetadataOnly");
     }
 
-    // Cat
-    s->set("CatOpacity", ui->catOpacitySpinBox->value());
-
     // Mods
-    s->set("ModMetadataDisabled", ui->metadataDisableBtn->isChecked());
-    s->set("ModDependenciesDisabled", ui->dependenciesDisableBtn->isChecked());
-    s->set("SkipModpackUpdatePrompt", ui->skipModpackUpdatePromptBtn->isChecked());
-
-    const auto showInDiscord = ui->discordBtn->isChecked();
+    s->set("ModMetadataDisabled", !ui->metadataEnableBtn->isChecked());
+    s->set("ModDependenciesDisabled", !ui->dependenciesEnableBtn->isChecked());
+    s->set("SkipModpackUpdatePrompt", !ui->modpackUpdatePromptBtn->isChecked());
+    const auto showInDiscord = ui->showInDiscordBtn->isChecked();
     s->set("AlwaysShowInDiscord", showInDiscord);
     APPLICATION->discord()->showAlways(showInDiscord);
 }
@@ -294,11 +260,6 @@ void LauncherPage::loadSettings()
         ui->updateIntervalSpinBox->setValue(APPLICATION->updater()->getUpdateCheckInterval() / 3600);
     }
 
-    // Toolbar/menu bar settings (not applicable if native menu bar is present)
-    ui->toolsBox->setEnabled(!QMenuBar().isNativeMenuBar());
-#ifdef Q_OS_MACOS
-    ui->toolsBox->setVisible(!QMenuBar().isNativeMenuBar());
-#endif
     ui->preferMenuBarCheckBox->setChecked(s->get("MenuBarInsteadOfToolBar").toBool());
 
     ui->numberOfConcurrentTasksSpinBox->setValue(s->get("NumberOfConcurrentTasks").toInt());
@@ -307,17 +268,6 @@ void LauncherPage::loadSettings()
     ui->timeoutSecondsSpinBox->setValue(s->get("RequestTimeout").toInt());
 
     // Console settings
-    QString fontFamily = APPLICATION->settings()->get("ConsoleFont").toString();
-    QFont consoleFont(fontFamily);
-    ui->consoleFont->setCurrentFont(consoleFont);
-
-    bool conversionOk = true;
-    int fontSize = APPLICATION->settings()->get("ConsoleFontSize").toInt(&conversionOk);
-    if (!conversionOk) {
-        fontSize = 11;
-    }
-    ui->fontSizeBox->setValue(fontSize);
-    refreshFontPreview();
     ui->lineLimitSpinBox->setValue(s->get("ConsoleMaxLines").toInt());
     ui->checkStopLogging->setChecked(s->get("ConsoleOverflowStop").toBool());
 
@@ -340,71 +290,17 @@ void LauncherPage::loadSettings()
     }
 
     QString renamingMode = s->get("InstRenamingMode").toString();
-    InstRenamingMode renamingModeEnum;
-    if (renamingMode == "MetadataOnly") {
-        renamingModeEnum = Rename_Always;
-    } else if (renamingMode == "PhysicalDir") {
-        renamingModeEnum = Rename_Never;
-    } else {
-        renamingModeEnum = Rename_Ask;
-    }
-    ui->renamingBehaviorComboBox->setCurrentIndex(renamingModeEnum);
-
-    // Cat
-    ui->catOpacitySpinBox->setValue(s->get("CatOpacity").toInt());
+    ui->askToRenameDirBtn->setChecked(renamingMode == "AskEverytime");
+    ui->alwaysRenameDirBtn->setChecked(renamingMode == "PhysicalDir");
+    ui->neverRenameDirBtn->setChecked(renamingMode == "MetadataOnly");
 
     // Mods
-    ui->metadataDisableBtn->setChecked(s->get("ModMetadataDisabled").toBool());
-    ui->metadataWarningLabel->setHidden(!ui->metadataDisableBtn->isChecked());
-    ui->dependenciesDisableBtn->setChecked(s->get("ModDependenciesDisabled").toBool());
-    ui->skipModpackUpdatePromptBtn->setChecked(s->get("SkipModpackUpdatePrompt").toBool());
+    ui->metadataEnableBtn->setChecked(!s->get("ModMetadataDisabled").toBool());
+    ui->metadataWarningLabel->setHidden(ui->metadataEnableBtn->isChecked());
+    ui->dependenciesEnableBtn->setChecked(!s->get("ModDependenciesDisabled").toBool());
+    ui->modpackUpdatePromptBtn->setChecked(!s->get("SkipModpackUpdatePrompt").toBool());
 
-    ui->discordBtn->setChecked(s->get("AlwaysShowInDiscord").toBool());
-}
-
-void LauncherPage::refreshFontPreview()
-{
-    const LogColors& colors = APPLICATION->themeManager()->getLogColors();
-
-    int fontSize = ui->fontSizeBox->value();
-    QString fontFamily = ui->consoleFont->currentFont().family();
-    ui->fontPreview->clear();
-    defaultFormat->setFont(QFont(fontFamily, fontSize));
-
-    auto print = [this, colors](const QString& message, MessageLevel::Enum level) {
-        QTextCharFormat format(*defaultFormat);
-
-        QColor bg = colors.background.value(level);
-        QColor fg = colors.foreground.value(level);
-
-        if (bg.isValid())
-            format.setBackground(bg);
-
-        if (fg.isValid())
-            format.setForeground(fg);
-
-        // append a paragraph/line
-        auto workCursor = ui->fontPreview->textCursor();
-        workCursor.movePosition(QTextCursor::End);
-        workCursor.insertText(message, format);
-        workCursor.insertBlock();
-    };
-
-    print(QString("%1 version: %2 (%3)\n")
-              .arg(BuildConfig.LAUNCHER_DISPLAYNAME, BuildConfig.printableVersionString(), BuildConfig.BUILD_PLATFORM),
-          MessageLevel::Launcher);
-
-    QDate today = QDate::currentDate();
-
-    if (today.month() == 10 && today.day() == 31)
-        print(tr("[Test/ERROR] OOoooOOOoooo! A spooky error!"), MessageLevel::Error);
-    else
-        print(tr("[Test/ERROR] A spooky error!"), MessageLevel::Error);
-
-    print(tr("[Test/INFO] A harmless message..."), MessageLevel::Info);
-    print(tr("[Test/WARN] A not so spooky warning."), MessageLevel::Warning);
-    print(tr("[Test/DEBUG] A secret debugging message..."), MessageLevel::Debug);
-    print(tr("[Test/FATAL] A terrifying fatal error!"), MessageLevel::Fatal);
+    ui->showInDiscordBtn->setChecked(s->get("AlwaysShowInDiscord").toBool());
 }
 
 void LauncherPage::retranslate()

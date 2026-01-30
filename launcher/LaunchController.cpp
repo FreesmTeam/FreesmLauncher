@@ -61,6 +61,7 @@
 #include "JavaCommon.h"
 #include "launch/steps/TextPrint.h"
 #include "tasks/Task.h"
+#include "ui/dialogs/ChooseOfflineNameDialog.h"
 
 LaunchController::LaunchController() : Task() {}
 
@@ -147,8 +148,12 @@ bool LaunchController::askPlayDemo()
     return box.clickedButton() == demoButton;
 }
 
-QString LaunchController::askOfflineName(QString playerName, bool demo, bool& ok)
+QString LaunchController::askOfflineName(QString playerName, bool demo, bool* ok)
 {
+    if (ok != nullptr) {
+        *ok = false;
+    }
+
     // we ask the user for a player name
     QString message = tr("Choose your offline mode player name.");
     if (demo) {
@@ -157,12 +162,20 @@ QString LaunchController::askOfflineName(QString playerName, bool demo, bool& ok
 
     QString lastOfflinePlayerName = APPLICATION->settings()->get("LastOfflinePlayerName").toString();
     QString usedname = lastOfflinePlayerName.isEmpty() ? playerName : lastOfflinePlayerName;
-    QString name = QInputDialog::getText(m_parentWidget, tr("Player name"), message, QLineEdit::Normal, usedname, &ok);
-    if (!ok)
+
+    ChooseOfflineNameDialog dialog(message, m_parentWidget);
+    dialog.setWindowTitle(tr("Player name"));
+    dialog.setUsername(usedname);
+    if (dialog.exec() != QDialog::Accepted) {
         return {};
-    if (name.length()) {
-        usedname = name;
-        APPLICATION->settings()->set("LastOfflinePlayerName", usedname);
+    }
+
+    const QString name = dialog.getUsername();
+    usedname = name;
+    APPLICATION->settings()->set("LastOfflinePlayerName", usedname);
+
+    if (ok != nullptr) {
+        *ok = true;
     }
     return usedname;
 }
@@ -179,10 +192,11 @@ void LaunchController::login()
         if (m_demo) {
             // we ask the user for a player name
             bool ok = false;
-            auto name = askOfflineName("Player", m_demo, ok);
+            auto name = askOfflineName("Player", m_demo, &ok);
             if (ok) {
                 m_session = std::make_shared<AuthSession>();
-                m_session->MakeDemo(name, BaseAccount::uuidFromUsername(name).toString().remove(QRegularExpression("[{}-]")));
+                static const QRegularExpression s_removeChars("[{}-]");
+                m_session->MakeDemo(name, BaseAccount::uuidFromUsername(name).toString().remove(s_removeChars));
                 launchInstance();
                 return;
             }
@@ -199,7 +213,7 @@ void LaunchController::login()
     if ((m_accountToUse->accountType() != AccountType::Offline && m_accountToUse->accountState() == AccountState::Offline) ||
         m_accountToUse->shouldRefresh()) {
         // Force account refresh on the account used to launch the instance updating the AccountState
-        //  only on first try and if it is not meant to be offline
+        // only on first try and if it is not meant to be offline
         m_accountToUse->refresh();
     }
     while (tryagain) {
@@ -252,12 +266,12 @@ void LaunchController::login()
             }
             /* fallthrough */
             case AccountState::Online: {
-                if (!m_session->wants_online) {
+                if (!m_session->wants_online && m_accountToUse->accountType() != AccountType::Offline) {
                     // we ask the user for a player name
                     bool ok = false;
                     QString name;
                     if (m_offlineName.isEmpty()) {
-                        name = askOfflineName(m_session->player_name, m_session->demo, ok);
+                        name = askOfflineName(m_session->player_name, m_session->demo, &ok);
                         if (!ok) {
                             tryagain = false;
                             break;
@@ -295,11 +309,15 @@ void LaunchController::login()
             case AccountState::Working: {
                 // refresh is in progress, we need to wait for it to finish to proceed.
                 ProgressDialog progDialog(m_parentWidget);
-                if (m_online) {
-                    progDialog.setSkipButton(true, tr("Play Offline"));
-                }
+                progDialog.setSkipButton(true, tr("Abort"));
+
                 auto task = accountToCheck->currentTask();
                 progDialog.execWithTask(task.get());
+
+                // don't retry if aborted
+                if (task->getState() == Task::State::AbortedByUser)
+                    tryagain = false;
+
                 continue;
             }
             case AccountState::Expired: {

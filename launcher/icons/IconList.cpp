@@ -40,6 +40,7 @@
 #include <QFileSystemWatcher>
 #include <QMap>
 #include <QMimeData>
+#include <QPixmap>
 #include <QSet>
 #include <QUrl>
 #include "icons/IconUtils.h"
@@ -55,7 +56,7 @@ IconList::IconList(const QStringList& builtinPaths, const QString& path, QObject
         QDir instanceIcons(builtinPath);
         auto fileInfoList = instanceIcons.entryInfoList(QDir::Files, QDir::Name);
         for (const auto& fileInfo : fileInfoList) {
-            builtinNames.insert(fileInfo.baseName());
+            builtinNames.insert(fileInfo.completeBaseName());
         }
     }
     for (const auto& builtinName : builtinNames) {
@@ -127,21 +128,18 @@ QStringList IconList::getIconFilePaths() const
 QString formatName(const QDir& iconsDir, const QFileInfo& iconFile)
 {
     if (iconFile.dir() == iconsDir)
-        return iconFile.baseName();
+        return iconFile.completeBaseName();
 
     constexpr auto delimiter = " » ";
-    QString relativePathWithoutExtension = iconsDir.relativeFilePath(iconFile.dir().path()) + QDir::separator() + iconFile.baseName();
+    QString relativePathWithoutExtension =
+        iconsDir.relativeFilePath(iconFile.dir().path()) + QDir::separator() + iconFile.completeBaseName();
     return relativePathWithoutExtension.replace(QDir::separator(), delimiter);
 }
 
 /// Split into a separate function because the preprocessing impedes readability
 QSet<QString> toStringSet(const QList<QString>& list)
 {
-#if QT_VERSION >= QT_VERSION_CHECK(5, 14, 0)
     QSet<QString> set(list.begin(), list.end());
-#else
-    QSet<QString> set = list.toSet();
-#endif
     return set;
 }
 
@@ -165,7 +163,8 @@ void IconList::directoryChanged(const QString& path)
     for (const MMCIcon& it : m_icons) {
         if (!it.has(IconType::FileBased))
             continue;
-        currentSet.insert(it.m_images[IconType::FileBased].filename);
+        QFileInfo icon(it.getFilePath());
+        currentSet.insert(icon.absoluteFilePath());
     }
     QSet<QString> toRemove = currentSet - newSet;
     QSet<QString> toAdd = newSet - currentSet;
@@ -173,7 +172,8 @@ void IconList::directoryChanged(const QString& path)
     for (const QString& removedPath : toRemove) {
         qDebug() << "Removing icon " << removedPath;
         QFileInfo removedFile(removedPath);
-        QString key = m_dir.relativeFilePath(removedFile.absoluteFilePath());
+        QString relativePath = m_dir.relativeFilePath(removedFile.absoluteFilePath());
+        QString key = QFileInfo(relativePath).completeBaseName();
 
         int idx = getIconIndex(key);
         if (idx == -1)
@@ -218,7 +218,13 @@ void IconList::fileChanged(const QString& path)
     int idx = getIconIndex(key);
     if (idx == -1)
         return;
-    QIcon icon(path);
+    QIcon icon;
+    // special handling for jpg and jpeg to go through pixmap to keep the size constant
+    if (path.endsWith(".jpg") || path.endsWith(".jpeg")) {
+        icon.addPixmap(QPixmap(path));
+    } else {
+        icon.addFile(path);
+    }
     if (icon.availableSizes().empty())
         return;
 
@@ -396,7 +402,14 @@ bool IconList::addThemeIcon(const QString& key)
 bool IconList::addIcon(const QString& key, const QString& name, const QString& path, const IconType type)
 {
     // replace the icon even? is the input valid?
-    QIcon icon(path);
+    QIcon icon;
+    // special handling for jpg and jpeg to go through pixmap to keep the size constant
+    if (path.endsWith(".jpg") || path.endsWith(".jpeg")) {
+        icon.addPixmap(QPixmap(path));
+    } else {
+        icon.addFile(path);
+    }
+
     if (icon.isNull())
         return false;
     auto iter = m_nameIndex.find(key);

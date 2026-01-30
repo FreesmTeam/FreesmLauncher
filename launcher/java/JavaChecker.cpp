@@ -84,7 +84,7 @@ void JavaChecker::executeTask()
     process->setProcessEnvironment(CleanEnviroment());
     qDebug() << "Running java checker:" << m_path << args.join(" ");
 
-    connect(process.get(), QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished), this, &JavaChecker::finished);
+    connect(process.get(), &QProcess::finished, this, &JavaChecker::finished);
     connect(process.get(), &QProcess::errorOccurred, this, &JavaChecker::error);
     connect(process.get(), &QProcess::readyReadStandardOutput, this, &JavaChecker::stdoutReady);
     connect(process.get(), &QProcess::readyReadStandardError, this, &JavaChecker::stderrReady);
@@ -137,11 +137,7 @@ void JavaChecker::finished(int exitcode, QProcess::ExitStatus status)
 
     QMap<QString, QString> results;
 
-#if QT_VERSION >= QT_VERSION_CHECK(5, 14, 0)
     QStringList lines = m_stdout.split("\n", Qt::SkipEmptyParts);
-#else
-    QStringList lines = m_stdout.split("\n", QString::SkipEmptyParts);
-#endif
     for (QString line : lines) {
         line = line.trimmed();
         // NOTE: workaround for GH-4125, where garbage is getting printed into stdout on bedrock linux
@@ -149,11 +145,7 @@ void JavaChecker::finished(int exitcode, QProcess::ExitStatus status)
             continue;
         }
 
-#if QT_VERSION >= QT_VERSION_CHECK(5, 14, 0)
         auto parts = line.split('=', Qt::SkipEmptyParts);
-#else
-        auto parts = line.split('=', QString::SkipEmptyParts);
-#endif
         if (parts.size() != 2 || parts[0].isEmpty() || parts[1].isEmpty()) {
             continue;
         } else {

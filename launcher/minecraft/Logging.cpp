@@ -1,4 +1,3 @@
-
 // SPDX-License-Identifier: GPL-3.0-only
 /*
  *  Prism Launcher - Minecraft Launcher
@@ -19,7 +18,6 @@
  */
 
 #include "minecraft/Logging.h"
-#include <qloggingcategory.h>
 
 Q_LOGGING_CATEGORY(instanceProfileC, "launcher.instance.profile")
 Q_LOGGING_CATEGORY(instanceProfileResolveC, "launcher.instance.profile.resolve")

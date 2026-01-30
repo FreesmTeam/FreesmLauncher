@@ -43,6 +43,7 @@
 #include "LaunchStep.h"
 #include "LogModel.h"
 #include "MessageLevel.h"
+#include "logs/LogParser.h"
 
 class LaunchTask : public Task {
     Q_OBJECT
@@ -105,14 +106,17 @@ class LaunchTask : public Task {
     void requestLogging();
 
    public slots:
-    void onLogLines(const QStringList& lines, MessageLevel::Enum defaultLevel = MessageLevel::Launcher);
-    void onLogLine(QString line, MessageLevel::Enum defaultLevel = MessageLevel::Launcher);
+    void onLogLines(const QStringList& lines, MessageLevel defaultLevel = MessageLevel::Launcher);
+    void onLogLine(QString line, MessageLevel defaultLevel = MessageLevel::Launcher);
     void onReadyForLaunch();
     void onStepFinished();
     void onProgressReportingRequested();
 
    private: /*methods */
     void finalizeSteps(bool successful, const QString& error);
+
+   protected:
+    bool parseXmlLogs(QString const& line, MessageLevel level);
 
    protected: /* data */
     MinecraftInstancePtr m_instance;
@@ -122,4 +126,6 @@ class LaunchTask : public Task {
     int currentStep = -1;
     State state = NotStarted;
     qint64 m_pid = -1;
+    LogParser m_stdoutParser;
+    LogParser m_stderrParser;
 };

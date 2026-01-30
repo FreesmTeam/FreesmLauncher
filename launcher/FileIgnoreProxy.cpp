@@ -266,12 +266,26 @@ bool FileIgnoreProxy::filterAcceptsRow(int sourceRow, const QModelIndex& sourceP
 
 bool FileIgnoreProxy::ignoreFile(QFileInfo fileInfo) const
 {
-    return m_ignoreFiles.contains(fileInfo.fileName()) || m_ignoreFilePaths.covers(relPath(fileInfo.absoluteFilePath()));
+    if (m_ignoreFiles.contains(fileInfo.fileName())) {
+        return true;
+    }
+
+    for (const auto& suffix : m_ignoreFilesSuffixes) {
+        if (fileInfo.fileName().endsWith(suffix)) {
+            return true;
+        }
+    }
+
+    if (m_ignoreFilePaths.covers(relPath(fileInfo.absoluteFilePath()))) {
+        return true;
+    }
+
+    return false;
 }
 
-bool FileIgnoreProxy::filterFile(const QString& fileName) const
+bool FileIgnoreProxy::filterFile(const QFileInfo& file) const
 {
-    return m_blocked.covers(fileName) || ignoreFile(QFileInfo(QDir(m_root), fileName));
+    return m_blocked.covers(relPath(file.absoluteFilePath())) || ignoreFile(file);
 }
 
 void FileIgnoreProxy::loadBlockedPathsFromFile(const QString& fileName)
@@ -282,11 +296,7 @@ void FileIgnoreProxy::loadBlockedPathsFromFile(const QString& fileName)
     }
     auto ignoreData = ignoreFile.readAll();
     auto string = QString::fromUtf8(ignoreData);
-#if QT_VERSION >= QT_VERSION_CHECK(5, 14, 0)
     setBlockedPaths(string.split('\n', Qt::SkipEmptyParts));
-#else
-    setBlockedPaths(string.split('\n', QString::SkipEmptyParts));
-#endif
 }
 
 void FileIgnoreProxy::saveBlockedPathsToFile(const QString& fileName)
