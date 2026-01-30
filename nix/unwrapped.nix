@@ -12,6 +12,7 @@
   ninja,
   jdk17,
   cmark,
+  qrencode,
   clangStdenv,
   gamemode,
   nix-filter,
@@ -72,6 +73,7 @@ assert lib.assertMsg (
         kdePackages.qtnetworkauth
         kdePackages.quazip
         tomlplusplus
+        qrencode
         zlib
       ]
       ++ lib.optionals stdenv.hostPlatform.isDarwin [
