@@ -178,12 +178,20 @@ void ResourceUpdateDialog::checkCandidates()
         ScrollMessageBox message_dialog(m_parent, tr("Failed to check for updates"),
                                         tr("Could not check or get the following resources for updates:<br>"
                                            "Do you wish to proceed without those resources?"),
-                                        text);
+                                        text, "Disable unavailable mods");
         message_dialog.setModal(true);
         if (message_dialog.exec() == QDialog::Rejected) {
             m_aborted = true;
             QMetaObject::invokeMethod(this, "reject", Qt::QueuedConnection);
             return;
+        }
+
+        // Disable unavailable mods
+        if (message_dialog.isOptionChecked()) {
+            for (const auto& failed : m_failedCheckUpdate) {
+                const auto& mod = std::get<0>(failed);
+                mod->enable(EnableAction::DISABLE);
+            }
         }
     }
 
