@@ -1336,7 +1336,6 @@ if(${Launcher_USE_PCH})
 endif()
 
 target_link_libraries(Launcher_logic
-    systeminfo
     Launcher_murmur2
     nbt++
     ${ZLIB_LIBRARIES}
@@ -1459,7 +1458,6 @@ if(Launcher_BUILD_UPDATER)
 
     target_link_libraries(prism_updater_logic
         ${ZLIB_LIBRARIES}
-        systeminfo
         BuildConfig
         Qt${QT_VERSION_MAJOR}::Widgets
         Qt${QT_VERSION_MAJOR}::Core
@@ -1516,7 +1514,6 @@ if(WIN32 OR (DEFINED Launcher_BUILD_FILELINKER AND Launcher_BUILD_FILELINKER))
     endif()
 
     target_link_libraries(filelink_logic
-        systeminfo
         BuildConfig
         Qt${QT_VERSION_MAJOR}::Widgets
         Qt${QT_VERSION_MAJOR}::Core
