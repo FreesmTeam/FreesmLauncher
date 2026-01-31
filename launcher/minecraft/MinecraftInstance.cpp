@@ -169,7 +169,7 @@ MinecraftInstance::MinecraftInstance(SettingsObjectPtr globalSettings, SettingsO
 {
     m_components.reset(new PackProfile(this));
     // TODO: move it elsewhere
-    connect(this, &BaseInstance::runningStatusChanged, [=]() { updateScreenshotsWatcherState(); });
+    connect(this, &BaseInstance::runningStatusChanged, [this]() { updateScreenshotsWatcherState(); });
 }
 
 void MinecraftInstance::saveNow()
