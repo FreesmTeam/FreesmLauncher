@@ -38,6 +38,7 @@
 #include <QNetworkRequest>
 #include <QProcess>
 #include <QProgressDialog>
+#include <QRegularExpression>
 #include <memory>
 
 #include <sys.h>
@@ -1215,7 +1216,13 @@ int PrismUpdaterApp::parseReleasePage(const QByteArray* response)
             release.draft = Json::requireBoolean(release_obj, "draft");
             release.prerelease = Json::requireBoolean(release_obj, "prerelease");
             release.body = release_obj["body"].toString();
-            release.version = Version(release.tag_name);
+            {
+                QString tag_name = release.tag_name;
+                QRegularExpression re{ "^[a-z]*-" };
+                QRegularExpressionMatch match = re.match(release.tag_name);
+                tag_name.replace(match.captured(0), "");
+                release.version = Version(tag_name);
+            }
 
             auto release_assets_obj = Json::requireArray(release_obj, "assets");
             for (auto asset_json : release_assets_obj) {
