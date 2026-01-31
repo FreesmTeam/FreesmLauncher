@@ -61,9 +61,7 @@ void CustomLoginDialog::accept()
     setUserInputsEnabled(false);
     ui->progressBar->setVisible(true);
 
-    m_response = std::make_shared<QByteArray>();
-
-    m_requestTask = Net::Download::makeByteArray(url, m_response);
+    m_requestTask = Net::Head::makeHeaderPairs(url);
     m_requestTask->setNetwork(APPLICATION->network());
 
     connect(m_requestTask.get(), &Task::finished, this, &CustomLoginDialog::onUrlResolving);
