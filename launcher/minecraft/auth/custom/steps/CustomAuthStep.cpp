@@ -18,6 +18,8 @@
 
 #include "CustomAuthStep.h"
 
+#include <QInputDialog>
+
 #include "Application.h"
 #include "Logging.h"
 #include "net/NetUtils.h"
@@ -77,7 +79,11 @@ QString CustomAuthStep::requestTemplate()
 {
     "accessToken": "%1",
     "clientToken": "%2",
-    "requestUser": false
+    "requestUser": false,
+    "selectedProfile": {
+        "id": "%3",
+        "name": "%4"
+    }
 }
 )XXX";
     }
@@ -88,7 +94,8 @@ QString CustomAuthStep::fillRequest()
     if (m_action == AuthFlow::Action::Login) {
         return requestTemplate().arg(m_data->accountLogin, m_password, clientID());
     } else {
-        return requestTemplate().arg(m_data->yggdrasilToken.token, m_data->clientID);
+        return requestTemplate().arg(m_data->yggdrasilToken.token, m_data->clientID, m_data->minecraftProfile.id,
+                                     m_data->minecraftProfile.name);
     }
 }
 
@@ -106,9 +113,43 @@ bool CustomAuthStep::parseResponse()
 
     m_data->clientID = jsonResponse["clientToken"].toString();
 
-    auto profile = jsonResponse["selectedProfile"].toObject();
-    m_data->minecraftProfile.id = profile["id"].toString();
-    m_data->minecraftProfile.name = profile["name"].toString();
+    if (!jsonResponse["selectedProfile"].isNull()) {
+        auto profile = jsonResponse["selectedProfile"].toObject();
+        m_data->minecraftProfile.id = profile["id"].toString();
+        m_data->minecraftProfile.name = profile["name"].toString();
+    }
+
+    const QJsonArray profiles = jsonResponse["availableProfiles"].toArray();
+    if (profiles.size() > 1) {
+        const auto profileName = [](const auto& profile) {
+            auto obj = profile.toObject();
+            return obj["name"].toString();
+        };
+
+        QStringList list;
+        std::ranges::transform(profiles, std::back_inserter(list), profileName);
+
+        bool ok = false;
+        QString selectedProfileName =
+            QInputDialog::getItem(nullptr, tr("Select profile"), tr("Select profile for this account"), list, 0, false, &ok);
+
+        if (!ok) {
+            return false;
+        }
+
+        const auto it = std::ranges::find(profiles, selectedProfileName, profileName);
+        if (it != profiles.end()) {
+            auto profileObj = it->toObject();
+            m_data->minecraftProfile = MinecraftProfile{ .id = profileObj["id"].toString(), .name = profileObj["name"].toString() };
+        } else {
+            return false;
+        }
+    }
+
+    if (profiles.size() == 1 && m_data->minecraftProfile.id.isEmpty()) {
+        auto profileObj = profiles.first().toObject();
+        m_data->minecraftProfile = MinecraftProfile{ .id = profileObj["id"].toString(), .name = profileObj["name"].toString() };
+    }
 
     return true;
 }
