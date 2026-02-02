@@ -316,7 +316,7 @@ QString FlameCreationTask::getVersionForLoader(QString uid, QString loaderType, 
     return loaderVersion;
 }
 
-bool FlameCreationTask::createInstance()
+std::unique_ptr<MinecraftInstance> FlameCreationTask::createInstance()
 {
     QEventLoop loop;
 
@@ -334,7 +334,7 @@ bool FlameCreationTask::createInstance()
 
     } catch (const JSONValidationError& e) {
         setError(tr("Could not understand pack manifest:\n") + e.cause());
-        return false;
+        return nullptr;
     }
 
     if (!m_pack.overrides.isEmpty()) {
@@ -346,7 +346,7 @@ bool FlameCreationTask::createInstance()
             QString mcPath = FS::PathCombine(m_stagingPath, "minecraft");
             if (!FS::move(overridePath, mcPath)) {
                 setError(tr("Could not rename the overrides folder:\n") + m_pack.overrides);
-                return false;
+                return nullptr;
             }
         } else {
             logWarning(
@@ -387,7 +387,7 @@ bool FlameCreationTask::createInstance()
 
     QString configPath = FS::PathCombine(m_stagingPath, "instance.cfg");
     auto instanceSettings = std::make_unique<INISettingsObject>(configPath);
-    MinecraftInstance instance(m_globalSettings, std::move(instanceSettings), m_stagingPath);
+    auto instance = std::make_unique<MinecraftInstance>(m_globalSettings, std::move(instanceSettings), m_stagingPath);
     auto mcVersion = m_pack.minecraft.version;
 
     // Hack to correct some 'special sauce'...
@@ -397,25 +397,25 @@ bool FlameCreationTask::createInstance()
         logWarning(tr("Mysterious trailing dots removed from Minecraft version while importing pack."));
     }
 
-    auto components = instance.getPackProfile();
+    auto components = instance->getPackProfile();
     components->buildingFromScratch();
     components->setComponentVersion("net.minecraft", mcVersion, true);
     if (!loaderType.isEmpty()) {
         auto version = getVersionForLoader(loaderUid, loaderType, loaderVersion, mcVersion);
         if (version.isEmpty())
-            return false;
+            return nullptr;
         components->setComponentVersion(loaderUid, version);
     }
 
     if (m_instIcon != "default") {
-        instance.setIconKey(m_instIcon);
+        instance->setIconKey(m_instIcon);
     } else {
         if (m_pack.name.contains("Direwolf20")) {
-            instance.setIconKey("steve");
+            instance->setIconKey("steve");
         } else if (m_pack.name.contains("FTB") || m_pack.name.contains("Feed The Beast")) {
-            instance.setIconKey("ftb_logo");
+            instance->setIconKey("ftb_logo");
         } else {
-            instance.setIconKey("flame");
+            instance->setIconKey("flame");
         }
     }
 
@@ -433,8 +433,8 @@ bool FlameCreationTask::createInstance()
             recommendedRAM = max;
         }
 
-        instance.settings()->set("OverrideMemory", true);
-        instance.settings()->set("MaxMemAlloc", recommendedRAM);
+        instance->settings()->set("OverrideMemory", true);
+        instance->settings()->set("MaxMemAlloc", recommendedRAM);
     }
 
     QString jarmodsPath = FS::PathCombine(m_stagingPath, "minecraft", "jarmods");
@@ -448,7 +448,7 @@ bool FlameCreationTask::createInstance()
             qDebug() << info.fileName();
             jarMods.push_back(info.absoluteFilePath());
         }
-        auto profile = instance.getPackProfile();
+        auto profile = instance->getPackProfile();
         profile->installJarMods(jarMods);
         // nuke the original files
         FS::deletePath(jarmodsPath);
@@ -456,11 +456,11 @@ bool FlameCreationTask::createInstance()
 
     // Don't add managed info to packs without an ID (most likely imported from ZIP)
     if (!m_managedId.isEmpty())
-        instance.setManagedPack("flame", m_managedId, m_pack.name, m_managedVersionId, m_pack.version);
+        instance->setManagedPack("flame", m_managedId, m_pack.name, m_managedVersionId, m_pack.version);
     else
-        instance.setManagedPack("flame", "", name(), "", "");
+        instance->setManagedPack("flame", "", name(), "", "");
 
-    instance.setName(name());
+    instance->setName(name());
 
     m_modIdResolver.reset(new Flame::FileResolvingTask(m_pack));
     connect(m_modIdResolver.get(), &Flame::FileResolvingTask::succeeded, this, [this, &loop] { idResolverSucceeded(loop); });
@@ -485,10 +485,10 @@ bool FlameCreationTask::createInstance()
         setAbortable(false);
         auto inst = m_instance.value();
 
-        inst->copyManagedPack(instance);
+        inst->copyManagedPack(*instance);
     }
 
-    return did_succeed;
+    return instance;
 }
 
 void FlameCreationTask::idResolverSucceeded(QEventLoop& loop)
@@ -545,7 +545,7 @@ void FlameCreationTask::idResolverSucceeded(QEventLoop& loop)
 
         BlockedModsDialog message_dialog(m_parent, tr("Blocked mods found"),
                                          tr("The following files are not available for download in third party launchers.<br/>"
-                                            "You will need to manually download them and add them to the instance."),
+                                            "You will need to manually download them and add them to the instance->"),
                                          blocked_mods);
 
         message_dialog.setModal(true);

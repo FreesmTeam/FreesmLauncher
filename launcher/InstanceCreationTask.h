@@ -2,6 +2,7 @@
 
 #include "BaseVersion.h"
 #include "InstanceTask.h"
+#include "minecraft/MinecraftInstance.h"
 
 class InstanceCreationTask : public InstanceTask {
     Q_OBJECT
@@ -27,9 +28,9 @@ class InstanceCreationTask : public InstanceTask {
     /**
      * Creates a new instance.
      *
-     * Returns whether the instance creation was successful (true) or not (false).
+     * Returns the instance if it was created or nullptr otherwise.
      */
-    virtual bool createInstance() { return false; };
+    virtual std::unique_ptr<MinecraftInstance> createInstance() { return nullptr; }
 
     QString getError() const { return m_error_message; }
 
