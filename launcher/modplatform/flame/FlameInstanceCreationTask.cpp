@@ -75,7 +75,6 @@ bool FlameCreationTask::abort()
     if (!canAbort())
         return false;
 
-    m_abort = true;
     if (m_processUpdateFileInfoJob)
         m_processUpdateFileInfoJob->abort();
     if (m_filesJob)
@@ -83,7 +82,7 @@ bool FlameCreationTask::abort()
     if (m_modIdResolver)
         m_modIdResolver->abort();
 
-    return Task::abort();
+    return InstanceCreationTask::abort();
 }
 
 bool FlameCreationTask::updateInstance()

@@ -10,6 +10,8 @@ class InstanceCreationTask : public InstanceTask {
     InstanceCreationTask() = default;
     virtual ~InstanceCreationTask() = default;
 
+    bool abort() override;
+
    protected:
     void executeTask() final override;
 
@@ -44,4 +46,6 @@ class InstanceCreationTask : public InstanceTask {
 
    private:
     QString m_error_message;
+    std::unique_ptr<MinecraftInstance> m_instance;
+    Task::Ptr m_gameFilesTask;
 };

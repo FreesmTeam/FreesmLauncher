@@ -32,10 +32,9 @@ bool ModrinthCreationTask::abort()
     if (!canAbort())
         return false;
 
-    m_abort = true;
     if (m_task)
         m_task->abort();
-    return Task::abort();
+    return InstanceCreationTask::abort();
 }
 
 bool ModrinthCreationTask::updateInstance()
