@@ -544,7 +544,7 @@ void FlameCreationTask::idResolverSucceeded(QEventLoop& loop)
 
         BlockedModsDialog message_dialog(m_parent, tr("Blocked mods found"),
                                          tr("The following files are not available for download in third party launchers.<br/>"
-                                            "You will need to manually download them and add them to the instance->"),
+                                            "You will need to manually download them and add them to the instance."),
                                          blocked_mods);
 
         message_dialog.setModal(true);
