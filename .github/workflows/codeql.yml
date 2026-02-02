@@ -58,9 +58,15 @@ on:
       - ".github/actions/setup-dependencies/**"
   workflow_dispatch:
 
+permissions: {}
+
 jobs:
   CodeQL:
     runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      security-events: write
 
     steps:
       - name: Checkout repository
