@@ -38,6 +38,9 @@
  * If the component list changes, start over.
  */
 
+/*
+ * TODO: This task launches multiple other tasks. As such it should be converted to a ConcurrentTask
+ */
 ComponentUpdateTask::ComponentUpdateTask(Mode mode, Net::Mode netmode, PackProfile* list) : Task()
 {
     d.reset(new ComponentUpdateTaskData);
@@ -47,6 +50,29 @@ ComponentUpdateTask::ComponentUpdateTask(Mode mode, Net::Mode netmode, PackProfi
 }
 
 ComponentUpdateTask::~ComponentUpdateTask() {}
+
+bool ComponentUpdateTask::canAbort() const
+{
+    for (const auto& status : d->remoteLoadStatusList) {
+        if (status.task && !status.task->canAbort()) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+bool ComponentUpdateTask::abort()
+{
+    bool aborted = true;
+    for (const auto& status : d->remoteLoadStatusList) {
+        if (status.task && !status.task->abort()) {
+            aborted = false;
+        }
+    }
+
+    return aborted;
+}
 
 void ComponentUpdateTask::executeTask()
 {
