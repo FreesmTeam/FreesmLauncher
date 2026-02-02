@@ -72,6 +72,8 @@ on:
         type: string
         default: Debug
 
+permissions: {}
+
 jobs:
   build:
     name: Build (${{ matrix.artifact-name }})
@@ -79,6 +81,7 @@ jobs:
     environment: ${{ inputs.environment || '' }}
 
     permissions:
+      contents: read
       # Required for Azure Trusted Signing
       id-token: write
       # Required for vcpkg binary cache
