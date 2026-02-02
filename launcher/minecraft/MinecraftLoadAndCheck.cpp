@@ -21,10 +21,7 @@ void MinecraftLoadAndCheck::executeTask()
     connect(m_task.get(), &Task::succeeded, this, &MinecraftLoadAndCheck::emitSucceeded);
     connect(m_task.get(), &Task::failed, this, &MinecraftLoadAndCheck::emitFailed);
     connect(m_task.get(), &Task::aborted, this, [this] { emitFailed(tr("Aborted")); });
-    connect(m_task.get(), &Task::progress, this, &MinecraftLoadAndCheck::setProgress);
-    connect(m_task.get(), &Task::stepProgress, this, &MinecraftLoadAndCheck::propagateStepProgress);
-    connect(m_task.get(), &Task::status, this, &MinecraftLoadAndCheck::setStatus);
-    connect(m_task.get(), &Task::details, this, &MinecraftLoadAndCheck::setDetails);
+    propagateFromOther(m_task.get());
 }
 
 bool MinecraftLoadAndCheck::canAbort() const
