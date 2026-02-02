@@ -487,7 +487,10 @@ std::unique_ptr<MinecraftInstance> FlameCreationTask::createInstance()
         inst->copyManagedPack(*instance);
     }
 
-    return instance;
+    if (did_succeed) {
+        return instance;
+    }
+    return nullptr;
 }
 
 void FlameCreationTask::idResolverSucceeded(QEventLoop& loop)
