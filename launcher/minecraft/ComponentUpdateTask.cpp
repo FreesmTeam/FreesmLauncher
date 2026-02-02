@@ -77,6 +77,7 @@ bool ComponentUpdateTask::abort()
 void ComponentUpdateTask::executeTask()
 {
     qCDebug(instanceProfileResolveC) << "Loading components";
+    setStatus(tr("Loading components"));
     loadComponents();
 }
 
@@ -222,12 +223,13 @@ void ComponentUpdateTask::loadComponents()
         componentIndex++;
     }
     d->remoteTasksInProgress = taskIndex;
+    m_progressTotal = taskIndex;
     switch (result) {
         case LoadResult::LoadedLocal: {
             // Everything got loaded. Advance to dependency resolution.
             performUpdateActions();
             resolveDependencies(d->mode == Mode::Launch || d->netmode == Net::Mode::Offline);
-            break;
+            return;
         }
         case LoadResult::RequiresRemote: {
             // we wait for signals.
@@ -235,9 +237,11 @@ void ComponentUpdateTask::loadComponents()
         }
         case LoadResult::Failed: {
             emitFailed(tr("Some component metadata load tasks failed."));
-            break;
+            return;
         }
     }
+
+    setDetails(tr("Downloading metadata for %1 components").arg(taskIndex));
 }
 
 namespace {
@@ -780,6 +784,7 @@ void ComponentUpdateTask::remoteLoadFailed(size_t taskIndex, const QString& msg)
 
 void ComponentUpdateTask::checkIfAllFinished()
 {
+    setProgress(m_progress + 1, m_progressTotal);
     if (d->remoteTasksInProgress) {
         // not yet...
         return;
