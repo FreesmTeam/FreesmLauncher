@@ -81,7 +81,6 @@ void InstanceCreationTask::executeTask()
 
     if (!m_abort) {
         setAbortable(true);
-        setStatus(tr("Downloading game files"));
         qDebug() << "Downloading game files";
 
         auto updateTasks = m_instance->createUpdateTask();
@@ -102,6 +101,7 @@ void InstanceCreationTask::executeTask()
             }
         });
         propagateFromOther(task.get());
+        setDetails(tr("Downloading game files"));
 
         m_gameFilesTask = task;
         m_gameFilesTask->start();
