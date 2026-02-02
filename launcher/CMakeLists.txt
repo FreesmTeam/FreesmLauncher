@@ -121,6 +121,8 @@ set(NET_SOURCES
     net/Download.h
     net/FileSink.cpp
     net/FileSink.h
+    net/Head.cpp
+    net/Head.h
     net/HttpMetaCache.cpp
     net/HttpMetaCache.h
     net/MetaCacheSink.cpp
