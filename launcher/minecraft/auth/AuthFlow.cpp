@@ -10,7 +10,6 @@
 #include "minecraft/auth/steps/MSAStep.h"
 #include "minecraft/auth/steps/MinecraftProfileStep.h"
 #include "minecraft/auth/steps/XboxAuthorizationStep.h"
-#include "minecraft/auth/steps/XboxProfileStep.h"
 #include "minecraft/auth/steps/XboxUserStep.h"
 #include "tasks/Task.h"
 
@@ -36,7 +35,6 @@ AuthFlow::AuthFlow(AccountData* data, Action action) : Task(), m_data(data)
         m_steps.append(
             makeShared<XboxAuthorizationStep>(m_data, &m_data->mojangservicesToken, "rp://api.minecraftservices.com/", "Mojang"));
         m_steps.append(makeShared<LauncherLoginStep>(m_data));
-        m_steps.append(makeShared<XboxProfileStep>(m_data));
         m_steps.append(makeShared<EntitlementsStep>(m_data));
         m_steps.append(makeShared<MinecraftProfileStep>(m_data));
         m_steps.append(makeShared<GetSkinStep>(m_data));
