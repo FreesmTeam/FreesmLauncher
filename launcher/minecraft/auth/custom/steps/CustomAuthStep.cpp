@@ -120,7 +120,7 @@ bool CustomAuthStep::parseResponse()
     }
 
     const QJsonArray profiles = jsonResponse["availableProfiles"].toArray();
-    if (profiles.size() > 1) {
+    if (profiles.size() > 1 && m_data->minecraftProfile.id.isEmpty()) {
         const auto profileName = [](const auto& profile) {
             auto obj = profile.toObject();
             return obj["name"].toString();
