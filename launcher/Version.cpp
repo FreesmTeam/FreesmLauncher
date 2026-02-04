@@ -57,6 +57,23 @@ bool Version::operator!=(const Version& other) const
 {
     return !operator==(other);
 }
+
+int Version::versionDigitsNumber() const
+{
+    int num = 0;
+    for (const auto& sec : m_sections) {
+        if (!sec.isPreRelease() && !sec.isAppendix()) {
+            if (sec.m_fullString == sec.m_stringPart) {
+                continue;
+            }
+            ++num;
+        } else {
+            break;
+        }
+    }
+    return num;
+}
+
 bool Version::operator<=(const Version& other) const
 {
     return *this < other || *this == other;
