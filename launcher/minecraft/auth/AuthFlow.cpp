@@ -22,6 +22,8 @@
 #include "elyby/steps/MinecraftProfileStepEly.h"
 
 // Custom
+#include "AuthFlow.h"
+
 #include "custom/steps/CustomAuthStep.h"
 #include "custom/steps/CustomGetSkinStep.h"
 
@@ -70,7 +72,12 @@ AuthFlow::AuthFlow(AccountData* data, Action action, QString password) : Task(),
             m_steps.append(makeShared<GetSkinStep>(m_data));
         } break;
         case AccountType::Custom: {
-            m_steps.append(makeShared<CustomAuthStep>(m_data, action, std::move(password)));
+            if (action == Action::Login) {
+                m_steps.append(makeShared<CustomAuthStep>(m_data, Action::Login, std::move(password)));
+                m_steps.append(makeShared<CustomAuthStep>(m_data, Action::Refresh, QString()));
+            } else {
+                m_steps.append(makeShared<CustomAuthStep>(m_data, action, std::move(password)));
+            }
             m_steps.append(makeShared<CustomGetSkinStep>(m_data));
         } break;
         default:
