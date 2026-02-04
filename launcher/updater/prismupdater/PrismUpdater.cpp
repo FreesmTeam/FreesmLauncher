@@ -67,6 +67,19 @@ namespace fs = std::filesystem;
 
 #include "MMCZip.h"
 
+namespace {
+bool versionLess(const Version& lhs, const Version& rhs)
+{
+    // prefer x.y.z over x.y
+    if (lhs.versionDigitsNumber() == 2 && rhs.versionDigitsNumber() == 3)
+        return true;
+    if (lhs.versionDigitsNumber() == 3 && rhs.versionDigitsNumber() == 2)
+        return false;
+
+    return lhs < rhs;
+}
+}  // namespace
+
 /** output to the log file */
 void appDebugOutput(QtMsgType type, const QMessageLogContext& context, const QString& msg)
 {
@@ -646,7 +659,7 @@ QList<GitHubRelease> PrismUpdaterApp::newerReleases()
 {
     QList<GitHubRelease> newer;
     for (auto rls : nonDraftReleases()) {
-        if (rls.version > m_prismVersion)
+        if (versionLess(m_prismVersion, rls.version))
             newer.append(rls);
     }
     return newer;
@@ -1257,7 +1270,7 @@ GitHubRelease PrismUpdaterApp::getLatestRelease()
             continue;
         if (release.prerelease && !m_allowPreRelease)
             continue;
-        if (!latest.isValid() || (release.version > latest.version)) {
+        if (!latest.isValid() || versionLess(latest.version, release.version)) {
             latest = release;
         }
     }
@@ -1267,7 +1280,7 @@ GitHubRelease PrismUpdaterApp::getLatestRelease()
 bool PrismUpdaterApp::needUpdate(const GitHubRelease& release)
 {
     auto current_ver = Version(QString("%1.%2.%3").arg(m_prismVersionMajor).arg(m_prismVersionMinor).arg(m_prismVersionPatch));
-    return current_ver < release.version;
+    return versionLess(current_ver, release.version);
 }
 
 void PrismUpdaterApp::downloadError(QString reason)
