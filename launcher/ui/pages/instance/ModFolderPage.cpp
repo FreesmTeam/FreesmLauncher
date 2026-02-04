@@ -376,7 +376,9 @@ CoreModFolderPage::CoreModFolderPage(BaseInstance* inst, ModFolderModel* mods, Q
                             m_container->refreshContainer();
                         }
                     });
-                    update->start();
+                    if (!update->isRunning()) {
+                        update->start();
+                    }
                 }
             }
         }
