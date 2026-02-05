@@ -173,6 +173,9 @@ LaunchDecision LaunchController::decideLaunchMode()
         ProgressDialog progDialog(m_parentWidget);
         progDialog.setSkipButton(true, tr("Abort"));
 
+        // TODO: this relies on tasks' synchronous signal dispatching nature
+        // TODO: meaning currentTask can't complete and become null while this code is running
+        // TODO: this code will produce a race condition when tasks become fully async
         auto task = accountToCheck->currentTask();
         progDialog.execWithTask(task.get());
 
