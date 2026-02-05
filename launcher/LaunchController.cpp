@@ -81,8 +81,16 @@ void LaunchController::decideAccount()
         return;
     }
 
-    // Find an account to use.
+    // Select the account to use. If the instance has a specific account set, that will be used. Otherwise, the default account will be used
     auto accounts = APPLICATION->accounts();
+    auto instanceAccountId = m_instance->settings()->get("InstanceAccountId").toString();
+    auto instanceAccountIndex = accounts->findAccountByProfileId(instanceAccountId);
+    if (instanceAccountIndex == -1 || instanceAccountId.isEmpty()) {
+        m_accountToUse = accounts->defaultAccount();
+    } else {
+        m_accountToUse = accounts->at(instanceAccountIndex);
+    }
+
     if (!accounts->anyAccountIsValid()) {
         // Tell the user they need to log in at least one account in order to play.
         auto reply = CustomMessageBox::selectable(m_parentWidget, tr("No Accounts"),
@@ -99,15 +107,6 @@ void LaunchController::decideAccount()
             // Do not open "profile select" dialog.
             return;
         }
-    }
-
-    // Select the account to use. If the instance has a specific account set, that will be used. Otherwise, the default account will be used
-    auto instanceAccountId = m_instance->settings()->get("InstanceAccountId").toString();
-    auto instanceAccountIndex = accounts->findAccountByProfileId(instanceAccountId);
-    if (instanceAccountIndex == -1 || instanceAccountId.isEmpty()) {
-        m_accountToUse = accounts->defaultAccount();
-    } else {
-        m_accountToUse = accounts->at(instanceAccountIndex);
     }
 
     if (!m_accountToUse) {
@@ -213,9 +212,11 @@ bool LaunchController::askPlayDemo()
 {
     QMessageBox box(m_parentWidget);
     box.setWindowTitle(tr("Play demo?"));
-    box.setText(
-        tr("This account does not own Minecraft.\nYou need to purchase the game first to play it.\n\nDo you want to play "
-           "the demo?"));
+    QString text = m_accountToUse
+                       ? tr("This account does not own Minecraft.\nYou need to purchase the game first to play the full version.")
+                       : tr("No account was selected for launch.");
+    text += tr("\n\nDo you want to play the demo?");
+    box.setText(text);
     box.setIcon(QMessageBox::Warning);
     auto demoButton = box.addButton(tr("Play Demo"), QMessageBox::ButtonRole::YesRole);
     auto cancelButton = box.addButton(tr("Cancel"), QMessageBox::ButtonRole::NoRole);
