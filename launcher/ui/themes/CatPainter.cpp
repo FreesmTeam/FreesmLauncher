@@ -57,10 +57,16 @@ void CatPainter::paint(QPainter* painter, const QRect& viewport)
             widWidth = frame.width();
         if (frame.height() < widHeight)
             widHeight = frame.height();
+    } else if (fit == "cover") {
+        aspectMode = Qt::KeepAspectRatioByExpanding;
     }
     auto pixmap = frame.scaled(widWidth, widHeight, aspectMode, Qt::SmoothTransformation);
     QRect rectOfPixmap = pixmap.rect();
-    rectOfPixmap.moveBottomRight(viewport.bottomRight());
+    if (fit == "cover") {
+        rectOfPixmap.moveCenter(viewport.center());
+    } else {
+        rectOfPixmap.moveBottomRight(viewport.bottomRight());
+    }
     painter->drawPixmap(rectOfPixmap.topLeft(), pixmap);
     painter->setOpacity(1.0);
 };

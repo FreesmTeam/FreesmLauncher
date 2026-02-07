@@ -98,7 +98,7 @@ void AppearanceWidget::applySettings()
     settings->set("ConsoleFontSize", m_ui->fontSizeBox->value());
     settings->set("CatOpacity", m_ui->catOpacitySlider->value());
     auto catFit = m_ui->catFitComboBox->currentIndex();
-    settings->set("CatFit", catFit == 0 ? "fit" : catFit == 1 ? "fill" : "strech");
+    settings->set("CatFit", catFit == 0 ? "fit" : catFit == 1 ? "fill" : catFit == 2 ? "cover" : "strech");
     applySnow(m_ui->snowCheckBox->isChecked());
 }
 
@@ -121,7 +121,7 @@ void AppearanceWidget::loadSettings()
     m_ui->catOpacitySlider->setValue(settings->get("CatOpacity").toInt());
 
     auto catFit = settings->get("CatFit").toString();
-    m_ui->catFitComboBox->setCurrentIndex(catFit == "fit" ? 0 : catFit == "fill" ? 1 : 2);
+    m_ui->catFitComboBox->setCurrentIndex(catFit == "fit" ? 0 : catFit == "fill" ? 1 : catFit == "cover" ? 2 : 3);
 }
 
 void AppearanceWidget::retranslateUi()
