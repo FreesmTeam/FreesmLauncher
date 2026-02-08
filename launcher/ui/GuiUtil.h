@@ -5,6 +5,7 @@
 #include <optional>
 
 namespace GuiUtil {
+QString fetchFlameKey(QWidget* parentWidget = nullptr);    
 std::optional<QString> uploadPaste(const QString& name, const QFileInfo& filePath, QWidget* parentWidget);
 std::optional<QString> uploadPaste(const QString& name, const QString& data, QWidget* parentWidget);
 void setClipboardText(QString text);

@@ -50,6 +50,7 @@
 #include "net/PasteUpload.h"
 #include "tasks/Task.h"
 #include "tools/GenericProfiler.h"
+#include "ui/GuiUtil.h"
 #include "ui/InstanceWindow.h"
 #include "ui/MainWindow.h"
 #include "ui/ToolTipFilter.h"
@@ -923,6 +924,7 @@ Application::Application(int& argc, char** argv) : QApplication(argc, argv)
                 m_settings->set("FlameKeyOverride", flameKey);
             m_settings->reset("CFKeyOverride");
         }
+        m_settings->registerSetting("FlameKeyShouldBeFetchedOnStartup", true);
         m_settings->registerSetting("ModrinthToken", "");
         m_settings->registerSetting("UserAgentOverride", "");
 
@@ -1398,6 +1400,18 @@ void Application::performMainStartupAction()
             qDebug() << "<> Showing window of instance " << m_instanceIdToShowWindowOf;
             showInstanceWindow(inst);
             return;
+        }
+    }
+    {
+        bool shouldFetch = m_settings->get("FlameKeyShouldBeFetchedOnStartup").toBool();
+        if (shouldFetch && !(capabilities() & Capability::SupportsFlame)) {
+                const auto& apiKey = GuiUtil::fetchFlameKey();
+                if (!apiKey.isEmpty()) {
+                    m_settings->set("FlameKeyOverride", apiKey);
+                    updateCapabilities();
+                }
+            }
+            m_settings->set("FlameKeyShouldBeFetchedOnStartup", false);
         }
     }
     if (!m_mainWindow) {

@@ -45,6 +45,7 @@
 
 #include "FileSystem.h"
 #include "logs/AnonymizeLog.h"
+#include "net/FetchFlameAPIKey.h"
 #include "net/NetJob.h"
 #include "net/NetRequest.h"
 #include "net/PasteUpload.h"
@@ -77,6 +78,27 @@ QString truncateLogForMclogs(const QString& logContent)
         return truncatedLog;
     }
     return logContent;
+}
+
+QString GuiUtil::fetchFlameKey(QWidget* parentWidget)
+{
+    ProgressDialog prog(parentWidget);
+    auto flameKeyTask = std::make_unique<FetchFlameAPIKey>();
+    prog.execWithTask(flameKeyTask.get());
+
+    if (!flameKeyTask->wasSuccessful()) {
+        auto message = QObject::tr("Fetching the Curseforge API key failed. Reason: %1").arg(flameKeyTask->failReason());
+        if (!(APPLICATION->capabilities() & Application::SupportsFlame)) {
+            message += "\n\n" + QObject::tr(
+                                    "Downloading Curseforge modpacks will not work unless you manually set a valid Curseforge API key "
+                                    "in the settings.");
+        }
+
+        CustomMessageBox::selectable(parentWidget, QObject::tr("Failed to fetch Curseforge API key."), message, QMessageBox::Critical)
+            ->exec();
+    }
+
+    return flameKeyTask->m_result;
 }
 
 std::optional<QString> GuiUtil::uploadPaste(const QString& name, const QFileInfo& filePath, QWidget* parentWidget)
