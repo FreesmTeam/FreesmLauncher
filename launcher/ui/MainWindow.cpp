@@ -48,6 +48,7 @@
 #include <QDir>
 #include <QFileInfo>
 #include <QUrl>
+#include <QUrlQuery>
 #include <QVariant>
 
 #include <QAction>
