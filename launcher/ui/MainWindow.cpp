@@ -1012,7 +1012,6 @@ void MainWindow::processURLs(QList<QUrl> urls)
                 // PrismLauncher URL protocol modpack import
                 // works for any prism fork
                 // preferred import format: prismlauncher://import?url=ENCODED
-
                 const auto host = url.host().toLower();
                 const auto path = url.path(); 
 
