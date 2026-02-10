@@ -81,6 +81,7 @@ void InstanceCreationTask::executeTask()
 
     if (!m_abort) {
         setAbortable(true);
+        setAbortButtonText(tr("Skip"));
         qDebug() << "Downloading game files";
 
         auto updateTasks = m_instance->createUpdateTask();
