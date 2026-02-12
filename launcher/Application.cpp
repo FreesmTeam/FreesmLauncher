@@ -1411,8 +1411,7 @@ void Application::performMainStartupAction()
                     updateCapabilities();
                 }
             }
-            m_settings->set("FlameKeyShouldBeFetchedOnStartup", false);
-        }
+        m_settings->set("FlameKeyShouldBeFetchedOnStartup", false);
     }
     if (!m_mainWindow) {
         // normal main window

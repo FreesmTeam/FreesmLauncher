@@ -85,7 +85,7 @@ private:
 
     QList<int> m_file_id_map;
 
-    QByteArray m_response;
+    std::shared_ptr<QByteArray> m_response = std::make_shared<QByteArray>();
 
     Modpack m_pack;
     QString m_version_name;
