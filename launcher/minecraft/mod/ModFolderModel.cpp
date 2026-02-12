@@ -258,9 +258,11 @@ void ModFolderModel::onParseSucceeded(int ticket, QString mod_id)
     auto resource = find(mod_id);
 
     auto result = cast_task->result();
-    if (result && resource)
-        static_cast<Mod*>(resource.get())->finishResolvingWithDetails(std::move(result->details));
+    if (result && resource) {
+        auto* mod = static_cast<Mod*>(resource.get());
+        mod->finishResolvingWithDetails(std::move(result->details));
 
+    }
     emit dataChanged(index(row, RequiresColumn), index(row, RequiredByColumn));
 }
 

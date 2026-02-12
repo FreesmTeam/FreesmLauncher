@@ -41,8 +41,10 @@
 #include <QObject>
 #include <QRunnable>
 #include <memory>
-#include "minecraft/mod/Mod.h"
+#include "minecraft/mod/Resource.h"
 #include "tasks/Task.h"
+
+class BaseInstance;
 
 class ResourceFolderLoadTask : public Task {
     Q_OBJECT

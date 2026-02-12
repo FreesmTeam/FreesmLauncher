@@ -7,6 +7,8 @@
 
 #include "FileSystem.h"
 #include "StringUtils.h"
+#include "minecraft/MinecraftInstance.h"
+#include "minecraft/PackProfile.h"
 
 Resource::Resource(QObject* parent) : QObject(parent) {}
 
@@ -109,6 +111,24 @@ void Resource::setMetadata(std::shared_ptr<Metadata::ModStruct>&& metadata)
         setStatus(ResourceStatus::INSTALLED);
 
     m_metadata = metadata;
+}
+
+void Resource::determineCompat(const BaseInstance* inst) {
+    if (m_metadata == nullptr) {
+        m_isCompatible = true;
+        return;
+    }
+
+    auto mcInst = dynamic_cast<const MinecraftInstance*>(inst);
+    if (mcInst == nullptr) {
+        m_isCompatible = true;
+        return;
+    }
+
+    auto profile = mcInst->getPackProfile();
+    QString mcVersion = profile->getComponentVersion("net.minecraft");
+
+    m_isCompatible = m_metadata->mcVersions.contains(mcVersion);
 }
 
 int Resource::compare(const Resource& other, SortType type) const

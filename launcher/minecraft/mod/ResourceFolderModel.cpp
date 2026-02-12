@@ -810,7 +810,13 @@ void ResourceFolderModel::applyUpdates(QSet<QString>& current_set, QSet<QString>
             auto const& current_resource = m_resources.at(row);
 
             if (new_resource->dateTimeChanged() == current_resource->dateTimeChanged()) {
-                // no significant change, ignore...
+                // no significant change
+                bool oldCompat = current_resource->isCompatible();
+                current_resource->determineCompat(m_instance);
+
+                if (current_resource->isCompatible() != oldCompat) {
+                    emit dataChanged(index(row, 0), index(row, columnCount({}) - 1));
+                }
                 continue;
             }
 
@@ -825,6 +831,8 @@ void ResourceFolderModel::applyUpdates(QSet<QString>& current_set, QSet<QString>
             }
 
             m_resources[row].reset(new_resource);
+            new_resource->determineCompat(m_instance);
+
             resolveResource(m_resources.at(row));
             emit dataChanged(index(row, 0), index(row, columnCount(QModelIndex()) - 1));
         }
@@ -872,6 +880,7 @@ void ResourceFolderModel::applyUpdates(QSet<QString>& current_set, QSet<QString>
 
             for (auto& added : added_set) {
                 auto res = new_resources[added];
+                res->determineCompat(m_instance);
                 m_resources.append(res);
                 resolveResource(m_resources.last());
             }

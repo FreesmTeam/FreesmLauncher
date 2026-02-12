@@ -43,6 +43,8 @@
 #include "MetadataHandler.h"
 #include "QObjectPtr.h"
 
+class BaseInstance;
+
 enum class ResourceType {
     UNKNOWN,     //!< Indicates an unspecified resource type.
     ZIPFILE,     //!< The resource is a zip file containing the resource's class files.
@@ -119,6 +121,13 @@ class Resource : public QObject {
     void setMetadata(std::shared_ptr<Metadata::ModStruct>&& metadata);
     void setMetadata(const Metadata::ModStruct& metadata) { setMetadata(std::make_shared<Metadata::ModStruct>(metadata)); }
 
+    /**
+     * Returns whether the resource is compatible with the instance.
+     * This is initially true, and may be updated when calling determineCompat with an instance.
+     */
+    bool isCompatible() const { return m_isCompatible; }
+    void determineCompat(const BaseInstance* inst);
+
     /** Compares two Resources, for sorting purposes, considering a ascending order, returning:
      *  > 0: 'this' comes after 'other'
      *  = 0: 'this' is equal to 'other'
@@ -187,6 +196,8 @@ class Resource : public QObject {
 
     /* Whether the resource is enabled (e.g. shows up in the game) or not. */
     bool m_enabled = true;
+
+    bool m_isCompatible = true;
 
     /* Used to keep trach of pending / concluded actions on the resource. */
     bool m_is_resolving = false;
