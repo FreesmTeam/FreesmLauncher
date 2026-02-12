@@ -61,7 +61,7 @@ QVariant ListModel::data(const QModelIndex &index, int role) const
     }
     else if(role == Qt::DecorationRole)
     {
-        QIcon placeholder = APPLICATION->getThemedIcon("screenshot-placeholder");
+        QIcon placeholder = QIcon::fromTheme("screenshot-placeholder");
 
         auto iter = m_logoMap.find(pack.name);
         if (iter != m_logoMap.end()) {
