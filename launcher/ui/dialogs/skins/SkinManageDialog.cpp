@@ -28,6 +28,7 @@
 #include <QFileInfo>
 #include <QKeyEvent>
 #include <QListView>
+#include <QMenu>
 #include <QMimeDatabase>
 #include <QPainter>
 #include <QUrl>
