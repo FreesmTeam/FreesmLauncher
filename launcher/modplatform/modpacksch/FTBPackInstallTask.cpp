@@ -90,7 +90,7 @@ void PackInstallTask::executeTask()
     auto netJob = makeShared<NetJob>("ModpacksCH::VersionFetch", APPLICATION->network());
 
     auto searchUrl = QString(BuildConfig.MODPACKSCH_API_BASE_URL + "public/modpack/%1/%2").arg(m_pack.id).arg(version.id);
-    netJob->addNetAction(Net::Download::makeByteArray(QUrl(searchUrl), &m_response));
+    netJob->addNetAction(Net::Download::makeByteArray(QUrl(searchUrl), m_response));
 
     QObject::connect(netJob.get(), &NetJob::succeeded, this, &PackInstallTask::onManifestDownloadSucceeded);
     QObject::connect(netJob.get(), &NetJob::failed, this, &PackInstallTask::onManifestDownloadFailed);
@@ -108,11 +108,11 @@ void PackInstallTask::onManifestDownloadSucceeded()
     m_net_job.reset();
 
     QJsonParseError parse_error{};
-    QJsonDocument doc = QJsonDocument::fromJson(m_response, &parse_error);
+    QJsonDocument doc = QJsonDocument::fromJson(*m_response, &parse_error);
     if (parse_error.error != QJsonParseError::NoError) {
         qWarning() << "Error while parsing JSON response from ModpacksCH at " << parse_error.offset
                    << " reason: " << parse_error.errorString();
-        qWarning() << m_response;
+        qWarning() << *m_response;
         return;
     }
 
@@ -139,7 +139,6 @@ void PackInstallTask::resolveMods()
     m_file_id_map.clear();
 
     Flame::Manifest manifest;
-    int index = 0;
 
     for (auto const& file : m_version.files) {
         if (!file.serverOnly && file.url.isEmpty()) {
@@ -151,18 +150,15 @@ void PackInstallTask::resolveMods()
             Flame::File flame_file;
             flame_file.projectId = file.curseforge.project_id;
             flame_file.fileId = file.curseforge.file_id;
-            flame_file.hash = file.sha1;
 
             manifest.files.insert(flame_file.fileId, flame_file);
             m_file_id_map.append(flame_file.fileId);
         } else {
             m_file_id_map.append(-1);
         }
-
-        index++;
     }
 
-    m_mod_id_resolver_task.reset(new Flame::FileResolvingTask(APPLICATION->network(), manifest));
+    m_mod_id_resolver_task.reset(new Flame::FileResolvingTask(manifest));
 
     connect(m_mod_id_resolver_task.get(), &Flame::FileResolvingTask::succeeded, this, &PackInstallTask::onResolveModsSucceeded);
     connect(m_mod_id_resolver_task.get(), &Flame::FileResolvingTask::failed, this, &PackInstallTask::onResolveModsFailed);
@@ -188,11 +184,11 @@ void PackInstallTask::onResolveModsSucceeded()
         VersionFile& local_file = m_version.files[index];
 
         // First check for blocked mods
-        if (!results_file.resolved || results_file.url.isEmpty()) {
+        if (results_file.version.downloadUrl.isEmpty()) {
             BlockedMod blocked_mod;
             blocked_mod.name = local_file.name;
-            blocked_mod.websiteUrl = results_file.websiteUrl;
-            blocked_mod.hash = results_file.hash;
+            blocked_mod.websiteUrl = results_file.pack.websiteUrl;
+            blocked_mod.hash = results_file.version.hash;
             blocked_mod.matched = false;
             blocked_mod.localPath = "";
             blocked_mod.targetFolder = results_file.targetFolder;
@@ -201,7 +197,7 @@ void PackInstallTask::onResolveModsSucceeded()
 
             anyBlocked = true;
         } else {
-            local_file.url = results_file.url.toString();
+            local_file.url = results_file.version.downloadUrl;
         }
     }
 
