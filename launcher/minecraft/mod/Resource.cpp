@@ -113,22 +113,38 @@ void Resource::setMetadata(std::shared_ptr<Metadata::ModStruct>&& metadata)
     m_metadata = metadata;
 }
 
-void Resource::determineCompat(const BaseInstance* inst) {
+QStringList Resource::issues() const
+{
+    QStringList result;
+    result.reserve(m_issues.length());
+
+    for (const char* issue : m_issues) {
+        result.append(tr(issue));
+    }
+
+    return result;
+}
+
+void Resource::updateIssues(const BaseInstance* inst)
+{
+    m_issues.clear();
+
     if (m_metadata == nullptr) {
-        m_isCompatible = true;
         return;
     }
 
     auto mcInst = dynamic_cast<const MinecraftInstance*>(inst);
     if (mcInst == nullptr) {
-        m_isCompatible = true;
         return;
     }
 
     auto profile = mcInst->getPackProfile();
     QString mcVersion = profile->getComponentVersion("net.minecraft");
 
-    m_isCompatible = m_metadata->mcVersions.contains(mcVersion);
+    if (!m_metadata->mcVersions.empty() && !m_metadata->mcVersions.contains(mcVersion)) {
+        // delay translation until issues() is called
+        m_issues.append(QT_TR_NOOP("Not marked as compatible with the instance's game version."));
+    }
 }
 
 int Resource::compare(const Resource& other, SortType type) const

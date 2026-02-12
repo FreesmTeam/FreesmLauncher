@@ -122,11 +122,12 @@ class Resource : public QObject {
     void setMetadata(const Metadata::ModStruct& metadata) { setMetadata(std::make_shared<Metadata::ModStruct>(metadata)); }
 
     /**
-     * Returns whether the resource is compatible with the instance.
-     * This is initially true, and may be updated when calling determineCompat with an instance.
+     * Returns compatibility issues with the resource and the instance.
+     * This is initially empty, and may be updated when calling updateIssues.
      */
-    bool isCompatible() const { return m_isCompatible; }
-    void determineCompat(const BaseInstance* inst);
+    QStringList issues() const;
+    void updateIssues(const BaseInstance* inst);
+    bool hasIssues() const { return !m_issues.empty(); }
 
     /** Compares two Resources, for sorting purposes, considering a ascending order, returning:
      *  > 0: 'this' comes after 'other'
@@ -197,7 +198,7 @@ class Resource : public QObject {
     /* Whether the resource is enabled (e.g. shows up in the game) or not. */
     bool m_enabled = true;
 
-    bool m_isCompatible = true;
+    QList<const char*> m_issues;
 
     /* Used to keep trach of pending / concluded actions on the resource. */
     bool m_is_resolving = false;

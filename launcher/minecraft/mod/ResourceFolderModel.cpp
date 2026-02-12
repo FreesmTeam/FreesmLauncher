@@ -503,7 +503,7 @@ bool ResourceFolderModel::validateIndex(const QModelIndex& index) const
 // and they only delegate to the superclass for compatible columns
 QBrush ResourceFolderModel::rowBackground(int row) const
 {
-    if (!m_resources[row]->isCompatible()) {
+    if (m_resources[row]->hasIssues()) {
         return { QColor(255, 0, 0, 40) };
     } else {
         return {};
@@ -538,8 +538,8 @@ QVariant ResourceFolderModel::data(const QModelIndex& index, int role) const
             QString tooltip = m_resources[row]->internal_id();
 
             if (column == NameColumn) {
-                if (!at(row).isCompatible()) {
-                    tooltip += tr("\nResource is not marked as compatible with the instance.");
+                for (const QString& issue : at(row).issues()) {
+                    tooltip += "\n" + issue;
                 }
 
                 if (at(row).isSymLinkUnder(instDirPath())) {
@@ -559,7 +559,7 @@ QVariant ResourceFolderModel::data(const QModelIndex& index, int role) const
         }
         case Qt::DecorationRole: {
             if (column == NameColumn) {
-                if (!at(row).isCompatible()) {
+                if (at(row).hasIssues()) {
                     return QIcon::fromTheme("status-bad");
                 } else if (at(row).isSymLinkUnder(instDirPath()) || at(row).isMoreThanOneHardLink()) {
                     return QIcon::fromTheme("status-yellow");
@@ -836,10 +836,10 @@ void ResourceFolderModel::applyUpdates(QSet<QString>& current_set, QSet<QString>
 
             if (new_resource->dateTimeChanged() == current_resource->dateTimeChanged()) {
                 // no significant change
-                bool oldCompat = current_resource->isCompatible();
-                current_resource->determineCompat(m_instance);
+                bool hadIssues = !current_resource->hasIssues();
+                current_resource->updateIssues(m_instance);
 
-                if (current_resource->isCompatible() != oldCompat) {
+                if (hadIssues != current_resource->hasIssues()) {
                     emit dataChanged(index(row, 0), index(row, columnCount({}) - 1));
                 }
                 continue;
@@ -856,7 +856,7 @@ void ResourceFolderModel::applyUpdates(QSet<QString>& current_set, QSet<QString>
             }
 
             m_resources[row].reset(new_resource);
-            new_resource->determineCompat(m_instance);
+            new_resource->updateIssues(m_instance);
 
             resolveResource(m_resources.at(row));
             emit dataChanged(index(row, 0), index(row, columnCount(QModelIndex()) - 1));
@@ -905,7 +905,7 @@ void ResourceFolderModel::applyUpdates(QSet<QString>& current_set, QSet<QString>
 
             for (auto& added : added_set) {
                 auto res = new_resources[added];
-                res->determineCompat(m_instance);
+                res->updateIssues(m_instance);
                 m_resources.append(res);
                 resolveResource(m_resources.last());
             }
