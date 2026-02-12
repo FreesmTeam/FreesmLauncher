@@ -1,5 +1,16 @@
 # Contributions Guidelines
 
+## Restrictions on Generative AI Usage (AI Policy)
+
+We expect authentic engagement in our community.
+
+- Do not post output from Large Language Models or similar generative AI as comments on GitHub or our discord server, as such comments tend to be formulaic and low-quality content.
+- If you use generative AI tools as an aid in developing code or documentation changes, ensure that you fully understand the proposed changes and can explain why they are the correct approach.
+
+Make sure you have added value based on your personal competency to your contributions. 
+Just taking some input, feeding it to an AI and posting the result is not of value to the project. 
+To preserve precious core developer capacity, we reserve the right to rigorously reject seemingly AI generated low-value contributions.
+
 ## Code style
 
 All files are formatted with `clang-format` using the configuration in `.clang-format`. Ensure it is run on changed files before committing!
