@@ -40,7 +40,6 @@
 
 #include <QWidget>
 
-#include "Application.h"
 #include "ui/pages/BasePage.h"
 #include "tasks/Task.h"
 
@@ -64,7 +63,7 @@ public:
     }
     virtual QIcon icon() const override
     {
-        return APPLICATION->getThemedIcon("ftb_logo");
+        return QIcon::fromTheme("ftb_logo");
     }
     virtual QString id() const override
     {
