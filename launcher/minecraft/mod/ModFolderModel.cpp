@@ -88,6 +88,8 @@ QVariant ModFolderModel::data(const QModelIndex& index, int role) const
     int column = index.column();
 
     switch (role) {
+        case Qt::BackgroundRole:
+            return rowBackground(row);
         case Qt::DisplayRole:
             switch (column) {
                 case VersionColumn: {
@@ -96,8 +98,9 @@ QVariant ModFolderModel::data(const QModelIndex& index, int role) const
                             return tr("Folder");
                         case ResourceType::SINGLEFILE:
                             return tr("File");
+                        default:
+                            return at(row).version();
                     }
-                    return at(row).version();
                 }
                 case SideColumn: {
                     return at(row).side();

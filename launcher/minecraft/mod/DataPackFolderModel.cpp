@@ -64,6 +64,8 @@ QVariant DataPackFolderModel::data(const QModelIndex& index, int role) const
     int column = index.column();
 
     switch (role) {
+        case Qt::BackgroundRole:
+            return rowBackground(row);
         case Qt::DisplayRole:
             switch (column) {
                 case PackFormatColumn: {

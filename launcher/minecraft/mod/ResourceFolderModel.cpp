@@ -499,6 +499,17 @@ bool ResourceFolderModel::validateIndex(const QModelIndex& index) const
     return true;
 }
 
+// HACK: all subclasses need to call this to have the whole row painted
+// and they only delegate to the superclass for compatible columns
+QBrush ResourceFolderModel::rowBackground(int row) const
+{
+    if (!m_resources[row]->isCompatible()) {
+        return { QColor(255, 0, 0, 40) };
+    } else {
+        return {};
+    }
+}
+
 QVariant ResourceFolderModel::data(const QModelIndex& index, int role) const
 {
     if (!validateIndex(index))
@@ -508,6 +519,8 @@ QVariant ResourceFolderModel::data(const QModelIndex& index, int role) const
     int column = index.column();
 
     switch (role) {
+        case Qt::BackgroundRole:
+            return rowBackground(row);
         case Qt::DisplayRole:
             switch (column) {
                 case NameColumn:
@@ -521,25 +534,37 @@ QVariant ResourceFolderModel::data(const QModelIndex& index, int role) const
                 default:
                     return {};
             }
-        case Qt::ToolTipRole:
+        case Qt::ToolTipRole: {
+            QString tooltip = m_resources[row]->internal_id();
+
             if (column == NameColumn) {
-                if (at(row).isSymLinkUnder(instDirPath())) {
-                    return m_resources[row]->internal_id() +
-                           tr("\nWarning: This resource is symbolically linked from elsewhere. Editing it will also change the original."
-                              "\nCanonical Path: %1")
-                               .arg(at(row).fileinfo().canonicalFilePath());
-                    ;
+                if (!at(row).isCompatible()) {
+                    tooltip += tr("\nResource is not marked as compatible with the instance.");
                 }
+
+                if (at(row).isSymLinkUnder(instDirPath())) {
+                    tooltip +=
+                        m_resources[row]->internal_id() +
+                        tr("\nWarning: This resource is symbolically linked from elsewhere. Editing it will also change the original."
+                           "\nCanonical Path: %1")
+                            .arg(at(row).fileinfo().canonicalFilePath());
+                }
+
                 if (at(row).isMoreThanOneHardLink()) {
-                    return m_resources[row]->internal_id() +
-                           tr("\nWarning: This resource is hard linked elsewhere. Editing it will also change the original.");
+                    tooltip += tr("\nWarning: This resource is hard linked elsewhere. Editing it will also change the original.");
                 }
             }
 
-            return m_resources[row]->internal_id();
+            return tooltip;
+        }
         case Qt::DecorationRole: {
-            if (column == NameColumn && (at(row).isSymLinkUnder(instDirPath()) || at(row).isMoreThanOneHardLink()))
-                return QIcon::fromTheme("status-yellow");
+            if (column == NameColumn) {
+                if (!at(row).isCompatible()) {
+                    return QIcon::fromTheme("status-bad");
+                } else if (at(row).isSymLinkUnder(instDirPath()) || at(row).isMoreThanOneHardLink()) {
+                    return QIcon::fromTheme("status-yellow");
+                }
+            }
 
             return {};
         }
