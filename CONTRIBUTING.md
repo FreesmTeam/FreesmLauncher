@@ -11,6 +11,7 @@ We expect authentic engagement in our community.
 Make sure you have added value based on your personal competency to your contributions. 
 Just taking some input, feeding it to an AI and posting the result is not of value to the project. 
 To preserve precious core developer capacity, we reserve the right to rigorously reject seemingly AI generated low-value contributions.
+
 Adapted from the [Linux Kernal](https://www.kernel.org/doc./html/next/process/coding-assistants.html):
 
 ### Signed-off-by and Developer Certificate of Origin 
