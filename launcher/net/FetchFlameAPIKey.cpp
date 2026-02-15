@@ -19,6 +19,8 @@
 #include "FetchFlameAPIKey.h"
 #include <BuildConfig.h>
 #include <Json.h>
+#include <Logging.h>
+
 #include "Application.h"
 
 #include <ui/dialogs/CustomMessageBox.h>
@@ -98,6 +100,6 @@ void FetchFlameAPIKey::downloadFinished()
 
     const auto& keyByteArray = block.mid(startIndex, finalIndex - startIndex);
     m_result = QString{ keyByteArray };
-    qDebug() << "Fetched Flame API key: " << m_result;
+    qCDebug(authCredentials()) << "Fetched Flame API key: " << m_result;
     emitSucceeded();
 }
