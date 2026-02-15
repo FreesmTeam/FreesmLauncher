@@ -16,8 +16,7 @@
  *  along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef FETCHFLAMEAPIKEY_H
-#define FETCHFLAMEAPIKEY_H
+#pragma once
 
 #include <tasks/Task.h>
 #include <QNetworkReply>
@@ -38,5 +37,3 @@ class FetchFlameAPIKey : public Task {
 
     std::shared_ptr<QNetworkReply> m_reply;
 };
-
-#endif  // FETCHFLAMEAPIKEY_H
