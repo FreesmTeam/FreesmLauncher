@@ -1,9 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-only
 /*
- *  Prism Launcher - Minecraft Launcher
- *  Copyright (C) 2022 Sefa Eyeoglu <contact@scrumplex.net>
+ *  PolyMC - Minecraft Launcher
  *  Copyright (c) 2022 Jamie Mansfield <jmansfield@cadixdev.org>
- *  Copyright (c) 2022 Lenny McLennington <lenny@sneed.church>
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -37,37 +35,70 @@
 
 #pragma once
 
+#include "FtbFilterModel.h"
+#include "FtbListModel.h"
+
 #include <QWidget>
 
 #include "ui/pages/BasePage.h"
+#include "tasks/Task.h"
 
-namespace Ui {
-class APIPage;
+namespace Ui
+{
+    class FtbPage;
 }
 
-class APIPage : public QWidget, public BasePage {
-    Q_OBJECT
+class NewInstanceDialog;
 
-   public:
-    explicit APIPage(QWidget* parent = 0);
-    ~APIPage();
+class FtbPage : public QWidget, public BasePage
+{
+Q_OBJECT
 
-    QString displayName() const override { return tr("Services"); }
-    QIcon icon() const override { return QIcon::fromTheme("worlds"); }
-    QString id() const override { return "apis"; }
-    QString helpPage() const override { return "APIs"; }
-    virtual bool apply() override;
+public:
+    explicit FtbPage(NewInstanceDialog* dialog, QWidget *parent = 0);
+    virtual ~FtbPage();
+    virtual QString displayName() const override
+    {
+        return "FTB";
+    }
+    virtual QIcon icon() const override
+    {
+        return QIcon::fromTheme("ftb_logo");
+    }
+    virtual QString id() const override
+    {
+        return "ftb";
+    }
+    virtual QString helpPage() const override
+    {
+        return "FTB-platform";
+    }
+    virtual bool shouldDisplay() const override;
     void retranslate() override;
 
-   private:
-    int baseURLPasteType;
-    void resetBaseURLNote();
-    void updateBaseURLNote(int index);
-    void updateBaseURLPlaceholder(int index);
-    void loadSettings();
-    void applySettings();
-    void fetchKeyButtonPressed();
+    void openedImpl() override;
+    void closedImpl() override;
 
-   private:
-    Ui::APIPage* ui;
+    bool eventFilter(QObject * watched, QEvent * event) override;
+
+private:
+    void suggestCurrent();
+
+private slots:
+    void triggerSearch();
+
+    void onSortingSelectionChanged(QString data);
+    void onSelectionChanged(QModelIndex first, QModelIndex second);
+    void onVersionSelectionChanged(QString data);
+
+private:
+    Ui::FtbPage *ui = nullptr;
+    NewInstanceDialog* dialog = nullptr;
+    Ftb::ListModel* listModel = nullptr;
+    Ftb::FilterModel* filterModel = nullptr;
+
+    ModpacksCH::Modpack selected;
+    QString selectedVersion;
+
+    bool initialised { false };
 };
