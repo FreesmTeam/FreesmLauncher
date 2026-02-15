@@ -913,6 +913,8 @@ SET(LAUNCHER_SOURCES
     ui/setupwizard/SetupWizard.h
     ui/setupwizard/SetupWizard.cpp
     ui/setupwizard/BaseWizardPage.h
+    ui/setupwizard/FlameApiKeyWizardPage.cpp
+    ui/setupwizard/FlameApiKeyWizardPage.h
     ui/setupwizard/JavaWizardPage.cpp
     ui/setupwizard/JavaWizardPage.h
     ui/setupwizard/LanguageWizardPage.cpp
