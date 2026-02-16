@@ -1,7 +1,8 @@
 # Contributions Guidelines
 
 ## Restrictions on Generative AI Usage (AI Policy)
-Adapted from [matplotlib's docs](https://matplotlib.org/devdocs/devel/contribute.html#generative-ai):
+> [!NOTE]
+> The following is adapted from [matplotlib's contributing guide](https://matplotlib.org/devdocs/devel/contribute.html#generative-ai) and the [Linux Kernel policy guide](https://www.kernel.org/doc./html/next/process/coding-assistants.html)
 
 We expect authentic engagement in our community.
 
