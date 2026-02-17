@@ -1,0 +1,52 @@
+name: Clang-Tidy Code Scanning
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+on:
+  merge_group:
+    types: [checks_requested]
+  pull_request:
+
+permissions: {}
+
+jobs:
+  clang-tidy:
+    name: Run Clang-Tidy
+
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      security-events: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0 # Required for diffing later on
+          submodules: "true"
+
+      - name: Setup sccache
+        uses: hendrikmuhs/ccache-action@v1.2.20
+        with:
+          variant: sccache
+
+      - name: Install Nix
+        uses: cachix/install-nix-action@v31
+
+      - name: Run build
+        run: |
+          nix develop --command bash -c '
+            cmake -B build -D CMAKE_CXX_COMPILER_LAUNCHER=sccache && cmake --build build
+          '
+
+      # TODO: Use SARIF after https://github.com/psastras/sarif-rs/issues/638 is fixed
+      - name: Run clang-tidy-diff
+        env:
+          BASE_REF: ${{ github.event.pull_request.base.sha || github.event.merge_group.base_sha }}
+        run: |
+          nix develop --command bash -c '
+            git diff -U0 --no-color "$BASE_REF" | clang-tidy-diff.py -p1
+          '
