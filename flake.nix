@@ -86,6 +86,7 @@
         let
           pkgs = nixpkgsFor.${system};
           llvm = pkgs.llvmPackages_19;
+          python = pkgs.python3;
           mkShell = pkgs.mkShell.override { inherit (llvm) stdenv; };
 
           packages' = self.packages.${system};
@@ -137,10 +138,27 @@
 
             inputsFrom = [ packages'.prismlauncher-unwrapped ];
 
-            packages = with pkgs; [
-              ccache
+            packages = [
+              pkgs.ccache
               llvm.clang-tools
-              python3 # Required for `run-clang-tidy`, etc.
+              python # NOTE(@getchoo): Required for run-clang-tidy, etc.
+
+              (pkgs.stdenvNoCC.mkDerivation {
+                pname = "clang-tidy-diff";
+                inherit (llvm.clang) version;
+
+                nativeBuildInputs = [
+                  pkgs.installShellFiles
+                  python.pkgs.wrapPython
+                ];
+
+                dontUnpack = true;
+                dontConfigure = true;
+                dontBuild = true;
+
+                postInstall = "installBin ${llvm.libclang.python}/share/clang/clang-tidy-diff.py";
+                postFixup = "wrapPythonPrograms";
+              })
             ];
 
             cmakeBuildType = "Debug";
