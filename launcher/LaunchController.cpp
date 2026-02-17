@@ -289,8 +289,7 @@ void LaunchController::login()
             auto name = askOfflineName("Player", &ok);
             if (ok) {
                 m_session = std::make_shared<AuthSession>();
-                static const QRegularExpression s_removeChars("[{}-]");
-                m_session->MakeDemo(name, MinecraftAccount::uuidFromUsername(name).toString().remove(s_removeChars));
+                m_session->MakeDemo(name, MinecraftAccount::uuidFromUsername(name).toString(QUuid::Id128));
                 launchInstance();
                 return;
             }
