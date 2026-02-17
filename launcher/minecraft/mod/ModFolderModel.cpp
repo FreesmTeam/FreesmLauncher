@@ -88,10 +88,10 @@ QVariant ModFolderModel::data(const QModelIndex& index, int role) const
     int column = index.column();
 
     switch (role) {
+        case Qt::BackgroundRole:
+            return rowBackground(row);
         case Qt::DisplayRole:
             switch (column) {
-                case NameColumn:
-                    return m_resources[row]->name();
                 case VersionColumn: {
                     switch (at(row).type()) {
                         case ResourceType::FOLDER:
@@ -99,14 +99,8 @@ QVariant ModFolderModel::data(const QModelIndex& index, int role) const
                         case ResourceType::SINGLEFILE:
                             return tr("File");
                         default:
-                            break;
+                            return at(row).version();
                     }
-                    return at(row).version();
-                }
-                case DateColumn:
-                    return at(row).dateTimeChanged();
-                case ProviderColumn: {
-                    return at(row).provider();
                 }
                 case SideColumn: {
                     return at(row).side();
@@ -120,53 +114,54 @@ QVariant ModFolderModel::data(const QModelIndex& index, int role) const
                 case ReleaseTypeColumn: {
                     return at(row).releaseType();
                 }
-                case SizeColumn: {
-                    return at(row).sizeStr();
-                }
                 case RequiredByColumn: {
                     return at(row).requiredByCount();
                 }
                 case RequiresColumn: {
                     return at(row).requiresCount();
                 }
-                default:
-                    return QVariant();
             }
-
-        case Qt::ToolTipRole:
-            if (column == NameColumn) {
-                if (at(row).isSymLinkUnder(instDirPath())) {
-                    return m_resources[row]->internal_id() +
-                           tr("\nWarning: This resource is symbolically linked from elsewhere. Editing it will also change the original."
-                              "\nCanonical Path: %1")
-                               .arg(at(row).fileinfo().canonicalFilePath());
-                }
-                if (at(row).isMoreThanOneHardLink()) {
-                    return m_resources[row]->internal_id() +
-                           tr("\nWarning: This resource is hard linked elsewhere. Editing it will also change the original.");
-                }
-            }
-            return m_resources[row]->internal_id();
+            break;
         case Qt::DecorationRole: {
-            if (column == NameColumn && (at(row).isSymLinkUnder(instDirPath()) || at(row).isMoreThanOneHardLink()))
-                return QIcon::fromTheme("status-yellow");
             if (column == ImageColumn) {
                 return at(row).icon({ 32, 32 }, Qt::AspectRatioMode::KeepAspectRatioByExpanding);
             }
-            return {};
+            break;
         }
         case Qt::SizeHintRole:
             if (column == ImageColumn) {
                 return QSize(32, 32);
             }
-            return {};
-        case Qt::CheckStateRole:
-            if (column == ActiveColumn)
-                return at(row).enabled() ? Qt::Checked : Qt::Unchecked;
-            return QVariant();
+            break;
         default:
-            return QVariant();
+            break;
     }
+
+    // map the columns to the base equivilents
+    QModelIndex mappedIndex;
+    switch (column) {
+        case ActiveColumn:
+            mappedIndex = index.siblingAtColumn(ResourceFolderModel::ActiveColumn);
+            break;
+        case NameColumn:
+            mappedIndex = index.siblingAtColumn(ResourceFolderModel::NameColumn);
+            break;
+        case DateColumn:
+            mappedIndex = index.siblingAtColumn(ResourceFolderModel::DateColumn);
+            break;
+        case ProviderColumn:
+            mappedIndex = index.siblingAtColumn(ResourceFolderModel::ProviderColumn);
+            break;
+        case SizeColumn:
+            mappedIndex = index.siblingAtColumn(ResourceFolderModel::SizeColumn);
+            break;
+    }
+
+    if (mappedIndex.isValid()) {
+        return ResourceFolderModel::data(mappedIndex, role);
+    }
+
+    return {};
 }
 
 QVariant ModFolderModel::headerData(int section, [[maybe_unused]] Qt::Orientation orientation, int role) const
@@ -258,9 +253,11 @@ void ModFolderModel::onParseSucceeded(int ticket, QString mod_id)
     auto resource = find(mod_id);
 
     auto result = cast_task->result();
-    if (result && resource)
-        static_cast<Mod*>(resource.get())->finishResolvingWithDetails(std::move(result->details));
+    if (result && resource) {
+        auto* mod = static_cast<Mod*>(resource.get());
+        mod->finishResolvingWithDetails(std::move(result->details));
 
+    }
     emit dataChanged(index(row, RequiresColumn), index(row, RequiredByColumn));
 }
 
