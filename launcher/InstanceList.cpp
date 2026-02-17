@@ -923,6 +923,7 @@ class InstanceStaging : public Task {
         connect(child, &Task::failed, this, &InstanceStaging::childFailed);
         connect(child, &Task::aborted, this, &InstanceStaging::childAborted);
         connect(child, &Task::abortStatusChanged, this, &InstanceStaging::setAbortable);
+        connect(child, &Task::abortButtonTextChanged, this, &InstanceStaging::setAbortButtonText);
         connect(child, &Task::status, this, &InstanceStaging::setStatus);
         connect(child, &Task::details, this, &InstanceStaging::setDetails);
         connect(child, &Task::progress, this, &InstanceStaging::setProgress);
@@ -939,9 +940,7 @@ class InstanceStaging : public Task {
         if (!canAbort())
             return false;
 
-        m_child->abort();
-
-        return Task::abort();
+        return m_child->abort();
     }
     bool canAbort() const override { return (m_child && m_child->canAbort()); }
 
