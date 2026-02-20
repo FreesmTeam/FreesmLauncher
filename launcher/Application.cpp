@@ -600,6 +600,10 @@ Application::Application(int& argc, char** argv) : QApplication(argc, argv)
 
         if (!migrated)
             migrated = handleDataMigration(
+                dataPath, FS::PathCombine(QStandardPaths::writableLocation(QStandardPaths::AppDataLocation), "../../PrismLauncher"),
+                "Prism Launcher", "prismlauncher.cfg");
+        if (!migrated)
+            migrated = handleDataMigration(
                 dataPath, FS::PathCombine(QStandardPaths::writableLocation(QStandardPaths::AppDataLocation), "../../PolyMC"), "PolyMC",
                 "polymc.cfg");
         if (!migrated)
