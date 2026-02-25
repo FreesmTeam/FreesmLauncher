@@ -2003,7 +2003,7 @@ void Application::triggerUpdateCheck()
     }
 }
 
-QUrl Application::normalizeImportUrl(QString const& url)
+QUrl Application::normalizeImportUrl(const QString& url)
 {
     auto local_file = QFileInfo(url);
     if (local_file.exists()) {
