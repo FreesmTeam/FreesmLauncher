@@ -1319,7 +1319,13 @@ if(WIN32)
     set(LAUNCHER_RCS ${CMAKE_CURRENT_BINARY_DIR}/../${Launcher_Branding_WindowsRC})
 endif()
 
-include(CompilerWarnings)
+function(enable_warnings TARGET)
+    if (CMAKE_CXX_COMPILER_FRONTEND_VARIANT STREQUAL "MSVC")
+        target_compile_options(${TARGET} PRIVATE /W4 /WX /permissive-)
+    else()
+        target_compile_options(${TARGET} PRIVATE -Wall -Wextra -Wpedantic -Werror)
+    endif()
+endfunction()
 
 ######## Precompiled Headers ###########
 
@@ -1336,12 +1342,16 @@ endif()
 
 # Add executable
 add_library(Launcher_logic STATIC ${LOGIC_SOURCES} ${LAUNCHER_SOURCES} ${LAUNCHER_UI} ${LAUNCHER_RESOURCES})
-set_project_warnings(Launcher_logic
-    "${Launcher_MSVC_WARNINGS}"
-    "${Launcher_CLANG_WARNINGS}"
-    "${Launcher_GCC_WARNINGS}")
+enable_warnings(Launcher_logic)
 target_include_directories(Launcher_logic PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 target_compile_definitions(Launcher_logic PUBLIC LAUNCHER_APPLICATION)
+
+# Disable some warnings due to being present in a lot of places. TODO: Fix them.
+if (CMAKE_CXX_COMPILER_FRONTEND_VARIANT STREQUAL "MSVC")
+    target_compile_options(Launcher_logic PRIVATE /wd4100) # C4100 - unused parameter
+else()
+    target_compile_options(Launcher_logic PRIVATE -Wno-unused-parameter -Wno-missing-field-initializers)
+endif()
 
 if(${Launcher_USE_PCH})
     target_precompile_headers(Launcher_logic PRIVATE ${PRECOMPILED_HEADERS})
@@ -1424,8 +1434,6 @@ if(APPLE)
     endif()
 endif()
 
-target_link_libraries(Launcher_logic)
-
 add_executable(${Launcher_Name} MACOSX_BUNDLE WIN32 main.cpp ${LAUNCHER_RCS})
 
 if(${Launcher_USE_PCH})
@@ -1462,6 +1470,7 @@ endif()
 if(Launcher_BUILD_UPDATER)
     # Updater
     add_library(prism_updater_logic STATIC ${PRISMUPDATER_SOURCES} ${TASKS_SOURCES} ${PRISMUPDATER_UI})
+    enable_warnings(prism_updater_logic)
     target_include_directories(prism_updater_logic PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 
     if(${Launcher_USE_PCH})
@@ -1514,10 +1523,7 @@ endif()
 if(WIN32 OR (DEFINED Launcher_BUILD_FILELINKER AND Launcher_BUILD_FILELINKER))
     # File link
     add_library(filelink_logic STATIC ${LINKEXE_SOURCES})
-    set_project_warnings(filelink_logic
-    "${Launcher_MSVC_WARNINGS}"
-    "${Launcher_CLANG_WARNINGS}"
-    "${Launcher_GCC_WARNINGS}")
+    enable_warnings(filelink_logic)
 
     target_include_directories(filelink_logic PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 
