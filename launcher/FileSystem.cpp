@@ -953,7 +953,10 @@ QString createShortcut(QString destination, QString target, QStringList args, QS
         qWarning() << "Couldn't create directories within application";
         return QString();
     }
-    info.open(QIODevice::WriteOnly | QIODevice::Text);
+    if (!info.open(QIODevice::WriteOnly | QIODevice::Text)) {
+        qWarning() << "Failed to open file" << info.fileName() << "for writing!";
+        return QString();
+    }
 
     QFile(icon).rename(resources.path() + "/Icon.icns");
 
@@ -961,7 +964,10 @@ QString createShortcut(QString destination, QString target, QStringList args, QS
     QString exec = binaryDir.path() + "/Run.command";
 
     QFile f(exec);
-    f.open(QIODevice::WriteOnly | QIODevice::Text);
+    if (!f.open(QIODevice::WriteOnly | QIODevice::Text)) {
+        qWarning() << "Failed to open file" << f.fileName() << "for writing!";
+        return QString();
+    }
     QTextStream stream(&f);
 
     auto argstring = quoteArgs(args, "\"", "\\\"");
