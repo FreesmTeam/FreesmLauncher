@@ -153,13 +153,13 @@ QStringList InstanceList::getLinkedInstancesById(const QString& id) const
 int InstanceList::rowCount(const QModelIndex& parent) const
 {
     Q_UNUSED(parent);
-    return m_instances.size();
+    return count();
 }
 
 QModelIndex InstanceList::index(int row, int column, const QModelIndex& parent) const
 {
     Q_UNUSED(parent);
-    if (row < 0 || static_cast<std::size_t>(row) >= m_instances.size())
+    if (row < 0 || row >= count())
         return QModelIndex();
     return createIndex(row, column, m_instances.at(row).get());
 }
@@ -579,7 +579,7 @@ void InstanceList::saveNow()
 
 void InstanceList::add(std::vector<std::unique_ptr<BaseInstance>>& t)
 {
-    beginInsertRows(QModelIndex(), m_instances.size(), m_instances.size() + t.size() - 1);
+    beginInsertRows(QModelIndex(), count(), static_cast<int>(count() + t.size() - 1));
     for (auto& ptr : t) {
         m_instances.push_back(std::move(ptr));
         connect(m_instances.back().get(), &BaseInstance::propertiesChanged, this, &InstanceList::propertiesChanged);
@@ -644,7 +644,7 @@ QModelIndex InstanceList::getInstanceIndexById(const QString& id) const
 
 int InstanceList::getInstIndex(BaseInstance* inst) const
 {
-    int count = m_instances.size();
+    int count = this->count();
     for (int i = 0; i < count; i++) {
         if (inst == m_instances.at(i).get()) {
             return i;

@@ -261,9 +261,6 @@ JavaWizardWidget::ValidationStatus JavaWizardWidget::validate()
                     default:
                         return ValidationStatus::Bad;
                 }
-                if (button == QMessageBox::No) {
-                    return ValidationStatus::Bad;
-                }
             }
             return ValidationStatus::JavaBad;
         } break;

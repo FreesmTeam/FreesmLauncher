@@ -152,10 +152,7 @@ void ModrinthCheckUpdate::checkVersionsResponse(QByteArray* response, std::optio
             // so we may want to filter it
             QString loader_filter;
             if (loader.has_value()) {
-                for (auto flag : ModPlatform::modLoaderTypesToList(*loader)) {
-                    loader_filter = ModPlatform::getModLoaderAsString(flag);
-                    break;
-                }
+                loader_filter = ModPlatform::getModLoaderAsString(ModPlatform::modLoaderTypesToList(*loader).first());
             }
 
             // Currently, we rely on a couple heuristics to determine whether an update is actually available or not:

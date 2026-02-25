@@ -223,7 +223,7 @@ void ComponentUpdateTask::loadComponents()
         componentIndex++;
     }
     d->remoteTasksInProgress = taskIndex;
-    m_progressTotal = taskIndex;
+    m_progressTotal = static_cast<int>(taskIndex);
     switch (result) {
         case LoadResult::LoadedLocal: {
             // Everything got loaded. Advance to dependency resolution.

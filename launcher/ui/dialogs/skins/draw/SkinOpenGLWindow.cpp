@@ -270,10 +270,10 @@ QColor calculateContrastingColor(const QColor& color)
 {
     auto luma = Rainbow::luma(color);
     if (luma < 0.5) {
-        constexpr float contrast = 0.05;
+        constexpr float contrast = 0.05f;
         return Rainbow::lighten(color, contrast);
     } else {
-        constexpr float contrast = 0.2;
+        constexpr float contrast = 0.2f;
         return Rainbow::darken(color, contrast);
     }
 }

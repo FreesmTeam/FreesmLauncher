@@ -282,6 +282,9 @@ bool copyFileAttributes(QString src, QString dst)
     if (attrs == INVALID_FILE_ATTRIBUTES)
         return false;
     return SetFileAttributesW(dst.toStdWString().c_str(), attrs);
+#else
+    Q_UNUSED(src);
+    Q_UNUSED(dst);
 #endif
     return true;
 }

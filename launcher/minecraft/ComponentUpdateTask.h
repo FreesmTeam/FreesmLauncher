@@ -21,7 +21,7 @@ class ComponentUpdateTask : public Task {
     bool abort() override;
 
    protected:
-    void executeTask();
+    void executeTask() override;
 
    private:
     void loadComponents();
