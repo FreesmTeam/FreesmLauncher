@@ -255,7 +255,7 @@ JavaWizardWidget::ValidationStatus JavaWizardWidget::validate()
                         return ValidationStatus::JavaBad;
                     case QMessageBox::Help:
                         DesktopServices::openUrl(QUrl(BuildConfig.HELP_URL.arg("java-wizard")));
-                    /* fallthrough */
+                        [[fallthrough]];
                     case QMessageBox::No:
                     /* fallthrough */
                     default:
