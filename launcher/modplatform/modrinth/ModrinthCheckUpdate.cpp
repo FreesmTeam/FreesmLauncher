@@ -151,7 +151,7 @@ void ModrinthCheckUpdate::checkVersionsResponse(QByteArray* response, std::optio
             // Sometimes a version may have multiple files, one with "forge" and one with "fabric",
             // so we may want to filter it
             QString loader_filter;
-            if (loader.has_value()) {
+            if (loader.has_value() && loader != 0) {
                 loader_filter = ModPlatform::getModLoaderAsString(ModPlatform::modLoaderTypesToList(*loader).first());
             }
 
