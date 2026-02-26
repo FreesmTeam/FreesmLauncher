@@ -318,6 +318,7 @@ Application::Application(int& argc, char** argv) : QApplication(argc, argv)
           { { "a", "profile" }, "Use the account specified by its profile name (only valid in combination with --launch)", "profile" },
           { { "o", "offline" }, "Launch offline, with given player name (only valid in combination with --launch)", "offline" },
           { "alive", "Write a small '" + liveCheckFile + "' file after the launcher starts" },
+          { "show-window", "Show the main launcher window (useful in combination with --launch)" },
           { { "I", "import" }, "Import instance or resource from specified local path or URL", "url" },
           { "show", "Opens the window for the specified instance (by instance ID)", "show" } });
     // Has to be positional for some OS to handle that properly
@@ -339,6 +340,7 @@ Application::Application(int& argc, char** argv) : QApplication(argc, argv)
     m_liveCheck = parser.isSet("alive");
 
     m_instanceIdToShowWindowOf = parser.value("show");
+    m_showMainWindow = parser.isSet("show-window");
 
     for (auto url : parser.values("import")) {
         m_urlsToImport.append(normalizeImportUrl(url));
@@ -1352,7 +1354,10 @@ void Application::performMainStartupAction()
             }
 
             launch(inst, m_launchOffline ? LaunchMode::Offline : LaunchMode::Normal, targetToJoin, accountToUse, m_offlineName);
-            return;
+
+            if (!m_showMainWindow) {
+                return;
+            }
         }
     }
     if (!m_instanceIdToShowWindowOf.isEmpty()) {
