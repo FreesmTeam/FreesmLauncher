@@ -372,6 +372,11 @@
         </item>
         <item>
          <property name="text">
+             <string>Cover</string>
+         </property>
+        </item>
+           <item>
+               <property name="text">
           <string>Stretch</string>
          </property>
         </item>
