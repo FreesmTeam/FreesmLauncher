@@ -113,6 +113,7 @@ void PackInstallTask::onManifestDownloadSucceeded()
         qWarning() << "Error while parsing JSON response from ModpacksCH at " << parse_error.offset
                    << " reason: " << parse_error.errorString();
         qWarning() << *m_response;
+        emitFailed(tr("Error while parsing JSON response from ModpacksCH"));
         return;
     }
 
