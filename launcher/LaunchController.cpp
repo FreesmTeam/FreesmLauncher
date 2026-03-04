@@ -356,7 +356,7 @@ bool LaunchController::reauthenticateAccount(MinecraftAccountPtr account, QStrin
         }
     }
 
-    emitFailed(tr("The account has expired and needs to be reauthenticated"));
+    emitFailed(reason);
     return false;
 }
 
