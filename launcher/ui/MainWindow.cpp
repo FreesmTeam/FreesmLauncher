@@ -1005,13 +1005,13 @@ void MainWindow::processURLs(QList<QUrl> urls)
                     receivedData.insert(it->first, it->second);
                 emit APPLICATION->oauthReplyRecieved(receivedData);
                 continue;
-            } else if ((url.scheme() == "prismlauncher" || url.scheme() == BuildConfig.LAUNCHER_APP_BINARY_NAME) 
+            } else if ((url.scheme() == "prismlauncher" || url.scheme() == BuildConfig.LAUNCHER_APP_BINARY_NAME)
                         && isExternalURLImport) {
                 // PrismLauncher URL protocol modpack import
                 // works for any prism fork
                 // preferred import format: prismlauncher://import?url=ENCODED
                 const auto host = url.host().toLower();
-                const auto path = url.path(); 
+                const auto path = url.path();
 
                 QString encodedTarget;
 
@@ -1075,7 +1075,7 @@ void MainWindow::processURLs(QList<QUrl> urls)
                 if (res != QMessageBox::Yes) {
                     continue;
                 }
-            
+
                 dl_url = target;
             } else {
                 dl_url = url;
@@ -1435,7 +1435,7 @@ void MainWindow::on_actionAddToPATH_triggered()
 
 void MainWindow::on_actionOpenWiki_triggered()
 {
-    DesktopServices::openUrl(QUrl(BuildConfig.HELP_URL.arg("")));
+    DesktopServices::openUrl(QUrl(BuildConfig.WIKI_URL));
 }
 
 void MainWindow::on_actionMoreNews_triggered()
