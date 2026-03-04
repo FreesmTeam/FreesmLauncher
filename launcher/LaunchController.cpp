@@ -189,6 +189,8 @@ LaunchDecision LaunchController::decideLaunchMode()
     QString reauthReason;
     switch (state) {
         case AccountState::Errored:
+            reauthReason = tr("Could not refresh '%1' due to an error").arg(accountToCheck->profileName());
+            break;
         case AccountState::Expired:
             reauthReason = tr("'%1' has expired and needs to be reauthenticated").arg(accountToCheck->profileName());
             break;
