@@ -91,10 +91,10 @@ runs:
             --password '${{ inputs.apple-notarize-password }}'
 
           xcrun stapler staple "Prism Launcher.app"
-          rm "../PrismLauncher.zip"
         else
           echo ":warning: Skipping notarization as credentials are not present." >> $GITHUB_STEP_SUMMARY
         fi
+        ditto -c -k --sequesterRsrc --keepParent "Prism Launcher.app" ../PrismLauncher.zip
 
     - name: Create DMG
       shell: bash
@@ -119,11 +119,13 @@ runs:
       run: |
         if [ '${{ inputs.sparkle-ed25519-key }}' != '' ]; then
           echo '${{ inputs.sparkle-ed25519-key }}' > ed25519-priv.pem
-          signature=$(/opt/homebrew/opt/openssl@3/bin/openssl pkeyutl -sign -rawin -in ${{ github.workspace }}/PrismLauncher.dmg -inkey ed25519-priv.pem | openssl base64 | tr -d \\n)
+          signature-zip=$(/opt/homebrew/opt/openssl@3/bin/openssl pkeyutl -sign -rawin -in ${{ github.workspace }}/PrismLauncher.zip -inkey ed25519-priv.pem | openssl base64 | tr -d \\n)
+          signature-dmg=$(/opt/homebrew/opt/openssl@3/bin/openssl pkeyutl -sign -rawin -in ${{ github.workspace }}/PrismLauncher.dmg -inkey ed25519-priv.pem | openssl base64 | tr -d \\n) 
           rm ed25519-priv.pem
           cat >> $GITHUB_STEP_SUMMARY << EOF
         ### Artifact Information :information_source:
-        - :memo: Sparkle Signature (ed25519): \`$signature\`
+        - :memo: Sparkle Signature (ed25519): \`$signature-zip\` (ZIP)
+        - :memo: Sparkle Signature (ed25519): \`$signature-dmg\` (DMG)
         EOF
         else
           cat >> $GITHUB_STEP_SUMMARY << EOF
@@ -133,6 +135,12 @@ runs:
         fi
 
     - name: Upload binary tarball
+      uses: actions/upload-artifact@v6
+      with:
+        name: PrismLauncher-${{ inputs.artifact-name }}-${{ inputs.version }}-${{ inputs.build-type }}
+        path: PrismLauncher.zip
+
+    - name: Upload disk image
       uses: actions/upload-artifact@v6
       with:
         name: PrismLauncher-${{ inputs.artifact-name }}-${{ inputs.version }}-${{ inputs.build-type }}
