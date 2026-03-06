@@ -256,7 +256,7 @@ void World::readFromFS(const QFileInfo& file)
     loadFromLevelDat(bytes);
     m_levelDatTime = file.lastModified();
     if (m_randomSeed == 0) {
-        auto bytes = getWorldGenDataFromFS(file);
+        bytes = getWorldGenDataFromFS(file);
         if (!bytes.isEmpty()) {
             m_randomSeed = loadSeed(bytes);
         }
@@ -426,7 +426,7 @@ int64_t loadSeed(QByteArray data)
     nbt::value* valPtr = nullptr;
     try {
         valPtr = &levelData->at("data");
-    } catch (const std::out_of_range& e) {
+    } catch (const std::out_of_range&) {
         return 0;
     }
     nbt::value& val = *valPtr;

@@ -35,16 +35,12 @@ add_compile_definitions($<$<NOT:$<CONFIG:Debug>>:QT_NO_DEBUG>)
 
 if(MSVC)
     # /GS Adds buffer security checks, default on but incuded anyway to mirror gcc's fstack-protector flag
-    # /permissive- specify standards-conforming compiler behavior, also enabled by Qt6, default on with std:c++20
-    # Use /W4 as /Wall includes unnesserey warnings such as added padding to structs
-    set(CMAKE_CXX_FLAGS "/GS /permissive- /W4 ${CMAKE_CXX_FLAGS}")
-
     # /EHs Enables stack unwind semantics for standard C++ exceptions to ensure stackframes are unwound
     # and object deconstructors are called when an exception is caught.
     # without it memory leaks and a warning is printed
     # /EHc tells the compiler to assume that functions declared as extern "C" never throw a C++ exception
     # This appears to not always be a defualt compiler option in CMAKE
-    set(CMAKE_CXX_FLAGS "/EHsc ${CMAKE_CXX_FLAGS}")
+    set(CMAKE_CXX_FLAGS "/GS /EHsc ${CMAKE_CXX_FLAGS}")
 
     # LINK accepts /SUBSYSTEM whics sets if we are a WINDOWS (gui) or a CONSOLE programs
     # This implicitly selects an entrypoint specific to the subsystem selected
@@ -79,7 +75,7 @@ if(MSVC)
         set(CMAKE_MAP_IMPORTED_CONFIG_RELWITHDEBINFO Release "")
     endif()
 else()
-    set(CMAKE_CXX_FLAGS "-Wall -pedantic -fstack-protector-strong --param=ssp-buffer-size=4 ${CMAKE_CXX_FLAGS}")
+    set(CMAKE_CXX_FLAGS "-fstack-protector-strong --param=ssp-buffer-size=4 ${CMAKE_CXX_FLAGS}")
 
     # ATL's pack list needs more than the default 1 Mib stack on windows
     if(WIN32)
