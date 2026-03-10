@@ -132,13 +132,6 @@ jobs:
         with:
           github-token: ${{ github.token }}
 
-      - name: Login to registry
-        uses: redhat-actions/podman-login@v1
-        with:
-          registry: ${{ env.REGISTRY }}
-          username: ${{ github.repository_owner }}
-          password: ${{ github.token }}
-
       - name: Determine metadata for manifest
         id: manifest-metadata
         uses: docker/metadata-action@v5
@@ -161,7 +154,7 @@ jobs:
           IMAGE_NAME: ${{ needs.build.outputs.image-name }}
         run: |
           podman manifest create "$IMAGE_NAME" \
-            $(printf '%s ' *)
+            $(printf "$IMAGE_NAME:%s " *)
 
       - name: Push manifest
         uses: redhat-actions/push-to-registry@v2
