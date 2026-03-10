@@ -55,7 +55,7 @@ jobs:
 
       - name: Determine metadata for image
         id: image-metadata
-        uses: docker/metadata-action@v5
+        uses: docker/metadata-action@v6
         with:
           images: |
             ${{ steps.image-name.outputs.image-name }}
@@ -141,7 +141,7 @@ jobs:
 
       - name: Determine metadata for manifest
         id: manifest-metadata
-        uses: docker/metadata-action@v5
+        uses: docker/metadata-action@v6
         with:
           images: |
             ${{ needs.build.outputs.image-name }}
