@@ -141,7 +141,7 @@ runs:
         path: PrismLauncher.zip
 
     - name: Upload disk image
-      uses: actions/upload-artifact@v6
+      uses: actions/upload-artifact@v7
       with:
         name: PrismLauncher-${{ inputs.artifact-name }}-${{ inputs.version }}-${{ inputs.build-type }}.dmg
         path: PrismLauncher.dmg
