@@ -27,10 +27,11 @@
 
 #include "Application.h"
 #include "BuildConfig.h"
+#include "HardwareInfo.h"
 
 JavaWizardWidget::JavaWizardWidget(QWidget* parent) : QWidget(parent)
 {
-    m_availableMemory = SysInfo::getSystemRamMiB();
+    m_availableMemory = HardwareInfo::totalRamMiB();
 
     goodIcon = QIcon::fromTheme("status-good");
     yellowIcon = QIcon::fromTheme("status-yellow");
