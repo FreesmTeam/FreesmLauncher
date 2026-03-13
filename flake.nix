@@ -86,6 +86,7 @@
         let
           pkgs = nixpkgsFor.${system};
           llvm = pkgs.llvmPackages_19;
+          mkShell = pkgs.mkShell.override { inherit (llvm) stdenv; };
 
           packages' = self.packages.${system};
 
@@ -131,7 +132,7 @@
         in
 
         {
-          default = pkgs.mkShell {
+          default = mkShell {
             name = "prism-launcher";
 
             inputsFrom = [ packages'.prismlauncher-unwrapped ];
@@ -139,10 +140,11 @@
             packages = with pkgs; [
               ccache
               llvm.clang-tools
+              python3 # Required for `run-clang-tidy`, etc.
             ];
 
             cmakeBuildType = "Debug";
-            cmakeFlags = [ "-GNinja" ] ++ packages'.prismlauncher.cmakeFlags;
+            cmakeFlags = [ "-GNinja" ] ++ packages'.prismlauncher-unwrapped.cmakeFlags;
             dontFixCmake = true;
 
             shellHook = ''
@@ -165,16 +167,24 @@
 
       formatter = forAllSystems (system: nixpkgsFor.${system}.nixfmt-rfc-style);
 
-      overlays.default = final: prev: {
-        prismlauncher-unwrapped = prev.callPackage ./nix/unwrapped.nix {
-          inherit
-            libnbtplusplus
-            self
-            ;
-        };
+      overlays.default =
+        final: prev:
 
-        prismlauncher = final.callPackage ./nix/wrapper.nix { };
-      };
+        let
+          llvm = final.llvmPackages_19 or prev.llvmPackages_19;
+        in
+
+        {
+          prismlauncher-unwrapped = prev.callPackage ./nix/unwrapped.nix {
+            inherit (llvm) stdenv;
+            inherit
+              libnbtplusplus
+              self
+              ;
+          };
+
+          prismlauncher = final.callPackage ./nix/wrapper.nix { };
+        };
 
       packages = forAllSystems (
         system:
