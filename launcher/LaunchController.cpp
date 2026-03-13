@@ -189,6 +189,8 @@ LaunchDecision LaunchController::decideLaunchMode()
     QString reauthReason;
     switch (state) {
         case AccountState::Errored:
+            reauthReason = tr("An error occurred while refreshing '%1'").arg(accountToCheck->profileName());
+            break;
         case AccountState::Expired:
             reauthReason = tr("'%1' has expired and needs to be reauthenticated").arg(accountToCheck->profileName());
             break;
@@ -356,7 +358,7 @@ bool LaunchController::reauthenticateAccount(MinecraftAccountPtr account, QStrin
         }
     }
 
-    emitFailed(tr("The account has expired and needs to be reauthenticated"));
+    emitFailed(reason);
     return false;
 }
 
