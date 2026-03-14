@@ -889,48 +889,10 @@ QStringList MinecraftInstance::verboseDescription(AuthSessionPtr session, Minecr
 
     QStringList out;
 
-    out << "Main Class:" << indent + getMainClass() << emptyLine;
-    out << "Native path:" << indent + getNativePath() << emptyLine;
+    out << "Launcher: " + getLauncher();
+    out << "Main class: " + getMainClass() << emptyLine;
 
     auto profile = m_components->getProfile();
-
-    // traits
-    auto alltraits = traits();
-    if (alltraits.size()) {
-        out << "Traits:";
-        for (auto trait : alltraits) {
-            out << indent + trait;
-        }
-        out << emptyLine;
-    }
-
-    // native libraries
-    auto settings = this->settings();
-    bool nativeOpenAL = settings->get("UseNativeOpenAL").toBool();
-    bool nativeGLFW = settings->get("UseNativeGLFW").toBool();
-    if (nativeOpenAL || nativeGLFW) {
-        if (nativeOpenAL)
-            out << "Using system OpenAL.";
-        if (nativeGLFW)
-            out << "Using system GLFW.";
-        out << emptyLine;
-    }
-
-    // libraries and class path.
-    {
-        out << "Libraries:";
-        QStringList jars, nativeJars;
-        profile->getLibraryFiles(runtimeContext(), jars, nativeJars, getLocalLibraryPath(), binRoot());
-        for (auto file : jars) {
-            out << indent + file;
-        }
-        out << emptyLine;
-        out << "Native libraries:";
-        for (auto file : nativeJars) {
-            out << indent + file;
-        }
-        out << emptyLine;
-    }
 
     // mods and core mods
     auto printModList = [&out](const QString& label, ModFolderModel& model) {
@@ -977,9 +939,49 @@ QStringList MinecraftInstance::verboseDescription(AuthSessionPtr session, Minecr
         out << emptyLine;
     }
 
+    // traits
+    auto alltraits = traits();
+    if (alltraits.size()) {
+        out << "Traits:";
+        for (auto trait : alltraits) {
+            out << indent + trait;
+        }
+        out << emptyLine;
+    }
+
+    // native libraries
+    auto settings = this->settings();
+    bool nativeOpenAL = settings->get("UseNativeOpenAL").toBool();
+    bool nativeGLFW = settings->get("UseNativeGLFW").toBool();
+    if (nativeOpenAL || nativeGLFW) {
+        if (nativeOpenAL)
+            out << "Using system OpenAL.";
+        if (nativeGLFW)
+            out << "Using system GLFW.";
+        out << emptyLine;
+    }
+
+    // libraries and class path.
+    {
+        out << "Libraries:";
+        QStringList jars, nativeJars;
+        profile->getLibraryFiles(runtimeContext(), jars, nativeJars, getLocalLibraryPath(), binRoot());
+        for (auto file : jars) {
+            out << indent + file;
+        }
+        out << emptyLine;
+        out << "Native libraries:";
+        for (auto file : nativeJars) {
+            out << indent + file;
+        }
+        out << emptyLine;
+    }
+
+    out << "Natives path:" << indent + getNativePath() << emptyLine;
+
     // minecraft arguments
     auto params = processMinecraftArgs(nullptr, targetToJoin);
-    out << "Params:";
+    out << "Minecraft arguments:";
     out << indent + params.join(' ');
     out << emptyLine;
 
@@ -992,9 +994,6 @@ QStringList MinecraftInstance::verboseDescription(AuthSessionPtr session, Minecr
         auto height = settings->get("MinecraftWinHeight").toInt();
         out << "Window size: " + QString::number(width) + " x " + QString::number(height);
     }
-    out << emptyLine;
-
-    out << "Launcher: " + getLauncher();
     out << emptyLine;
 
     // environment variables
@@ -1122,7 +1121,7 @@ LaunchTask* MinecraftInstance::createLaunchTask(AuthSessionPtr session, Minecraf
 
     // print a header
     {
-        process->appendStep(makeShared<TextPrint>(pptr, "Minecraft folder is:\n" + gameRoot() + "\n\n", MessageLevel::Launcher));
+        process->appendStep(makeShared<TextPrint>(pptr, "Minecraft folder is:\n  " + gameRoot() + "\n", MessageLevel::Launcher));
     }
 
     // create the .minecraft folder and server-resource-packs (workaround for Minecraft bug MCL-3732)
@@ -1160,6 +1159,8 @@ LaunchTask* MinecraftInstance::createLaunchTask(AuthSessionPtr session, Minecraf
     {
         process->appendStep(makeShared<AutoInstallJava>(pptr));
         process->appendStep(makeShared<CheckJava>(pptr));
+        // verify that minimum Java requirements are met
+        process->appendStep(makeShared<VerifyJavaInstall>(pptr));
     }
 
     // run pre-launch command if that's needed
@@ -1202,11 +1203,6 @@ LaunchTask* MinecraftInstance::createLaunchTask(AuthSessionPtr session, Minecraf
     // reconstruct assets if needed
     {
         process->appendStep(makeShared<ReconstructAssets>(pptr));
-    }
-
-    // verify that minimum Java requirements are met
-    {
-        process->appendStep(makeShared<VerifyJavaInstall>(pptr));
     }
 
     {
