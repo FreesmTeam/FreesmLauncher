@@ -458,7 +458,7 @@ void MainWindow::retranslateUi()
 
     MinecraftAccountPtr defaultAccount = APPLICATION->accounts()->defaultAccount();
     if (defaultAccount) {
-        auto profileLabel = profileInUseFilter(defaultAccount->profileName(), defaultAccount->isInUse());
+        auto profileLabel = profileInUseFilter(defaultAccount->displayName(), defaultAccount->isInUse());
         ui->actionAccountsButton->setText(profileLabel);
     }
 
@@ -658,7 +658,7 @@ void MainWindow::repopulateAccountsMenu()
     if (defaultAccount) {
         // this can be called before accountMenuButton exists
         if (ui->actionAccountsButton) {
-            auto profileLabel = profileInUseFilter(defaultAccount->profileName(), defaultAccount->isInUse());
+            auto profileLabel = profileInUseFilter(defaultAccount->displayName(), defaultAccount->isInUse());
             ui->actionAccountsButton->setText(profileLabel);
         }
     }
@@ -672,7 +672,7 @@ void MainWindow::repopulateAccountsMenu()
         // TODO: Nicer way to iterate?
         for (int i = 0; i < accounts->count(); i++) {
             MinecraftAccountPtr account = accounts->at(i);
-            auto profileLabel = profileInUseFilter(account->profileName(), account->isInUse());
+            auto profileLabel = profileInUseFilter(account->displayName(), account->isInUse());
             QAction* action = new QAction(profileLabel, this);
             action->setData(i);
             action->setCheckable(true);
@@ -752,7 +752,7 @@ void MainWindow::defaultAccountChanged()
 
     // FIXME: this needs adjustment for MSA
     if (account && account->profileName() != "") {
-        auto profileLabel = profileInUseFilter(account->profileName(), account->isInUse());
+        auto profileLabel = profileInUseFilter(account->displayName(), account->isInUse());
         ui->actionAccountsButton->setText(profileLabel);
         auto face = account->getFace();
         if (face.isNull()) {
