@@ -30,6 +30,7 @@
 #include <QProgressDialog>
 #include <QSettings>
 #include <QTimer>
+#include <algorithm>
 #include <memory>
 
 #include "StringUtils.h"
@@ -268,20 +269,24 @@ void PrismExternalUpdater::setBetaAllowed(bool allowed)
 void PrismExternalUpdater::resetAutoCheckTimer()
 {
     if (priv->autoCheck && priv->updateInterval > 0) {
-        int timeoutDuration = 0;
         auto now = QDateTime::currentDateTime();
+
+        qint64 timeoutMs = 0;
+
         if (priv->lastCheck.isValid()) {
-            auto diff = priv->lastCheck.secsTo(now);
-            auto secs_left = priv->updateInterval - diff;
-            if (secs_left < 0)
-                secs_left = 0;
-            timeoutDuration = secs_left * 1000;  // to msec
+            qint64 diff = priv->lastCheck.secsTo(now);
+            qint64 secs_left = std::max<qint64>(priv->updateInterval - diff, 0);
+            timeoutMs = secs_left * 1000;
         }
-        qDebug() << "Auto update timer starting," << timeoutDuration / 1000 << "seconds left";
-        priv->updateTimer.start(timeoutDuration);
+
+        timeoutMs = std::min(timeoutMs, static_cast<qint64>(INT_MAX));
+
+        qDebug() << "Auto update timer starting," << timeoutMs / 1000 << "seconds left";
+        priv->updateTimer.start(static_cast<int>(timeoutMs));
     } else {
-        if (priv->updateTimer.isActive())
+        if (priv->updateTimer.isActive()) {
             priv->updateTimer.stop();
+        }
     }
 }
 
