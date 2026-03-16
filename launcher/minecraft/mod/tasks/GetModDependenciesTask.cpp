@@ -180,7 +180,9 @@ Task::Ptr GetModDependenciesTask::prepareDependencyTask(const ModPlatform::Depen
         tasks->addTask(getProjectInfoTask(pDep));
     }
 
-    ResourceAPI::DependencySearchArgs args = { dep, m_version, m_loaderType };
+    ResourceAPI::DependencySearchArgs args = {
+        .dependency = dep, .mcVersion = m_version, .loader = m_loaderType, .includeChangelog = true
+    };
     ResourceAPI::Callback<ModPlatform::IndexedVersion> callbacks;
     callbacks.on_fail = [](QString reason, int) {
         qCritical() << tr("A network error occurred. Could not load project dependencies:%1").arg(reason);

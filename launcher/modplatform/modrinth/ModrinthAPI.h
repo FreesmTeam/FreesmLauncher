@@ -186,6 +186,8 @@ class ModrinthAPI : public ResourceAPI {
             get_arguments.append(QString("game_versions=[%1]").arg(getGameVersionsString(args.mcVersions.value())));
         if (args.loaders.has_value())
             get_arguments.append(QString("loaders=[\"%1\"]").arg(getModLoaderStrings(args.loaders.value()).join("\",\"")));
+        }
+        get_arguments.append(QString("include_changelog=%1").arg(args.includeChangelog ? "true" : "false"));
 
         return QString("%1/project/%2/version%3%4")
             .arg(BuildConfig.MODRINTH_PROD_URL, args.pack->addonId.toString(), get_arguments.isEmpty() ? "" : "?", get_arguments.join('&'));
@@ -210,12 +212,14 @@ class ModrinthAPI : public ResourceAPI {
 
     std::optional<QString> getDependencyURL(DependencySearchArgs const& args) const override
     {
-        return args.dependency.version.length() != 0 ? QString("%1/version/%2").arg(BuildConfig.MODRINTH_PROD_URL, args.dependency.version)
-                                                     : QString("%1/project/%2/version?game_versions=[\"%3\"]&loaders=[\"%4\"]")
-                                                           .arg(BuildConfig.MODRINTH_PROD_URL)
-                                                           .arg(args.dependency.addonId.toString())
-                                                           .arg(mapMCVersionToModrinth(args.mcVersion))
-                                                           .arg(getModLoaderStrings(args.loader).join("\",\""));
+        return args.dependency.version.length() != 0
+                   ? QString("%1/version/%2").arg(BuildConfig.MODRINTH_PROD_URL, args.dependency.version)
+                   : QString(R"(%1/project/%2/version?game_versions=["%3"]&loaders=["%4"]&include_changelog=%5)")
+                         .arg(BuildConfig.MODRINTH_PROD_URL)
+                         .arg(args.dependency.addonId.toString())
+                         .arg(mapMCVersionToModrinth(args.mcVersion))
+                         .arg(getModLoaderStrings(args.loader).join("\",\""))
+                         .arg(args.includeChangelog ? "true" : "false");
     };
 
     QJsonArray documentToArray(QJsonDocument& obj) const override { return obj.object().value("hits").toArray(); }
