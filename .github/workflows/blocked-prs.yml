@@ -152,7 +152,7 @@ jobs:
 
       - name: Add 'blocked' Label if Missing
         id: label_blocked
-        if: (fromJSON(steps.pr_ids.outputs.prs).numBlocking > 0) && !contains(fromJSON(env.JOB_DATA).prLabels, 'blocked') && !fromJSON(steps.blocking_data.outputs.all_merged)
+        if: "(fromJSON(steps.pr_ids.outputs.prs).numBlocking > 0) && !contains(fromJSON(env.JOB_DATA).prLabels, 'status: blocked') && !fromJSON(steps.blocking_data.outputs.all_merged)"
         continue-on-error: true
         env:
           GH_TOKEN: ${{ steps.generate-token.outputs.token }}
@@ -166,7 +166,7 @@ jobs:
         env:
           GH_TOKEN: ${{ steps.generate-token.outputs.token }}
         run: |
-          gh -R ${{ github.repository }} issue edit --remove-label 'blocked' "$PR_NUMBER"
+          gh -R ${{ github.repository }} issue edit --remove-label 'status: blocked' "$PR_NUMBER"
 
       - name: Apply 'blocking' Label to Unmerged Dependencies
         id: label_blocking
