@@ -57,4 +57,5 @@ class CustomLoginDialog : public QDialog {
     CustomAccountPtr m_account;
     Task::Ptr m_loginTask;
     Net::Head::Ptr m_requestTask;
+    QUrl m_loginUrl;
 };
