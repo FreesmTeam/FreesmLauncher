@@ -800,6 +800,8 @@ SET(LAUNCHER_SOURCES
     ApplicationMessage.cpp
     SysInfo.h
     SysInfo.cpp
+    HardwareInfo.cpp
+    HardwareInfo.h
 
     # console utils
     console/Console.h

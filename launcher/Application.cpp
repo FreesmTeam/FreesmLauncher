@@ -730,7 +730,7 @@ Application::Application(int& argc, char** argv) : QApplication(argc, argv)
 
         // Memory
         m_settings->registerSetting({ "MinMemAlloc", "MinMemoryAlloc" }, 512);
-        m_settings->registerSetting({ "MaxMemAlloc", "MaxMemoryAlloc" }, SysInfo::suitableMaxMem());
+        m_settings->registerSetting({ "MaxMemAlloc", "MaxMemoryAlloc" }, SysInfo::defaultMaxJvmMem());
         m_settings->registerSetting("PermGen", 128);
 
         // Java Settings
