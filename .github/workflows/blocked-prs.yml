@@ -157,7 +157,7 @@ jobs:
         env:
           GH_TOKEN: ${{ steps.generate-token.outputs.token }}
         run: |
-          gh -R ${{ github.repository }} issue edit --add-label 'blocked' "$PR_NUMBER"
+          gh -R ${{ github.repository }} issue edit --add-label 'status: blocked' "$PR_NUMBER"
 
       - name: Remove 'blocked' Label if All Dependencies Are Merged
         id: unlabel_blocked
@@ -177,7 +177,7 @@ jobs:
           BLOCKING_ISSUES: ${{ steps.blocking_data.outputs.current_blocking }}
         run: |
           while read -r pr ; do
-            gh -R ${{ github.repository }} issue edit --add-label 'blocking' "$pr" || true
+            gh -R ${{ github.repository }} issue edit --add-label 'status: blocking' "$pr" || true
           done < <(jq -c '.[]' <<< "$BLOCKING_ISSUES")
 
       - name: Apply Blocking PR Status Check
