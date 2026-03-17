@@ -29,7 +29,7 @@ set(Launcher_AppID "${Launcher_AppID}" PARENT_SCOPE)
 set(Launcher_SVGFileName "${Launcher_SVGFileName}" PARENT_SCOPE)
 
 set(Launcher_Desktop "program_info/${Launcher_AppID}.desktop" PARENT_SCOPE)
-set(Launcher_mrpack_MIMEInfo "program_info/${Launcher_APP_BINARY_NAME}-modrinth-mrpack-mime.xml" PARENT_SCOPE)
+set(Launcher_MIMEInfo "program_info/${Launcher_AppID}.xml" PARENT_SCOPE)
 set(Launcher_MetaInfo "program_info/${Launcher_AppID}.metainfo.xml" PARENT_SCOPE)
 set(Launcher_PNG_256 "program_info/${Launcher_AppID}_256.png" PARENT_SCOPE)
 set(Launcher_SVG "program_info/${Launcher_SVGFileName}" PARENT_SCOPE)
@@ -50,7 +50,7 @@ configure_file(${Launcher_APP_BINARY_NAME}.qrc.in ${Launcher_APP_BINARY_NAME}.qr
 configure_file(${Launcher_APP_BINARY_NAME}.manifest.in ${Launcher_APP_BINARY_NAME}.manifest @ONLY)
 configure_file(${Launcher_APP_BINARY_NAME}.ico ${Launcher_APP_BINARY_NAME}.ico COPYONLY)
 configure_file(${Launcher_SVGFileName} ${Launcher_SVGFileName} COPYONLY)
-configure_file(modrinth-mrpack-mime.xml ${Launcher_APP_BINARY_NAME}-modrinth-mrpack-mime.xml COPYONLY)
+configure_file(${Launcher_AppID}.mime.xml ${Launcher_AppID}.xml COPYONLY)
 
 if(MSVC)
     set(Launcher_MSVC_Redist_NSIS_Section [=[
