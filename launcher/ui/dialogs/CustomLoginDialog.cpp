@@ -58,6 +58,8 @@ void CustomLoginDialog::accept()
         return;
     }
 
+    m_loginUrl = url;
+
     setUserInputsEnabled(false);
     ui->progressBar->setVisible(true);
 
@@ -73,13 +75,12 @@ void CustomLoginDialog::onUrlResolving()
 {
     disconnect(m_requestTask.get(), &Task::finished, this, &CustomLoginDialog::onUrlResolving);
 
-    if (m_requestTask->error() != QNetworkReply::NoError) {
+    if (m_requestTask->error() != QNetworkReply::NoError && m_requestTask->replyStatusCode() != 405) {
         emit onTaskFailed(m_requestTask->errorString());
         return;
     }
 
     // modify url if header say so
-    QUrl url;
     auto headers = m_requestTask->getRawHeaders();
     if (const auto it =
             std::find_if(headers.begin(), headers.end(),
@@ -87,17 +88,15 @@ void CustomLoginDialog::onUrlResolving()
         it != headers.end()) {
         const QUrl location = QString::fromUtf8(it->second);
         if (location.isRelative()) {
-            url = m_requestTask->url().resolved(location);
+            m_loginUrl = m_requestTask->url().resolved(location);
         } else {
-            url = location;
+            m_loginUrl = location;
         }
-    } else {
-        url = m_requestTask->url();
     }
 
     // Setup the login task and start it
-    m_account = CustomAccount::createCustom(ui->userTextBox->text(), url.toString(QUrl::StripTrailingSlash), ui->loginUrlTextBox->text(),
-                                            ui->refreshUrlTextBox->text());
+    m_account = CustomAccount::createCustom(ui->userTextBox->text(), m_loginUrl.toString(QUrl::StripTrailingSlash),
+                                            ui->loginUrlTextBox->text(), ui->refreshUrlTextBox->text());
     m_loginTask = m_account->login(ui->passTextBox->text());
     connect(m_loginTask.get(), &Task::failed, this, &CustomLoginDialog::onTaskFailed);
     connect(m_loginTask.get(), &Task::succeeded, this, &CustomLoginDialog::onTaskSucceeded);
