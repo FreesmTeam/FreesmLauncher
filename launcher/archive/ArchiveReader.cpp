@@ -24,6 +24,7 @@
 #include <QDir>
 #include <QFileInfo>
 #include <QUrl>
+#include <functional>
 #include <memory>
 #include <optional>
 
@@ -43,13 +44,19 @@ bool ArchiveReader::collectFiles(bool onlyFiles)
     });
 }
 
-QString ArchiveReader::File::filename()
+using getPathFunc = std::function<const char*(archive_entry*)>;
+static QString decodeLibArchivePath(archive_entry* entry, const getPathFunc& getUtf8Path, const getPathFunc& getPath)
 {
-    auto fileName = QString::fromUtf8(archive_entry_pathname_utf8(m_entry));
+    auto fileName = QString::fromUtf8(getUtf8Path(entry));
     if (fileName.isEmpty()) {
-        fileName = QString::fromUtf8(archive_entry_pathname(m_entry));
+        fileName = QString::fromLocal8Bit(getPath(entry));
     }
     return fileName;
+}
+
+QString ArchiveReader::File::filename()
+{
+    return decodeLibArchivePath(m_entry, archive_entry_pathname_utf8, archive_entry_pathname);
 }
 
 QByteArray ArchiveReader::File::readAll(int* outStatus)
@@ -136,18 +143,20 @@ static int copy_data(struct archive* ar, struct archive* aw, bool notBlock = fal
     }
 }
 
-bool willEscapeRoot(const QDir& root, archive_entry* entry)
+static bool willEscapeRoot(const QDir& root, archive_entry* entry)
 {
-    const char* entryPathC = archive_entry_pathname(entry);
-    const char* linkTargetC = archive_entry_symlink(entry);
-    const char* hardlinkC = archive_entry_hardlink(entry);
+    auto entryPath = decodeLibArchivePath(entry, archive_entry_pathname_utf8, archive_entry_pathname);
+    auto linkTarget = decodeLibArchivePath(entry, archive_entry_symlink_utf8, archive_entry_symlink);
+    auto hardLink = decodeLibArchivePath(entry, archive_entry_hardlink_utf8, archive_entry_hardlink);
 
-    if (!entryPathC || (!linkTargetC && !hardlinkC)) {
+    if (entryPath.isEmpty() || (linkTarget.isEmpty() && hardLink.isEmpty())) {
         return false;
     }
 
-    QString entryPath = QString::fromUtf8(entryPathC);
-    QString linkTarget = linkTargetC ? QString::fromUtf8(linkTargetC) : QString::fromUtf8(hardlinkC);
+    bool isHardLink = false;
+    if (isHardLink = linkTarget.isEmpty(); isHardLink) {
+        linkTarget = hardLink;
+    }
 
     QString linkFullPath = root.filePath(entryPath);
     auto rootDir = QUrl::fromLocalFile(root.absolutePath());
@@ -158,7 +167,7 @@ bool willEscapeRoot(const QDir& root, archive_entry* entry)
 
     QDir linkDir = QFileInfo(linkFullPath).dir();
     if (!QDir::isAbsolutePath(linkTarget)) {
-        linkTarget = (linkTargetC ? linkDir : root).filePath(linkTarget);
+        linkTarget = (!isHardLink ? linkDir : root).filePath(linkTarget);
     }
     return !rootDir.isParentOf(QUrl::fromLocalFile(QDir::cleanPath(linkTarget)));
 }
