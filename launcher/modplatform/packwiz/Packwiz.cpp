@@ -24,10 +24,12 @@
 #include <QObject>
 #include <sstream>
 #include <string>
+#include <utility>
 
 #include "FileSystem.h"
 #include "StringUtils.h"
 
+#include "Version.h"
 #include "modplatform/ModIndex.h"
 
 #include <toml++/toml.h>
@@ -59,7 +61,7 @@ auto getRealIndexName(const QDir& index_dir, QString normalized_fname, bool shou
 }
 
 // Helpers
-static inline auto indexFileName(QString const& mod_slug) -> QString
+static inline auto indexFileName(const QString& mod_slug) -> QString
 {
     if (mod_slug.endsWith(".pw.toml"))
         return mod_slug;
@@ -115,7 +117,8 @@ auto V1::createModFormat([[maybe_unused]] const QDir& index_dir,
     mod.side = mod_version.side == ModPlatform::Side::NoSide ? mod_pack.side : mod_version.side;
     mod.loaders = mod_version.loaders;
     mod.mcVersions = mod_version.mcVersion;
-    mod.mcVersions.sort();
+    std::sort(mod.mcVersions.begin(), mod.mcVersions.end(),
+              [](QString a, QString b) { return Version(std::move(a)) <= Version(std::move(b)); });
     mod.releaseType = mod_version.version_type;
 
     mod.version_number = mod_version.version_number;
@@ -301,7 +304,8 @@ auto V1::getIndexForMod(const QDir& index_dir, QString slug) -> Mod
                     }
                 }
             }
-            mod.mcVersions.sort();
+            std::sort(mod.mcVersions.begin(), mod.mcVersions.end(),
+                      [](QString a, QString b) { return Version(std::move(a)) <= Version(std::move(b)); });
         }
     }
     mod.version_number = table["x-prismlauncher-version-number"].value_or("");
