@@ -568,7 +568,7 @@ bool process(Mod& mod, ProcessingLevel level)
         case ResourceType::LITEMOD:
             return processLitemod(mod);
         default:
-            qWarning() << "Invalid type for mod parse task!";
+            qWarning() << "Invalid type" << mod.type() << "for mod parse task!";
             return false;
     }
 }
