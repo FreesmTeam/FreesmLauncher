@@ -46,7 +46,7 @@ jobs:
       - name: Install Podman
         uses: redhat-actions/podman-install@main
         # TODO(@getchoo): Always use this when the action properly supports ARM
-        if: ${{ runner.arch == 'X64' }}
+        if: ${{ runner.arch == 'X64' || runner.arch == 'X86' }}
         with:
           github-token: ${{ github.token }}
 
@@ -127,10 +127,17 @@ jobs:
 
       - name: Install Podman
         # TODO(@getchoo): Always use this when the action properly supports ARM
-        if: ${{ runner.arch == 'X64' }}
+        if: ${{ runner.arch == 'X64' || runner.arch == 'X86' }}
         uses: redhat-actions/podman-install@main
         with:
           github-token: ${{ github.token }}
+
+      - name: Login to registry
+        uses: redhat-actions/podman-login@v1
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.repository_owner }}
+          password: ${{ github.token }}
 
       - name: Determine metadata for manifest
         id: manifest-metadata
