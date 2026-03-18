@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.22)  # minimum version required by Qt
+cmake_minimum_required(VERSION 3.25) # Required for features like `CMAKE_MSVC_DEBUG_INFORMATION_FORMAT`
 
 project(Launcher LANGUAGES C CXX)
 if(APPLE)
@@ -32,69 +32,54 @@ set(CMAKE_C_STANDARD 11)
 include(GenerateExportHeader)
 
 add_compile_definitions($<$<NOT:$<CONFIG:Debug>>:QT_NO_DEBUG>)
+add_compile_definitions(QT_WARN_DEPRECATED_UP_TO=0x060400)
+add_compile_definitions(QT_DISABLE_DEPRECATED_UP_TO=0x060400)
 
-if(MSVC)
-    # /GS Adds buffer security checks, default on but incuded anyway to mirror gcc's fstack-protector flag
-    # /EHs Enables stack unwind semantics for standard C++ exceptions to ensure stackframes are unwound
-    # and object deconstructors are called when an exception is caught.
-    # without it memory leaks and a warning is printed
-    # /EHc tells the compiler to assume that functions declared as extern "C" never throw a C++ exception
-    # This appears to not always be a defualt compiler option in CMAKE
-    set(CMAKE_CXX_FLAGS "/GS /EHsc ${CMAKE_CXX_FLAGS}")
+if(CMAKE_CXX_COMPILER_FRONTEND_VARIANT STREQUAL "MSVC")
+    add_compile_options(
+        # /GS Adds buffer security checks, default on but included anyway to mirror gcc's fstack-protector flag
+        "$<$<COMPILE_LANGUAGE:C,CXX>:/GS>"
 
-    # LINK accepts /SUBSYSTEM whics sets if we are a WINDOWS (gui) or a CONSOLE programs
-    # This implicitly selects an entrypoint specific to the subsystem selected
-    # qtmain/QtEntryPointLib provides the correct entrypoint (wWinMain) for gui programs
-    # Additinaly LINK autodetects we use a GUI so we can omit /SUBSYSTEM
-    # This allows tests to still use have console without using seperate linker flags
-    # /LTCG allows for linking wholy optimizated programs
-    # /MANIFEST:NO disables generating a manifest file, we instead provide our own
-    # /STACK sets the stack reserve size, ATL's pack list needs 3-4 MiB as of November 2022, provide 8 MiB
-    set(CMAKE_EXE_LINKER_FLAGS "/LTCG /MANIFEST:NO /STACK:8388608 ${CMAKE_EXE_LINKER_FLAGS}")
+        # /Gw helps reduce binary size
+        # /Gy allows the compiler to package individual functions
+        # /guard:cf enables control flow guard
+        "$<$<AND:$<CONFIG:Release,RelWithDebInfo>,$<COMPILE_LANGUAGE:C,CXX>>:/Gw;/Gy;/guard:cf>"
+    )
+
+    add_link_options(
+        # /LTCG allows for linking wholy optimizated programs
+        # /MANIFEST:NO disables generating a manifest file, we instead provide our own
+        # /STACK sets the stack reserve size, ATL's pack list needs 3-4 MiB as of November 2022, provide 8 MiB
+        "$<$<COMPILE_LANGUAGE:C,CXX>:/LTCG;/MANIFEST:NO;/STACK:8388608>"
+    )
 
     # /GL enables whole program optimizations
-    # /Gw helps reduce binary size
-    # /Gy allows the compiler to package individual functions
-    # /guard:cf enables control flow guard
-    foreach(lang C CXX)
-        set("CMAKE_${lang}_FLAGS_RELEASE" "/GL /Gw /Gy /guard:cf")
-    endforeach()
+    # NOTE: With Clang, this is implemented as regular LTO and only used during linking
+    if(NOT CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+        add_compile_options("$<$<AND:$<CONFIG:Release,RelWithDebInfo>,$<COMPILE_LANGUAGE:C,CXX>>:/GL>")
+    endif()
 
     # See https://github.com/ccache/ccache/issues/1040
-    # Note, CMake 3.25 replaces this with CMAKE_MSVC_DEBUG_INFORMATION_FORMAT
-    # See https://cmake.org/cmake/help/v3.25/variable/CMAKE_MSVC_DEBUG_INFORMATION_FORMAT.html
-    foreach(config DEBUG RELWITHDEBINFO)
-        foreach(lang C CXX)
-            set(flags_var "CMAKE_${lang}_FLAGS_${config}")
-            string(REGEX REPLACE "/Z[Ii]" "/Z7" ${flags_var} "${${flags_var}}")
-        endforeach()
-    endforeach()
+    # TODO(@getchoo): Is sccache affected by this? Would be nice to use `ProgramDatabase`....
+    set(CMAKE_MSVC_DEBUG_INFORMATION_FORMAT "$<$<CONFIG:Debug,RelWithDebInfo>:Embedded>")
 
     if(CMAKE_MSVC_RUNTIME_LIBRARY STREQUAL "MultiThreadedDLL")
         set(CMAKE_MAP_IMPORTED_CONFIG_DEBUG Release "")
         set(CMAKE_MAP_IMPORTED_CONFIG_RELWITHDEBINFO Release "")
     endif()
 else()
-    set(CMAKE_CXX_FLAGS "-fstack-protector-strong --param=ssp-buffer-size=4 ${CMAKE_CXX_FLAGS}")
+    add_compile_options("$<$<COMPILE_LANGUAGE:C,CXX>:-D_FORTIFY_SOURCE=2;-fstack-protector-strong;--param=ssp-buffer-size=4>")
 
     # ATL's pack list needs more than the default 1 Mib stack on windows
-    if(WIN32)
-        set(CMAKE_EXE_LINKER_FLAGS "-Wl,--stack,8388608 ${CMAKE_EXE_LINKER_FLAGS}")
+    if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
+        add_link_options("$<$<COMPILE_LANGUAGE:C,CXX>:-Wl,--stack,8388608>")
 
         # -ffunction-sections and -fdata-sections help reduce binary size
         # -mguard=cf enables Control Flow Guard
         # TODO: Look into -gc-sections to further reduce binary size
-        foreach(lang C CXX)
-            set("CMAKE_${lang}_FLAGS_RELEASE" "-ffunction-sections -fdata-sections -mguard=cf")
-        endforeach()
+        add_compile_options("$<$<AND:$<CONFIG:Release,RelWithDebInfo>,$<COMPILE_LANGUAGE:C,CXX>>:-ffunction-sections;-fdata-sections;-mguard=cf>")
     endif()
 endif()
-
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DQT_WARN_DEPRECATED_UP_TO=0x060400")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DQT_DISABLE_DEPRECATED_UP_TO=0x060400")
-
-# set CXXFLAGS for build targets
-set(CMAKE_CXX_FLAGS_RELEASE "-O2 -D_FORTIFY_SOURCE=2 ${CMAKE_CXX_FLAGS_RELEASE}")
 
 # Export compile commands for debug builds if we can (useful in LSPs like clangd)
 # https://cmake.org/cmake/help/v3.31/variable/CMAKE_EXPORT_COMPILE_COMMANDS.html
