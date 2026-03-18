@@ -818,23 +818,6 @@ SET(LAUNCHER_SOURCES
     KonamiCode.h
     KonamiCode.cpp
 
-    # Bundled resources
-    resources/backgrounds/backgrounds.qrc
-    resources/multimc/multimc.qrc
-    resources/pe_dark/pe_dark.qrc
-    resources/pe_light/pe_light.qrc
-    resources/pe_colored/pe_colored.qrc
-    resources/pe_blue/pe_blue.qrc
-    resources/breeze_dark/breeze_dark.qrc
-    resources/breeze_light/breeze_light.qrc
-    resources/OSX/OSX.qrc
-    resources/iOS/iOS.qrc
-    resources/flat/flat.qrc
-    resources/flat_white/flat_white.qrc
-    resources/documents/documents.qrc
-    resources/shaders/shaders.qrc
-    "${CMAKE_CURRENT_BINARY_DIR}/../${Launcher_Branding_LogoQRC}"
-
     # Icons
     icons/MMCIcon.h
     icons/MMCIcon.cpp
@@ -1305,6 +1288,7 @@ qt_add_resources(LAUNCHER_RESOURCES
     resources/OSX/OSX.qrc
     resources/iOS/iOS.qrc
     resources/flat/flat.qrc
+    resources/flat_white/flat_white.qrc
     resources/documents/documents.qrc
     resources/shaders/shaders.qrc
     "${CMAKE_CURRENT_BINARY_DIR}/../${Launcher_Branding_LogoQRC}"

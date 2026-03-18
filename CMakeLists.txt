@@ -87,6 +87,19 @@ if(CMAKE_GENERATOR STREQUAL "Unix Makefiles" OR CMAKE_GENERATOR MATCHES "^Ninja"
     set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 endif()
 
+option(USE_CLANG_TIDY "Enable the use of clang-tidy during compilation" OFF)
+
+if(USE_CLANG_TIDY)
+    find_program(CLANG_TIDY clang-tidy OPTIONAL)
+    if(CLANG_TIDY)
+        message(STATUS "Using clang-tidy during compilation")
+        set(CLANG_TIDY_COMMAND "${CLANG_TIDY}" "--config-file=${CMAKE_SOURCE_DIR}/.clang-tidy")
+        set(CMAKE_CXX_CLANG_TIDY ${CLANG_TIDY_COMMAND})
+    else()
+        message(WARNING "Unable to find `clang-tidy`. Not using during compilation")
+    endif()
+endif()
+
 option(DEBUG_ADDRESS_SANITIZER "Enable Address Sanitizer in Debug builds" OFF)
 
 # If this is a Debug build turn on address sanitiser
