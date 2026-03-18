@@ -917,7 +917,7 @@ bool PackProfile::installAgents_internal(QStringList filepaths)
         agent->setDisplayName(sourceInfo.completeBaseName());
         agent->setHint("local");
 
-        versionFile->agents.append(std::make_shared<Agent>(agent, QString()));
+        versionFile->agents.append(Agent{agent, QString()});
 
         versionFile->name = targetName;
         versionFile->uid = targetId;

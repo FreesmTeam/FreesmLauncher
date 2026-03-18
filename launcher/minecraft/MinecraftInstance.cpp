@@ -97,7 +97,7 @@
 #include <QWindow>
 
 #ifdef Q_OS_LINUX
-#include "MangoHud.h"
+#include "LibraryUtils.h"
 #endif
 
 #ifdef WITH_QTDBUS
@@ -529,10 +529,10 @@ QStringList MinecraftInstance::extraArguments()
         }
     }
     auto agents = m_components->getProfile()->getAgents();
-    for (auto agent : agents) {
+    for (const auto& agent : agents) {
         QStringList jar, temp1, temp2, temp3;
-        agent->library()->getApplicableFiles(runtimeContext(), jar, temp1, temp2, temp3, getLocalLibraryPath());
-        list.append("-javaagent:" + jar[0] + (agent->argument().isEmpty() ? "" : "=" + agent->argument()));
+        agent.library->getApplicableFiles(runtimeContext(), jar, temp1, temp2, temp3, getLocalLibraryPath());
+        list.append("-javaagent:" + jar[0] + (agent.argument.isEmpty() ? "" : "=" + agent.argument));
     }
 
     {
@@ -700,7 +700,7 @@ QProcessEnvironment MinecraftInstance::createLaunchEnvironment()
         if (auto value = env.value("LD_PRELOAD"); !value.isEmpty())
             preloadList = value.split(QLatin1String(":"));
 
-        auto mangoHudLibString = MangoHud::getLibraryString();
+        auto mangoHudLibString = LibraryUtils::findMangoHud();
         if (!mangoHudLibString.isEmpty()) {
             QFileInfo mangoHudLib(mangoHudLibString);
             QString libPath = mangoHudLib.absolutePath();

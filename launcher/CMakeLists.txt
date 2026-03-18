@@ -75,9 +75,6 @@ set(CORE_SOURCES
     # RW lock protected map
     RWStorage.h
 
-    # A variable that has an implicit default value and keeps track of changes
-    DefaultVariable.h
-
     # a smart pointer wrapper intended for safer use with Qt signal/slot mechanisms
     QObjectPtr.h
 
@@ -110,9 +107,9 @@ if (UNIX AND NOT CYGWIN AND NOT APPLE)
     set(CORE_SOURCES
     ${CORE_SOURCES}
 
-    # MangoHud
-    MangoHud.h
-    MangoHud.cpp
+    # LibraryUtils
+    LibraryUtils.h
+    LibraryUtils.cpp
     )
 endif()
 
