@@ -160,8 +160,10 @@ jobs:
         env:
           IMAGE_NAME: ${{ needs.build.outputs.image-name }}
         run: |
-          podman manifest create "$IMAGE_NAME" \
-            $(printf "$IMAGE_NAME@sha256:%s " *)
+          while read -r tag; do
+            podman manifest create "$tag" \
+              $(printf "$IMAGE_NAME@sha256:%s " *)
+          done <<< "$DOCKER_METADATA_OUTPUT_TAGS"
 
       - name: Push manifest
         uses: redhat-actions/push-to-registry@v2
