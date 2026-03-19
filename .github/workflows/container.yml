@@ -161,7 +161,7 @@ jobs:
           IMAGE_NAME: ${{ needs.build.outputs.image-name }}
         run: |
           podman manifest create "$IMAGE_NAME" \
-            $(printf "$IMAGE_NAME:%s " *)
+            $(printf "$IMAGE_NAME@sha256:%s " *)
 
       - name: Push manifest
         uses: redhat-actions/push-to-registry@v2
