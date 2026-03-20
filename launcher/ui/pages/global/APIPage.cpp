@@ -53,6 +53,7 @@
 #include "settings/SettingsObject.h"
 #include "tools/BaseProfiler.h"
 #include "ui/GuiUtil.h"
+#include "UrlUtils.h"
 
 APIPage::APIPage(QWidget* parent) : QWidget(parent), ui(new Ui::APIPage)
 {
@@ -174,16 +175,13 @@ void APIPage::applySettings()
         resourceURL.setPath(path);
     }
 
-    auto isLocalhost = [](const QUrl& url) { return url.host() == "localhost" || url.host() == "127.0.0.1" || url.host() == "::1"; };
-    auto isUnsafe = [isLocalhost](const QUrl& url) { return !url.isEmpty() && url.scheme() == "http" && !isLocalhost(url); };
-
     // Don't allow HTTP, since meta is basically RCE with all the jar files.
-    if (isUnsafe(metaURL)) {
+    if (UrlUtils::isUnsafe(metaURL)) {
         metaURL.setScheme("https");
     }
 
     // Also don't allow HTTP
-    if (isUnsafe(resourceURL)) {
+    if (UrlUtils::isUnsafe(resourceURL)) {
         resourceURL.setScheme("https");
     }
 

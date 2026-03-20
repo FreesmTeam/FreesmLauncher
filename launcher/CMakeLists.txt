@@ -968,6 +968,9 @@ SET(LAUNCHER_SOURCES
     JavaCommon.h
     JavaCommon.cpp
 
+    UrlUtils.h
+    UrlUtils.cpp
+
     # GUI - paged dialog base
     ui/pages/BasePage.h
     ui/pages/BasePageContainer.h

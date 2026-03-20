@@ -38,6 +38,8 @@ class CustomLoginDialog : public QDialog {
 
     void setUserInputsEnabled(bool enable);
 
+    bool showWarning();
+
    protected slots:
     void accept();
 
@@ -58,4 +60,5 @@ class CustomLoginDialog : public QDialog {
     Task::Ptr m_loginTask;
     Net::Download::Ptr m_requestTask;
     QUrl m_loginUrl;
+    QUrl m_resolvedUrl;
 };
