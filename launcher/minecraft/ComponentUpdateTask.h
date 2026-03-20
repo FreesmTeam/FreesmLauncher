@@ -19,6 +19,7 @@ class ComponentUpdateTask : public Task {
 
     bool canAbort() const override;
     bool abort() override;
+    Net::Mode netMode();
 
    protected:
     void executeTask() override;

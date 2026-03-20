@@ -74,6 +74,11 @@ bool ComponentUpdateTask::abort()
     return aborted;
 }
 
+Net::Mode ComponentUpdateTask::netMode()
+{
+    return d->netmode;
+}
+
 void ComponentUpdateTask::executeTask()
 {
     qCDebug(instanceProfileResolveC) << "Loading components";
