@@ -736,6 +736,7 @@ QProcessEnvironment MinecraftInstance::createLaunchEnvironment()
         env.insert("__GLX_VENDOR_LIBRARY_NAME", "mesa");
         env.insert("MESA_LOADER_DRIVER_OVERRIDE", "zink");
         env.insert("GALLIUM_DRIVER", "zink");
+        env.insert("LIBGL_KOPPER_DRI2", "1");
     }
 #endif
     return env;
