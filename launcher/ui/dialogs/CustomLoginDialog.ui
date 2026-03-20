@@ -6,12 +6,12 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>419</width>
-    <height>259</height>
+       <width>476</width>
+       <height>325</height>
    </rect>
   </property>
   <property name="sizePolicy">
-   <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+      <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
     <horstretch>0</horstretch>
     <verstretch>0</verstretch>
    </sizepolicy>
@@ -27,6 +27,9 @@
      </property>
      <property name="textFormat">
       <enum>Qt::TextFormat::RichText</enum>
+     </property>
+        <property name="wordWrap">
+            <bool>true</bool>
      </property>
      <property name="textInteractionFlags">
       <set>Qt::TextInteractionFlag::NoTextInteraction</set>
@@ -58,17 +61,26 @@
     </widget>
    </item>
    <item>
-    <widget class="QLineEdit" name="loginUrlTextBox">
-     <property name="placeholderText">
-      <string>Login URL (Leave the default value if you're not sure)</string>
-     </property>
-    </widget>
-   </item>
-   <item>
-    <widget class="QLineEdit" name="refreshUrlTextBox">
-     <property name="placeholderText">
-      <string>Refresh URL (Leave the default value if you're not sure)</string>
-     </property>
+       <widget class="QGroupBox" name="optionsBox">
+           <property name="title">
+               <string>Options</string>
+           </property>
+           <layout class="QVBoxLayout" name="verticalLayout_2">
+               <item>
+                   <widget class="QLineEdit" name="loginUrlTextBox">
+                       <property name="placeholderText">
+                           <string>Login URL (Leave the default value if you're not sure)</string>
+                       </property>
+                   </widget>
+               </item>
+               <item>
+                   <widget class="QLineEdit" name="refreshUrlTextBox">
+                       <property name="placeholderText">
+                           <string>Refresh URL (Leave the default value if you're not sure)</string>
+                       </property>
+                   </widget>
+               </item>
+           </layout>
     </widget>
    </item>
    <item>
@@ -80,6 +92,19 @@
       <bool>false</bool>
      </property>
     </widget>
+   </item>
+      <item>
+          <spacer name="verticalSpacer">
+              <property name="orientation">
+                  <enum>Qt::Orientation::Vertical</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+                  <size>
+                      <width>20</width>
+                      <height>40</height>
+                  </size>
+              </property>
+          </spacer>
    </item>
    <item>
     <widget class="QDialogButtonBox" name="buttonBox">
