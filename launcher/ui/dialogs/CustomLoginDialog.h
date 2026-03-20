@@ -18,7 +18,7 @@
 #include <QDialog>
 
 #include "minecraft/auth/custom/CustomAccount.h"
-#include "net/Head.h"
+#include "net/Download.h"
 #include "tasks/Task.h"
 
 namespace Ui {
@@ -56,6 +56,6 @@ class CustomLoginDialog : public QDialog {
     Ui::CustomLoginDialog* ui;
     CustomAccountPtr m_account;
     Task::Ptr m_loginTask;
-    Net::Head::Ptr m_requestTask;
+    Net::Download::Ptr m_requestTask;
     QUrl m_loginUrl;
 };

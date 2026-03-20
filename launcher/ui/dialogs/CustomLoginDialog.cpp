@@ -63,7 +63,7 @@ void CustomLoginDialog::accept()
     setUserInputsEnabled(false);
     ui->progressBar->setVisible(true);
 
-    m_requestTask = Net::Head::makeHeaderPairs(url);
+    m_requestTask = Net::Download::makeByteArray(m_loginUrl, std::make_shared<QByteArray>());
     m_requestTask->setNetwork(APPLICATION->network());
 
     connect(m_requestTask.get(), &Task::finished, this, &CustomLoginDialog::onUrlResolving);
@@ -75,7 +75,7 @@ void CustomLoginDialog::onUrlResolving()
 {
     disconnect(m_requestTask.get(), &Task::finished, this, &CustomLoginDialog::onUrlResolving);
 
-    if (m_requestTask->error() != QNetworkReply::NoError && m_requestTask->replyStatusCode() != 405) {
+    if (m_requestTask->error() != QNetworkReply::NoError) {
         emit onTaskFailed(m_requestTask->errorString());
         return;
     }
