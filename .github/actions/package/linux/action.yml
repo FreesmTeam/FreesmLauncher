@@ -90,6 +90,8 @@ runs:
         # FIXME(@getchoo): gamemode doesn't seem to be very portable with DBus. Find a way to make it work!
         find "$INSTALL_APPIMAGE_DIR" -name '*gamemode*' -exec rm {} +
 
+        #disable OpenGL and Vulkan launcher features until https://github.com/VHSgunzo/sharun/issues/35
+        echo "LAUNCHER_DISABLE_GLVULKAN=1" > "$INSTALL_APPIMAGE_DIR"/.env
         #makes the launcher use portals for file picking
         echo "QT_QPA_PLATFORMTHEME=xdgdesktopportal" > "$INSTALL_APPIMAGE_DIR"/.env
         ln -s org.prismlauncher.PrismLauncher.metainfo.xml "$INSTALL_APPIMAGE_DIR"/share/metainfo/org.prismlauncher.PrismLauncher.appdata.xml
