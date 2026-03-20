@@ -16,10 +16,12 @@
 #include "CustomLoginDialog.h"
 #include "ui_CustomLoginDialog.h"
 
+#include <QMessageBox>
 #include <QPushButton>
 #include <QUrl>
 
 #include "Application.h"
+#include "UrlUtils.h"
 #include "net/Download.h"
 
 namespace {
@@ -108,6 +110,8 @@ void CustomLoginDialog::onUrlResolving()
         return;
     }
 
+    m_resolvedUrl = m_loginUrl;
+
     // modify url if header say so
     auto headers = m_requestTask->getRawHeaders();
     if (const auto it =
@@ -116,14 +120,20 @@ void CustomLoginDialog::onUrlResolving()
         it != headers.end()) {
         const QUrl location = QString::fromUtf8(it->second);
         if (location.isRelative()) {
-            m_loginUrl = m_requestTask->url().resolved(location);
+            m_resolvedUrl = m_requestTask->url().resolved(location);
         } else {
-            m_loginUrl = location;
+            m_resolvedUrl = location;
         }
     }
 
+    bool shouldContinue = showWarning();
+    if (!shouldContinue) {
+        emit onTaskFailed(tr("Aborted"));
+        return;
+    }
+
     // Setup the login task and start it
-    m_account = CustomAccount::createCustom(ui->userTextBox->text(), m_loginUrl.toString(QUrl::StripTrailingSlash),
+    m_account = CustomAccount::createCustom(ui->userTextBox->text(), m_resolvedUrl.toString(QUrl::StripTrailingSlash),
                                             ui->loginUrlTextBox->text(), ui->refreshUrlTextBox->text());
     m_loginTask = m_account->login(ui->passTextBox->text());
     connect(m_loginTask.get(), &Task::failed, this, &CustomLoginDialog::onTaskFailed);
@@ -141,6 +151,22 @@ void CustomLoginDialog::setUserInputsEnabled(bool enable)
     ui->userTextBox->setEnabled(enable);
     ui->passTextBox->setEnabled(enable);
     ui->buttonBox->setEnabled(enable);
+}
+
+bool CustomLoginDialog::showWarning()
+{
+    QString text = tr("You entered:\n%1\n"
+                      "Your login credentials will be sent to:\n%2\n"
+                      "Do you want to continue?")
+                       .arg(m_loginUrl.toString(), m_resolvedUrl.toString());
+
+    if (UrlUtils::isUnsafe(m_loginUrl) || UrlUtils::isUnsafe(m_resolvedUrl)) {
+        text.prepend(tr("Please note that http:// is not secure, and your login credentials may be intercepted.\n"));
+    }
+
+    auto answer = QMessageBox::question(this, tr("Warning"), text);
+
+    return answer == QMessageBox::Yes;
 }
 
 // Enable the OK button only when both textboxes contain something.
