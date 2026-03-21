@@ -314,6 +314,7 @@ class Application : public QApplication {
     bool m_liveCheck = false;
     QList<QUrl> m_urlsToImport;
     QString m_instanceIdToShowWindowOf;
+    bool m_showMainWindow = false;
     std::unique_ptr<QFile> logFile;
     std::unique_ptr<LogModel> logModel;
 
