@@ -21,6 +21,7 @@
 #include <QCoreApplication>
 #include <QOffscreenSurface>
 #include <QOpenGLFunctions>
+#include <QProcessEnvironment>
 
 #ifndef Q_OS_MACOS
 #include <QVulkanInstance>
@@ -30,6 +31,9 @@
 namespace {
 bool vulkanInfo(QStringList& out)
 {
+    if (!QProcessEnvironment::systemEnvironment().value(QStringLiteral("LAUNCHER_DISABLE_GLVULKAN")).isEmpty()) {
+        return false;
+    }
 #ifndef Q_OS_MACOS
     QVulkanInstance inst;
     if (!inst.create()) {
@@ -53,6 +57,9 @@ bool vulkanInfo(QStringList& out)
 
 bool openGlInfo(QStringList& out)
 {
+    if (!QProcessEnvironment::systemEnvironment().value(QStringLiteral("LAUNCHER_DISABLE_GLVULKAN")).isEmpty()) {
+        return false;
+    }
     QOpenGLContext ctx;
     if (!ctx.create()) {
         qWarning() << "OpenGL context creation failed";

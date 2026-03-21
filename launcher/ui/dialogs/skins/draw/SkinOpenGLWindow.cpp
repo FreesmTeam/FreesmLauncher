@@ -20,6 +20,7 @@
 
 #include <QMouseEvent>
 #include <QOpenGLBuffer>
+#include <QProcessEnvironment>
 #include <QVector2D>
 #include <QVector3D>
 #include <QtMath>
@@ -330,6 +331,10 @@ void SkinOpenGLWindow::setElytraVisible(bool visible)
 
 bool SkinOpenGLWindow::hasOpenGL()
 {
+    if (!QProcessEnvironment::systemEnvironment().value(QStringLiteral("LAUNCHER_DISABLE_GLVULKAN")).isEmpty()) {
+        return false;
+    }
+
     QOpenGLContext ctx;
     return ctx.create();
 }
