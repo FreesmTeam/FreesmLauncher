@@ -69,8 +69,13 @@ if(CMAKE_CXX_COMPILER_FRONTEND_VARIANT STREQUAL "MSVC")
     endif()
 else()
     add_compile_options("$<$<COMPILE_LANGUAGE:C,CXX>:-fstack-protector-strong;--param=ssp-buffer-size=4>")
-    # on non-debug builds we can enable optimizations
-    add_compile_options("$<$<AND:$<COMPILE_LANGUAGE:C,CXX>,$<NOT:$<CONFIG:Debug>>>:-O2;-D_FORTIFY_SOURCE=2>")
+
+    # Avoid re-defining _FORTIFY_SOURCE, as it can cause redefinition errors in setups that use it by default (i.e., package builds)
+    if(NOT (CMAKE_C_FLAGS MATCHES "-D_FORTIFY_SOURCE" OR CMAKE_CXX_FLAGS MATCHES "-D_FORTIFY_SOURCE"))
+        # NOTE: _FORTIFY_SOURCE requires optimizations in most newer versions of glibc
+        add_compile_options("$<$<AND:$<COMPILE_LANGUAGE:C,CXX>,$<CONFIG:Release,RelWithDebInfo>>:-D_FORTIFY_SOURCE=2>")
+    endif()
+
     # ATL's pack list needs more than the default 1 Mib stack on windows
     if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
         add_link_options("$<$<COMPILE_LANGUAGE:C,CXX>:-Wl,--stack,8388608>")
