@@ -11,11 +11,13 @@ endif()
 set(Launcher_CommonName "PrismLauncher")
 set(Launcher_DisplayName "Prism Launcher")
 set(Launcher_AppID "org.prismlauncher.PrismLauncher")
+set(Launcher_ENVName "PRISMLAUNCHER")
 set(Launcher_Domain "prismlauncher.org")
 set(Launcher_Git "https://github.com/PrismLauncher/PrismLauncher")
 
 set(Launcher_Name "${Launcher_CommonName}" PARENT_SCOPE)
 set(Launcher_DisplayName "${Launcher_DisplayName}" PARENT_SCOPE)
+set(Launcher_ENVName "${Launcher_ENVName}" PARENT_SCOPE)
 set(Launcher_Domain "${Launcher_Domain}" PARENT_SCOPE)
 set(Launcher_Git "${Launcher_Git}" PARENT_SCOPE)
 

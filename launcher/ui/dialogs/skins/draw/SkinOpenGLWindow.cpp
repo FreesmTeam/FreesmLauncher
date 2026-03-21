@@ -30,6 +30,7 @@
 #include "rainbow.h"
 #include "ui/dialogs/skins/draw/BoxGeometry.h"
 #include "ui/dialogs/skins/draw/Scene.h"
+#include "BuildConfig.h"
 
 SkinOpenGLWindow::SkinOpenGLWindow(SkinProvider* parent, QColor color)
     : QOpenGLWindow(), QOpenGLFunctions(), m_baseColor(color), m_parent(parent)
@@ -331,7 +332,7 @@ void SkinOpenGLWindow::setElytraVisible(bool visible)
 
 bool SkinOpenGLWindow::hasOpenGL()
 {
-    if (!QProcessEnvironment::systemEnvironment().value(QStringLiteral("LAUNCHER_DISABLE_GLVULKAN")).isEmpty()) {
+    if (!QProcessEnvironment::systemEnvironment().value(QStringLiteral("%1_DISABLE_GLVULKAN").arg(BuildConfig.LAUNCHER_ENVNAME)).isEmpty()) {
         return false;
     }
 
