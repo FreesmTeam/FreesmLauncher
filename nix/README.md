@@ -1,6 +1,6 @@
 > [!IMPORTANT]
 > We are using **Garnix CI** for binary caching.
-> To add the binary cache manually, proceed to read [this](https://garnix.io/docs/caching).
+> To add the binary cache manually, proceed to read [this](https://garnix.io/docs/ci/caching).
 >
 > We also use **[Cachix](https://app.cachix.org/cache/freesmlauncher#pull)** as a second cache for binary caching.
 > For more information, check out [this guide](https://docs.cachix.org/getting-started#using-binaries-with-nix).
