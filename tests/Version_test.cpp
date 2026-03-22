@@ -107,7 +107,7 @@ class VersionTest : public QObject {
         QFile vector_file{ test_vector_dir.absoluteFilePath("test_vectors.txt") };
 
         if (!vector_file.open(QFile::OpenModeFlag::ReadOnly)) {
-            qCritical() << "Failed to open file '" << vector_file.fileName() << "' for reading!";
+            qCritical() << "Failed to open file" << vector_file.fileName() << "for reading:" << vector_file.errorString();
             return;
         }
 

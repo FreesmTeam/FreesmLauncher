@@ -169,7 +169,7 @@ void PackInstallTask::install()
                     break;
                 }
             } else {
-                qWarning() << "Failed to open file '" << packJson.fileName() << "' for reading!";
+                qWarning() << "Failed to open file" << packJson.fileName() << "for reading:" << packJson.errorString();
             }
         }
 
