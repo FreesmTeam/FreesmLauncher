@@ -30,4 +30,5 @@ jobs:
             platform: Linux
             area: packaging
             complexity: low
+            priority: low
             changelog:omit
