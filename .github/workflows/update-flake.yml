@@ -31,4 +31,5 @@ jobs:
             area: packaging
             complexity: low
             priority: low
+            type: robot
             changelog:omit
