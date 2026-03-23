@@ -27,7 +27,9 @@ jobs:
           commit-msg: "chore(nix): update lockfile"
           pr-title: "chore(nix): update lockfile"
           pr-labels: |
-            Linux
-            packaging
-            simple change
+            platform: Linux
+            area: packaging
+            complexity: low
+            priority: low
+            type: robot
             changelog:omit
