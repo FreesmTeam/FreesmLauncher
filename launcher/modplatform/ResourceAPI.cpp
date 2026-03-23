@@ -2,7 +2,6 @@
 
 #include "Application.h"
 #include "Json.h"
-#include "Version.h"
 #include "net/NetJob.h"
 
 #include "modplatform/ModIndex.h"
@@ -117,7 +116,8 @@ Task::Ptr ResourceAPI::getProjectVersions(VersionSearchArgs&& args, Callback<QVe
             }
 
             auto orderSortPredicate = [](const ModPlatform::IndexedVersion& a, const ModPlatform::IndexedVersion& b) -> bool {
-                return Version(a.version) > Version(b.version);
+                // dates are in RFC 3339 format
+                return a.date > b.date;
             };
             std::sort(unsortedVersions.begin(), unsortedVersions.end(), orderSortPredicate);
         } catch (const JSONValidationError& e) {
