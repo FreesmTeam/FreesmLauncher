@@ -618,7 +618,7 @@ bool PackInstallTask::createPackComponent(QString instanceRoot, PackProfile* pro
 
     QFile file(patchFileName);
     if (!file.open(QFile::WriteOnly)) {
-        qCritical() << "Error opening" << file.fileName() << "for reading:" << file.errorString();
+        qCritical() << "Error opening" << file.fileName() << "for writing:" << file.errorString();
         return false;
     }
     file.write(OneSixVersionFormat::versionFileToJson(f).toJson());

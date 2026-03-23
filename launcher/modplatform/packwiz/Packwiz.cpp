@@ -190,7 +190,7 @@ void V1::updateModIndex(const QDir& index_dir, Mod& mod)
     }
 
     if (!index_file.open(QIODevice::ReadWrite)) {
-        qCritical() << QString("Could not open file %1!").arg(normalized_fname);
+        qCritical() << "Could not open file" << normalized_fname << "error:" << index_file.errorString();
         return;
     }
 

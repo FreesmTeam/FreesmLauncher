@@ -514,12 +514,13 @@ Application::Application(int& argc, char** argv) : QApplication(argc, argv)
         logFile = std::unique_ptr<QFile>(new QFile(logBase.arg(0)));
         if (!logFile->open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Truncate)) {
             showFatalErrorMessage("The launcher data folder is not writable!",
-                                  QString("The launcher couldn't create a log file - the data folder is not writable.\n"
+                                  QString("The launcher couldn't create a log file - %1.\n"
                                           "\n"
                                           "Make sure you have write permissions to the data folder.\n"
-                                          "(%1)\n"
+                                          "(%2)\n"
                                           "\n"
                                           "The launcher cannot continue until you fix this problem.")
+                                      .arg(logFile->errorString())
                                       .arg(dataPath));
             return;
         }
@@ -626,11 +627,11 @@ Application::Application(int& argc, char** argv) : QApplication(argc, argv)
             if (check.write(payload) == payload.size()) {
                 check.close();
             } else {
-                qWarning() << "Could not write into" << liveCheckFile << "!";
+                qWarning() << "Could not write into" << liveCheckFile << "error:" << check.errorString();
                 check.remove();  // also closes file!
             }
         } else {
-            qWarning() << "Could not open" << liveCheckFile << "for writing!";
+            qWarning() << "Could not open" << liveCheckFile << "for writing:" << check.errorString();
         }
     }
 
@@ -1955,7 +1956,7 @@ bool Application::handleDataMigration(const QString& currentData,
     auto setDoNotMigrate = [&nomigratePath] {
         QFile file(nomigratePath);
         if (!file.open(QIODevice::WriteOnly)) {
-            qWarning() << "setDoNotMigrate failed; Failed to open file '" << file.fileName() << "' for writing!";
+            qWarning() << "setDoNotMigrate failed; Failed to open file" << file.fileName() << "for writing:" << file.errorString();
         }
     };
 
