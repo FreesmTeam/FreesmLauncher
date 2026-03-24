@@ -260,6 +260,8 @@ set(MINECRAFT_SOURCES
     minecraft/launch/ClaimAccount.h
     minecraft/launch/CreateGameFolders.cpp
     minecraft/launch/CreateGameFolders.h
+    minecraft/launch/EnsureAvailableMemory.cpp
+    minecraft/launch/EnsureAvailableMemory.h
     minecraft/launch/EnsureOfflineLibraries.cpp
     minecraft/launch/EnsureOfflineLibraries.h
     minecraft/launch/ModMinecraftJar.cpp
