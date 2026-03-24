@@ -22,6 +22,8 @@
 #include <QDebug>
 #include <QDir>
 #include <QObject>
+#include <algorithm>
+#include <compare>
 #include <sstream>
 #include <string>
 #include <utility>
@@ -91,6 +93,15 @@ auto intEntry(toml::table table, QString entry_name) -> int
     return node.value_or(0);
 }
 
+bool sortMCVersions(const QString& a, const QString& b)
+{
+    auto cmp = Version(a) <=> Version(b);
+    if (cmp == std::strong_ordering::equal) {
+        return a < b;
+    }
+    return cmp == std::strong_ordering::less;
+};
+
 auto V1::createModFormat([[maybe_unused]] const QDir& index_dir,
                          ModPlatform::IndexedPack& mod_pack,
                          ModPlatform::IndexedVersion& mod_version) -> Mod
@@ -117,8 +128,8 @@ auto V1::createModFormat([[maybe_unused]] const QDir& index_dir,
     mod.side = mod_version.side == ModPlatform::Side::NoSide ? mod_pack.side : mod_version.side;
     mod.loaders = mod_version.loaders;
     mod.mcVersions = mod_version.mcVersion;
-    std::sort(mod.mcVersions.begin(), mod.mcVersions.end(),
-              [](QString a, QString b) { return Version(std::move(a)) < Version(std::move(b)); });
+    mod.mcVersions.removeDuplicates();
+    std::ranges::sort(mod.mcVersions, sortMCVersions);
     mod.releaseType = mod_version.version_type;
 
     mod.version_number = mod_version.version_number;
@@ -304,8 +315,8 @@ auto V1::getIndexForMod(const QDir& index_dir, QString slug) -> Mod
                     }
                 }
             }
-            std::sort(mod.mcVersions.begin(), mod.mcVersions.end(),
-                      [](QString a, QString b) { return Version(std::move(a)) < Version(std::move(b)); });
+            mod.mcVersions.removeDuplicates();
+            std::ranges::sort(mod.mcVersions, sortMCVersions);
         }
     }
     mod.version_number = table["x-prismlauncher-version-number"].value_or("");
