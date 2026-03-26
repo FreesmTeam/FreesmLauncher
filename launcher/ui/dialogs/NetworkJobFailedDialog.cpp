@@ -18,11 +18,14 @@
 
 #include "NetworkJobFailedDialog.h"
 
+#include <QClipboard>
+#include <QPushButton>
+#include <QShortcut>
+#include <utility>
+
 #include "ui_NetworkJobFailedDialog.h"
 
-#include <QTableWidgetItem>
-
-NetworkJobFailedDialog::NetworkJobFailedDialog(QString jobName, int attempts, int requests, int failed, QWidget* parent)
+NetworkJobFailedDialog::NetworkJobFailedDialog(const QString& jobName, const int attempts, const int requests, const int failed, QWidget* parent)
     : QDialog(parent), m_ui(new Ui::NetworkJobFailedDialog)
 {
     m_ui->setupUi(this);
@@ -40,6 +43,12 @@ NetworkJobFailedDialog::NetworkJobFailedDialog(QString jobName, int attempts, in
     m_ui->detailsTable->header()->setSectionResizeMode(0, QHeaderView::Stretch);
     m_ui->detailsTable->header()->setSectionResizeMode(1, QHeaderView::ResizeToContents);
 
+    const auto* copyShortcut = new QShortcut(QKeySequence::Copy, m_ui->detailsTable);
+    connect(copyShortcut, &QShortcut::activated, this, &NetworkJobFailedDialog::copyUrl);
+
+    const auto* copyButton = m_ui->dialogButtonBox->addButton(tr("Copy URL"), QDialogButtonBox::ActionRole);
+    connect(copyButton, &QPushButton::clicked, this, &NetworkJobFailedDialog::copyUrl);
+
     connect(m_ui->dialogButtonBox, &QDialogButtonBox::accepted, this, &QDialog::accept);
     connect(m_ui->dialogButtonBox, &QDialogButtonBox::rejected, this, &QDialog::reject);
 }
@@ -49,8 +58,22 @@ NetworkJobFailedDialog::~NetworkJobFailedDialog()
     delete m_ui;
 }
 
-void NetworkJobFailedDialog::addFailedRequest(QUrl url, QString error) const
+void NetworkJobFailedDialog::addFailedRequest(const QUrl& url, QString error) const
 {
-    auto item = new QTreeWidgetItem(m_ui->detailsTable, { url.toString(), error });
+    auto* item = new QTreeWidgetItem(m_ui->detailsTable, { url.toString(), std::move(error) });
     m_ui->detailsTable->addTopLevelItem(item);
+    if (m_ui->detailsTable->selectedItems().isEmpty()) {
+        m_ui->detailsTable->setCurrentItem(item);
+    }
+}
+
+void NetworkJobFailedDialog::copyUrl() const
+{
+    auto items = m_ui->detailsTable->selectedItems();
+    if (items.isEmpty()) {
+        return;
+    }
+
+    auto* clipboard = QGuiApplication::clipboard();
+    clipboard->setText(items.first()->text(0));
 }
