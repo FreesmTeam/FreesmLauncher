@@ -156,7 +156,7 @@ JavaInstallPtr JavaUtils::GetDefaultJava()
 
 QStringList addJavasFromEnv(QList<QString> javas)
 {
-    auto env = qEnvironmentVariable("%1_JAVA_PATHS").arg(BuildConfig.LAUNCHER_ENVNAME);
+    auto env = QProcessEnvironment::systemEnvironment().value(QStringLiteral("%1_JAVA_PATHS").arg(BuildConfig.LAUNCHER_ENVNAME));
 #if defined(Q_OS_WIN32)
     QList<QString> javaPaths = env.replace("\\", "/").split(QLatin1String(";"));
 
