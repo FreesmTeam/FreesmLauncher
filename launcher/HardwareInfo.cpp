@@ -32,7 +32,9 @@
 namespace {
 bool vulkanInfo(QStringList& out)
 {
-    if (!QProcessEnvironment::systemEnvironment().value(QStringLiteral("%1_DISABLE_GLVULKAN").arg(BuildConfig.LAUNCHER_ENVNAME)).isEmpty()) {
+    if (!QProcessEnvironment::systemEnvironment()
+             .value(QStringLiteral("%1_DISABLE_GLVULKAN").arg(BuildConfig.LAUNCHER_ENVNAME))
+             .isEmpty()) {
         return false;
     }
 #ifndef Q_OS_MACOS
@@ -58,7 +60,9 @@ bool vulkanInfo(QStringList& out)
 
 bool openGlInfo(QStringList& out)
 {
-    if (!QProcessEnvironment::systemEnvironment().value(QStringLiteral("%1_DISABLE_GLVULKAN").arg(BuildConfig.LAUNCHER_ENVNAME)).isEmpty()) {
+    if (!QProcessEnvironment::systemEnvironment()
+             .value(QStringLiteral("%1_DISABLE_GLVULKAN").arg(BuildConfig.LAUNCHER_ENVNAME))
+             .isEmpty()) {
         return false;
     }
     QOpenGLContext ctx;

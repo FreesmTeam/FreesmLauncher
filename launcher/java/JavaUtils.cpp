@@ -42,10 +42,10 @@
 
 #include <QDebug>
 #include "Application.h"
+#include "BuildConfig.h"
 #include "FileSystem.h"
 #include "java/JavaInstallList.h"
 #include "java/JavaUtils.h"
-#include "BuildConfig.h"
 
 #define IBUS "@im=ibus"
 
