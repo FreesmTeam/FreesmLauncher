@@ -42,14 +42,8 @@ assert lib.assertMsg (
         ../CMakeLists.txt
       ];
 
-      # Sometimes these directories (submodules) exist but are empty instead of being absent, which can cause cache misses in Garnix CI.
-      # Maybe we don't know the entire truth...
+      # Some fetchers leave submodules directories empty instead of omitting them, causing Garnix CI cache misses.
       exclude = [
-        "libraries/cmark"
-        "libraries/extra-cmake-modules"
-        "libraries/quazip"
-        "libraries/tomlplusplus"
-        "libraries/zlib"
         "libraries/libnbtplusplus"
       ];
     };
