@@ -26,6 +26,7 @@
 #include <QtMath>
 #include <functional>
 
+#include "BuildConfig.h"
 #include "minecraft/skins/SkinModel.h"
 #include "rainbow.h"
 #include "ui/dialogs/skins/draw/BoxGeometry.h"
@@ -331,7 +332,9 @@ void SkinOpenGLWindow::setElytraVisible(bool visible)
 
 bool SkinOpenGLWindow::hasOpenGL()
 {
-    if (!QProcessEnvironment::systemEnvironment().value(QStringLiteral("LAUNCHER_DISABLE_GLVULKAN")).isEmpty()) {
+    if (!QProcessEnvironment::systemEnvironment()
+             .value(QStringLiteral("%1_DISABLE_GLVULKAN").arg(BuildConfig.LAUNCHER_ENVNAME))
+             .isEmpty()) {
         return false;
     }
 

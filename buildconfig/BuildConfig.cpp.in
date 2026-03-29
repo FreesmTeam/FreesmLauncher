@@ -50,6 +50,7 @@ Config::Config()
     LAUNCHER_GIT = "@Launcher_Git@";
     LAUNCHER_APPID = "@Launcher_AppID@";
     LAUNCHER_SVGFILENAME = "@Launcher_SVGFileName@";
+    LAUNCHER_ENVNAME = "@Launcher_ENVName@";
 
     USER_AGENT = "@Launcher_UserAgent@";
 
