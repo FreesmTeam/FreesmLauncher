@@ -274,9 +274,6 @@ void World::readFromZip(const QFileInfo& file)
         QFileInfo fi(filePath);
         if (fi.fileName().compare(levelDat, Qt::CaseInsensitive) == 0) {
             m_containerOffsetPath = filePath.chopped(levelDat.length());
-            if (!m_containerOffsetPath.isEmpty()) {
-                return false;
-            }
             m_levelDatTime = file->dateTime();
             loadFromLevelDat(file->readAll());
             m_isValid = true;
