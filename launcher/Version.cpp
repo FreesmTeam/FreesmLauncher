@@ -107,9 +107,11 @@ void Version::parse()
         if (c == '+') {
             break;  // Ignore appendices
         }
-        if (c == '-') {
+        // custom: the space is special to handle the strings like "1.20 Pre-Release 1"
+        // this is needed to support Modrinth versions
+        if (c == '-' || c == ' ') {
             // Add dash to component
-            cur.value += '-';
+            cur.value += c;
             i++;
             // If the next rune is non-digit, mark as pre-release (requires >= 1 non-digit after dash so the component has length > 1)
             if (i < len && !m_string.at(i).isDigit()) {
@@ -121,8 +123,9 @@ void Version::parse()
         }
         for (; i < len; i++) {
             auto r = m_string.at(i);
-            if ((r.isDigit() != (cur.t == Section::Type::Numeric)) ||
-                (r == '-' && cur.t != Section::Type::PreRelease)  // "---" is a valid pre-release component
+            if ((r.isDigit() != (cur.t == Section::Type::Numeric))   // starts a new section
+                || (r == ' ' && cur.t == Section::Type::Numeric)     // custom: numeric section then a space is a pre-release
+                || (r == '-' && cur.t != Section::Type::PreRelease)  // "---" is a valid pre-release component
                 || r == '+') {
                 // Run completed (do not consume this rune)
                 break;
