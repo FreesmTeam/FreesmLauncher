@@ -29,7 +29,7 @@
 // https://git.sleeping.town/exa/FlexVer
 class Version {
    public:
-    Version(QString str) : m_string(std::move(str)) { parse(); }
+    Version(QString str) : m_string(std::move(str)) { parse(); }  // NOLINT(hicpp-explicit-conversions)
     Version() = default;
 
    private:

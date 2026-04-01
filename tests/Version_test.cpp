@@ -182,13 +182,13 @@ class VersionTest : public QObject {
         QCOMPARE(v1 == v2, equal);
     }
 
-    void test_strict_weak_order()
+    static void test_strict_weak_order()
     {
         // this tests the strict_weak_order
         // https://en.cppreference.com/w/cpp/concepts/strict_weak_order.html
-        Version a("1.10 Pre-Release 1");  // this is a pre-relese is before b because ' ' is lower than '-'
-        Version b("1.10-pre1");           // this is a pre-release is before c that is an actual release
-        Version c("1.10");
+        const Version a("1.10 Pre-Release 1");  // this is a pre-relese is before b because ' ' is lower than '-'
+        const Version b("1.10-pre1");           // this is a pre-release is before c that is an actual release
+        const Version c("1.10");
 
         auto r = [](const Version& a, const Version& b) { return a < b; };
         auto e = [&r](const Version& a, const Version& b) { return !r(a, b) && !r(b, a); };

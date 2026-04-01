@@ -38,59 +38,61 @@
 
 namespace Packwiz {
 
-auto getRealIndexName(const QDir& index_dir, QString normalized_fname, bool should_find_match) -> QString
+namespace {
+auto getRealIndexName(const QDir& indexDir, const QString& normalizedFname, bool shouldFindMatch = false) -> QString
 {
-    QFile index_file(index_dir.absoluteFilePath(normalized_fname));
+    const QFile indexFile(indexDir.absoluteFilePath(normalizedFname));
 
-    QString real_fname = normalized_fname;
-    if (!index_file.exists()) {
+    QString realFname = normalizedFname;
+    if (!indexFile.exists()) {
         // Tries to get similar entries
-        for (auto& file_name : index_dir.entryList(QDir::Filter::Files)) {
-            if (!QString::compare(normalized_fname, file_name, Qt::CaseInsensitive)) {
-                real_fname = file_name;
+        for (auto& fileName : indexDir.entryList(QDir::Filter::Files)) {
+            if (QString::compare(normalizedFname, fileName, Qt::CaseInsensitive) == 0) {
+                realFname = fileName;
                 break;
             }
         }
 
-        if (should_find_match && !QString::compare(normalized_fname, real_fname, Qt::CaseSensitive)) {
+        if (shouldFindMatch && (QString::compare(normalizedFname, realFname, Qt::CaseSensitive) == 0)) {
             qCritical() << "Could not find a match for a valid metadata file!";
-            qCritical() << "File:" << normalized_fname;
+            qCritical() << "File:" << normalizedFname;
             return {};
         }
     }
 
-    return real_fname;
+    return realFname;
 }
 
 // Helpers
-static inline auto indexFileName(const QString& mod_slug) -> QString
+auto indexFileName(const QString& modSlug) -> QString
 {
-    if (mod_slug.endsWith(".pw.toml"))
-        return mod_slug;
-    return QString("%1.pw.toml").arg(mod_slug);
+    if (modSlug.endsWith(".pw.toml")) {
+        return modSlug;
+    }
+    return QString("%1.pw.toml").arg(modSlug);
 }
 
 // Helper functions for extracting data from the TOML file
-auto stringEntry(toml::table table, QString entry_name) -> QString
+auto stringEntry(toml::table table, const QString& entryName) -> QString
 {
-    auto node = table[StringUtils::toStdString(entry_name)];
+    auto* node = table.get(StringUtils::toStdString(entryName));
     if (!node) {
-        qDebug() << "Failed to read str property '" + entry_name + "' in mod metadata.";
+        qDebug() << "Failed to read str property '" + entryName + "' in mod metadata.";
         return {};
     }
 
-    return node.value_or("");
+    return node->value_or("");
 }
 
-auto intEntry(toml::table table, QString entry_name) -> int
+auto intEntry(toml::table table, const QString& entryName) -> int
 {
-    auto node = table[StringUtils::toStdString(entry_name)];
+    auto* node = table.get(StringUtils::toStdString(entryName));
     if (!node) {
-        qDebug() << "Failed to read int property '" + entry_name + "' in mod metadata.";
+        qDebug() << "Failed to read int property '" + entryName + "' in mod metadata.";
         return {};
     }
 
-    return node.value_or(0);
+    return node->value_or(0);
 }
 
 bool sortMCVersions(const QString& a, const QString& b)
@@ -100,8 +102,9 @@ bool sortMCVersions(const QString& a, const QString& b)
         return a < b;
     }
     return cmp == std::strong_ordering::less;
-};
+}
 
+}  // namespace
 auto V1::createModFormat([[maybe_unused]] const QDir& index_dir,
                          ModPlatform::IndexedPack& mod_pack,
                          ModPlatform::IndexedVersion& mod_version) -> Mod

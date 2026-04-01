@@ -27,7 +27,7 @@
 /// qDebug print support for the Version class
 QDebug operator<<(QDebug debug, const Version& v)
 {
-    QDebugStateSaver saver(debug);
+    const QDebugStateSaver saver(debug);
 
     debug.nospace() << "Version{ string: " << v.toString() << ", sections: [ ";
 
