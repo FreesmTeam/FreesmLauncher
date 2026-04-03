@@ -49,5 +49,5 @@ jobs:
           BASE_REF: ${{ github.event.pull_request.base.sha || github.event.merge_group.base_sha }}
         run: |
           nix develop --command bash -c '
-            git diff -U0 --no-color "$BASE_REF" | clang-tidy-diff.py -p1
+            clang-tidy -verify-config && git diff -U0 --no-color "$BASE_REF" | clang-tidy-diff.py -p1 -quiet -only-check-in-db
           '
