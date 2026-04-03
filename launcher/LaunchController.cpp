@@ -364,8 +364,8 @@ bool LaunchController::reauthenticateAccount(const MinecraftAccountPtr& account,
 
 void LaunchController::launchInstance()
 {
-    Q_ASSERT_X(m_instance != NULL, "launchInstance", "instance is NULL");
-    Q_ASSERT_X(m_session.get() != nullptr, "launchInstance", "session is NULL");
+    Q_ASSERT(m_instance != nullptr);
+    Q_ASSERT(m_session.get() != nullptr);
 
     if (!m_instance->reloadSettings()) {
         QMessageBox::critical(m_parentWidget, tr("Error!"), tr("Couldn't load the instance profile."));
