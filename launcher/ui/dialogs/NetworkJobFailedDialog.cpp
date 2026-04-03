@@ -43,6 +43,8 @@ NetworkJobFailedDialog::NetworkJobFailedDialog(const QString& jobName, const int
     m_ui->detailsTable->header()->setSectionResizeMode(0, QHeaderView::Stretch);
     m_ui->detailsTable->header()->setSectionResizeMode(1, QHeaderView::ResizeToContents);
 
+    m_ui->detailsTable->setSelectionMode(QAbstractItemView::ExtendedSelection);
+
     const auto* copyShortcut = new QShortcut(QKeySequence::Copy, m_ui->detailsTable);
     connect(copyShortcut, &QShortcut::activated, this, &NetworkJobFailedDialog::copyUrl);
 
@@ -74,6 +76,11 @@ void NetworkJobFailedDialog::copyUrl() const
         return;
     }
 
+    QString urls = items.first()->text(0);
+    for (auto& item : items.sliced(1)) {
+        urls += "\n" + item->text(0);
+    }
+
     auto* clipboard = QGuiApplication::clipboard();
-    clipboard->setText(items.first()->text(0));
+    clipboard->setText(urls);
 }
