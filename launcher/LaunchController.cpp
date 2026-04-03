@@ -358,7 +358,6 @@ bool LaunchController::reauthenticateAccount(MinecraftAccountPtr account, QStrin
         }
     }
 
-    emitFailed(reason);
     return false;
 }
 
