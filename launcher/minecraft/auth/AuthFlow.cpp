@@ -1,9 +1,12 @@
+#include "AuthFlow.h"
+
 #include <QDebug>
 #include <QNetworkReply>
 #include <QNetworkRequest>
 #include <utility>
 
 #include "minecraft/auth/AccountData.h"
+#include "tasks/Task.h"
 
 // MSA
 #include "minecraft/auth/msa/steps/EntitlementsStep.h"
@@ -22,16 +25,9 @@
 #include "elyby/steps/MinecraftProfileStepEly.h"
 
 // Custom
-#include "AuthFlow.h"
-
 #include "custom/steps/CustomAuthStep.h"
 #include "custom/steps/CustomGetSkinStep.h"
-
-#include "tasks/Task.h"
-
-#include "AuthFlow.h"
-
-#include <Application.h>
+#include "custom/steps/CustomRefreshStep.h"
 
 AuthFlow::AuthFlow(AccountData* data, Action action, QString password) : Task(), m_data(data)
 {
@@ -73,10 +69,10 @@ AuthFlow::AuthFlow(AccountData* data, Action action, QString password) : Task(),
         } break;
         case AccountType::Custom: {
             if (action == Action::Login) {
-                m_steps.append(makeShared<CustomAuthStep>(m_data, Action::Login, std::move(password)));
-                m_steps.append(makeShared<CustomAuthStep>(m_data, Action::Refresh, QString()));
+                m_steps.append(makeShared<CustomAuthStep>(m_data, std::move(password)));
+                m_steps.append(makeShared<CustomRefreshStep>(m_data));
             } else {
-                m_steps.append(makeShared<CustomAuthStep>(m_data, action, std::move(password)));
+                m_steps.append(makeShared<CustomRefreshStep>(m_data));
             }
             m_steps.append(makeShared<CustomGetSkinStep>(m_data));
         } break;
