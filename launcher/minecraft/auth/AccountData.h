@@ -130,4 +130,5 @@ struct AccountData {
     QString errorString;
     AccountState accountState = AccountState::Unchecked;
     QString accountLogin;
+    bool profileSelectedExplicitly = false;
 };
