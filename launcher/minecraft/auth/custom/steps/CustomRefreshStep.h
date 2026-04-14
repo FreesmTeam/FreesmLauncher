@@ -27,18 +27,16 @@
 #include "net/NetJob.h"
 #include "net/Upload.h"
 
-struct AccountData;
-
-class CustomAuthStep : public AuthStep {
+class CustomRefreshStep : public AuthStep {
     Q_OBJECT
 
    public:
-    CustomAuthStep(AccountData* data, QString password);
-    ~CustomAuthStep() override;
+    explicit CustomRefreshStep(AccountData* data);
+    ~CustomRefreshStep() override;
 
     void perform() override;
 
-    QString describe() override { return tr("Custom account authentication"); }
+    QString describe() override;
 
    private:
     QJsonObject fillRequest() const;
@@ -50,6 +48,4 @@ class CustomAuthStep : public AuthStep {
     std::shared_ptr<QByteArray> m_response;
     Net::Upload::Ptr m_request;
     NetJob::Ptr m_task;
-
-    QString m_password;
 };

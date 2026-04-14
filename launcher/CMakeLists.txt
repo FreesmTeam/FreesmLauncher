@@ -271,6 +271,8 @@ set(MINECRAFT_SOURCES
 
     minecraft/auth/custom/steps/CustomAuthStep.cpp
     minecraft/auth/custom/steps/CustomAuthStep.h
+    minecraft/auth/custom/steps/CustomRefreshStep.cpp
+    minecraft/auth/custom/steps/CustomRefreshStep.h
     minecraft/auth/custom/steps/CustomGetSkinStep.cpp
     minecraft/auth/custom/steps/CustomGetSkinStep.h
 
