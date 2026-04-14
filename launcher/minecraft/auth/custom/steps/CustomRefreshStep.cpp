@@ -16,30 +16,26 @@
  *  along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#include "CustomAuthStep.h"
+#include "CustomRefreshStep.h"
 
-#include <QDateTime>
-#include <QInputDialog>
 #include <QJsonDocument>
-#include <utility>
 
 #include "Application.h"
 #include "Logging.h"
-#include "net/NetUtils.h"
 #include "net/RawHeaderProxy.h"
 
-CustomAuthStep::CustomAuthStep(AccountData* data, QString password) : AuthStep(data), m_password(std::move(password)) {}
+CustomRefreshStep::CustomRefreshStep(AccountData* data) : AuthStep(data) {}
 
-CustomAuthStep::~CustomAuthStep() = default;
+CustomRefreshStep::~CustomRefreshStep() = default;
 
-void CustomAuthStep::perform()
+void CustomRefreshStep::perform()
 {
     if (m_data == nullptr) {
         emit finished(AccountTaskState::STATE_FAILED_SOFT, tr("Account data is a null pointer"));
         return;
     }
 
-    const QUrl url(m_data->authUrl + m_data->loginUrl);
+    const QUrl url(m_data->authUrl + m_data->refreshUrl);
     const QJsonDocument request(fillRequest());
 
     m_response = std::make_shared<QByteArray>();
@@ -49,32 +45,39 @@ void CustomAuthStep::perform()
     m_request->addHeaderProxy(new Net::RawHeaderProxy(
         QList<Net::HeaderPair>{ { "Content-Type", "application/json; charset=utf-8" }, { "Accept", "application/json" } }));
 
-    m_task.reset(new NetJob("CustomAuthStep", APPLICATION->network()));
+    m_task.reset(new NetJob("CustomRefreshStep", APPLICATION->network()));
     m_task->setAskRetry(false);
     m_task->addNetAction(m_request);
 
-    connect(m_task.get(), &Task::finished, this, &CustomAuthStep::onRequestDone);
+    connect(m_task.get(), &Task::finished, this, &CustomRefreshStep::onRequestDone);
 
     m_task->start();
     qDebug() << "Getting authorization token for custom account";
 }
 
-QJsonObject CustomAuthStep::fillRequest() const
+QString CustomRefreshStep::describe()
+{
+    return tr("Refreshing custom account");
+}
+
+QJsonObject CustomRefreshStep::fillRequest() const
 {
     QJsonObject root;
-    root.insert("username", m_data->accountLogin);
-    root.insert("password", m_password);
+    root.insert("accessToken", m_data->yggdrasilToken.token);
+    root.insert("clientToken", m_data->clientID);
 
-    QJsonObject agent;
-    agent.insert("name", "Minecraft");
-    agent.insert("version", 1);
+    if (m_data->profileSelectedExplicitly) {
+        QJsonObject selectedProfile;
+        selectedProfile.insert("id", m_data->minecraftProfile.id);
+        selectedProfile.insert("name", m_data->minecraftProfile.name);
 
-    root.insert("agent", agent);
+        root.insert("selectedProfile", selectedProfile);
+    }
 
     return root;
 }
 
-void CustomAuthStep::onRequestDone()
+void CustomRefreshStep::onRequestDone()
 {
     qCDebug(authCredentials()) << *m_response;
 
@@ -107,48 +110,15 @@ void CustomAuthStep::onRequestDone()
     m_data->clientID = jsonResponse["clientToken"].toString();
 
     QJsonObject selectedProfile = jsonResponse["selectedProfile"].toObject();
-    if (!selectedProfile.isEmpty()) {
-        m_data->minecraftProfile.id = selectedProfile["id"].toString();
-        m_data->minecraftProfile.name = selectedProfile["name"].toString();
-
-        emit finished(AccountTaskState::STATE_WORKING, tr("Got authorization for custom account"));
+    if (selectedProfile.isEmpty()) {
+        emit finished(AccountTaskState::STATE_FAILED_SOFT, tr("No profile selected"));
         return;
     }
 
-    const QJsonArray profiles = jsonResponse["availableProfiles"].toArray();
-    if (profiles.size() > 1) {
-        const auto profileName = [](const auto& profile) {
-            auto obj = profile.toObject();
-            return obj["name"].toString();
-        };
+    m_data->minecraftProfile.id = selectedProfile["id"].toString();
+    m_data->minecraftProfile.name = selectedProfile["name"].toString();
 
-        QStringList list;
-        std::ranges::transform(profiles, std::back_inserter(list), profileName);
+    m_data->profileSelectedExplicitly = false;
 
-        bool ok = false;
-        QString selectedProfileName =
-            QInputDialog::getItem(nullptr, tr("Select profile"), tr("Select profile for this account"), list, 0, false, &ok);
-
-        if (!ok) {
-            emit finished(AccountTaskState::STATE_FAILED_SOFT, tr("Profile selection cancelled"));
-            return;
-        }
-
-        const auto it = std::ranges::find(profiles, selectedProfileName, profileName);
-        if (it != profiles.end()) {
-            auto profileObj = it->toObject();
-            m_data->minecraftProfile = MinecraftProfile{ .id = profileObj["id"].toString(), .name = profileObj["name"].toString() };
-        } else {
-            // assuming that this will never happen
-            emit finished(AccountTaskState::STATE_FAILED_SOFT, tr("Something went wrong"));
-            return;
-        }
-    } else if (profiles.size() == 1) {
-        auto profileObj = profiles.first().toObject();
-        m_data->minecraftProfile = MinecraftProfile{ .id = profileObj["id"].toString(), .name = profileObj["name"].toString() };
-    }
-
-    m_data->profileSelectedExplicitly = true;
-
-    emit finished(AccountTaskState::STATE_WORKING, tr("Got authorization for custom account"));
+    emit finished(AccountTaskState::STATE_WORKING, tr("Refreshed custom account"));
 }
