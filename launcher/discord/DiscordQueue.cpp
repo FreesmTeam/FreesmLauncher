@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-only
 /*
  *  Freesm Launcher - Minecraft Launcher
- *  Copyright (C) 2025 so5iso4ka <so5iso4ka@icloud.com>
+ *  Copyright (C) 2026 so5iso4ka <so5iso4ka@icloud.com>
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -21,30 +21,28 @@
 
 #include "DiscordQueue.h"
 
-void DiscordQueue::instanceStarted(const std::shared_ptr<BaseInstance>& instance)
+void DiscordQueue::instanceStarted(const BaseInstance* instance)
 {
-    m_queue.enqueue(WeakRunningInstance(instance));
+    m_queue.enqueue(RunningInstance(instance));
     emit processQueue();
 }
 
-void DiscordQueue::instanceStopped(const std::shared_ptr<BaseInstance>& instance)
+void DiscordQueue::instanceStopped(const BaseInstance* instance)
 {
-    if (m_runningInstance.lock() == instance) {
-        m_runningInstance = {};
+    if (m_currentInstance.has_value() && m_currentInstance->instance == instance) {
+        m_currentInstance = std::nullopt;
     }
 
-    QMutableListIterator<WeakRunningInstance> it(m_queue);
-    while (it.hasNext()) {
-        if (it.next().lock() == instance) {
-            it.remove();
-        }
+    {
+        auto [beg, end] = std::ranges::remove(m_queue, instance, &RunningInstance::instance);
+        m_queue.erase(beg, end);
     }
     emit processQueue();
 }
 
 bool DiscordQueue::isInstanceRunning()
 {
-    return !m_runningInstance.expired();
+    return m_currentInstance.has_value();
 }
 
 void DiscordQueue::socketReady()
@@ -69,14 +67,14 @@ void DiscordQueue::processQueue()
         return;
     }
 
-    if (m_runningInstance.expired() && m_queue.empty()) {
+    if (!m_currentInstance.has_value() && m_queue.empty()) {
         emitRest();
         return;
     }
 
-    if (m_runningInstance.expired()) {
-        m_runningInstance = m_queue.dequeue();
-        emitStarted(RunningInstance(m_runningInstance));
+    if (!m_currentInstance.has_value()) {
+        m_currentInstance = m_queue.dequeue();
+        emitStarted(*m_currentInstance);
         return;
     }
 }

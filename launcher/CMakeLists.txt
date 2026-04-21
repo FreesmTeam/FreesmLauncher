@@ -75,9 +75,6 @@ set(CORE_SOURCES
     # RW lock protected map
     RWStorage.h
 
-    # A variable that has an implicit default value and keeps track of changes
-    DefaultVariable.h
-
     # a smart pointer wrapper intended for safer use with Qt signal/slot mechanisms
     QObjectPtr.h
 
@@ -102,14 +99,17 @@ set(CORE_SOURCES
     MMCTime.cpp
 
     MTPixmapCache.h
+
+    # Assertion helper
+    AssertHelpers.h
 )
 if (UNIX AND NOT CYGWIN AND NOT APPLE)
     set(CORE_SOURCES
     ${CORE_SOURCES}
 
-    # MangoHud
-    MangoHud.h
-    MangoHud.cpp
+    # LibraryUtils
+    LibraryUtils.h
+    LibraryUtils.cpp
     )
 endif()
 
@@ -121,6 +121,7 @@ set(NET_SOURCES
     net/Download.h
     net/FetchFlameAPIKey.cpp
     net/FetchFlameAPIKey.h
+    net/DummySink.h
     net/FileSink.cpp
     net/FileSink.h
     net/Head.cpp
@@ -226,16 +227,8 @@ set(MINECRAFT_SOURCES
     minecraft/auth/AuthSession.h
     minecraft/auth/AuthStep.h
 
-    minecraft/auth/msa/MSAAccount.cpp
-    minecraft/auth/msa/MSAAccount.h
-    minecraft/auth/BaseAccount.cpp
-    minecraft/auth/BaseAccount.h
-    minecraft/auth/offline/OfflineAccount.cpp
-    minecraft/auth/offline/OfflineAccount.h
-    minecraft/auth/elyby/ElybyAccount.cpp
-    minecraft/auth/elyby/ElybyAccount.h
-    minecraft/auth/custom/CustomAccount.cpp
-    minecraft/auth/custom/CustomAccount.h
+    minecraft/auth/MinecraftAccount.cpp
+    minecraft/auth/MinecraftAccount.h
 
     minecraft/auth/Parsers.cpp
     minecraft/auth/Parsers.h
@@ -243,43 +236,41 @@ set(MINECRAFT_SOURCES
     minecraft/auth/AuthFlow.cpp
     minecraft/auth/AuthFlow.h
 
-    minecraft/auth/msa/steps/EntitlementsStep.cpp
-    minecraft/auth/msa/steps/EntitlementsStep.h
-    minecraft/auth/msa/steps/GetSkinStep.cpp
-    minecraft/auth/msa/steps/GetSkinStep.h
-    minecraft/auth/msa/steps/LauncherLoginStep.cpp
-    minecraft/auth/msa/steps/LauncherLoginStep.h
-    minecraft/auth/msa/steps/MinecraftProfileStep.cpp
-    minecraft/auth/msa/steps/MinecraftProfileStep.h
-    minecraft/auth/msa/steps/MSADeviceCodeStep.cpp
-    minecraft/auth/msa/steps/MSADeviceCodeStep.h
-    minecraft/auth/msa/steps/MSAStep.cpp
-    minecraft/auth/msa/steps/MSAStep.h
-    minecraft/auth/msa/steps/XboxAuthorizationStep.cpp
-    minecraft/auth/msa/steps/XboxAuthorizationStep.h
-    minecraft/auth/msa/steps/XboxProfileStep.cpp
-    minecraft/auth/msa/steps/XboxProfileStep.h
-    minecraft/auth/msa/steps/XboxUserStep.cpp
-    minecraft/auth/msa/steps/XboxUserStep.h
+    minecraft/auth/steps/EntitlementsStep.cpp
+    minecraft/auth/steps/EntitlementsStep.h
+    minecraft/auth/steps/GetSkinStep.cpp
+    minecraft/auth/steps/GetSkinStep.h
+    minecraft/auth/steps/LauncherLoginStep.cpp
+    minecraft/auth/steps/LauncherLoginStep.h
+    minecraft/auth/steps/MinecraftProfileStep.cpp
+    minecraft/auth/steps/MinecraftProfileStep.h
+    minecraft/auth/steps/MSADeviceCodeStep.cpp
+    minecraft/auth/steps/MSADeviceCodeStep.h
+    minecraft/auth/steps/MSAStep.cpp
+    minecraft/auth/steps/MSAStep.h
+    minecraft/auth/steps/XboxAuthorizationStep.cpp
+    minecraft/auth/steps/XboxAuthorizationStep.h
+    minecraft/auth/steps/XboxUserStep.cpp
+    minecraft/auth/steps/XboxUserStep.h
 
-    minecraft/auth/elyby/steps/ElyDeviceCodeStep.cpp
-    minecraft/auth/elyby/steps/ElyDeviceCodeStep.h
-    minecraft/auth/elyby/steps/ElyStep.cpp
-    minecraft/auth/elyby/steps/ElyStep.h
-    minecraft/auth/elyby/steps/MinecraftProfileStepEly.cpp
-    minecraft/auth/elyby/steps/MinecraftProfileStepEly.h
+    minecraft/auth/steps/ElyDeviceCodeStep.cpp
+    minecraft/auth/steps/ElyDeviceCodeStep.h
+    minecraft/auth/steps/ElyStep.cpp
+    minecraft/auth/steps/ElyStep.h
+    minecraft/auth/steps/MinecraftProfileStepEly.cpp
+    minecraft/auth/steps/MinecraftProfileStepEly.h
 
-    minecraft/auth/custom/steps/CustomAuthStep.cpp
-    minecraft/auth/custom/steps/CustomAuthStep.h
-    minecraft/auth/custom/steps/CustomRefreshStep.cpp
-    minecraft/auth/custom/steps/CustomRefreshStep.h
-    minecraft/auth/custom/steps/CustomGetSkinStep.cpp
-    minecraft/auth/custom/steps/CustomGetSkinStep.h
+    minecraft/auth/steps/CustomAuthStep.cpp
+    minecraft/auth/steps/CustomAuthStep.h
+    minecraft/auth/steps/CustomRefreshStep.cpp
+    minecraft/auth/steps/CustomRefreshStep.h
+    minecraft/auth/steps/CustomGetSkinStep.cpp
+    minecraft/auth/steps/CustomGetSkinStep.h
 
     minecraft/update/AssetUpdateTask.h
     minecraft/update/AssetUpdateTask.cpp
-    minecraft/update/FMLLibrariesTask.cpp
-    minecraft/update/FMLLibrariesTask.h
+    minecraft/update/LegacyFMLLibrariesTask.cpp
+    minecraft/update/LegacyFMLLibrariesTask.h
     minecraft/update/FoldersTask.cpp
     minecraft/update/FoldersTask.h
     minecraft/update/LibrariesTask.cpp
@@ -293,6 +284,10 @@ set(MINECRAFT_SOURCES
     minecraft/launch/ClaimAccount.h
     minecraft/launch/CreateGameFolders.cpp
     minecraft/launch/CreateGameFolders.h
+    minecraft/launch/EnsureAvailableMemory.cpp
+    minecraft/launch/EnsureAvailableMemory.h
+    minecraft/launch/EnsureOfflineLibraries.cpp
+    minecraft/launch/EnsureOfflineLibraries.h
     minecraft/launch/ModMinecraftJar.cpp
     minecraft/launch/ModMinecraftJar.h
     minecraft/launch/ExtractNatives.cpp
@@ -562,6 +557,11 @@ set(FTB_SOURCES
     modplatform/import_ftb/PackInstallTask.cpp
     modplatform/import_ftb/PackHelpers.h
     modplatform/import_ftb/PackHelpers.cpp
+
+    modplatform/ftb/FTBPackInstallTask.h
+    modplatform/ftb/FTBPackInstallTask.cpp
+    modplatform/ftb/FTBPackManifest.h
+    modplatform/ftb/FTBPackManifest.cpp
 )
 
 set(FLAME_SOURCES
@@ -589,13 +589,6 @@ set(MODRINTH_SOURCES
     modplatform/modrinth/ModrinthInstanceCreationTask.h
     modplatform/modrinth/ModrinthPackExportTask.cpp
     modplatform/modrinth/ModrinthPackExportTask.h
-)
-
-set(MODPACKSCH_SOURCES
-    modplatform/modpacksch/FTBPackInstallTask.h
-    modplatform/modpacksch/FTBPackInstallTask.cpp
-    modplatform/modpacksch/FTBPackManifest.h
-    modplatform/modpacksch/FTBPackManifest.cpp
 )
 
 set(PACKWIZ_SOURCES
@@ -719,7 +712,7 @@ if (WIN32)
         console/WindowsConsole.cpp
         ${PRISMUPDATER_SOURCES}
     )
-endif ()
+endif()
 
 ######## Logging categories ########
 
@@ -825,7 +818,6 @@ set(LOGIC_SOURCES
     ${FTB_SOURCES}
     ${FLAME_SOURCES}
     ${MODRINTH_SOURCES}
-    ${MODPACKSCH_SOURCES}
     ${PACKWIZ_SOURCES}
     ${TECHNIC_SOURCES}
     ${ATLAUNCHER_SOURCES}
@@ -848,6 +840,8 @@ SET(LAUNCHER_SOURCES
     ApplicationMessage.cpp
     SysInfo.h
     SysInfo.cpp
+    HardwareInfo.cpp
+    HardwareInfo.h
 
     # console utils
     console/Console.h
@@ -863,25 +857,6 @@ SET(LAUNCHER_SOURCES
     # Super secret!
     KonamiCode.h
     KonamiCode.cpp
-
-    # Bundled resources
-    resources/backgrounds/backgrounds.qrc
-    resources/multimc/multimc.qrc
-    resources/pe_dark/pe_dark.qrc
-    resources/pe_light/pe_light.qrc
-    resources/pe_colored/pe_colored.qrc
-    resources/pe_blue/pe_blue.qrc
-    resources/breeze_dark/breeze_dark.qrc
-    resources/breeze_light/breeze_light.qrc
-    resources/OSX/OSX.qrc
-    resources/iOS/iOS.qrc
-    resources/fluent/fluent.qrc
-    resources/fluent_dark/fluent_dark.qrc
-    resources/flat/flat.qrc
-    resources/flat_white/flat_white.qrc
-    resources/documents/documents.qrc
-    resources/shaders/shaders.qrc
-    "../${Launcher_Branding_LogoQRC}"
 
     # Icons
     icons/MMCIcon.h
@@ -960,6 +935,7 @@ SET(LAUNCHER_SOURCES
     ui/themes/CatPainter.h
 
     # Processes
+    LaunchMode.h
     LaunchController.h
     LaunchController.cpp
 
@@ -1144,8 +1120,8 @@ SET(LAUNCHER_SOURCES
     ui/dialogs/ImportResourceDialog.h
     ui/dialogs/MSALoginDialog.cpp
     ui/dialogs/MSALoginDialog.h
-    ui/dialogs/OfflineLoginDialog.cpp
-    ui/dialogs/OfflineLoginDialog.h
+    ui/dialogs/NetworkJobFailedDialog.cpp
+    ui/dialogs/NetworkJobFailedDialog.h
     ui/dialogs/ElybyLoginDialog.cpp
     ui/dialogs/ElybyLoginDialog.h
     ui/dialogs/CustomLoginDialog.cpp
@@ -1259,7 +1235,7 @@ if (APPLE)
         ${LAUNCHER_SOURCES}
         ui/themes/ThemeManager.mm
     )
-endif ()
+endif()
 
 if (NOT Apple)
     set(LAUNCHER_SOURCES
@@ -1277,7 +1253,7 @@ if (APPLE)
         macsandbox/SecurityBookmarkFileAccess.h
         macsandbox/SecurityBookmarkFileAccess.mm
     )
-endif ()
+endif()
 
 if(WIN32)
     set(LAUNCHER_SOURCES
@@ -1332,6 +1308,7 @@ qt_wrap_ui(LAUNCHER_UI
     ui/dialogs/ProfileSetupDialog.ui
     ui/dialogs/ProgressDialog.ui
     ui/dialogs/NewInstanceDialog.ui
+    ui/dialogs/NetworkJobFailedDialog.ui
     ui/dialogs/NewComponentDialog.ui
     ui/dialogs/NewsDialog.ui
     ui/dialogs/ProfileSelectDialog.ui
@@ -1341,7 +1318,6 @@ qt_wrap_ui(LAUNCHER_UI
     ui/dialogs/IconPickerDialog.ui
     ui/dialogs/ImportResourceDialog.ui
     ui/dialogs/MSALoginDialog.ui
-    ui/dialogs/OfflineLoginDialog.ui
     ui/dialogs/ElybyLoginDialog.ui
     ui/dialogs/CustomLoginDialog.ui
     ui/dialogs/AboutDialog.ui
@@ -1372,10 +1348,13 @@ qt_add_resources(LAUNCHER_RESOURCES
     resources/breeze_light/breeze_light.qrc
     resources/OSX/OSX.qrc
     resources/iOS/iOS.qrc
+    resources/fluent/fluent.qrc
+    resources/fluent_dark/fluent_dark.qrc
     resources/flat/flat.qrc
+    resources/flat_white/flat_white.qrc
     resources/documents/documents.qrc
     resources/shaders/shaders.qrc
-    "../${Launcher_Branding_LogoQRC}"
+    "${CMAKE_CURRENT_BINARY_DIR}/../${Launcher_Branding_LogoQRC}"
 )
 
 qt_wrap_ui(PRISMUPDATER_UI
@@ -1389,29 +1368,29 @@ if(WIN32)
     set(LAUNCHER_RCS ${CMAKE_CURRENT_BINARY_DIR}/../${Launcher_Branding_WindowsRC})
 endif()
 
-include(CompilerWarnings)
-
 ######## Precompiled Headers ###########
 
-set(PRECOMPILED_HEADERS
-    include/base.pch.hpp
-    include/qtcore.pch.hpp
-    include/qtgui.pch.hpp
-)
+if(${Launcher_USE_PCH})
+    message(STATUS "Using precompiled headers for applicable launcher targets")
+    set(PRECOMPILED_HEADERS
+        include/base.pch.hpp
+        include/qtcore.pch.hpp
+        include/qtgui.pch.hpp
+    )
+endif()
 
 ####### Targets ########
 
 # Add executable
 add_library(Launcher_logic STATIC ${LOGIC_SOURCES} ${LAUNCHER_SOURCES} ${LAUNCHER_UI} ${LAUNCHER_RESOURCES})
-set_project_warnings(Launcher_logic
-    "${Launcher_MSVC_WARNINGS}"
-    "${Launcher_CLANG_WARNINGS}"
-    "${Launcher_GCC_WARNINGS}")
 target_include_directories(Launcher_logic PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 target_compile_definitions(Launcher_logic PUBLIC LAUNCHER_APPLICATION)
-target_precompile_headers(Launcher_logic PRIVATE ${PRECOMPILED_HEADERS})
+
+if(${Launcher_USE_PCH})
+    target_precompile_headers(Launcher_logic PRIVATE ${PRECOMPILED_HEADERS})
+endif()
+
 target_link_libraries(Launcher_logic
-    systeminfo
     Launcher_murmur2
     nbt++
     ${ZLIB_LIBRARIES}
@@ -1420,23 +1399,23 @@ target_link_libraries(Launcher_logic
     Qt${QT_VERSION_MAJOR}::Widgets
 )
 
-if (TARGET PkgConfig::libqrencode)
+if(TARGET PkgConfig::libqrencode)
     target_link_libraries(Launcher_logic PkgConfig::libqrencode)
-else ()
+else()
     target_include_directories(Launcher_logic PRIVATE ${LIBQRENCODE_INCLUDE_DIR})
     target_link_libraries(Launcher_logic ${LIBQRENCODE_LIBRARIES})
-endif ()
+endif()
 
-if (TARGET PkgConfig::tomlplusplus)
+if(TARGET PkgConfig::tomlplusplus)
     target_link_libraries(Launcher_logic PkgConfig::tomlplusplus)
-else ()
+else()
     target_link_libraries(Launcher_logic tomlplusplus::tomlplusplus)
-endif ()
-if (TARGET PkgConfig::libarchive)
+endif()
+if(TARGET PkgConfig::libarchive)
     target_link_libraries(Launcher_logic PkgConfig::libarchive)
-else ()
+else()
     target_link_libraries(Launcher_logic LibArchive::LibArchive)
-endif ()
+endif()
 
 if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
     target_link_libraries(Launcher_logic
@@ -1488,10 +1467,12 @@ if(APPLE)
     endif()
 endif()
 
-target_link_libraries(Launcher_logic)
-
 add_executable(${Launcher_Name} MACOSX_BUNDLE WIN32 main.cpp ${LAUNCHER_RCS})
-target_precompile_headers(${Launcher_Name} REUSE_FROM Launcher_logic)
+
+if(${Launcher_USE_PCH})
+    target_precompile_headers(${Launcher_Name} REUSE_FROM Launcher_logic)
+endif()
+
 target_link_libraries(${Launcher_Name} Launcher_logic)
 
 if(DEFINED Launcher_APP_BINARY_NAME)
@@ -1507,7 +1488,7 @@ if(DEFINED Launcher_APP_BINARY_DEFS)
 endif()
 
 install(TARGETS ${Launcher_Name}
-        RUNTIME_DEPENDENCY_SET LAUNCHER_DEPENDENCY_SET
+    RUNTIME_DEPENDENCY_SET LAUNCHER_DEPENDENCY_SET
     BUNDLE DESTINATION "." COMPONENT Runtime
     LIBRARY DESTINATION ${LIBRARY_DEST_DIR} COMPONENT Runtime
     RUNTIME DESTINATION ${BINARY_DEST_DIR} COMPONENT Runtime
@@ -1515,18 +1496,21 @@ install(TARGETS ${Launcher_Name}
 )
 
 # Deploy PDBs
-if (CMAKE_CXX_LINKER_SUPPORTS_PDB)
+if(CMAKE_CXX_LINKER_SUPPORTS_PDB)
     install(FILES $<TARGET_PDB_FILE:${Launcher_Name}> DESTINATION ${BINARY_DEST_DIR} OPTIONAL)
-endif ()
+endif()
 
 if(Launcher_BUILD_UPDATER)
     # Updater
     add_library(prism_updater_logic STATIC ${PRISMUPDATER_SOURCES} ${TASKS_SOURCES} ${PRISMUPDATER_UI})
     target_include_directories(prism_updater_logic PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
-    target_precompile_headers(prism_updater_logic PRIVATE ${PRECOMPILED_HEADERS})
+
+    if(${Launcher_USE_PCH})
+        target_precompile_headers(prism_updater_logic PRIVATE ${PRECOMPILED_HEADERS})
+    endif()
+
     target_link_libraries(prism_updater_logic
         ${ZLIB_LIBRARIES}
-        systeminfo
         BuildConfig
         Qt${QT_VERSION_MAJOR}::Widgets
         Qt${QT_VERSION_MAJOR}::Core
@@ -1534,16 +1518,19 @@ if(Launcher_BUILD_UPDATER)
         ${Launcher_QT_LIBS}
         cmark::cmark
     )
-    if (TARGET PkgConfig::libarchive)
+    if(TARGET PkgConfig::libarchive)
         target_link_libraries(prism_updater_logic PkgConfig::libarchive)
-    else ()
+    else()
         target_link_libraries(prism_updater_logic LibArchive::LibArchive)
-    endif ()
+    endif()
 
     add_executable("${Launcher_Name}_updater" WIN32 updater/prismupdater/updater_main.cpp)
     target_sources("${Launcher_Name}_updater" PRIVATE updater/prismupdater/updater.exe.manifest)
     target_link_libraries("${Launcher_Name}_updater" prism_updater_logic)
-    target_precompile_headers("${Launcher_Name}_updater" REUSE_FROM prism_updater_logic)
+
+    if(${Launcher_USE_PCH})
+        target_precompile_headers("${Launcher_Name}_updater" REUSE_FROM prism_updater_logic)
+    endif()
 
     if(DEFINED Launcher_APP_BINARY_NAME)
         set_target_properties("${Launcher_Name}_updater" PROPERTIES OUTPUT_NAME "${Launcher_APP_BINARY_NAME}_updater")
@@ -1560,24 +1547,22 @@ if(Launcher_BUILD_UPDATER)
     )
 
     # Deploy PDBs
-    if (CMAKE_CXX_LINKER_SUPPORTS_PDB)
+    if(CMAKE_CXX_LINKER_SUPPORTS_PDB)
         install(FILES $<TARGET_PDB_FILE:${Launcher_Name}_updater> DESTINATION ${BINARY_DEST_DIR} OPTIONAL)
-    endif ()
+    endif()
 endif()
 
 if(WIN32 OR (DEFINED Launcher_BUILD_FILELINKER AND Launcher_BUILD_FILELINKER))
     # File link
     add_library(filelink_logic STATIC ${LINKEXE_SOURCES})
-    set_project_warnings(filelink_logic
-    "${Launcher_MSVC_WARNINGS}"
-    "${Launcher_CLANG_WARNINGS}"
-    "${Launcher_GCC_WARNINGS}")
 
     target_include_directories(filelink_logic PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
-    target_precompile_headers(filelink_logic PRIVATE ${PRECOMPILED_HEADERS})
+
+    if(${Launcher_USE_PCH})
+        target_precompile_headers(filelink_logic PRIVATE ${PRECOMPILED_HEADERS})
+    endif()
 
     target_link_libraries(filelink_logic
-        systeminfo
         BuildConfig
         Qt${QT_VERSION_MAJOR}::Widgets
         Qt${QT_VERSION_MAJOR}::Core
@@ -1587,16 +1572,18 @@ if(WIN32 OR (DEFINED Launcher_BUILD_FILELINKER AND Launcher_BUILD_FILELINKER))
     )
 
     add_executable("${Launcher_Name}_filelink" WIN32 filelink/filelink_main.cpp)
-
     target_sources("${Launcher_Name}_filelink" PRIVATE filelink/filelink.exe.manifest)
-    target_precompile_headers("${Launcher_Name}_filelink" REUSE_FROM filelink_logic)
+
+    if(${Launcher_USE_PCH})
+        target_precompile_headers("${Launcher_Name}_filelink" REUSE_FROM filelink_logic)
+    endif()
 
     # HACK: Fix manifest issues with Ninja in release mode (and only release mode) and MSVC
     # I have no idea why this works or why it's needed. UPDATE THIS IF YOU EDIT THE MANIFEST!!! -@getchoo
     # Thank you 2018 CMake mailing list thread https://cmake.cmake.narkive.com/LnotZXus/conflicting-msvc-manifests
-    if (MSVC)
+    if(MSVC)
         set_property(TARGET "${Launcher_Name}_filelink" PROPERTY LINK_FLAGS "/MANIFESTUAC:level='requireAdministrator'")
-    endif ()
+    endif()
 
     target_link_libraries("${Launcher_Name}_filelink" filelink_logic)
 
@@ -1615,9 +1602,9 @@ if(WIN32 OR (DEFINED Launcher_BUILD_FILELINKER AND Launcher_BUILD_FILELINKER))
     )
 
     # Deploy PDBs
-    if (CMAKE_CXX_LINKER_SUPPORTS_PDB)
+    if(CMAKE_CXX_LINKER_SUPPORTS_PDB)
         install(FILES $<TARGET_PDB_FILE:${Launcher_Name}_filelink> DESTINATION ${BINARY_DEST_DIR} OPTIONAL)
-    endif ()
+    endif()
 endif()
 
 if (UNIX AND APPLE AND Launcher_ENABLE_UPDATER)
@@ -1627,18 +1614,38 @@ if (UNIX AND APPLE AND Launcher_ENABLE_UPDATER)
     install(DIRECTORY ${MACOSX_SPARKLE_DIR}/Sparkle.framework DESTINATION ${FRAMEWORK_DEST_DIR} USE_SOURCE_PERMISSIONS)
 endif()
 
+# Set basic compiler warning/error flags for all targets
+get_property(Launcher_TARGETS DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY BUILDSYSTEM_TARGETS)
+foreach(target ${Launcher_TARGETS})
+    message(STATUS "Enabling all warnings as errors for target '${target}'")
+    if (CMAKE_CXX_COMPILER_FRONTEND_VARIANT STREQUAL "MSVC")
+        target_compile_options(${target} PRIVATE /W4 /WX /permissive-)
+    else()
+        target_compile_options(${target} PRIVATE -Wall -Wextra -Wpedantic -Werror)
+    endif()
+endforeach()
+
+# Disable some warnings in main launcher target due to being present in a lot of places. TODO: Fix them.
+if (CMAKE_CXX_COMPILER_FRONTEND_VARIANT STREQUAL "MSVC")
+    target_compile_options(Launcher_logic PRIVATE /wd4100) # C4100 - unused parameter
+    target_compile_options(${Launcher_Name} PRIVATE /wd4100) # C4100 - unused parameter
+else()
+    target_compile_options(Launcher_logic PRIVATE -Wno-unused-parameter -Wno-missing-field-initializers)
+    target_compile_options(${Launcher_Name} PRIVATE -Wno-unused-parameter -Wno-missing-field-initializers)
+endif()
+
 #### The bundle mess! ####
 # Bundle utilities are used to complete packages for different platforms - they add all the libraries that would otherwise be missing on the target system.
 # NOTE: it seems that this absolutely has to be here, and nowhere else.
-if (WIN32 OR (UNIX AND APPLE))
-    if (WIN32)
+if(WIN32 OR (UNIX AND APPLE))
+    if(WIN32)
         set(QT_DEPLOY_TOOL_OPTIONS "--no-opengl-sw --no-quick-import --no-system-d3d-compiler --no-system-dxc-compiler --skip-plugin-types generic,networkinformation")
-    endif ()
+    endif()
 
     qt_generate_deploy_script(
-            TARGET ${Launcher_Name}
-            OUTPUT_SCRIPT QT_DEPLOY_SCRIPT
-            CONTENT "
+        TARGET ${Launcher_Name}
+        OUTPUT_SCRIPT QT_DEPLOY_SCRIPT
+        CONTENT "
         qt_deploy_runtime_dependencies(
             EXECUTABLE ${BINARY_DEST_DIR}/$<TARGET_FILE_NAME:${Launcher_Name}>
             BIN_DIR ${BINARY_DEST_DIR}
@@ -1654,38 +1661,93 @@ if (WIN32 OR (UNIX AND APPLE))
 
     # Bundle our linked dependencies
     install(
-            RUNTIME_DEPENDENCY_SET LAUNCHER_DEPENDENCY_SET
-            COMPONENT bundle
-            DIRECTORIES
+        RUNTIME_DEPENDENCY_SET LAUNCHER_DEPENDENCY_SET
+        COMPONENT bundle
+        DIRECTORIES
             ${CMAKE_SYSTEM_LIBRARY_PATH}
             ${QT_LIBS_DIR}
             ${QT_LIBEXECS_DIR}
-            PRE_EXCLUDE_REGEXES
+        PRE_EXCLUDE_REGEXES
             "^(api-ms-win|ext-ms)-.*\\.dll$"
             # FIXME: Why aren't these caught by the below regex???
             "^azure.*\\.dll$"
             "^vcruntime.*\\.dll$"
-            POST_EXCLUDE_REGEXES
+        POST_EXCLUDE_REGEXES
             "system32"
-            LIBRARY DESTINATION ${LIBRARY_DEST_DIR}
-            RUNTIME DESTINATION ${BINARY_DEST_DIR}
-            FRAMEWORK DESTINATION ${FRAMEWORK_DEST_DIR}
+        LIBRARY DESTINATION ${LIBRARY_DEST_DIR}
+        RUNTIME DESTINATION ${BINARY_DEST_DIR}
+        FRAMEWORK DESTINATION ${FRAMEWORK_DEST_DIR}
     )
     # Deploy Qt plugins
     install(
-            SCRIPT ${QT_DEPLOY_SCRIPT}
-            COMPONENT bundle
+        SCRIPT ${QT_DEPLOY_SCRIPT}
+        COMPONENT bundle
     )
+    # FIXME: remove this crap once we stop using msys2
+    if(MINGW)
+        # i've not found a solution better than injecting the config vars like this...
+        # with install(CODE" for everything everything just breaks
+        install(CODE "
+            set(QT_PLUGINS_DIR \"${QT_PLUGINS_DIR}\")
+            set(QT_LIBS_DIR \"${QT_LIBS_DIR}\")
+            set(QT_LIBEXECS_DIR \"${QT_LIBEXECS_DIR}\")
+            set(CMAKE_SYSTEM_LIBRARY_PATH \"${CMAKE_SYSTEM_LIBRARY_PATH}\")
+            set(CMAKE_INSTALL_PREFIX \"${CMAKE_INSTALL_PREFIX}\")
+            "
+            COMPONENT bundle)
+
+        install(CODE [[
+            file(GLOB QT_IMAGEFORMAT_DLLS "${QT_PLUGINS_DIR}/imageformats/*.dll")
+            set(CMAKE_GET_RUNTIME_DEPENDENCIES_TOOL objdump)
+            file(GET_RUNTIME_DEPENDENCIES
+                RESOLVED_DEPENDENCIES_VAR imageformatdeps
+                LIBRARIES ${QT_IMAGEFORMAT_DLLS}
+                DIRECTORIES
+                    ${CMAKE_SYSTEM_LIBRARY_PATH}
+                    ${QT_PLUGINS_DIR}
+                    ${QT_LIBS_DIR}
+                    ${QT_LIBEXECS_DIR}
+                PRE_EXCLUDE_REGEXES
+                    "^(api-ms-win|ext-ms)-.*\\.dll$"
+                    # FIXME: Why aren't these caught by the below regex???
+                    "^azure.*\\.dll$"
+                    "^vcruntime.*\\.dll$"
+                POST_EXCLUDE_REGEXES
+                    "system32"
+            )
+            foreach(_lib ${imageformatdeps})
+                file(INSTALL
+                    DESTINATION ${CMAKE_INSTALL_PREFIX}
+                    TYPE SHARED_LIBRARY
+                    FOLLOW_SYMLINK_CHAIN
+                    FILES ${_lib}
+                )
+            endforeach()
+        ]]
+        COMPONENT bundle)
+    endif()
 
     # Add qt.conf - this makes Qt stop looking for things outside the bundle
     install(
         CODE "file(WRITE \"\${CMAKE_INSTALL_PREFIX}/${RESOURCES_DEST_DIR}/qt.conf\" \" \")"
-            COMPONENT bundle
+        COMPONENT bundle
     )
     # Add qtlogging.ini as a config file
     install(
         FILES "qtlogging.ini"
         DESTINATION ${CMAKE_INSTALL_PREFIX}/${RESOURCES_DEST_DIR}
-            COMPONENT bundle
+        COMPONENT bundle
     )
+endif()
+
+find_program(CLANG_FORMAT clang-format OPTIONAL)
+if(CLANG_FORMAT)
+    message(STATUS "Creating clang-format target")
+    add_custom_target(
+        clang-format
+        COMMAND ${CLANG_FORMAT} -i --style=file:${CMAKE_SOURCE_DIR}/.clang-format ${LOGIC_SOURCES} ${LAUNCHER_SOURCES} ${PRISMUPDATER_SOURCES} ${LINKEXE_SOURCES} ${PRECOMPILED_HEADERS}
+        WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
+    )
+else()
+    message(WARNING "Unable to find `clang-format`. Not creating custom target")
 endif()

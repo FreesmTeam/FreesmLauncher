@@ -113,7 +113,7 @@ auto HttpMetaCache::resolveEntry(QString base, QString resource_path, QString ex
     if (file_last_changed != entry->m_local_changed_timestamp) {
         QFile input(real_path);
         if (!input.open(QIODevice::ReadOnly)) {
-            qWarning() << "Failed to open file '" << input.fileName() << "' for reading!";
+            qWarning() << "Failed to open file" << input.fileName() << "for reading:" << input.errorString();
             return staleEntry(base, resource_path);
         }
         QString md5sum = QCryptographicHash::hash(input.readAll(), QCryptographicHash::Md5).toHex().constData();
@@ -144,12 +144,12 @@ auto HttpMetaCache::resolveEntry(QString base, QString resource_path, QString ex
 auto HttpMetaCache::updateEntry(MetaEntryPtr stale_entry) -> bool
 {
     if (!m_entries.contains(stale_entry->m_baseId)) {
-        qCCritical(taskHttpMetaCacheLogC) << "Cannot add entry with unknown base: " << stale_entry->m_baseId.toLocal8Bit();
+        qCCritical(taskHttpMetaCacheLogC) << "Cannot add entry with unknown base:" << stale_entry->m_baseId.toLocal8Bit();
         return false;
     }
 
     if (stale_entry->m_stale) {
-        qCCritical(taskHttpMetaCacheLogC) << "Cannot add stale entry: " << stale_entry->getFullPath().toLocal8Bit();
+        qCCritical(taskHttpMetaCacheLogC) << "Cannot add stale entry:" << stale_entry->getFullPath().toLocal8Bit();
         return false;
     }
 

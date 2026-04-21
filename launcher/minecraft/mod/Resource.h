@@ -43,6 +43,8 @@
 #include "MetadataHandler.h"
 #include "QObjectPtr.h"
 
+class BaseInstance;
+
 enum class ResourceType {
     UNKNOWN,     //!< Indicates an unspecified resource type.
     ZIPFILE,     //!< The resource is a zip file containing the resource's class files.
@@ -51,6 +53,8 @@ enum class ResourceType {
     LITEMOD,     //!< The resource is a litemod
 };
 
+QDebug operator<<(QDebug debug, ResourceType type);
+
 enum class ResourceStatus {
     INSTALLED,      // Both JAR and Metadata are present
     NOT_INSTALLED,  // Only the Metadata is present
@@ -58,7 +62,23 @@ enum class ResourceStatus {
     UNKNOWN,        // Default status
 };
 
-enum class SortType { NAME, DATE, VERSION, ENABLED, PACK_FORMAT, PROVIDER, SIZE, SIDE, MC_VERSIONS, LOADERS, RELEASE_TYPE };
+QDebug operator<<(QDebug debug, ResourceStatus status);
+
+enum class SortType {
+    NAME,
+    DATE,
+    VERSION,
+    ENABLED,
+    PACK_FORMAT,
+    PROVIDER,
+    SIZE,
+    SIDE,
+    MC_VERSIONS,
+    LOADERS,
+    RELEASE_TYPE,
+    REQUIRES,
+    REQUIRED_BY,
+};
 
 enum class EnableAction { ENABLE, DISABLE, TOGGLE };
 
@@ -105,12 +125,20 @@ class Resource : public QObject {
     void setMetadata(std::shared_ptr<Metadata::ModStruct>&& metadata);
     void setMetadata(const Metadata::ModStruct& metadata) { setMetadata(std::make_shared<Metadata::ModStruct>(metadata)); }
 
+    /**
+     * Returns compatibility issues with the resource and the instance.
+     * This is initially empty, and may be updated when calling updateIssues.
+     */
+    QStringList issues() const;
+    void updateIssues(const BaseInstance* inst);
+    bool hasIssues() const { return !m_issues.empty(); }
+
     /** Compares two Resources, for sorting purposes, considering a ascending order, returning:
      *  > 0: 'this' comes after 'other'
      *  = 0: 'this' is equal to 'other'
      *  < 0: 'this' comes before 'other'
      */
-    virtual int compare(Resource const& other, SortType type = SortType::NAME) const;
+    virtual int compare(const Resource& other, SortType type = SortType::NAME) const;
 
     /** Returns whether the given filter should filter out 'this' (false),
      *  or if such filter includes the Resource (true).
@@ -152,9 +180,6 @@ class Resource : public QObject {
 
     bool isMoreThanOneHardLink() const;
 
-    auto mod_id() const -> QString { return m_mod_id; }
-    void setModId(const QString& modId) { m_mod_id = modId; }
-
    protected:
     /* The file corresponding to this resource. */
     QFileInfo m_file_info;
@@ -165,7 +190,6 @@ class Resource : public QObject {
     QString m_internal_id;
     /* Name as reported via the file name. In the absence of a better name, this is shown to the user. */
     QString m_name;
-    QString m_mod_id;
 
     /* The type of file we're dealing with. */
     ResourceType m_type = ResourceType::UNKNOWN;
@@ -177,6 +201,8 @@ class Resource : public QObject {
 
     /* Whether the resource is enabled (e.g. shows up in the game) or not. */
     bool m_enabled = true;
+
+    QList<const char*> m_issues;
 
     /* Used to keep trach of pending / concluded actions on the resource. */
     bool m_is_resolving = false;

@@ -1,5 +1,6 @@
 #include "JavaWizardWidget.h"
 
+#include <QCheckBox>
 #include <QFileDialog>
 #include <QGroupBox>
 #include <QLabel>
@@ -11,8 +12,6 @@
 #include <QSpinBox>
 #include <QToolButton>
 #include <QVBoxLayout>
-
-#include <sys.h>
 
 #include "DesktopServices.h"
 #include "FileSystem.h"
@@ -28,10 +27,11 @@
 
 #include "Application.h"
 #include "BuildConfig.h"
+#include "HardwareInfo.h"
 
 JavaWizardWidget::JavaWizardWidget(QWidget* parent) : QWidget(parent)
 {
-    m_availableMemory = Sys::getSystemRam() / Sys::mebibyte;
+    m_availableMemory = HardwareInfo::totalRamMiB();
 
     goodIcon = QIcon::fromTheme("status-good");
     yellowIcon = QIcon::fromTheme("status-yellow");
@@ -185,7 +185,7 @@ void JavaWizardWidget::setupUi()
 
 void JavaWizardWidget::initialize()
 {
-    m_versionWidget->initialize(APPLICATION->javalist().get());
+    m_versionWidget->initialize(APPLICATION->javalist());
     m_versionWidget->selectSearch();
     m_versionWidget->setResizeOn(2);
     auto s = APPLICATION->settings();
@@ -256,14 +256,11 @@ JavaWizardWidget::ValidationStatus JavaWizardWidget::validate()
                         return ValidationStatus::JavaBad;
                     case QMessageBox::Help:
                         DesktopServices::openUrl(QUrl(BuildConfig.HELP_URL.arg("java-wizard")));
-                    /* fallthrough */
+                        [[fallthrough]];
                     case QMessageBox::No:
                     /* fallthrough */
                     default:
                         return ValidationStatus::Bad;
-                }
-                if (button == QMessageBox::No) {
-                    return ValidationStatus::Bad;
                 }
             }
             return ValidationStatus::JavaBad;

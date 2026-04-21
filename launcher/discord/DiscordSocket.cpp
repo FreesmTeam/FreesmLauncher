@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-only
 /*
  *  Freesm Launcher - Minecraft Launcher
- *  Copyright (C) 2025 so5iso4ka <so5iso4ka@icloud.com>
+ *  Copyright (C) 2026 so5iso4ka <so5iso4ka@icloud.com>
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -106,7 +106,7 @@ void DiscordSocket::errorOccurred([[maybe_unused]] QLocalSocket::LocalSocketErro
 void DiscordSocket::read()
 {
     if (m_state != State::Reading) {
-        if (m_socket.bytesAvailable() >= sizeof(quint32) * 2) {
+        if (m_socket.bytesAvailable() >= static_cast<qint64>(sizeof(quint32) * 2)) {
             QDataStream in(&m_socket);
             in.setByteOrder(QDataStream::LittleEndian);
 

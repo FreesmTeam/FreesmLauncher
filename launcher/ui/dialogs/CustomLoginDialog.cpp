@@ -93,7 +93,8 @@ void CustomLoginDialog::accept()
     setUserInputsEnabled(false);
     ui->progressBar->setVisible(true);
 
-    m_requestTask = Net::Download::makeByteArray(m_loginUrl, std::make_shared<QByteArray>());
+    // ignore response
+    m_requestTask = Net::Download::makeByteArray(m_loginUrl).first;
     m_requestTask->setNetwork(APPLICATION->network());
 
     connect(m_requestTask.get(), &Task::finished, this, &CustomLoginDialog::onUrlResolving);
@@ -133,8 +134,8 @@ void CustomLoginDialog::onUrlResolving()
     }
 
     // Setup the login task and start it
-    m_account = CustomAccount::createCustom(ui->userTextBox->text(), m_resolvedUrl.toString(QUrl::StripTrailingSlash),
-                                            ui->loginUrlTextBox->text(), ui->refreshUrlTextBox->text());
+    m_account = MinecraftAccount::createCustom(ui->userTextBox->text(), m_resolvedUrl.toString(QUrl::StripTrailingSlash),
+                                               ui->loginUrlTextBox->text(), ui->refreshUrlTextBox->text());
     m_loginTask = m_account->login(ui->passTextBox->text());
     connect(m_loginTask.get(), &Task::failed, this, &CustomLoginDialog::onTaskFailed);
     connect(m_loginTask.get(), &Task::succeeded, this, &CustomLoginDialog::onTaskSucceeded);
@@ -219,7 +220,7 @@ void CustomLoginDialog::onAuthUrlTextBoxChanged()
 }
 
 // Public interface
-CustomAccountPtr CustomLoginDialog::newAccount(QWidget* parent, QString msg)
+MinecraftAccountPtr CustomLoginDialog::newAccount(QWidget* parent, QString msg)
 {
     CustomLoginDialog dlg(parent);
     dlg.ui->label->setText(msg);

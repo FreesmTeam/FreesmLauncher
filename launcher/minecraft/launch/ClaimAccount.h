@@ -16,7 +16,7 @@
 #pragma once
 
 #include <launch/LaunchStep.h>
-#include <minecraft/auth/BaseAccount.h>
+#include <minecraft/auth/MinecraftAccount.h>
 
 class ClaimAccount : public LaunchStep {
     Q_OBJECT
@@ -30,5 +30,5 @@ class ClaimAccount : public LaunchStep {
 
    private:
     std::unique_ptr<UseLock> lock;
-    BaseAccountPtr m_account;
+    MinecraftAccountPtr m_account;
 };

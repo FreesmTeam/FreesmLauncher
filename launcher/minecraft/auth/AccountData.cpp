@@ -308,7 +308,6 @@ bool AccountData::resumeStateFromV3(QJsonObject data)
             }  // leave clientID empty if it doesn't exist or isn't a string
             msaToken = tokenFromJSONV3(data, "msa");
             userToken = tokenFromJSONV3(data, "utoken");
-            xboxApiToken = tokenFromJSONV3(data, "xrp-main");
             mojangservicesToken = tokenFromJSONV3(data, "xrp-mc");
         } break;
         case AccountType::Offline:
@@ -356,7 +355,6 @@ QJsonObject AccountData::saveState() const
             output["msa-client-id"] = clientID;
             tokenToJSONV3(output, msaToken, "msa");
             tokenToJSONV3(output, userToken, "utoken");
-            tokenToJSONV3(output, xboxApiToken, "xrp-main");
             tokenToJSONV3(output, mojangservicesToken, "xrp-mc");
         } break;
         case AccountType::Offline: {
@@ -395,39 +393,10 @@ QString AccountData::profileId() const
 QString AccountData::profileName() const
 {
     if (minecraftProfile.name.size() == 0) {
-        return QObject::tr("No profile (%1)").arg(accountDisplayString());
-    } else {
-        return minecraftProfile.name;
+        return QObject::tr("No Minecraft profile");
     }
-}
 
-QString AccountData::accountDisplayString() const
-{
-    switch (type) {
-        case AccountType::Offline: {
-            return QObject::tr("<Offline>");
-        }
-        case AccountType::MSA: {
-            if (xboxApiToken.extra.contains("gtg")) {
-                return xboxApiToken.extra["gtg"].toString();
-            }
-            return "Xbox profile missing";
-        }
-        case AccountType::Elyby: {
-            return "Ely.by";
-        }
-        case AccountType::Custom: {
-            // return auth URL without "https://" prefix
-            const auto url = authUrl.split('/');
-            if (url.size() < 2) {
-                return "Invalid URL";
-            }
-            return url[2];
-        }
-        default: {
-            return "Invalid Account";
-        }
-    }
+    return minecraftProfile.name;
 }
 
 QString AccountData::lastError() const

@@ -33,10 +33,13 @@
           <enum>QAbstractItemView::SelectionMode::ExtendedSelection</enum>
       </property>
       <property name="selectionBehavior">
-          <enum>QAbstractItemView::SelectionBehavior::SelectRows</enum>
+          <enum>QAbstractItemView::SelectionBehavior::SelectItems</enum>
+      </property>
+         <property name="verticalScrollMode">
+             <enum>QAbstractItemView::ScrollMode::ScrollPerPixel</enum>
       </property>
          <property name="movement">
-             <enum>QListView::Movement::Static</enum>
+             <enum>QListView::Movement::Snap</enum>
       </property>
      </widget>
     </item>

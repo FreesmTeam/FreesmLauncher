@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-only
 /*
  *  Freesm Launcher - Minecraft Launcher
- *  Copyright (C) 2025 so5iso4ka <so5iso4ka@icloud.com>
+ *  Copyright (C) 2026 so5iso4ka <so5iso4ka@icloud.com>
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -76,7 +76,7 @@ QByteArray makeRequest(qint64 startTime, const QString& details)
 
 QByteArray generateActivity(const RunningInstance& instance)
 {
-    return makeRequest(instance.startedAt.toSecsSinceEpoch(), "Minecraft " + instance.ptr()->getVersionString());
+    return makeRequest(instance.startedAt.toSecsSinceEpoch(), "Minecraft " + instance.instance->getVersionString());
 }
 
 QByteArray generateBackgroundActivity(qint64 startTime)

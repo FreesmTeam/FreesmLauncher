@@ -36,6 +36,7 @@
 #include "ui/themes/SystemTheme.h"
 
 #include "Application.h"
+#include "settings/SettingsObject.h"
 
 ThemeManager::ThemeManager()
 {
@@ -117,7 +118,7 @@ void ThemeManager::initializeIcons()
 
     if (!m_iconThemeFolder.mkpath("."))
         themeWarningLog() << "Couldn't create icon theme folder";
-    themeDebugLog() << "Icon Theme Folder Path: " << m_iconThemeFolder.absolutePath();
+    themeDebugLog() << "Icon Theme Folder Path:" << m_iconThemeFolder.absolutePath();
 
     QDirIterator directoryIterator(m_iconThemeFolder.path(), QDir::Dirs | QDir::NoDotAndDotDot);
     while (directoryIterator.hasNext()) {
@@ -160,7 +161,7 @@ void ThemeManager::initializeWidgets()
 
     if (!m_applicationThemeFolder.mkpath("."))
         themeWarningLog() << "Couldn't create theme folder";
-    themeDebugLog() << "Theme Folder Path: " << m_applicationThemeFolder.absolutePath();
+    themeDebugLog() << "Theme Folder Path:" << m_applicationThemeFolder.absolutePath();
 
     QDirIterator directoryIterator(m_applicationThemeFolder.path(), QDir::Dirs | QDir::NoDotAndDotDot);
     while (directoryIterator.hasNext()) {

@@ -46,7 +46,6 @@
 #include "GitHubRelease.h"
 
 class PrismUpdaterApp : public QApplication {
-    // friends for the purpose of limiting access to deprecated stuff
     Q_OBJECT
    public:
     enum Status { Starting, Failed, Succeeded, Initialized, Aborted };
@@ -128,7 +127,7 @@ class PrismUpdaterApp : public QApplication {
     GitHubRelease m_install_release;
 
     Status m_status = Status::Starting;
-    shared_qobject_ptr<QNetworkAccessManager> m_network;
+    std::unique_ptr<QNetworkAccessManager> m_network;
     QString m_current_url;
     Task::Ptr m_current_task;
     QList<GitHubRelease> m_releases;

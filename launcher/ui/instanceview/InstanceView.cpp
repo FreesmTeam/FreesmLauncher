@@ -83,6 +83,8 @@ InstanceView::InstanceView(QWidget* parent) : QAbstractItemView(parent)
     connect(APPLICATION, &Application::currentSnowChanged, this, &InstanceView::onCurrentSnowChanged);
     setPaintSnow(APPLICATION->settings()->get("Snow").toBool());
     setPaintCat(APPLICATION->settings()->get("TheCat").toBool());
+    connect(verticalScrollBar(), &QScrollBar::valueChanged, viewport(), QOverload<>::of(&QWidget::update));
+    connect(horizontalScrollBar(), &QScrollBar::valueChanged, viewport(), QOverload<>::of(&QWidget::update));
 }
 
 InstanceView::~InstanceView()
@@ -459,7 +461,7 @@ void InstanceView::updateSnowflakesPosition()
     static double wind = 0.0;          // Wind effect on snowflakes' horizontal movement
     static int windChangeCounter = 0;  // Counter to change wind direction periodically
 
-    const int targetSnowflakeCount = this->viewport()->width() * this->viewport()->height() / 10000;
+    const std::size_t targetSnowflakeCount = this->viewport()->width() * this->viewport()->height() / 10000;
 
     // Add or remove snowflakes to maintain the target count
     if (m_snowflakes.size() < targetSnowflakeCount && QRandomGenerator::global()->generate() % 2) {
@@ -712,7 +714,7 @@ void InstanceView::dropEvent(QDropEvent* event)
                 return;
             }
             auto instanceId = QString::fromUtf8(mimedata->data("application/x-instanceid"));
-            auto instanceList = APPLICATION->instances().get();
+            auto instanceList = APPLICATION->instances();
             instanceList->setInstanceGroup(instanceId, group->text);
             event->setDropAction(Qt::MoveAction);
             event->accept();

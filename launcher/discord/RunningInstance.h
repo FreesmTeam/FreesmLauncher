@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-only
 /*
  *  Freesm Launcher - Minecraft Launcher
- *  Copyright (C) 2025 so5iso4ka <so5iso4ka@icloud.com>
+ *  Copyright (C) 2026 so5iso4ka <so5iso4ka@icloud.com>
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -23,30 +23,10 @@ class BaseInstance;
 #include <QDateTime>
 #include <utility>
 
-struct WeakRunningInstance {
-    WeakRunningInstance() = default;
-
-    explicit WeakRunningInstance(std::weak_ptr<BaseInstance> instance)
-        : startedAt(QDateTime::currentDateTimeUtc()), instance(std::move(instance))
-    {}
-
-    auto expired() const { return instance.expired(); }
-
-    auto lock() const { return instance.lock(); }
-
-    QDateTime startedAt;
-    std::weak_ptr<BaseInstance> instance;
-};
-
 struct RunningInstance {
-    explicit RunningInstance(std::shared_ptr<BaseInstance> instance)
-        : startedAt(QDateTime::currentDateTimeUtc()), instance(std::move(instance))
-    {}
+    explicit RunningInstance(const BaseInstance* instance) : instance(instance), startedAt(QDateTime::currentDateTimeUtc()) {}
+    explicit RunningInstance(const BaseInstance* instance, QDateTime startedAt) : instance(instance), startedAt(std::move(startedAt)) {}
 
-    explicit RunningInstance(const WeakRunningInstance& instance) : startedAt(instance.startedAt), instance(instance.lock()) {}
-
-    auto ptr() const { return instance; }
-
+    const BaseInstance* instance;
     QDateTime startedAt;
-    std::shared_ptr<BaseInstance> instance;
 };

@@ -35,6 +35,7 @@
 
 #include "MSALoginDialog.h"
 #include "Application.h"
+#include "settings/SettingsObject.h"
 
 #include "ui_MSALoginDialog.h"
 
@@ -79,7 +80,7 @@ MSALoginDialog::MSALoginDialog(QWidget* parent) : QDialog(parent), ui(new Ui::MS
 int MSALoginDialog::exec()
 {
     // Setup the login task and start it
-    m_account = MSAAccount::createBlankMSA();
+    m_account = MinecraftAccount::createBlankMSA();
     m_authflow_task = m_account->login(false);
     connect(m_authflow_task.get(), &Task::failed, this, &MSALoginDialog::onTaskFailed);
     connect(m_authflow_task.get(), &Task::succeeded, this, &QDialog::accept);
@@ -223,7 +224,7 @@ void MSALoginDialog::onAuthFlowStatus(QString status)
 }
 
 // Public interface
-MSAAccountPtr MSALoginDialog::newAccount(QWidget* parent)
+MinecraftAccountPtr MSALoginDialog::newAccount(QWidget* parent)
 {
     MSALoginDialog dlg(parent);
     if (dlg.exec() == QDialog::Accepted) {

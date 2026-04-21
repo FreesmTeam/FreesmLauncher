@@ -20,8 +20,7 @@
 #include <QNetworkReply>
 #include <QTimer>
 
-#include <minecraft/auth/BaseAccount.h>
-#include <memory>
+#include <minecraft/auth/MinecraftAccount.h>
 #include "net/Download.h"
 #include "net/Upload.h"
 
@@ -32,7 +31,7 @@ class ProfileSetupDialog;
 class ProfileSetupDialog : public QDialog {
     Q_OBJECT
    public:
-    explicit ProfileSetupDialog(BaseAccountPtr accountToSetup, QWidget* parent = 0);
+    explicit ProfileSetupDialog(MinecraftAccountPtr accountToSetup, QWidget* parent = 0);
     ~ProfileSetupDialog();
 
     enum class NameStatus { NotSet, Pending, Available, Exists, Error } nameStatus = NameStatus::NotSet;
@@ -44,8 +43,8 @@ class ProfileSetupDialog : public QDialog {
     void nameEdited(const QString& name);
     void startCheck();
 
-    void checkFinished();
-    void setupProfileFinished();
+    void checkFinished(QByteArray* response);
+    void setupProfileFinished(QByteArray* response);
 
    protected:
     void scheduleCheck(const QString& name);
@@ -55,7 +54,7 @@ class ProfileSetupDialog : public QDialog {
     void setupProfile(const QString& profileName);
 
    private:
-    BaseAccountPtr m_accountToSetup;
+    MinecraftAccountPtr m_accountToSetup;
     Ui::ProfileSetupDialog* ui;
     QIcon goodIcon;
     QIcon yellowIcon;
@@ -70,9 +69,6 @@ class ProfileSetupDialog : public QDialog {
 
     QTimer checkStartTimer;
 
-    std::shared_ptr<QByteArray> m_check_response;
     Net::Download::Ptr m_check_task;
-
-    std::shared_ptr<QByteArray> m_profile_response;
     Net::Upload::Ptr m_profile_task;
 };

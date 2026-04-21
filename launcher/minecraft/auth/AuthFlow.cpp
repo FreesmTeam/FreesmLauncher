@@ -9,25 +9,24 @@
 #include "tasks/Task.h"
 
 // MSA
-#include "minecraft/auth/msa/steps/EntitlementsStep.h"
-#include "minecraft/auth/msa/steps/GetSkinStep.h"
-#include "minecraft/auth/msa/steps/LauncherLoginStep.h"
-#include "minecraft/auth/msa/steps/MSADeviceCodeStep.h"
-#include "minecraft/auth/msa/steps/MSAStep.h"
-#include "minecraft/auth/msa/steps/MinecraftProfileStep.h"
-#include "minecraft/auth/msa/steps/XboxAuthorizationStep.h"
-#include "minecraft/auth/msa/steps/XboxProfileStep.h"
-#include "minecraft/auth/msa/steps/XboxUserStep.h"
+#include "steps/EntitlementsStep.h"
+#include "steps/GetSkinStep.h"
+#include "steps/LauncherLoginStep.h"
+#include "steps/MSADeviceCodeStep.h"
+#include "steps/MSAStep.h"
+#include "steps/MinecraftProfileStep.h"
+#include "steps/XboxAuthorizationStep.h"
+#include "steps/XboxUserStep.h"
 
 // Elyby
-#include "elyby/steps/ElyDeviceCodeStep.h"
-#include "elyby/steps/ElyStep.h"
-#include "elyby/steps/MinecraftProfileStepEly.h"
+#include "steps/ElyDeviceCodeStep.h"
+#include "steps/ElyStep.h"
+#include "steps/MinecraftProfileStepEly.h"
 
 // Custom
-#include "custom/steps/CustomAuthStep.h"
-#include "custom/steps/CustomGetSkinStep.h"
-#include "custom/steps/CustomRefreshStep.h"
+#include "steps/CustomGetSkinStep.h"
+#include "steps/CustomAuthStep.h"
+#include "steps/CustomRefreshStep.h"
 
 AuthFlow::AuthFlow(AccountData* data, Action action, QString password) : Task(), m_data(data)
 {
@@ -44,11 +43,9 @@ AuthFlow::AuthFlow(AccountData* data, Action action, QString password) : Task(),
                 m_steps.append(oauthStep);
             }
             m_steps.append(makeShared<XboxUserStep>(m_data));
-            m_steps.append(makeShared<XboxAuthorizationStep>(m_data, &m_data->xboxApiToken, "http://xboxlive.com", "Xbox"));
             m_steps.append(
                 makeShared<XboxAuthorizationStep>(m_data, &m_data->mojangservicesToken, "rp://api.minecraftservices.com/", "Mojang"));
             m_steps.append(makeShared<LauncherLoginStep>(m_data));
-            m_steps.append(makeShared<XboxProfileStep>(m_data));
             m_steps.append(makeShared<EntitlementsStep>(m_data));
             m_steps.append(makeShared<MinecraftProfileStep>(m_data));
             m_steps.append(makeShared<GetSkinStep>(m_data));
@@ -108,6 +105,7 @@ void AuthFlow::nextStep()
     }
     m_currentStep = m_steps.front();
     qDebug() << "AuthFlow:" << m_currentStep->describe();
+    setStatus(m_currentStep->describe());
     m_steps.pop_front();
     connect(m_currentStep.get(), &AuthStep::finished, this, &AuthFlow::stepFinished);
 
@@ -131,7 +129,9 @@ bool AuthFlow::changeState(AccountTaskState newState, QString reason)
             return true;
         }
         case AccountTaskState::STATE_WORKING: {
-            setStatus(m_currentStep ? m_currentStep->describe() : tr("Working..."));
+            if (!m_currentStep) {
+                setStatus(tr("Preparing to log in..."));
+            }
             m_data->accountState = AccountState::Working;
             return true;
         }
@@ -187,8 +187,8 @@ bool AuthFlow::changeState(AccountTaskState newState, QString reason)
 }
 bool AuthFlow::abort()
 {
-    emitAborted();
     if (m_currentStep)
         m_currentStep->abort();
+    emitAborted();
     return true;
 }

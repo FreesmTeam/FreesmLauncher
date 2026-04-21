@@ -1,7 +1,7 @@
 # Template based on https://gitlab.archlinux.org/archlinux/rfcs/-/blob/0ba3b61e987e197f8d1901709409b8564958f78a/rfcs/0000-template.rst
 name: Request for Comment (RFC)
 description: Propose a larger change and start a discussion.
-labels: [rfc]
+labels: [ "type: enhancement", "status: needs discussion", "status: needs triage" ]
 body:
 - type: markdown
   attributes:
@@ -44,8 +44,8 @@ body:
   attributes:
     label: Unresolved Questions
     description: |
-      Are there any portions of your proposal which need to be discussed with the community before the RFC can proceed? 
-      Be careful here -- an RFC with a lot of remaining questions is likely to be stalled. 
+      Are there any portions of your proposal which need to be discussed with the community before the RFC can proceed?
+      Be careful here -- an RFC with a lot of remaining questions is likely to be stalled.
       If your RFC is mostly unresolved questions and not too much substance, it may not be ready.
     placeholder: Do a lot of users care about the cat?
   validations:

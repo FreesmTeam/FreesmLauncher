@@ -94,12 +94,12 @@ void LauncherPartLaunch::executeTask()
 
     m_launchScript = instance->createLaunchScript(m_session, m_targetToJoin);
     QStringList args = instance->javaArguments();
-    if (m_session->authlib_injector_ready) {
+    if (m_session->wants_authlib_injector) {
         args.append("-javaagent:" + QDir::current().absoluteFilePath("authlib-injector.jar") + '=' + m_session->authlib_injector_auth_url);
         args.append("-Dauthlibinjector.noShowServerName");
     }
-    QString allArgs = args.join(", ");
-    emit logLine("Java Arguments:\n[" + m_parent->censorPrivateInfo(allArgs) + "]\n\n", MessageLevel::Launcher);
+    QString allArgs = args.join(" ");
+    emit logLine("Java arguments:\n  " + m_parent->censorPrivateInfo(allArgs) + "\n", MessageLevel::Launcher);
 
     auto javaPath = FS::ResolveExecutable(instance->settings()->get("JavaPath").toString());
 

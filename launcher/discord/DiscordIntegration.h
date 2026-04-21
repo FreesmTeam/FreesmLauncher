@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-only
 /*
  *  Freesm Launcher - Minecraft Launcher
- *  Copyright (C) 2025 so5iso4ka <so5iso4ka@icloud.com>
+ *  Copyright (C) 2026 so5iso4ka <so5iso4ka@icloud.com>
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -32,9 +32,9 @@ class DiscordIntegration : public QObject {
     explicit DiscordIntegration(bool showAlways);
     ~DiscordIntegration() override;
 
-   public:
-    void instanceStarted(const std::shared_ptr<BaseInstance>& instance);
-    void instanceStopped(const std::shared_ptr<BaseInstance>& instance);
+   public slots:
+    void instanceStarted(const BaseInstance* instance);
+    void instanceStopped(const BaseInstance* instance);
 
     void showAlways(bool state);
 
@@ -47,7 +47,6 @@ class DiscordIntegration : public QObject {
 
    private:
     std::unique_ptr<DiscordSocket> m_socket;
-
     std::unique_ptr<DiscordQueue> m_queue;
 
     bool m_showAlways;

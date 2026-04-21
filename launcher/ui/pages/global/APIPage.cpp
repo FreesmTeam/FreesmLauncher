@@ -79,9 +79,12 @@ APIPage::APIPage(QWidget* parent) : QWidget(parent), ui(new Ui::APIPage)
     ui->metaURL->setValidator(new QRegularExpressionValidator(s_validUrlRegExp, ui->metaURL));
     ui->resourceURL->setValidator(new QRegularExpressionValidator(s_validUrlRegExp, ui->resourceURL));
     ui->baseURLEntry->setValidator(new QRegularExpressionValidator(s_validUrlRegExp, ui->baseURLEntry));
+    ui->legacyFMLLibsURL->setValidator(new QRegularExpressionValidator(s_validUrlRegExp, ui->legacyFMLLibsURL));
     ui->msaClientID->setValidator(new QRegularExpressionValidator(s_validMSAClientID, ui->msaClientID));
 
     ui->metaURL->setPlaceholderText(BuildConfig.META_URL);
+    ui->resourceURL->setPlaceholderText(BuildConfig.DEFAULT_RESOURCE_BASE);
+    ui->legacyFMLLibsURL->setPlaceholderText(BuildConfig.LEGACY_FMLLIBS_BASE_URL);
     ui->userAgentLineEdit->setPlaceholderText(BuildConfig.USER_AGENT);
 
     loadSettings();
@@ -136,12 +139,18 @@ void APIPage::loadSettings()
 
     ui->pasteTypeComboBox->setCurrentIndex(pasteTypeIndex);
 
+    if (bool fallbackMRBlockedMods = s->get("FallbackMRBlockedMods").toBool()) {
+        ui->FallbackMRBlockedMods->setChecked(fallbackMRBlockedMods);
+    }
+
     QString msaClientID = s->get("MSAClientIDOverride").toString();
     ui->msaClientID->setText(msaClientID);
     QString metaURL = s->get("MetaURLOverride").toString();
     ui->metaURL->setText(metaURL);
-    QString resourceURL = s->get("ResourceURL").toString();
+    QString resourceURL = s->get("ResourceURLOverride").toString();
     ui->resourceURL->setText(resourceURL);
+    QString fmlLibsURL = s->get("LegacyFMLLibsURLOverride").toString();
+    ui->legacyFMLLibsURL->setText(fmlLibsURL);
     QString flameKey = s->get("FlameKeyOverride").toString();
     ui->flameKey->setText(flameKey);
     QString modrinthToken = s->get("ModrinthToken").toString();
@@ -162,31 +171,27 @@ void APIPage::applySettings()
     s->set("MSAClientIDOverride", msaClientID);
     QUrl metaURL(ui->metaURL->text());
     QUrl resourceURL(ui->resourceURL->text());
-    // Add required trailing slash
-    if (!metaURL.isEmpty() && !metaURL.path().endsWith('/')) {
-        QString path = metaURL.path();
-        path.append('/');
-        metaURL.setPath(path);
-    }
+    QUrl fmlLibsURL(ui->legacyFMLLibsURL->text());
 
-    if (!resourceURL.isEmpty() && !resourceURL.path().endsWith('/')) {
-        QString path = resourceURL.path();
-        path.append('/');
-        resourceURL.setPath(path);
-    }
+    auto addRequiredTrailingSlash = [](QUrl& url) {
+        if (!url.isEmpty() && !url.path().endsWith('/')) {
+            QString path = url.path();
+            path.append('/');
+            url.setPath(path);
+        }
+    };
+    addRequiredTrailingSlash(metaURL);
+    addRequiredTrailingSlash(resourceURL);
+    addRequiredTrailingSlash(fmlLibsURL);
 
-    // Don't allow HTTP, since meta is basically RCE with all the jar files.
-    if (UrlUtils::isUnsafe(metaURL)) {
-        metaURL.setScheme("https");
-    }
+    UrlUtils::upgradeToHTTPS(metaURL);
+    UrlUtils::upgradeToHTTPS(resourceURL);
+    UrlUtils::upgradeToHTTPS(fmlLibsURL);
 
-    // Also don't allow HTTP
-    if (UrlUtils::isUnsafe(resourceURL)) {
-        resourceURL.setScheme("https");
-    }
-
+    s->set("FallbackMRBlockedMods", ui->FallbackMRBlockedMods->checkState());
     s->set("MetaURLOverride", metaURL.toString());
-    s->set("ResourceURL", resourceURL.toString());
+    s->set("ResourceURLOverride", resourceURL.toString());
+    s->set("LegacyFMLLibsURLOverride", fmlLibsURL.toString());
     QString flameKey = ui->flameKey->text();
     s->set("FlameKeyOverride", flameKey);
     QString modrinthToken = ui->modrinthToken->text();

@@ -1,9 +1,9 @@
 #include "LoginWizardPage.h"
 #include "minecraft/auth/AccountList.h"
+#include "ui/dialogs/ChooseOfflineNameDialog.h"
 #include "ui/dialogs/CustomLoginDialog.h"
 #include "ui/dialogs/ElybyLoginDialog.h"
 #include "ui/dialogs/MSALoginDialog.h"
-#include "ui/dialogs/OfflineLoginDialog.h"
 #include "ui_LoginWizardPage.h"
 
 #include "Application.h"
@@ -65,9 +65,15 @@ void LoginWizardPage::on_addElybyButton_clicked()
 void LoginWizardPage::on_addOfflineButton_clicked()
 {
     wizard()->hide();
-    auto account = OfflineLoginDialog::newAccount(nullptr, "Please enter your desired username to add your offline account.");
+    ChooseOfflineNameDialog dialog(tr("Please enter your desired username to add your offline account."), this);
+    auto result = dialog.exec();
     wizard()->show();
+    if (result != QDialog::Accepted) {
+        return;
+    }
+    const MinecraftAccountPtr account = MinecraftAccount::createOffline(dialog.getUsername());
     if (account) {
+        account->login()->start();
         APPLICATION->accounts()->addAccount(account);
         APPLICATION->accounts()->setDefaultAccount(account);
         if (wizard()->currentId() == wizard()->pageIds().last()) {

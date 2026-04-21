@@ -4,16 +4,22 @@
 
 #include "TexturePackModel.h"
 
+#include <utility>
+
 #include "Application.h"
 
 #include "meta/Index.h"
 #include "meta/Version.h"
 
-static std::list<Version> s_availableVersions = {};
+static std::vector<Version> s_availableVersions = {};
 
 namespace ResourceDownload {
-TexturePackResourceModel::TexturePackResourceModel(BaseInstance const& inst, ResourceAPI* api, QString debugName, QString metaEntryBase)
-    : ResourcePackResourceModel(inst, api, debugName, metaEntryBase), m_version_list(APPLICATION->metadataIndex()->get("net.minecraft"))
+TexturePackResourceModel::TexturePackResourceModel(const BaseInstance& inst,
+                                                   ResourceAPI* api,
+                                                   const QString& debugName,
+                                                   QString metaEntryBase)
+    : ResourcePackResourceModel(inst, api, debugName, std::move(metaEntryBase))
+    , m_version_list(APPLICATION->metadataIndex()->get("net.minecraft"))
 {
     if (!m_version_list->isLoaded()) {
         qDebug() << "Loading version list...";

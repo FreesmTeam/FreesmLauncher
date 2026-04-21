@@ -83,13 +83,15 @@ bool PackInstallTask::abort()
 
 void PackInstallTask::executeTask()
 {
-    qDebug() << "PackInstallTask::executeTask: " << QThread::currentThreadId();
+    qDebug() << "PackInstallTask::executeTask:" << QThread::currentThreadId();
     NetJob::Ptr netJob{ new NetJob("ATLauncher::VersionFetch", APPLICATION->network()) };
     auto searchUrl =
         QString(BuildConfig.ATL_DOWNLOAD_SERVER_URL + "packs/%1/versions/%2/Configs.json").arg(m_pack_safe_name).arg(m_version_name);
-    netJob->addNetAction(Net::ApiDownload::makeByteArray(QUrl(searchUrl), response));
 
-    connect(netJob.get(), &NetJob::succeeded, this, &PackInstallTask::onDownloadSucceeded);
+    auto [action, response] = Net::ApiDownload::makeByteArray(QUrl(searchUrl));
+    netJob->addNetAction(action);
+
+    connect(netJob.get(), &NetJob::succeeded, this, [this, response] { onDownloadSucceeded(response); });
     connect(netJob.get(), &NetJob::failed, this, &PackInstallTask::onDownloadFailed);
     connect(netJob.get(), &NetJob::aborted, this, &PackInstallTask::onDownloadAborted);
 
@@ -97,17 +99,20 @@ void PackInstallTask::executeTask()
     jobPtr->start();
 }
 
-void PackInstallTask::onDownloadSucceeded()
+void PackInstallTask::onDownloadSucceeded(QByteArray* responsePtr)
 {
-    qDebug() << "PackInstallTask::onDownloadSucceeded: " << QThread::currentThreadId();
+    qDebug() << "PackInstallTask::onDownloadSucceeded:" << QThread::currentThreadId();
+
+    // NOTE(TheKodeToad): moving the response out to avoid it from being destroyed by jobPtr.reset()
+    QByteArray response = std::move(*responsePtr);
     jobPtr.reset();
 
     QJsonParseError parse_error{};
-    QJsonDocument doc = QJsonDocument::fromJson(*response, &parse_error);
+    QJsonDocument doc = QJsonDocument::fromJson(response, &parse_error);
     if (parse_error.error != QJsonParseError::NoError) {
-        qWarning() << "Error while parsing JSON response from ATLauncher at " << parse_error.offset
-                   << " reason: " << parse_error.errorString();
-        qWarning() << *response.get();
+        qWarning() << "Error while parsing JSON response from ATLauncher at" << parse_error.offset
+                   << "reason:" << parse_error.errorString();
+        qWarning() << response;
         return;
     }
     auto obj = doc.object();
@@ -166,7 +171,7 @@ void PackInstallTask::onDownloadSucceeded()
 
 void PackInstallTask::onDownloadFailed(QString reason)
 {
-    qDebug() << "PackInstallTask::onDownloadFailed: " << QThread::currentThreadId();
+    qDebug() << "PackInstallTask::onDownloadFailed:" << QThread::currentThreadId();
     jobPtr.reset();
     emitFailed(reason);
 }
@@ -423,7 +428,7 @@ QString PackInstallTask::detectLibrary(const VersionLibrary& library)
     return "org.multimc.atlauncher:" + library.md5 + ":1";
 }
 
-bool PackInstallTask::createLibrariesComponent(QString instanceRoot, std::shared_ptr<PackProfile> profile)
+bool PackInstallTask::createLibrariesComponent(QString instanceRoot, PackProfile* profile)
 {
     if (m_version.libraries.isEmpty()) {
         return true;
@@ -447,8 +452,7 @@ bool PackInstallTask::createLibrariesComponent(QString instanceRoot, std::shared
         }
     }
 
-    auto uuid = QUuid::createUuid();
-    auto id = uuid.toString().remove('{').remove('}');
+    auto id = QUuid::createUuid().toString(QUuid::WithoutBraces);
     auto target_id = "org.multimc.atlauncher." + id;
 
     auto patchDir = FS::PathCombine(instanceRoot, "patches");
@@ -532,11 +536,11 @@ bool PackInstallTask::createLibrariesComponent(QString instanceRoot, std::shared
     file.write(OneSixVersionFormat::versionFileToJson(f).toJson());
     file.close();
 
-    profile->appendComponent(ComponentPtr{ new Component(profile.get(), target_id, f) });
+    profile->appendComponent(ComponentPtr{ new Component(profile, target_id, f) });
     return true;
 }
 
-bool PackInstallTask::createPackComponent(QString instanceRoot, std::shared_ptr<PackProfile> profile)
+bool PackInstallTask::createPackComponent(QString instanceRoot, PackProfile* profile)
 {
     if (m_version.mainClass.mainClass.isEmpty() && m_version.extraArguments.arguments.isEmpty()) {
         return true;
@@ -566,8 +570,7 @@ bool PackInstallTask::createPackComponent(QString instanceRoot, std::shared_ptr<
         return true;
     }
 
-    auto uuid = QUuid::createUuid();
-    auto id = uuid.toString().remove('{').remove('}');
+    auto id = QUuid::createUuid().toString(QUuid::WithoutBraces);
     auto target_id = "org.multimc.atlauncher." + id;
 
     auto patchDir = FS::PathCombine(instanceRoot, "patches");
@@ -615,19 +618,19 @@ bool PackInstallTask::createPackComponent(QString instanceRoot, std::shared_ptr<
 
     QFile file(patchFileName);
     if (!file.open(QFile::WriteOnly)) {
-        qCritical() << "Error opening" << file.fileName() << "for reading:" << file.errorString();
+        qCritical() << "Error opening" << file.fileName() << "for writing:" << file.errorString();
         return false;
     }
     file.write(OneSixVersionFormat::versionFileToJson(f).toJson());
     file.close();
 
-    profile->appendComponent(ComponentPtr{ new Component(profile.get(), target_id, f) });
+    profile->appendComponent(ComponentPtr{ new Component(profile, target_id, f) });
     return true;
 }
 
 void PackInstallTask::installConfigs()
 {
-    qDebug() << "PackInstallTask::installConfigs: " << QThread::currentThreadId();
+    qDebug() << "PackInstallTask::installConfigs:" << QThread::currentThreadId();
     setStatus(tr("Downloading configs..."));
     jobPtr.reset(new NetJob(tr("Config download"), APPLICATION->network()));
 
@@ -669,7 +672,7 @@ void PackInstallTask::installConfigs()
 
 void PackInstallTask::extractConfigs()
 {
-    qDebug() << "PackInstallTask::extractConfigs: " << QThread::currentThreadId();
+    qDebug() << "PackInstallTask::extractConfigs:" << QThread::currentThreadId();
     setStatus(tr("Extracting configs..."));
 
     QDir extractDir(m_stagingPath);
@@ -682,7 +685,7 @@ void PackInstallTask::extractConfigs()
 
 void PackInstallTask::downloadMods()
 {
-    qDebug() << "PackInstallTask::installMods: " << QThread::currentThreadId();
+    qDebug() << "PackInstallTask::installMods:" << QThread::currentThreadId();
 
     QList<ATLauncher::VersionMod> optionalMods;
     for (const auto& mod : m_version.mods) {
@@ -819,7 +822,7 @@ void PackInstallTask::downloadMods()
         message_dialog.setModal(true);
 
         if (message_dialog.exec()) {
-            qDebug() << "Post dialog blocked mods list: " << mods;
+            qDebug() << "Post dialog blocked mods list:" << mods;
             for (auto blocked : mods) {
                 if (!blocked.matched) {
                     qDebug() << blocked.name << "was not matched to a local file, skipping copy";
@@ -883,7 +886,7 @@ void PackInstallTask::onModsDownloaded()
 {
     abortable = false;
 
-    qDebug() << "PackInstallTask::onModsDownloaded: " << QThread::currentThreadId();
+    qDebug() << "PackInstallTask::onModsDownloaded:" << QThread::currentThreadId();
     jobPtr.reset();
 
     if (!modsToExtract.empty() || !modsToDecomp.empty() || !modsToCopy.empty()) {
@@ -899,7 +902,7 @@ void PackInstallTask::onModsDownloaded()
 
 void PackInstallTask::onModsExtracted()
 {
-    qDebug() << "PackInstallTask::onModsExtracted: " << QThread::currentThreadId();
+    qDebug() << "PackInstallTask::onModsExtracted:" << QThread::currentThreadId();
     if (m_modExtractFuture.result()) {
         install();
     } else {
@@ -911,7 +914,7 @@ bool PackInstallTask::extractMods(const QMap<QString, VersionMod>& toExtract,
                                   const QMap<QString, VersionMod>& toDecomp,
                                   const QMap<QString, QString>& toCopy)
 {
-    qDebug() << "PackInstallTask::extractMods: " << QThread::currentThreadId();
+    qDebug() << "PackInstallTask::extractMods:" << QThread::currentThreadId();
 
     setStatus(tr("Extracting mods..."));
     for (auto iter = toExtract.begin(); iter != toExtract.end(); iter++) {
@@ -984,72 +987,71 @@ bool PackInstallTask::extractMods(const QMap<QString, VersionMod>& toExtract,
 
 void PackInstallTask::install()
 {
-    qDebug() << "PackInstallTask::install: " << QThread::currentThreadId();
+    qDebug() << "PackInstallTask::install:" << QThread::currentThreadId();
     setStatus(tr("Installing modpack"));
 
     auto instanceConfigPath = FS::PathCombine(m_stagingPath, "instance.cfg");
-    auto instanceSettings = std::make_shared<INISettingsObject>(instanceConfigPath);
-    instanceSettings->suspendSave();
+    MinecraftInstance instance(m_globalSettings, std::make_unique<INISettingsObject>(instanceConfigPath), m_stagingPath);
+    {
+        SettingsObject::Lock lock(instance.settings());
+        auto components = instance.getPackProfile();
+        components->buildingFromScratch();
 
-    MinecraftInstance instance(m_globalSettings, instanceSettings, m_stagingPath);
-    auto components = instance.getPackProfile();
-    components->buildingFromScratch();
-
-    // Use a component to add libraries BEFORE Minecraft
-    if (!createLibrariesComponent(instance.instanceRoot(), components)) {
-        emitFailed(tr("Failed to create libraries component"));
-        return;
-    }
-
-    // Minecraft
-    components->setComponentVersion("net.minecraft", m_version.minecraft, true);
-
-    // Loader
-    if (m_version.loader.type == QString("forge")) {
-        auto version = getVersionForLoader("net.minecraftforge");
-        if (version == Q_NULLPTR)
+        // Use a component to add libraries BEFORE Minecraft
+        if (!createLibrariesComponent(instance.instanceRoot(), components)) {
+            emitFailed(tr("Failed to create libraries component"));
             return;
+        }
 
-        components->setComponentVersion("net.minecraftforge", version);
-    } else if (m_version.loader.type == QString("neoforge")) {
-        auto version = getVersionForLoader("net.neoforged");
-        if (version == Q_NULLPTR)
+        // Minecraft
+        components->setComponentVersion("net.minecraft", m_version.minecraft, true);
+
+        // Loader
+        if (m_version.loader.type == QString("forge")) {
+            auto version = getVersionForLoader("net.minecraftforge");
+            if (version == Q_NULLPTR)
+                return;
+
+            components->setComponentVersion("net.minecraftforge", version);
+        } else if (m_version.loader.type == QString("neoforge")) {
+            auto version = getVersionForLoader("net.neoforged");
+            if (version == Q_NULLPTR)
+                return;
+
+            components->setComponentVersion("net.neoforged", version);
+        } else if (m_version.loader.type == QString("fabric")) {
+            auto version = getVersionForLoader("net.fabricmc.fabric-loader");
+            if (version == Q_NULLPTR)
+                return;
+
+            components->setComponentVersion("net.fabricmc.fabric-loader", version);
+        } else if (m_version.loader.type != QString()) {
+            emitFailed(tr("Unknown loader type: ") + m_version.loader.type);
             return;
+        }
 
-        components->setComponentVersion("net.neoforged", version);
-    } else if (m_version.loader.type == QString("fabric")) {
-        auto version = getVersionForLoader("net.fabricmc.fabric-loader");
-        if (version == Q_NULLPTR)
+        for (const auto& componentUid : componentsToInstall.keys()) {
+            auto version = componentsToInstall.value(componentUid);
+            components->setComponentVersion(componentUid, version->version());
+        }
+
+        components->installJarMods(jarmods);
+
+        // Use a component to fill in the rest of the data
+        // todo: use more detection
+        if (!createPackComponent(instance.instanceRoot(), components)) {
+            emitFailed(tr("Failed to create pack component"));
             return;
+        }
 
-        components->setComponentVersion("net.fabricmc.fabric-loader", version);
-    } else if (m_version.loader.type != QString()) {
-        emitFailed(tr("Unknown loader type: ") + m_version.loader.type);
-        return;
+        components->saveNow();
+
+        instance.setName(name());
+        instance.setIconKey(m_instIcon);
+        instance.setManagedPack("atlauncher", m_pack_safe_name, m_pack_name, m_version_name, m_version_name);
+
+        jarmods.clear();
     }
-
-    for (const auto& componentUid : componentsToInstall.keys()) {
-        auto version = componentsToInstall.value(componentUid);
-        components->setComponentVersion(componentUid, version->version());
-    }
-
-    components->installJarMods(jarmods);
-
-    // Use a component to fill in the rest of the data
-    // todo: use more detection
-    if (!createPackComponent(instance.instanceRoot(), components)) {
-        emitFailed(tr("Failed to create pack component"));
-        return;
-    }
-
-    components->saveNow();
-
-    instance.setName(name());
-    instance.setIconKey(m_instIcon);
-    instance.setManagedPack("atlauncher", m_pack_safe_name, m_pack_name, m_version_name, m_version_name);
-    instanceSettings->resumeSave();
-
-    jarmods.clear();
     emitSucceeded();
 }
 

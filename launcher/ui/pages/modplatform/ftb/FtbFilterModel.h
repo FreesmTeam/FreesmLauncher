@@ -20,11 +20,10 @@
 
 namespace Ftb {
 
-class FilterModel : public QSortFilterProxyModel
-{
+class FilterModel : public QSortFilterProxyModel {
     Q_OBJECT
 
-public:
+   public:
     FilterModel(QObject* parent = Q_NULLPTR);
     enum Sorting {
         ByPlays,
@@ -37,15 +36,14 @@ public:
     Sorting getCurrentSorting();
     void setSearchTerm(const QString& term);
 
-protected:
-    bool filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const override;
-    bool lessThan(const QModelIndex &left, const QModelIndex &right) const override;
+   protected:
+    bool filterAcceptsRow(int sourceRow, const QModelIndex& sourceParent) const override;
+    bool lessThan(const QModelIndex& left, const QModelIndex& right) const override;
 
-private:
-    QMap<QString, Sorting> sortings;
-    Sorting currentSorting;
-    QString searchTerm { "" };
-
+   private:
+    QMap<QString, Sorting> m_sortings;
+    Sorting m_currentSorting;
+    QString m_searchTerm{ "" };
 };
 
-}
+}  // namespace Ftb

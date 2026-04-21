@@ -24,7 +24,7 @@
 #include <memory>
 #include "archive/ArchiveReader.h"
 
-void Technic::TechnicPackProcessor::run(SettingsObjectPtr globalSettings,
+void Technic::TechnicPackProcessor::run(SettingsObject* globalSettings,
                                         const QString& instName,
                                         const QString& instIcon,
                                         const QString& stagingPath,
@@ -33,8 +33,8 @@ void Technic::TechnicPackProcessor::run(SettingsObjectPtr globalSettings,
 {
     QString minecraftPath = FS::PathCombine(stagingPath, "minecraft");
     QString configPath = FS::PathCombine(stagingPath, "instance.cfg");
-    auto instanceSettings = std::make_shared<INISettingsObject>(configPath);
-    MinecraftInstance instance(globalSettings, instanceSettings, stagingPath);
+    auto instanceSettings = std::make_unique<INISettingsObject>(configPath);
+    MinecraftInstance instance(globalSettings, std::move(instanceSettings), stagingPath);
 
     instance.setName(instName);
 
@@ -117,7 +117,7 @@ void Technic::TechnicPackProcessor::run(SettingsObjectPtr globalSettings,
     } else if (QFile::exists(versionJson)) {
         QFile file(versionJson);
         if (!file.open(QIODevice::ReadOnly)) {
-            emit failed(tr("Unable to open \"version.json\"!"));
+            emit failed(tr("Unable to open \"version.json\": %1").arg(file.errorString()));
             return;
         }
         data = file.readAll();

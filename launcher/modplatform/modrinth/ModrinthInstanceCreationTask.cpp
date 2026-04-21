@@ -32,10 +32,9 @@ bool ModrinthCreationTask::abort()
     if (!canAbort())
         return false;
 
-    m_abort = true;
     if (m_task)
         m_task->abort();
-    return Task::abort();
+    return InstanceCreationTask::abort();
 }
 
 bool ModrinthCreationTask::updateInstance()
@@ -43,7 +42,7 @@ bool ModrinthCreationTask::updateInstance()
     auto instance_list = APPLICATION->instances();
 
     // FIXME: How to handle situations when there's more than one install already for a given modpack?
-    InstancePtr inst;
+    BaseInstance* inst;
     if (auto original_id = originalInstanceID(); !original_id.isEmpty()) {
         inst = instance_list->getInstanceById(original_id);
         Q_ASSERT(inst);
@@ -116,15 +115,7 @@ bool ModrinthCreationTask::updateInstance()
         // so we're fine removing them!
         if (!old_files.empty()) {
             for (auto const& file : old_files) {
-                if (file.path.isEmpty())
-                    continue;
-                qDebug() << "Scheduling" << file.path << "for removal";
-                m_files_to_remove.append(old_minecraft_dir.absoluteFilePath(file.path));
-                if (file.path.endsWith(".disabled")) {  // remove it if it was enabled/disabled by user
-                    m_files_to_remove.append(old_minecraft_dir.absoluteFilePath(file.path.chopped(9)));
-                } else {
-                    m_files_to_remove.append(old_minecraft_dir.absoluteFilePath(file.path + ".disabled"));
-                }
+                scheduleToDelete(m_parent, old_minecraft_dir, file.path, true);
             }
         }
 
@@ -133,18 +124,12 @@ bool ModrinthCreationTask::updateInstance()
         // FIXME: We may want to do something about disabled mods.
         auto old_overrides = Override::readOverrides("overrides", old_index_folder);
         for (const auto& entry : old_overrides) {
-            if (entry.isEmpty())
-                continue;
-            qDebug() << "Scheduling" << entry << "for removal";
-            m_files_to_remove.append(old_minecraft_dir.absoluteFilePath(entry));
+            scheduleToDelete(m_parent, old_minecraft_dir, entry);
         }
 
         auto old_client_overrides = Override::readOverrides("client-overrides", old_index_folder);
         for (const auto& entry : old_client_overrides) {
-            if (entry.isEmpty())
-                continue;
-            qDebug() << "Scheduling" << entry << "for removal";
-            m_files_to_remove.append(old_minecraft_dir.absoluteFilePath(entry));
+            scheduleToDelete(m_parent, old_minecraft_dir, entry);
         }
     } else {
         // We don't have an old index file, so we may duplicate stuff!
@@ -169,7 +154,7 @@ bool ModrinthCreationTask::updateInstance()
 }
 
 // https://docs.modrinth.com/docs/modpacks/format_definition/
-bool ModrinthCreationTask::createInstance()
+std::unique_ptr<MinecraftInstance> ModrinthCreationTask::createInstance()
 {
     QEventLoop loop;
 
@@ -177,7 +162,7 @@ bool ModrinthCreationTask::createInstance()
 
     QString index_path = FS::PathCombine(m_stagingPath, "modrinth.index.json");
     if (m_files.empty() && !parseManifest(index_path, m_files, true, true))
-        return false;
+        return nullptr;
 
     // Keep index file in case we need it some other time (like when changing versions)
     QString new_index_place(FS::PathCombine(parent_folder, "modrinth.index.json"));
@@ -194,7 +179,7 @@ bool ModrinthCreationTask::createInstance()
         // Apply the overrides
         if (!FS::move(override_path, mcPath)) {
             setError(tr("Could not rename the overrides folder:\n") + "overrides");
-            return false;
+            return nullptr;
         }
     }
 
@@ -207,15 +192,15 @@ bool ModrinthCreationTask::createInstance()
         // Apply the overrides
         if (!FS::overrideFolder(mcPath, client_override_path)) {
             setError(tr("Could not rename the client overrides folder:\n") + "client overrides");
-            return false;
+            return nullptr;
         }
     }
 
     QString configPath = FS::PathCombine(m_stagingPath, "instance.cfg");
-    auto instanceSettings = std::make_shared<INISettingsObject>(configPath);
-    MinecraftInstance instance(m_globalSettings, instanceSettings, m_stagingPath);
+    auto instanceSettings = std::make_unique<INISettingsObject>(configPath);
+    auto instance = std::make_unique<MinecraftInstance>(m_globalSettings, std::move(instanceSettings), m_stagingPath);
 
-    auto components = instance.getPackProfile();
+    auto components = instance->getPackProfile();
     components->buildingFromScratch();
     components->setComponentVersion("net.minecraft", m_minecraft_version, true);
 
@@ -229,19 +214,19 @@ bool ModrinthCreationTask::createInstance()
         components->setComponentVersion("net.neoforged", m_neoForge_version);
 
     if (m_instIcon != "default") {
-        instance.setIconKey(m_instIcon);
+        instance->setIconKey(m_instIcon);
     } else if (!m_managed_id.isEmpty()) {
-        instance.setIconKey("modrinth");
+        instance->setIconKey("modrinth");
     }
 
     // Don't add managed info to packs without an ID (most likely imported from ZIP)
     if (!m_managed_id.isEmpty())
-        instance.setManagedPack("modrinth", m_managed_id, m_managed_name, m_managed_version_id, version());
+        instance->setManagedPack("modrinth", m_managed_id, m_managed_name, m_managed_version_id, version());
     else
-        instance.setManagedPack("modrinth", "", name(), "", "");
+        instance->setManagedPack("modrinth", "", name(), "", "");
 
-    instance.setName(name());
-    instance.saveNow();
+    instance->setName(name());
+    instance->saveNow();
 
     auto downloadMods = makeShared<NetJob>(tr("Mod Download Modrinth"), APPLICATION->network());
 
@@ -257,7 +242,7 @@ bool ModrinthCreationTask::createInstance()
             // This means we somehow got out of the root folder, so abort here to prevent exploits
             setError(tr("One of the files has a path that leads to an arbitrary location (%1). This is a security risk and isn't allowed.")
                          .arg(fileName));
-            return false;
+            return nullptr;
         }
         if (fileName.startsWith("mods/")) {
             auto mod = new Mod(file_path);
@@ -268,7 +253,7 @@ bool ModrinthCreationTask::createInstance()
         }
         if (file.downloads.empty()) {
             setError(tr("The file '%1' is missing a download link. This is invalid in the pack format.").arg(fileName));
-            return false;
+            return nullptr;
         }
         qDebug() << "Will try to download" << file.downloads.front() << "to" << file_path;
         auto dl = Net::ApiDownload::makeFile(file.downloads.dequeue(), file_path);
@@ -312,11 +297,11 @@ bool ModrinthCreationTask::createInstance()
         for (auto resource : resources) {
             delete resource;
         }
-        return ended_well;
+        return nullptr;
     }
 
     QEventLoop ensureMetaLoop;
-    QDir folder = FS::PathCombine(instance.modsRoot(), ".index");
+    QDir folder = FS::PathCombine(instance->modsRoot(), ".index");
     auto ensureMetadataTask = makeShared<EnsureMetadataTask>(resources, folder, ModPlatform::ResourceProvider::MODRINTH);
     connect(ensureMetadataTask.get(), &Task::succeeded, this, [&ended_well]() { ended_well = true; });
     connect(ensureMetadataTask.get(), &Task::finished, &ensureMetaLoop, &QEventLoop::quit);
@@ -343,15 +328,18 @@ bool ModrinthCreationTask::createInstance()
         // Only change the name if it didn't use a custom name, so that the previous custom name
         // is preserved, but if we're using the original one, we update the version string.
         // NOTE: This needs to come before the copyManagedPack call!
-        if (inst->name().contains(inst->getManagedPackVersionName()) && inst->name() != instance.name()) {
-            if (askForChangingInstanceName(m_parent, inst->name(), instance.name()) == InstanceNameChange::ShouldChange)
-                inst->setName(instance.name());
+        if (inst->name().contains(inst->getManagedPackVersionName()) && inst->name() != instance->name()) {
+            if (askForChangingInstanceName(m_parent, inst->name(), instance->name()) == InstanceNameChange::ShouldChange)
+                inst->setName(instance->name());
         }
 
-        inst->copyManagedPack(instance);
+        inst->copyManagedPack(*instance);
     }
 
-    return ended_well;
+    if (ended_well) {
+        return instance;
+    }
+    return nullptr;
 }
 
 bool ModrinthCreationTask::parseManifest(const QString& index_path,

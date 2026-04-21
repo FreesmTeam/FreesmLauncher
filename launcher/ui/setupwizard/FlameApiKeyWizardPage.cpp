@@ -21,6 +21,7 @@
 #include <QVBoxLayout>
 
 #include "Application.h"
+#include "settings/SettingsObject.h"
 #include "ui/GuiUtil.h"
 
 #include "FlameApiKeyWizardPage.h"

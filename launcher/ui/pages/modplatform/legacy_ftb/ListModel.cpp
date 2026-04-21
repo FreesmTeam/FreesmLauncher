@@ -35,6 +35,7 @@
 
 #include "ListModel.h"
 #include "Application.h"
+#include "settings/SettingsObject.h"
 #include "net/ApiDownload.h"
 #include "net/HttpMetaCache.h"
 #include "net/NetJob.h"
@@ -191,6 +192,7 @@ QVariant ListModel::data(const QModelIndex& index, int role) const
                 // bugged pack, currently only indicates bugged xml
                 return QColor(244, 229, 66);
             }
+            return {};
         }
         case Qt::DisplayRole:
             return pack.name;

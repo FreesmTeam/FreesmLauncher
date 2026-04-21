@@ -60,6 +60,8 @@
    <addaction name="actionRemove"/>
    <addaction name="actionSetDefault"/>
    <addaction name="actionNoDefault"/>
+      <addaction name="actionMoveUp"/>
+      <addaction name="actionMoveDown"/>
    <addaction name="separator"/>
    <addaction name="actionManageSkins"/>
   </widget>
@@ -121,6 +123,16 @@
    </property>
    <property name="toolTip">
     <string>Add custom authentication system account</string>
+   </property>
+  </action>
+     <action name="actionMoveUp">
+         <property name="text">
+             <string>Move &amp;Up</string>
+         </property>
+     </action>
+     <action name="actionMoveDown">
+         <property name="text">
+             <string>Move &amp;Down</string>
    </property>
   </action>
  </widget>

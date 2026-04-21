@@ -1,4 +1,6 @@
 #include "ApplyLibraryOverrides.h"
+
+#include <utility>
 #include "Application.h"
 #include "BuildConfig.h"
 #include "launch/LaunchTask.h"
@@ -7,7 +9,7 @@
 #include "net/NetJob.h"
 
 ApplyLibraryOverrides::ApplyLibraryOverrides(LaunchTask* parent, AuthSessionPtr session)
-    : LaunchStep(parent), m_session(session), m_instance(m_parent->instance())
+    : LaunchStep(parent), m_session(std::move(session)), m_instance(m_parent->instance())
 {}
 
 void ApplyLibraryOverrides::executeTask()
@@ -18,20 +20,20 @@ void ApplyLibraryOverrides::executeTask()
 void ApplyLibraryOverrides::downloadLibraryOverrideList()
 {
     const auto libraryOverrideListUrl = QUrl(m_isFirstDownloadTry ? BuildConfig.EPL_META_URL : BuildConfig.EPL_META_FALLBACK_URL);
-    m_response = std::make_shared<QByteArray>();
-    m_request = Net::Download::makeByteArray(libraryOverrideListUrl, m_response);
+    auto [request, response] = Net::Download::makeByteArray(libraryOverrideListUrl);
+    m_request = std::move(request);
 
     m_task.reset(new NetJob("Fetch EPL metadata", APPLICATION->network()));
     m_task->addNetAction(m_request);
     m_task->setAskRetry(false);
 
-    connect(m_task.get(), &NetJob::finished, this, &ApplyLibraryOverrides::onLibraryOverrideDownloadFinished);
+    connect(m_task.get(), &NetJob::finished, this, [this, response] { onLibraryOverrideDownloadFinished(response); });
     connect(m_task.get(), &NetJob::aborted, this, [this] { emitFailed(tr("Aborted")); });
 
     m_task->start();
 }
 
-void ApplyLibraryOverrides::onLibraryOverrideDownloadFinished()
+void ApplyLibraryOverrides::onLibraryOverrideDownloadFinished(const QByteArray* response)
 {
     if (m_request->error() != QNetworkReply::NoError) {
         if (m_isFirstDownloadTry) {
@@ -43,7 +45,7 @@ void ApplyLibraryOverrides::onLibraryOverrideDownloadFinished()
     }
 
     QJsonParseError jsonError;
-    const QJsonDocument doc = QJsonDocument::fromJson(*m_response, &jsonError);
+    const QJsonDocument doc = QJsonDocument::fromJson(*response, &jsonError);
     if (jsonError.error) {
         emitFailed("Failed to parse EPL metadata.");
         return;
@@ -57,7 +59,7 @@ void ApplyLibraryOverrides::onLibraryOverrideDownloadFinished()
         const auto library = libraries.at(i);
         const QString& libraryArtifact = library->artifactPrefix();
         const bool isAuthlib = libraryArtifact == "com.mojang:authlib";
-        if (isAuthlib && !m_session->wants_ely_patch) {
+        if (isAuthlib) {
             continue;
         }
 

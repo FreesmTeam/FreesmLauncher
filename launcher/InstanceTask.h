@@ -8,6 +8,8 @@ enum class InstanceNameChange { ShouldChange, ShouldKeep };
 [[nodiscard]] InstanceNameChange askForChangingInstanceName(QWidget* parent, const QString& old_name, const QString& new_name);
 enum class ShouldUpdate { Update, SkipUpdating, Cancel };
 [[nodiscard]] ShouldUpdate askIfShouldUpdate(QWidget* parent, QString original_version_name);
+enum class ShouldDeleteSaves { NotAsked, Yes, No };
+[[nodiscard]] ShouldDeleteSaves askIfShouldDeleteSaves(QWidget* parent);
 
 struct InstanceName {
    public:
@@ -35,7 +37,7 @@ class InstanceTask : public Task, public InstanceName {
     InstanceTask();
     ~InstanceTask() override = default;
 
-    void setParentSettings(SettingsObjectPtr settings) { m_globalSettings = settings; }
+    void setParentSettings(SettingsObject* settings) { m_globalSettings = settings; }
 
     void setStagingPath(const QString& stagingPath) { m_stagingPath = stagingPath; }
 
@@ -60,7 +62,7 @@ class InstanceTask : public Task, public InstanceName {
     }
 
    protected: /* data */
-    SettingsObjectPtr m_globalSettings;
+    SettingsObject* m_globalSettings;
     QString m_instIcon;
     QString m_instGroup;
     QString m_stagingPath;
