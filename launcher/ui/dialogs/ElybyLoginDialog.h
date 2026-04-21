@@ -20,7 +20,7 @@
 #include <QtWidgets/QDialog>
 
 #include "minecraft/auth/AuthFlow.h"
-#include "minecraft/auth/elyby/ElybyAccount.h"
+#include "minecraft/auth/MinecraftAccount.h"
 
 namespace Ui {
 class ElybyLoginDialog;
@@ -32,7 +32,7 @@ class ElybyLoginDialog : public QDialog {
    public:
     ~ElybyLoginDialog();
 
-    static ElybyAccountPtr newAccount(QWidget* parent);
+    static MinecraftAccountPtr newAccount(QWidget* parent);
     int exec() override;
 
    private:
@@ -47,7 +47,7 @@ class ElybyLoginDialog : public QDialog {
 
    private:
     Ui::ElybyLoginDialog* ui;
-    ElybyAccountPtr m_account;
+    MinecraftAccountPtr m_account;
     shared_qobject_ptr<AuthFlow> m_devicecode_task;
     shared_qobject_ptr<AuthFlow> m_authflow_task;
 

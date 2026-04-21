@@ -61,6 +61,36 @@ ModDetails ReadMCModInfo(QByteArray contents)
         for (auto author : authors) {
             details.authors.append(author.toString());
         }
+
+        if (details.mod_id.startsWith("mod_")) {
+            details.mod_id = details.mod_id.mid(4);
+        }
+
+        auto addDep = [&details](QString dep) {
+            if (dep == "mod_MinecraftForge" || dep == "Forge")
+                return;
+            if (dep.contains(":")) {
+                dep = dep.section(":", 1);
+            }
+            if (dep.contains("@")) {
+                dep = dep.section("@", 0, 0);
+            }
+            if (dep.startsWith("mod_")) {
+                dep = dep.mid(4);
+            }
+            details.dependencies.append(dep);
+        };
+
+        if (firstObj.contains("requiredMods")) {
+            for (auto dep : firstObj.value("requiredMods").toArray()) {
+                addDep(dep.toString());
+            }
+        } else if (firstObj.contains("dependencies")) {
+            for (auto dep : firstObj.value("dependencies").toArray()) {
+                addDep(dep.toString());
+            }
+        }
+
         return details;
     };
     QJsonParseError jsonError;
@@ -198,6 +228,51 @@ ModDetails ReadMCModTOML(QByteArray contents)
     }
     details.icon_file = logoFile;
 
+    auto parseDep = [&details](toml::array* dependencies) {
+        static const QStringList ignoreModIds = { "", "forge", "neoforge", "minecraft" };
+        if (!dependencies) {
+            return;
+        }
+        auto isNeoForgeDep = [](toml::table* t) {
+            auto type = (*t)["type"].as_string();
+            return type && type->get() == "required";
+        };
+        auto isForgeDep = [](toml::table* t) {
+            auto mandatory = (*t)["mandatory"].as_boolean();
+            return mandatory && mandatory->get();
+        };
+        for (auto& dep : *dependencies) {
+            auto dep_table = dep.as_table();
+            if (!dep_table) {
+                continue;
+            }
+            auto modId = (*dep_table)["modId"].as_string();
+            if (!modId || ignoreModIds.contains(QString::fromStdString(modId->get()))) {
+                continue;
+            }
+            if (isNeoForgeDep(dep_table) || isForgeDep(dep_table)) {
+                details.dependencies.append(QString::fromStdString(modId->get()));
+            }
+        }
+    };
+
+    if (tomlData.contains("dependencies")) {
+        auto depValue = tomlData["dependencies"];
+        if (auto array = depValue.as_array()) {
+            parseDep(array);
+        } else if (auto depTable = depValue.as_table()) {
+            auto expectedKey = details.mod_id.toStdString();
+            if (!depTable->contains(expectedKey)) {
+                if (auto it = depTable->begin(); it != depTable->end()) {
+                    expectedKey = it->first;
+                }
+            }
+            if ((array = (*depTable)[expectedKey].as_array())) {
+                parseDep(array);
+            }
+        }
+    }
+
     return details;
 }
 
@@ -276,13 +351,24 @@ ModDetails ReadFabricModInfo(QByteArray contents)
                     details.icon_file = obj.value(key).toString();
                 } else {  // parsing the sizes failed
                     // take the first
-                    for (auto i : obj) {
-                        details.icon_file = i.toString();
-                        break;
+                    if (auto it = obj.begin(); it != obj.end()) {
+                        details.icon_file = it->toString();
                     }
                 }
             } else if (icon.isString()) {
                 details.icon_file = icon.toString();
+            }
+        }
+
+        if (object.contains("depends")) {
+            auto depends = object.value("depends");
+            if (depends.isObject()) {
+                auto obj = depends.toObject();
+                for (auto key : obj.keys()) {
+                    if (key != "fabricloader" && key != "minecraft" && !key.startsWith("fabric-")) {
+                        details.dependencies.append(key);
+                    }
+                }
             }
         }
     }
@@ -363,13 +449,35 @@ ModDetails ReadQuiltModInfo(QByteArray contents)
                         details.icon_file = obj.value(key).toString();
                     } else {  // parsing the sizes failed
                         // take the first
-                        for (auto i : obj) {
-                            details.icon_file = i.toString();
-                            break;
+                        if (auto it = obj.begin(); it != obj.end()) {
+                            details.icon_file = it->toString();
                         }
                     }
                 } else if (icon.isString()) {
                     details.icon_file = icon.toString();
+                }
+            }
+            if (object.contains("depends")) {
+                auto depends = object.value("depends");
+                if (depends.isArray()) {
+                    auto array = depends.toArray();
+                    for (auto obj : array) {
+                        QString modId;
+                        if (obj.isString()) {
+                            modId = obj.toString();
+                        } else if (obj.isObject()) {
+                            auto objValue = obj.toObject();
+                            modId = objValue.value("id").toString();
+                            if (objValue.contains("optional") && objValue.value("optional").toBool()) {
+                                continue;
+                            }
+                        } else {
+                            continue;
+                        }
+                        if (modId != "minecraft" && !modId.startsWith("quilt_")) {
+                            details.dependencies.append(modId);
+                        }
+                    }
                 }
             }
         }
@@ -460,7 +568,7 @@ bool process(Mod& mod, ProcessingLevel level)
         case ResourceType::LITEMOD:
             return processLitemod(mod);
         default:
-            qWarning() << "Invalid type for mod parse task!";
+            qWarning() << "Invalid type" << mod.type() << "for mod parse task!";
             return false;
     }
 }
@@ -643,7 +751,7 @@ bool loadIconFile(const Mod& mod, QPixmap* pixmap)
             if (icon_info.exists() && icon_info.isFile()) {
                 QFile icon(icon_info.filePath());
                 if (!icon.open(QIODevice::ReadOnly)) {
-                    return png_invalid("failed  to open file " + icon_info.filePath());
+                    return png_invalid("failed to open file " + icon_info.filePath() + " " + icon.errorString());
                 }
                 auto data = icon.readAll();
 

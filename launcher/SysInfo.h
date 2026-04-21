@@ -1,9 +1,12 @@
 #pragma once
+
+#include <cstdint>
+
 #include <QString>
 
 namespace SysInfo {
 QString currentSystem();
 QString useQTForArch();
 QString getSupportedJavaArchitecture();
-int suitableMaxMem();
+int defaultMaxJvmMem();
 }  // namespace SysInfo

@@ -16,7 +16,7 @@
 #pragma once
 
 #include <launch/LaunchStep.h>
-#include <minecraft/auth/BaseAccount.h>
+#include <minecraft/auth/MinecraftAccount.h>
 #include "minecraft/MinecraftInstance.h"
 #include "net/Download.h"
 #include "net/NetJob.h"
@@ -25,17 +25,21 @@ class ApplyLibraryOverrides : public LaunchStep {
     Q_OBJECT
    public:
     explicit ApplyLibraryOverrides(LaunchTask* parent, AuthSessionPtr session);
-    virtual ~ApplyLibraryOverrides() = default;
+    ~ApplyLibraryOverrides() override = default;
 
-    void executeTask() override;
-    void downloadLibraryOverrideList();
-    void onLibraryOverrideDownloadFinished();
     bool canAbort() const override { return false; }
 
+   protected:
+    void executeTask() override;
+
+   private slots:
+    void onLibraryOverrideDownloadFinished(const QByteArray* response);
+
    private:
+    void downloadLibraryOverrideList();
+
     AuthSessionPtr m_session;
-    MinecraftInstancePtr m_instance;
-    std::shared_ptr<QByteArray> m_response = std::make_shared<QByteArray>();
+    MinecraftInstance* m_instance;
     Net::Download::Ptr m_request;
     NetJob::Ptr m_task;
     bool m_isFirstDownloadTry = true;

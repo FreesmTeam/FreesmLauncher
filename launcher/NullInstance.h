@@ -41,8 +41,8 @@
 class NullInstance : public BaseInstance {
     Q_OBJECT
    public:
-    NullInstance(SettingsObjectPtr globalSettings, SettingsObjectPtr settings, const QString& rootDir)
-        : BaseInstance(globalSettings, settings, rootDir)
+    NullInstance(SettingsObject* globalSettings, std::unique_ptr<SettingsObject> settings, const QString& rootDir)
+        : BaseInstance(globalSettings, std::move(settings), rootDir)
     {
         setVersionBroken(true);
     }
@@ -50,10 +50,10 @@ class NullInstance : public BaseInstance {
     void saveNow() override {}
     void loadSpecificSettings() override { setSpecificSettingsLoaded(true); }
     QString getStatusbarDescription() override { return tr("Unknown instance type"); };
-    QString getVersionString() override { return ""; }
+    QString getVersionString() const override { return ""; }
     QSet<QString> traits() const override { return {}; };
     QString instanceConfigFolder() const override { return instanceRoot(); };
-    shared_qobject_ptr<LaunchTask> createLaunchTask(AuthSessionPtr, MinecraftTarget::Ptr) override { return nullptr; }
+    LaunchTask* createLaunchTask(AuthSessionPtr, MinecraftTarget::Ptr) override { return nullptr; }
     QList<Task::Ptr> createUpdateTask() override { return {}; }
     QProcessEnvironment createEnvironment() override { return QProcessEnvironment(); }
     QProcessEnvironment createLaunchEnvironment() override { return QProcessEnvironment(); }

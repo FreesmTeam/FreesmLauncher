@@ -36,7 +36,6 @@
 #include "CheckJava.h"
 #include <FileSystem.h>
 #include <launch/LaunchTask.h>
-#include <sys.h>
 #include <QCryptographicHash>
 #include <QFileInfo>
 #include <QStandardPaths>
@@ -68,7 +67,7 @@ void CheckJava::executeTask()
         emitFailed(QString("Java path is not valid."));
         return;
     } else {
-        emit logLine("Java path is:\n" + m_javaPath + "\n\n", MessageLevel::Launcher);
+        emit logLine("Java path is:\n  " + m_javaPath, MessageLevel::Launcher);
     }
 
     if (JavaUtils::getJavaCheckPath().isEmpty()) {
@@ -146,7 +145,6 @@ void CheckJava::checkJavaFinished(const JavaChecker::Result& result)
 
 void CheckJava::printJavaInfo(const QString& version, const QString& architecture, const QString& realArchitecture, const QString& vendor)
 {
-    emit logLine(
-        QString("Java is version %1, using %2 (%3) architecture, from %4.\n\n").arg(version, architecture, realArchitecture, vendor),
-        MessageLevel::Launcher);
+    emit logLine(QString("Java is version %1, using %2 (%3) architecture, from %4").arg(version, architecture, realArchitecture, vendor),
+                 MessageLevel::Launcher);
 }

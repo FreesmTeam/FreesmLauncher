@@ -5,4 +5,5 @@
 namespace UrlUtils {
 bool isLocalhost(const QUrl& url);
 bool isUnsafe(const QUrl& url);
+void upgradeToHTTPS(QUrl& url);
 }

@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-only
 /*
  *  Freesm Launcher - Minecraft Launcher
- *  Copyright (C) 2025 so5iso4ka <so5iso4ka@icloud.com>
+ *  Copyright (C) 2026 so5iso4ka <so5iso4ka@icloud.com>
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -18,11 +18,13 @@
 
 #include "ApplyAuthlibInjector.h"
 
+#include <utility>
+
 #include "Application.h"
 #include "launch/LaunchTask.h"
 
 ApplyAuthlibInjector::ApplyAuthlibInjector(LaunchTask* parent, AuthSessionPtr session)
-    : LaunchStep(parent), m_session(session), m_instance(m_parent->instance())
+    : LaunchStep(parent), m_session(std::move(session)), m_instance(m_parent->instance())
 {}
 
 void ApplyAuthlibInjector::executeTask()
@@ -42,6 +44,5 @@ void ApplyAuthlibInjector::executeTask()
 
 void ApplyAuthlibInjector::onRequestDone()
 {
-    m_session->authlib_injector_ready = true;
     emitSucceeded();
 }

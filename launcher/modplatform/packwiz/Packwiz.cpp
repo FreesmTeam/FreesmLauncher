@@ -22,73 +22,89 @@
 #include <QDebug>
 #include <QDir>
 #include <QObject>
+#include <algorithm>
+#include <compare>
 #include <sstream>
 #include <string>
+#include <utility>
 
 #include "FileSystem.h"
 #include "StringUtils.h"
 
+#include "Version.h"
 #include "modplatform/ModIndex.h"
 
 #include <toml++/toml.h>
 
 namespace Packwiz {
 
-auto getRealIndexName(const QDir& index_dir, QString normalized_fname, bool should_find_match) -> QString
+namespace {
+auto getRealIndexName(const QDir& indexDir, const QString& normalizedFname, bool shouldFindMatch = false) -> QString
 {
-    QFile index_file(index_dir.absoluteFilePath(normalized_fname));
+    const QFile indexFile(indexDir.absoluteFilePath(normalizedFname));
 
-    QString real_fname = normalized_fname;
-    if (!index_file.exists()) {
+    QString realFname = normalizedFname;
+    if (!indexFile.exists()) {
         // Tries to get similar entries
-        for (auto& file_name : index_dir.entryList(QDir::Filter::Files)) {
-            if (!QString::compare(normalized_fname, file_name, Qt::CaseInsensitive)) {
-                real_fname = file_name;
+        for (auto& fileName : indexDir.entryList(QDir::Filter::Files)) {
+            if (QString::compare(normalizedFname, fileName, Qt::CaseInsensitive) == 0) {
+                realFname = fileName;
                 break;
             }
         }
 
-        if (should_find_match && !QString::compare(normalized_fname, real_fname, Qt::CaseSensitive)) {
+        if (shouldFindMatch && (QString::compare(normalizedFname, realFname, Qt::CaseSensitive) == 0)) {
             qCritical() << "Could not find a match for a valid metadata file!";
-            qCritical() << "File: " << normalized_fname;
+            qCritical() << "File:" << normalizedFname;
             return {};
         }
     }
 
-    return real_fname;
+    return realFname;
 }
 
 // Helpers
-static inline auto indexFileName(QString const& mod_slug) -> QString
+auto indexFileName(const QString& modSlug) -> QString
 {
-    if (mod_slug.endsWith(".pw.toml"))
-        return mod_slug;
-    return QString("%1.pw.toml").arg(mod_slug);
+    if (modSlug.endsWith(".pw.toml")) {
+        return modSlug;
+    }
+    return QString("%1.pw.toml").arg(modSlug);
 }
 
 // Helper functions for extracting data from the TOML file
-auto stringEntry(toml::table table, QString entry_name) -> QString
+auto stringEntry(toml::table table, const QString& entryName) -> QString
 {
-    auto node = table[StringUtils::toStdString(entry_name)];
+    auto* node = table.get(StringUtils::toStdString(entryName));
     if (!node) {
-        qDebug() << "Failed to read str property '" + entry_name + "' in mod metadata.";
+        qDebug() << "Failed to read str property '" + entryName + "' in mod metadata.";
         return {};
     }
 
-    return node.value_or("");
+    return node->value_or("");
 }
 
-auto intEntry(toml::table table, QString entry_name) -> int
+auto intEntry(toml::table table, const QString& entryName) -> int
 {
-    auto node = table[StringUtils::toStdString(entry_name)];
+    auto* node = table.get(StringUtils::toStdString(entryName));
     if (!node) {
-        qDebug() << "Failed to read int property '" + entry_name + "' in mod metadata.";
+        qDebug() << "Failed to read int property '" + entryName + "' in mod metadata.";
         return {};
     }
 
-    return node.value_or(0);
+    return node->value_or(0);
 }
 
+bool sortMCVersions(const QString& a, const QString& b)
+{
+    auto cmp = Version(a) <=> Version(b);
+    if (cmp == std::strong_ordering::equal) {
+        return a < b;
+    }
+    return cmp == std::strong_ordering::less;
+}
+
+}  // namespace
 auto V1::createModFormat([[maybe_unused]] const QDir& index_dir,
                          ModPlatform::IndexedPack& mod_pack,
                          ModPlatform::IndexedVersion& mod_version) -> Mod
@@ -115,13 +131,15 @@ auto V1::createModFormat([[maybe_unused]] const QDir& index_dir,
     mod.side = mod_version.side == ModPlatform::Side::NoSide ? mod_pack.side : mod_version.side;
     mod.loaders = mod_version.loaders;
     mod.mcVersions = mod_version.mcVersion;
-    mod.mcVersions.sort();
+    mod.mcVersions.removeDuplicates();
+    std::ranges::sort(mod.mcVersions, sortMCVersions);
     mod.releaseType = mod_version.version_type;
 
     mod.version_number = mod_version.version_number;
     if (mod.version_number.isNull())  // on CurseForge, there is only a version name - not a version number
         mod.version_number = mod_version.version;
 
+    mod.dependencies = mod_version.dependencies;
     return mod;
 }
 
@@ -186,8 +204,18 @@ void V1::updateModIndex(const QDir& index_dir, Mod& mod)
     }
 
     if (!index_file.open(QIODevice::ReadWrite)) {
-        qCritical() << QString("Could not open file %1!").arg(normalized_fname);
+        qCritical() << "Could not open file" << normalized_fname << "error:" << index_file.errorString();
         return;
+    }
+
+    toml::array deps;
+    for (auto dep : mod.dependencies) {
+        auto tbl = toml::table{ { "addonId", dep.addonId.toString().toStdString() },
+                                { "type", ModPlatform::DependencyTypeUtils::toString(dep.type).toStdString() } };
+        if (!dep.version.isEmpty()) {
+            tbl.emplace("version", dep.version.toStdString());
+        }
+        deps.push_back(tbl);
     }
 
     // Put TOML data into the file
@@ -200,6 +228,7 @@ void V1::updateModIndex(const QDir& index_dir, Mod& mod)
                                 { "x-prismlauncher-mc-versions", mcVersions },
                                 { "x-prismlauncher-release-type", mod.releaseType.toString().toStdString() },
                                 { "x-prismlauncher-version-number", mod.version_number.toStdString() },
+                                { "x-prismlauncher-dependencies", deps },
                                 { "download",
                                   toml::table{
                                       { "mode", mod.mode.toStdString() },
@@ -251,14 +280,14 @@ auto V1::getIndexForMod(const QDir& index_dir, QString slug) -> Mod
         table = toml::parse_file(StringUtils::toStdString(index_dir.absoluteFilePath(real_fname)));
     } catch (const toml::parse_error& err) {
         qWarning() << QString("Could not open file %1!").arg(normalized_fname);
-        qWarning() << "Reason: " << QString(err.what());
+        qWarning() << "Reason:" << QString(err.what());
         return {};
     }
 #else
     toml::parse_result result = toml::parse_file(StringUtils::toStdString(index_dir.absoluteFilePath(real_fname)));
     if (!result) {
         qWarning() << QString("Could not open file %1!").arg(normalized_fname);
-        qWarning() << "Reason: " << result.error().description();
+        qWarning() << "Reason:" << result.error().description();
         return {};
     }
     table = result.table();
@@ -289,7 +318,8 @@ auto V1::getIndexForMod(const QDir& index_dir, QString slug) -> Mod
                     }
                 }
             }
-            mod.mcVersions.sort();
+            mod.mcVersions.removeDuplicates();
+            std::ranges::sort(mod.mcVersions, sortMCVersions);
         }
     }
     mod.version_number = table["x-prismlauncher-version-number"].value_or("");
@@ -328,6 +358,23 @@ auto V1::getIndexForMod(const QDir& index_dir, QString slug) -> Mod
         } else {
             qCritical() << QString("No mod provider on mod metadata!");
             return {};
+        }
+    }
+    {  // dependencies
+        auto deps = table["x-prismlauncher-dependencies"].as_array();
+        if (deps) {
+            for (auto&& depNode : *deps) {
+                auto dep = depNode.as_table();
+                if (dep) {
+                    ModPlatform::Dependency d;
+                    d.addonId = stringEntry(*dep, "addonId");
+                    if (dep->contains("version")) {
+                        d.version = stringEntry(*dep, "version");
+                    }
+                    d.type = ModPlatform::DependencyTypeUtils::fromString(stringEntry(*dep, "type"));
+                    mod.dependencies << d;
+                }
+            }
         }
     }
 

@@ -52,7 +52,7 @@ QNetworkReply* ImgurUpload::getReply(QNetworkRequest& request)
     auto file = new QFile(m_fileInfo.absoluteFilePath(), this);
 
     if (!file->open(QFile::ReadOnly)) {
-        emitFailed();
+        emitFailed(tr("Could not open file %1 for reading: %2").arg(m_fileInfo.absoluteFilePath()).arg(file->errorString()));
         return nullptr;
     }
 
@@ -120,7 +120,7 @@ Net::NetRequest::Ptr ImgurUpload::make(ScreenShot::Ptr m_shot)
     auto up = makeShared<ImgurUpload>(m_shot->m_file);
     up->m_url = std::move(BuildConfig.IMGUR_BASE_URL + "image");
     up->m_sink.reset(new Sink(m_shot));
-    up->addHeaderProxy(new Net::RawHeaderProxy(QList<Net::HeaderPair>{
+    up->addHeaderProxy(std::make_unique<Net::RawHeaderProxy>(QList<Net::HeaderPair>{
         { "Authorization", QString("Client-ID %1").arg(BuildConfig.IMGUR_CLIENT_ID).toUtf8() }, { "Accept", "application/json" } }));
     return up;
 }

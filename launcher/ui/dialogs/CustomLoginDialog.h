@@ -17,7 +17,7 @@
 
 #include <QDialog>
 
-#include "minecraft/auth/custom/CustomAccount.h"
+#include "minecraft/auth/MinecraftAccount.h"
 #include "net/Download.h"
 #include "tasks/Task.h"
 
@@ -31,7 +31,8 @@ class CustomLoginDialog : public QDialog {
    public:
     ~CustomLoginDialog();
 
-    static CustomAccountPtr newAccount(QWidget* parent, QString message);
+    static MinecraftAccountPtr newAccount(QWidget* parent,
+                                          QString message = tr("Please enter authentication server URL, your username and password."));
 
    private:
     explicit CustomLoginDialog(QWidget* parent = 0);
@@ -56,7 +57,7 @@ class CustomLoginDialog : public QDialog {
 
    private:
     Ui::CustomLoginDialog* ui;
-    CustomAccountPtr m_account;
+    MinecraftAccountPtr m_account;
     Task::Ptr m_loginTask;
     Net::Download::Ptr m_requestTask;
     QUrl m_loginUrl;

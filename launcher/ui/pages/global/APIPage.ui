@@ -32,9 +32,9 @@
                <property name="geometry">
                    <rect>
                        <x>0</x>
-                       <y>-216</y>
-                       <width>816</width>
-                       <height>832</height>
+                       <y>-262</y>
+                       <width>820</width>
+                       <height>908</height>
                    </rect>
                </property>
                <layout class="QVBoxLayout" name="verticalLayout">
@@ -162,8 +162,38 @@
         </widget>
        </item>
        <item>
-           <widget class="QGroupBox" name="groupBox_ua">
-               <property name="minimumSize">
+           <widget class="QGroupBox" name="groupBox_fmllibs">
+               <property name="title">
+                   <string>Legacy FML Libraries Server</string>
+               </property>
+               <layout class="QVBoxLayout" name="verticalLayout_8">
+                   <item>
+                       <widget class="QLabel" name="label">
+                           <property name="text">
+                               <string>You can set this to another server if you have problems with downloading legacy
+                                   FML libraries (Minecraft 1.5.2 and earlier).
+                               </string>
+                           </property>
+                           <property name="textFormat">
+                               <enum>Qt::RichText</enum>
+                           </property>
+                           <property name="wordWrap">
+                               <bool>true</bool>
+                           </property>
+                           <property name="openExternalLinks">
+                               <bool>true</bool>
+                           </property>
+                       </widget>
+                   </item>
+                   <item>
+                       <widget class="QLineEdit" name="legacyFMLLibsURL"/>
+                   </item>
+               </layout>
+           </widget>
+       </item>
+                   <item>
+                       <widget class="QGroupBox" name="groupBox_ua">
+                           <property name="minimumSize">
           <size>
               <width>0</width>
               <height>0</height>
@@ -357,7 +387,7 @@
               </property>
              </widget>
             </item>
-           </layout>           
+              </layout>
           </item>
              <item>
                  <widget class="QLabel" name="label_10">
@@ -366,6 +396,13 @@
             </property>
                      <property name="wordWrap">
                          <bool>true</bool>
+                     </property>
+                 </widget>
+             </item>
+             <item>
+                 <widget class="QCheckBox" name="FallbackMRBlockedMods">
+                     <property name="text">
+                         <string>Enable fallback to Modrinth for blocked mods</string>
             </property>
            </widget>
           </item>

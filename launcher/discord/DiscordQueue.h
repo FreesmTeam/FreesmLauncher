@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-only
 /*
  *  Freesm Launcher - Minecraft Launcher
- *  Copyright (C) 2025 so5iso4ka <so5iso4ka@icloud.com>
+ *  Copyright (C) 2026 so5iso4ka <so5iso4ka@icloud.com>
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -29,8 +29,8 @@ class DiscordQueue : public QObject {
     Q_OBJECT
 
    public:
-    void instanceStarted(const std::shared_ptr<BaseInstance>& instance);
-    void instanceStopped(const std::shared_ptr<BaseInstance>& instance);
+    void instanceStarted(const BaseInstance* instance);
+    void instanceStopped(const BaseInstance* instance);
 
     bool isInstanceRunning();
 
@@ -38,7 +38,7 @@ class DiscordQueue : public QObject {
     void socketReady();
 
    signals:
-    void started(const RunningInstance instance);
+    void started(RunningInstance instance);
     void rest();
 
    private:
@@ -49,9 +49,9 @@ class DiscordQueue : public QObject {
     void processQueue();
 
    private:
-    WeakRunningInstance m_runningInstance;
+    std::optional<RunningInstance> m_currentInstance;
 
-    QQueue<WeakRunningInstance> m_queue;
+    QQueue<RunningInstance> m_queue;
 
     bool m_socketReady{};
 };

@@ -40,6 +40,7 @@
 
 #include "DesktopServices.h"
 #include "minecraft/auth/AuthFlow.h"
+#include "settings/SettingsObject.h"
 
 #include <QApplication>
 #include <QClipboard>
@@ -75,7 +76,7 @@ ElybyLoginDialog::ElybyLoginDialog(QWidget* parent) : QDialog(parent), ui(new Ui
 int ElybyLoginDialog::exec()
 {
     // Setup the login task and start it
-    m_account = ElybyAccount::createElyby();
+    m_account = MinecraftAccount::createBlankElyby();
     m_authflow_task = m_account->login(false);
     connect(m_authflow_task.get(), &Task::failed, this, &ElybyLoginDialog::onTaskFailed);
     connect(m_authflow_task.get(), &Task::succeeded, this, &QDialog::accept);
@@ -168,7 +169,7 @@ void ElybyLoginDialog::onAuthFlowStatus(QString status)
 }
 
 // Public interface
-ElybyAccountPtr ElybyLoginDialog::newAccount(QWidget* parent)
+MinecraftAccountPtr ElybyLoginDialog::newAccount(QWidget* parent)
 {
     ElybyLoginDialog dlg(parent);
     if (dlg.exec() == QDialog::Accepted) {

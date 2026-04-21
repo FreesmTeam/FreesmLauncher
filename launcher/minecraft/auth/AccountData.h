@@ -95,9 +95,6 @@ struct AccountData {
     QJsonObject saveState() const;
     bool resumeStateFromV3(QJsonObject data);
 
-    //! userName for Mojang accounts, gamertag for MSA
-    QString accountDisplayString() const;
-
     //! Yggdrasil access token, as passed to the game.
     QString accessToken() const;
 
@@ -112,7 +109,6 @@ struct AccountData {
     QString clientID;
     Token msaToken;
     Token userToken;
-    Token xboxApiToken;
     Token mojangservicesToken;
 
     //! Custom accounts only

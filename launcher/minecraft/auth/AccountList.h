@@ -35,7 +35,7 @@
 
 #pragma once
 
-#include "minecraft/auth/BaseAccount.h"
+#include "minecraft/auth/MinecraftAccount.h"
 #include "minecraft/auth/AuthFlow.h"
 
 #include <QAbstractListModel>
@@ -55,7 +55,6 @@ class AccountList : public QAbstractListModel {
     enum VListColumns {
         // TODO: Add icon column.
         ProfileNameColumn = 0,
-        NameColumn,
         TypeColumn,
         StatusColumn,
 
@@ -65,7 +64,7 @@ class AccountList : public QAbstractListModel {
     explicit AccountList(QObject* parent = 0);
     virtual ~AccountList() noexcept;
 
-    const BaseAccountPtr at(int i) const;
+    const MinecraftAccountPtr at(int i) const;
     int count() const;
 
     //////// List Model Functions ////////
@@ -76,10 +75,11 @@ class AccountList : public QAbstractListModel {
     virtual Qt::ItemFlags flags(const QModelIndex& index) const override;
     virtual bool setData(const QModelIndex& index, const QVariant& value, int role) override;
 
-    void addAccount(BaseAccountPtr account);
+    void addAccount(MinecraftAccountPtr account);
     void removeAccount(QModelIndex index);
+    void moveAccount(QModelIndex index, int delta);
     int findAccountByProfileId(const QString& profileId) const;
-    BaseAccountPtr getAccountByProfileName(const QString& profileName) const;
+    MinecraftAccountPtr getAccountByProfileName(const QString& profileName) const;
     QStringList profileNames() const;
 
     // requesting a refresh pushes it to the front of the queue
@@ -100,8 +100,8 @@ class AccountList : public QAbstractListModel {
     bool loadV3(QJsonObject& root);
     bool saveList();
 
-    BaseAccountPtr defaultAccount() const;
-    void setDefaultAccount(BaseAccountPtr profileId);
+    MinecraftAccountPtr defaultAccount() const;
+    void setDefaultAccount(MinecraftAccountPtr profileId);
     bool anyAccountIsValid();
 
     bool isActive() const;
@@ -158,9 +158,9 @@ class AccountList : public QAbstractListModel {
      */
     void onDefaultAccountChanged();
 
-    QList<BaseAccountPtr> m_accounts;
+    QList<MinecraftAccountPtr> m_accounts;
 
-    BaseAccountPtr m_defaultAccount;
+    MinecraftAccountPtr m_defaultAccount;
 
     //! Path to the account list file. Empty string if there isn't one.
     QString m_listFilePath;

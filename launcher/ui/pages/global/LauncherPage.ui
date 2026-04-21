@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>742</width>
-    <height>752</height>
+       <width>767</width>
+       <height>796</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -41,9 +41,9 @@
       <property name="geometry">
        <rect>
         <x>0</x>
-        <y>0</y>
-        <width>740</width>
-        <height>1120</height>
+           <y>-149</y>
+           <width>746</width>
+           <height>1222</height>
        </rect>
       </property>
       <layout class="QVBoxLayout" name="verticalLayout_8">
@@ -155,8 +155,7 @@
           <item>
            <widget class="QCheckBox" name="preferMenuBarCheckBox">
             <property name="toolTip">
-             <string>The menubar is more friendly for keyboard-driven interaction.
-                                           </string>
+                <string>The menubar is more friendly for keyboard-driven interaction.</string>
             </property>
             <property name="text">
              <string>&amp;Replace toolbar with menubar</string>
@@ -188,13 +187,6 @@
           <string>Updater</string>
          </property>
          <layout class="QGridLayout" name="gridLayout_2">
-          <item row="0" column="0" colspan="2">
-           <widget class="QCheckBox" name="autoUpdateCheckBox">
-            <property name="text">
-             <string>Check for updates automatically</string>
-            </property>
-           </widget>
-          </item>
           <item row="1" column="0">
            <layout class="QHBoxLayout" name="horizontalLayout_2">
             <item>
@@ -219,10 +211,10 @@
                <string>On Launch</string>
               </property>
               <property name="suffix">
-               <string>hours</string>
+                  <string>hours</string>
               </property>
               <property name="prefix">
-               <string>Every</string>
+                  <string>Every</string>
               </property>
               <property name="minimum">
                <number>0</number>
@@ -247,6 +239,13 @@
             </item>
            </layout>
           </item>
+             <item row="0" column="0" colspan="2">
+                 <widget class="QCheckBox" name="autoUpdateCheckBox">
+                     <property name="text">
+                         <string>Check for updates automatically</string>
+                     </property>
+                 </widget>
+             </item>
          </layout>
         </widget>
        </item>
@@ -269,7 +268,12 @@
           <item row="3" column="0">
            <widget class="QLabel" name="labelJavaDir">
             <property name="text">
-             <string>&amp;Java:</string>
+                <string>&amp;Auto Java Download:</string>
+            </property>
+               <property name="toolTip">
+                   <string>Folder where Prism Launcher stores automatically downloaded Java versions. Do NOT set this to
+                       your system Java installation.
+                   </string>
             </property>
             <property name="buddy">
              <cstring>javaDirTextBox</cstring>
@@ -388,10 +392,9 @@
           <item>
            <widget class="QCheckBox" name="downloadsDirWatchRecursiveCheckBox">
             <property name="toolTip">
-             <string>When enabled, in addition to the downloads folder, its sub folders
-                                               will also be searched when looking for resources (e.g. when looking for
-                                               blocked mods on CurseForge).
-                                           </string>
+                <string>When enabled, in addition to the downloads folder, its sub folders will also be searched when
+                    looking for resources (e.g. when looking for blocked mods on CurseForge).
+                </string>
             </property>
             <property name="text">
              <string>Check &amp;subfolders for blocked mods</string>
@@ -401,9 +404,7 @@
           <item>
            <widget class="QCheckBox" name="downloadsDirMoveCheckBox">
             <property name="toolTip">
-             <string>When enabled, it will move blocked resources instead of copying
-                                               them.
-                                           </string>
+                <string>When enabled, it will move blocked resources instead of copying them.</string>
             </property>
             <property name="text">
              <string>Move blocked mods instead of copying them</string>
@@ -413,9 +414,8 @@
           <item>
            <widget class="QCheckBox" name="metadataEnableBtn">
             <property name="toolTip">
-             <string>Store version information provided by mod providers (like Modrinth or
-                                               CurseForge) for mods.
-                                           </string>
+                <string>Store version information provided by mod providers (like Modrinth or CurseForge) for mods.
+                </string>
             </property>
             <property name="text">
              <string>Keep track of mod metadata</string>
@@ -425,11 +425,10 @@
           <item>
            <widget class="QLabel" name="metadataWarningLabel">
             <property name="text">
-             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot;
-                                               font-weight:600; color:#f5c211;&quot;&gt;Warning&lt;/span&gt;&lt;span
-                                               style=&quot; color:#f5c211;&quot;&gt;: Disabling mod metadata may also
-                                               disable some QoL features, such as mod updating!&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;
-                                           </string>
+                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;
+                    color:#f5c211;&quot;&gt;Warning&lt;/span&gt;&lt;span style=&quot; color:#f5c211;&quot;&gt;:
+                    Disabling mod metadata may also disable some QoL features, such as mod updating!&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;
+                </string>
             </property>
             <property name="wordWrap">
              <bool>true</bool>
@@ -446,12 +445,22 @@
             </property>
            </widget>
           </item>
+             <item>
+                 <widget class="QCheckBox" name="showModIncompatCheckBox">
+                     <property name="toolTip">
+                         <string>Currently this just shows mods which are not marked as compatible with the current
+                             Minecraft version.
+                         </string>
+                     </property>
+                     <property name="text">
+                         <string>Detect and show mod incompatibilities (experimental)</string>
+            </property>
+           </widget>
+          </item>
           <item>
            <widget class="QCheckBox" name="modpackUpdatePromptBtn">
             <property name="toolTip">
-             <string>When creating a new modpack instance, suggest updating an existing
-                                               instance instead.
-                                           </string>
+                <string>When creating a new modpack instance, suggest updating an existing instance instead.</string>
             </property>
             <property name="text">
              <string>Suggest to update an existing instance during modpack installation</string>
@@ -495,7 +504,7 @@
              </sizepolicy>
             </property>
             <property name="suffix">
-             <string>lines</string>
+                <string>lines</string>
             </property>
             <property name="minimum">
              <number>10000</number>
@@ -701,7 +710,7 @@
  <resources/>
  <connections/>
  <buttongroups>
+     <buttongroup name="renamingBehaviorGroup"/>
   <buttongroup name="sortingModeGroup"/>
-  <buttongroup name="renamingBehaviorGroup"/>
  </buttongroups>
 </ui>

@@ -24,12 +24,12 @@
 
 #include "QObjectPtr.h"
 #include "SkinModel.h"
-#include "minecraft/auth/BaseAccount.h"
+#include "minecraft/auth/MinecraftAccount.h"
 
 class SkinList : public QAbstractListModel {
     Q_OBJECT
    public:
-    explicit SkinList(QObject* parent, QString path, BaseAccountPtr acct);
+    explicit SkinList(QObject* parent, QString path, MinecraftAccountPtr acct);
     virtual ~SkinList() { save(); };
 
     int getSkinIndex(const QString& key) const;
@@ -76,5 +76,5 @@ class SkinList : public QAbstractListModel {
     bool m_isWatching;
     QList<SkinModel> m_skinList;
     QDir m_dir;
-    BaseAccountPtr m_acct;
+    MinecraftAccountPtr m_acct;
 };

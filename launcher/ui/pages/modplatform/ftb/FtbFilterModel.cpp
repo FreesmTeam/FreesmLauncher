@@ -18,70 +18,68 @@
 
 #include <QDebug>
 
-#include "modplatform/modpacksch/FTBPackManifest.h"
+#include "modplatform/ftb/FTBPackManifest.h"
 
 #include "StringUtils.h"
 
 namespace Ftb {
 
-FilterModel::FilterModel(QObject *parent) : QSortFilterProxyModel(parent)
+FilterModel::FilterModel(QObject* parent) : QSortFilterProxyModel(parent)
 {
-    currentSorting = Sorting::ByPlays;
-    sortings.insert(tr("Sort by Plays"), Sorting::ByPlays);
-    sortings.insert(tr("Sort by Installs"), Sorting::ByInstalls);
-    sortings.insert(tr("Sort by Name"), Sorting::ByName);
+    m_currentSorting = Sorting::ByPlays;
+    m_sortings.insert(tr("Sort by Plays"), Sorting::ByPlays);
+    m_sortings.insert(tr("Sort by Installs"), Sorting::ByInstalls);
+    m_sortings.insert(tr("Sort by Name"), Sorting::ByName);
 }
 
 const QMap<QString, FilterModel::Sorting> FilterModel::getAvailableSortings()
 {
-    return sortings;
+    return m_sortings;
 }
 
 QString FilterModel::translateCurrentSorting()
 {
-    return sortings.key(currentSorting);
+    return m_sortings.key(m_currentSorting);
 }
 
 void FilterModel::setSorting(Sorting sorting)
 {
-    currentSorting = sorting;
+    m_currentSorting = sorting;
     invalidate();
 }
 
 FilterModel::Sorting FilterModel::getCurrentSorting()
 {
-    return currentSorting;
+    return m_currentSorting;
 }
 
 void FilterModel::setSearchTerm(const QString& term)
 {
-    searchTerm = term.trimmed();
+    m_searchTerm = term.trimmed();
     invalidate();
 }
 
-bool FilterModel::filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const
+bool FilterModel::filterAcceptsRow(int sourceRow, const QModelIndex& sourceParent) const
 {
-    if (searchTerm.isEmpty()) {
+    if (m_searchTerm.isEmpty()) {
         return true;
     }
 
     auto index = sourceModel()->index(sourceRow, 0, sourceParent);
-    auto pack = sourceModel()->data(index, Qt::UserRole).value<ModpacksCH::Modpack>();
-    return pack.name.contains(searchTerm, Qt::CaseInsensitive);
+    auto pack = sourceModel()->data(index, Qt::UserRole).value<FTB::Modpack>();
+    return pack.name.contains(m_searchTerm, Qt::CaseInsensitive);
 }
 
-bool FilterModel::lessThan(const QModelIndex &left, const QModelIndex &right) const
+bool FilterModel::lessThan(const QModelIndex& left, const QModelIndex& right) const
 {
-    ModpacksCH::Modpack leftPack = sourceModel()->data(left, Qt::UserRole).value<ModpacksCH::Modpack>();
-    ModpacksCH::Modpack rightPack = sourceModel()->data(right, Qt::UserRole).value<ModpacksCH::Modpack>();
+    FTB::Modpack leftPack = sourceModel()->data(left, Qt::UserRole).value<FTB::Modpack>();
+    FTB::Modpack rightPack = sourceModel()->data(right, Qt::UserRole).value<FTB::Modpack>();
 
-    if (currentSorting == ByPlays) {
+    if (m_currentSorting == ByPlays) {
         return leftPack.plays < rightPack.plays;
-    }
-    else if (currentSorting == ByInstalls) {
+    } else if (m_currentSorting == ByInstalls) {
         return leftPack.installs < rightPack.installs;
-    }
-    else if (currentSorting == ByName) {
+    } else if (m_currentSorting == ByName) {
         return StringUtils::naturalCompare(leftPack.name, rightPack.name, Qt::CaseSensitive) >= 0;
     }
 
@@ -90,4 +88,4 @@ bool FilterModel::lessThan(const QModelIndex &left, const QModelIndex &right) co
     return true;
 }
 
-}
+}  // namespace Ftb

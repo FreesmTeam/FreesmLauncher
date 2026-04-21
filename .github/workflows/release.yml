@@ -5,10 +5,18 @@ on:
     tags:
       - "*"
 
+permissions: { }
+
 jobs:
   build_release:
     name: Build Release
     uses: ./.github/workflows/build.yml
+    permissions:
+      contents: read
+      # Required for Azure Trusted Signing
+      id-token: write
+      # Required for vcpkg binary cache
+      packages: write
     with:
       build-type: Release
       environment: Release
@@ -16,7 +24,9 @@ jobs:
 
   create_release:
     needs: build_release
-    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    runs-on: ubuntu-slim
     outputs:
       upload_url: ${{ steps.create_release.outputs.upload_url }}
     steps:
@@ -26,7 +36,7 @@ jobs:
           submodules: "true"
           path: "FreesmLauncher-source"
       - name: Download artifacts
-        uses: actions/download-artifact@v7
+        uses: actions/download-artifact@v8
       - name: Grab and store version
         run: |
           tag_name=$(echo ${{ github.ref }} | grep -oE "[^/]+$")
@@ -41,6 +51,7 @@ jobs:
           mv FreesmLauncher-*.AppImage/FreesmLauncher-*-aarch64.AppImage FreesmLauncher-Linux-aarch64.AppImage
           mv FreesmLauncher-*.AppImage.zsync/FreesmLauncher-*-aarch64.AppImage.zsync FreesmLauncher-Linux-aarch64.AppImage.zsync
           mv FreesmLauncher-macOS*/FreesmLauncher.zip FreesmLauncher-macOS-${{ env.VERSION }}.zip
+          mv PrismLauncher-macOS*/FreesmLauncher.dmg FreesmLauncher-macOS-${{ env.VERSION }}.dmg
 
           tar --exclude='.git' -czf FreesmLauncher-${{ env.VERSION }}.tar.gz FreesmLauncher-${{ env.VERSION }}
 
@@ -111,4 +122,5 @@ jobs:
             FreesmLauncher-Windows-MSVC-Portable-${{ env.VERSION }}.zip
             FreesmLauncher-Windows-MSVC-Setup-${{ env.VERSION }}.exe
             FreesmLauncher-macOS-${{ env.VERSION }}.zip
+            FreesmLauncher-macOS-${{ env.VERSION }}.dmg
             FreesmLauncher-${{ env.VERSION }}.tar.gz

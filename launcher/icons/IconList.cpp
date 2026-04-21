@@ -147,8 +147,7 @@ void IconList::directoryChanged(const QString& path)
 {
     QDir newDir(path);
     if (m_dir.absolutePath() != newDir.absolutePath()) {
-        if (!path.startsWith(m_dir.absolutePath()))
-            m_dir.setPath(path);
+        m_dir.setPath(path);
         m_dir.refresh();
         if (m_isWatching)
             stopWatching();
@@ -170,7 +169,7 @@ void IconList::directoryChanged(const QString& path)
     QSet<QString> toAdd = newSet - currentSet;
 
     for (const QString& removedPath : toRemove) {
-        qDebug() << "Removing icon " << removedPath;
+        qDebug() << "Removing icon" << removedPath;
         QFileInfo removedFile(removedPath);
         QString relativePath = m_dir.relativeFilePath(removedFile.absoluteFilePath());
         QString key = QFileInfo(relativePath).completeBaseName();
@@ -192,7 +191,7 @@ void IconList::directoryChanged(const QString& path)
     }
 
     for (const QString& addedPath : toAdd) {
-        qDebug() << "Adding icon " << addedPath;
+        qDebug() << "Adding icon" << addedPath;
 
         QFileInfo addfile(addedPath);
         QString relativePath = m_dir.relativeFilePath(addfile.absoluteFilePath());
@@ -210,7 +209,7 @@ void IconList::directoryChanged(const QString& path)
 
 void IconList::fileChanged(const QString& path)
 {
-    qDebug() << "Checking icon " << path;
+    qDebug() << "Checking icon" << path;
     QFileInfo checkfile(path);
     if (!checkfile.exists())
         return;
@@ -247,9 +246,9 @@ void IconList::startWatching()
     FS::ensureFolderPathExists(abs_path);
     m_isWatching = addPathRecursively(abs_path);
     if (m_isWatching) {
-        qDebug() << "Started watching " << abs_path;
+        qDebug() << "Started watching" << abs_path;
     } else {
-        qDebug() << "Failed to start watching " << abs_path;
+        qDebug() << "Failed to start watching" << abs_path;
     }
 }
 

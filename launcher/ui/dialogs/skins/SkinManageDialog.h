@@ -23,7 +23,7 @@
 #include <QLabel>
 #include <QPixmap>
 
-#include "minecraft/auth/BaseAccount.h"
+#include "minecraft/auth/MinecraftAccount.h"
 #include "minecraft/skins/SkinList.h"
 #include "minecraft/skins/SkinModel.h"
 #include "ui/dialogs/skins/draw/SkinOpenGLWindow.h"
@@ -34,7 +34,7 @@ class SkinManageDialog;
 class SkinManageDialog : public QDialog, public SkinProvider {
     Q_OBJECT
    public:
-    explicit SkinManageDialog(QWidget* parent, BaseAccountPtr acct);
+    explicit SkinManageDialog(QWidget* parent, MinecraftAccountPtr acct);
     virtual ~SkinManageDialog();
     void resizeEvent(QResizeEvent* event) override;
 
@@ -62,7 +62,7 @@ class SkinManageDialog : public QDialog, public SkinProvider {
     void setupCapes();
 
    private:
-    BaseAccountPtr m_acct;
+    MinecraftAccountPtr m_acct;
     Ui::SkinManageDialog* m_ui;
     SkinList m_list;
     QString m_selectedSkinKey;

@@ -38,7 +38,6 @@ void PackInstallTask::executeTask()
 
     m_copyFuture = QtConcurrent::run(QThreadPool::globalInstance(), [this] {
         FS::copy folderCopy(m_pack.path, FS::PathCombine(m_stagingPath, "minecraft"));
-        folderCopy.followSymlinks(true);
         return folderCopy();
     });
     connect(&m_copyFutureWatcher, &QFutureWatcher<bool>::finished, this, &PackInstallTask::copySettings);
@@ -50,66 +49,67 @@ void PackInstallTask::copySettings()
 {
     setStatus(tr("Copying settings..."));
     progress(2, 2);
+
     QString instanceConfigPath = FS::PathCombine(m_stagingPath, "instance.cfg");
-    auto instanceSettings = std::make_shared<INISettingsObject>(instanceConfigPath);
-    instanceSettings->suspendSave();
-    MinecraftInstance instance(m_globalSettings, instanceSettings, m_stagingPath);
-    instance.settings()->set("InstanceType", "OneSix");
-    instance.settings()->set("totalTimePlayed", m_pack.totalPlayTime / 1000);
+    MinecraftInstance instance(m_globalSettings, std::make_unique<INISettingsObject>(instanceConfigPath), m_stagingPath);
 
-    if (m_pack.jvmArgs.isValid() && !m_pack.jvmArgs.toString().isEmpty()) {
-        instance.settings()->set("OverrideJavaArgs", true);
-        instance.settings()->set("JvmArgs", m_pack.jvmArgs.toString());
-    }
+    {
+        SettingsObject::Lock lock(instance.settings());
+        instance.settings()->set("InstanceType", "OneSix");
+        instance.settings()->set("totalTimePlayed", m_pack.totalPlayTime / 1000);
 
-    auto components = instance.getPackProfile();
-    components->buildingFromScratch();
-    components->setComponentVersion("net.minecraft", m_pack.mcVersion, true);
-
-    auto modloader = m_pack.loaderType;
-    if (modloader.has_value())
-        switch (modloader.value()) {
-            case ModPlatform::NeoForge: {
-                components->setComponentVersion("net.neoforged", m_pack.version, true);
-                break;
-            }
-            case ModPlatform::Forge: {
-                components->setComponentVersion("net.minecraftforge", m_pack.version, true);
-                break;
-            }
-            case ModPlatform::Fabric: {
-                components->setComponentVersion("net.fabricmc.fabric-loader", m_pack.version, true);
-                break;
-            }
-            case ModPlatform::Quilt: {
-                components->setComponentVersion("org.quiltmc.quilt-loader", m_pack.version, true);
-                break;
-            }
-            case ModPlatform::Cauldron:
-                break;
-            case ModPlatform::LiteLoader:
-                break;
-            case ModPlatform::DataPack:
-                break;
-            case ModPlatform::Babric:
-                break;
-            case ModPlatform::BTA:
-                break;
-            case ModPlatform::LegacyFabric:
-                break;
-            case ModPlatform::Ornithe:
-                break;
-            case ModPlatform::Rift:
-                break;
+        if (m_pack.jvmArgs.isValid() && !m_pack.jvmArgs.toString().isEmpty()) {
+            instance.settings()->set("OverrideJavaArgs", true);
+            instance.settings()->set("JvmArgs", m_pack.jvmArgs.toString());
         }
-    components->saveNow();
 
-    instance.setName(name());
-    if (m_instIcon == "default")
-        m_instIcon = "ftb_logo";
-    instance.setIconKey(m_instIcon);
-    instanceSettings->resumeSave();
+        auto components = instance.getPackProfile();
+        components->buildingFromScratch();
+        components->setComponentVersion("net.minecraft", m_pack.mcVersion, true);
 
+        auto modloader = m_pack.loaderType;
+        if (modloader.has_value())
+            switch (modloader.value()) {
+                case ModPlatform::NeoForge: {
+                    components->setComponentVersion("net.neoforged", m_pack.loaderVersion, true);
+                    break;
+                }
+                case ModPlatform::Forge: {
+                    components->setComponentVersion("net.minecraftforge", m_pack.loaderVersion, true);
+                    break;
+                }
+                case ModPlatform::Fabric: {
+                    components->setComponentVersion("net.fabricmc.fabric-loader", m_pack.loaderVersion, true);
+                    break;
+                }
+                case ModPlatform::Quilt: {
+                    components->setComponentVersion("org.quiltmc.quilt-loader", m_pack.loaderVersion, true);
+                    break;
+                }
+                case ModPlatform::Cauldron:
+                    break;
+                case ModPlatform::LiteLoader:
+                    break;
+                case ModPlatform::DataPack:
+                    break;
+                case ModPlatform::Babric:
+                    break;
+                case ModPlatform::BTA:
+                    break;
+                case ModPlatform::LegacyFabric:
+                    break;
+                case ModPlatform::Ornithe:
+                    break;
+                case ModPlatform::Rift:
+                    break;
+            }
+        components->saveNow();
+
+        instance.setName(name());
+        if (m_instIcon == "default")
+            m_instIcon = "ftb_logo";
+        instance.setIconKey(m_instIcon);
+    }
     emitSucceeded();
 }
 

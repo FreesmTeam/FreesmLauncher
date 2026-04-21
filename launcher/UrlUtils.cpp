@@ -9,3 +9,10 @@ bool UrlUtils::isUnsafe(const QUrl& url)
 {
     return !url.isEmpty() && url.scheme() == "http" && !isLocalhost(url);
 }
+
+void UrlUtils::upgradeToHTTPS(QUrl& url)
+{
+    if (isUnsafe(url)) {
+        url.setScheme("https");
+    }
+}

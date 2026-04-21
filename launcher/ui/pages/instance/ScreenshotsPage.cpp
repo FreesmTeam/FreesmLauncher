@@ -55,6 +55,7 @@
 #include <QStyledItemDelegate>
 
 #include <Application.h>
+#include "settings/SettingsObject.h"
 
 #include "ui/dialogs/CustomMessageBox.h"
 #include "ui/dialogs/ProgressDialog.h"
@@ -67,6 +68,23 @@
 #include <DesktopServices.h>
 #include <FileSystem.h>
 #include "RWStorage.h"
+
+class ScreenshotsFSModel : public QFileSystemModel {
+    bool canDropMimeData(const QMimeData* data, Qt::DropAction action, int row, int column, const QModelIndex& parent) const override
+    {
+        QUrl root = QUrl::fromLocalFile(rootPath());
+        // this disables reordering items inside the model
+        // by rejecting drops if the file is already inside the folder
+        if (data->hasUrls()) {
+            for (auto& url : data->urls()) {
+                if (root.isParentOf(url)) {
+                    return false;
+                }
+            }
+        }
+        return QFileSystemModel::canDropMimeData(data, action, row, column, parent);
+    }
+};
 
 using SharedIconCache = RWStorage<QString, QIcon>;
 using SharedIconCachePtr = std::shared_ptr<SharedIconCache>;
@@ -100,7 +118,7 @@ class ThumbnailRunnable : public QRunnable {
         QImage image(m_path);
         if (image.isNull()) {
             m_resultEmitter.emitResultsFailed(m_path);
-            qDebug() << "Error loading screenshot: " + m_path + ". Perhaps too large?";
+            qDebug() << "Error loading screenshot (perhaps too large?):" + m_path;
             return;
         }
         QImage small;
@@ -236,7 +254,7 @@ class CenteredEditingDelegate : public QStyledItemDelegate {
 
 ScreenshotsPage::ScreenshotsPage(QString path, QWidget* parent) : QMainWindow(parent), ui(new Ui::ScreenshotsPage)
 {
-    m_model.reset(new QFileSystemModel());
+    m_model.reset(new ScreenshotsFSModel());
     m_filterModel.reset(new FilterModel());
     m_filterModel->setSourceModel(m_model.get());
     m_model->setFilter(QDir::Files);

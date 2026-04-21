@@ -27,6 +27,18 @@ runs:
   using: composite
 
   steps:
+    - name: Cleanup Qt installation on Linux
+      shell: bash
+      run: |
+        rm -rf "$QT_PLUGIN_PATH"/printsupport
+        rm -rf "$QT_PLUGIN_PATH"/sqldrivers
+        rm -rf "$QT_PLUGIN_PATH"/help
+        rm -rf "$QT_PLUGIN_PATH"/designer
+        rm -rf "$QT_PLUGIN_PATH"/qmltooling
+        rm -rf "$QT_PLUGIN_PATH"/qmlls
+        rm -rf "$QT_PLUGIN_PATH"/qmllint
+        rm -rf "$QT_PLUGIN_PATH"/platformthemes/libqgtk3.so
+
     - name: Setup build variables
       shell: bash
       run: |
@@ -63,7 +75,7 @@ runs:
         if [ '${{ inputs.gpg-private-key-id }}' != '' ]; then
           echo "$GPG_PRIVATE_KEY" > privkey.asc
           gpg --import privkey.asc
-          gpg --export --armor 9C7A2C9B62603299 > pubkey.asc
+          gpg --export --armor ${{ inputs.gpg-private-key-id }} > pubkey.asc
         else
           echo ":warning: Skipped code signing for Linux AppImage, as gpg key was not present." >> $GITHUB_STEP_SUMMARY
         fi
@@ -78,6 +90,10 @@ runs:
         # FIXME(@getchoo): gamemode doesn't seem to be very portable with DBus. Find a way to make it work!
         find "$INSTALL_APPIMAGE_DIR" -name '*gamemode*' -exec rm {} +
 
+        #disable OpenGL and Vulkan launcher features until https://github.com/VHSgunzo/sharun/issues/35
+        echo "PRISMLAUNCHER_DISABLE_GLVULKAN=1" >> "$INSTALL_APPIMAGE_DIR"/.env
+        #makes the launcher use portals for file picking
+        echo "QT_QPA_PLATFORMTHEME=xdgdesktopportal" >> "$INSTALL_APPIMAGE_DIR"/.env
         ln -s org.freesmTeam.freesmlauncher.metainfo.xml "$INSTALL_APPIMAGE_DIR"/share/metainfo/org.freesmTeam.freesmlauncher.appdata.xml
         ln -s share/applications/org.freesmTeam.freesmlauncher.desktop "$INSTALL_APPIMAGE_DIR"
         ln -s share/icons/hicolor/256x256/apps/org.freesmTeam.freesmlauncher.png "$INSTALL_APPIMAGE_DIR"
@@ -119,19 +135,19 @@ runs:
         tar -czf ../FreesmLauncher-portable.tar.gz *
 
     - name: Upload binary tarball
-      uses: actions/upload-artifact@v6
+      uses: actions/upload-artifact@v7
       with:
         name: FreesmLauncher-${{ inputs.artifact-name }}-Qt6-Portable-${{ inputs.version }}-${{ inputs.build-type }}
         path: FreesmLauncher-portable.tar.gz
 
     - name: Upload AppImage
-      uses: actions/upload-artifact@v6
+      uses: actions/upload-artifact@v7
       with:
         name: FreesmLauncher-${{ runner.os }}-${{ inputs.version }}-${{ inputs.build-type }}-${{ env.APPIMAGE_ARCH }}.AppImage
         path: FreesmLauncher-${{ runner.os }}-*${{ env.APPIMAGE_ARCH }}.AppImage
 
     - name: Upload AppImage Zsync
-      uses: actions/upload-artifact@v6
+      uses: actions/upload-artifact@v7
       with:
         name: FreesmLauncher-${{ runner.os }}-${{ inputs.version }}-${{ inputs.build-type }}-${{ env.APPIMAGE_ARCH }}.AppImage.zsync
         path: FreesmLauncher-${{ runner.os }}-*${{ env.APPIMAGE_ARCH }}.AppImage.zsync

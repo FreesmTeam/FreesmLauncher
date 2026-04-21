@@ -14,15 +14,17 @@ on:
         required: true
         type: number
 
+permissions: { }
+
 jobs:
   blocked_status:
     name: Check Blocked Status
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-slim
 
     steps:
       - name: Generate token
         id: generate-token
-        uses: actions/create-github-app-token@v2
+        uses: actions/create-github-app-token@v3
         with:
           app-id: ${{ vars.PULL_REQUEST_APP_ID }}
           private-key: ${{ secrets.PULL_REQUEST_APP_PRIVATE_KEY }}
@@ -76,11 +78,11 @@ jobs:
         run: |
           prs=$(
             jq -c '
-              .prBody as $body 
+              .prBody as $body
                 | (
-                    $body | 
-                      reduce ( 
-                        . | scan("[Bb]locked (?:[Bb]y|[Oo]n):? #([0-9]+)") 
+                    $body |
+                      reduce (
+                        . | scan("[Bb]locked (?:[Bb]y|[Oo]n):? #([0-9]+)")
                         | map({
                           "type": "Blocked on",
                           "number": ( . | tonumber )
@@ -88,8 +90,8 @@ jobs:
                       ) as $i ([]; . + [$i[]])
                   ) as $bprs
                 | (
-                    $body | 
-                      reduce ( 
+                    $body |
+                      reduce (
                         . | scan("[Ss]tacked [Oo]n:? #([0-9]+)")
                         | map({
                           "type": "Stacked on",
@@ -97,8 +99,8 @@ jobs:
                         })
                       ) as $i ([]; . + [$i[]])
                   ) as $sprs
-                | ($bprs + $sprs) as $prs 
-                | { 
+                | ($bprs + $sprs) as $prs
+                | {
                     "blocking": $prs,
                     "numBlocking": ( $prs | length),
                   }
@@ -126,7 +128,7 @@ jobs:
                       "number": .number,
                       "merged": .merged,
                       "state": (if .state == "open" then "Open" elif .merged then "Merged" else "Closed" end),
-                      "labels": (reduce .labels[].name as $l ([]; . + [$l])), 
+                      "labels": (reduce .labels[].name as $l ([]; . + [$l])),
                       "basePrUrl": .html_url,
                       "baseRepoName": .head.repo.name,
                       "baseRepoOwner": .head.repo.owner.login,
@@ -143,19 +145,19 @@ jobs:
             echo "current_blocking=$(jq -c 'map(
                 select(
                   (.type == "Stacked on" and (.merged | not)) or
-                  (.type == "Blocked on" and (.state == "Open")) 
+                  (.type == "Blocked on" and (.state == "Open"))
                 ) | .number
               )' <<< "$blocked_pr_data" )";
           } >> "$GITHUB_OUTPUT"
 
       - name: Add 'blocked' Label if Missing
         id: label_blocked
-        if: (fromJSON(steps.pr_ids.outputs.prs).numBlocking > 0) && !contains(fromJSON(env.JOB_DATA).prLabels, 'blocked') && !fromJSON(steps.blocking_data.outputs.all_merged)
+        if: "(fromJSON(steps.pr_ids.outputs.prs).numBlocking > 0) && !contains(fromJSON(env.JOB_DATA).prLabels, 'status: blocked') && !fromJSON(steps.blocking_data.outputs.all_merged)"
         continue-on-error: true
         env:
           GH_TOKEN: ${{ steps.generate-token.outputs.token }}
         run: |
-          gh -R ${{ github.repository }} issue edit --add-label 'blocked' "$PR_NUMBER"
+          gh -R ${{ github.repository }} issue edit --add-label 'status: blocked' "$PR_NUMBER"
 
       - name: Remove 'blocked' Label if All Dependencies Are Merged
         id: unlabel_blocked
@@ -164,7 +166,7 @@ jobs:
         env:
           GH_TOKEN: ${{ steps.generate-token.outputs.token }}
         run: |
-          gh -R ${{ github.repository }} issue edit --remove-label 'blocked' "$PR_NUMBER"
+          gh -R ${{ github.repository }} issue edit --remove-label 'status: blocked' "$PR_NUMBER"
 
       - name: Apply 'blocking' Label to Unmerged Dependencies
         id: label_blocking
@@ -175,7 +177,7 @@ jobs:
           BLOCKING_ISSUES: ${{ steps.blocking_data.outputs.current_blocking }}
         run: |
           while read -r pr ; do
-            gh -R ${{ github.repository }} issue edit --add-label 'blocking' "$pr" || true
+            gh -R ${{ github.repository }} issue edit --add-label 'status: blocking' "$pr" || true
           done < <(jq -c '.[]' <<< "$BLOCKING_ISSUES")
 
       - name: Apply Blocking PR Status Check

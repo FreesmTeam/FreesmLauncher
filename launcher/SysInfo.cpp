@@ -1,20 +1,54 @@
-#include <QDebug>
+
+// SPDX-License-Identifier: GPL-3.0-only
+/*
+ *  Prism Launcher - Minecraft Launcher
+ *  Copyright (C) 2022 r58Playz <r58playz@gmail.com>
+ *  Copyright (C) 2024 timoreo <contact@timoreo.fr>
+ *  Copyright (C) 2024 Trial97 <alexandru.tripon97@gmail.com>
+ *  Copyright (C) 2025 TheKodeToad <TheKodeToad@proton.me>
+ *
+ *  This program is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, version 3.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ *
+ * This file incorporates work covered by the following copyright and
+ * permission notice:
+ *
+ *      Copyright 2013-2021 MultiMC Contributors
+ *
+ *      Licensed under the Apache License, Version 2.0 (the "License");
+ *      you may not use this file except in compliance with the License.
+ *      You may obtain a copy of the License at
+ *
+ *          http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *      Unless required by applicable law or agreed to in writing, software
+ *      distributed under the License is distributed on an "AS IS" BASIS,
+ *      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *      See the License for the specific language governing permissions and
+ *      limitations under the License.
+ */
+
 #include <QString>
-#include "sys.h"
-#ifdef Q_OS_MACOS
-#include <sys/sysctl.h>
-#endif
-#include <QFile>
-#include <QMap>
-#include <QProcess>
-#include <QStandardPaths>
+
+#include "HardwareInfo.h"
 
 #ifdef Q_OS_MACOS
+#include <sys/sysctl.h>
+
 bool rosettaDetect()
 {
     int ret = 0;
     size_t size = sizeof(ret);
-    if (sysctlbyname("sysctl.proc_translated", &ret, &size, NULL, 0) == -1) {
+    if (sysctlbyname("sysctl.proc_translated", &ret, &size, nullptr, 0) == -1) {
         return false;
     }
     return ret == 1;
@@ -51,18 +85,13 @@ QString useQTForArch()
     return QSysInfo::currentCpuArchitecture();
 }
 
-int suitableMaxMem()
+int defaultMaxJvmMem()
 {
-    float totalRAM = (float)Sys::getSystemRam() / (float)Sys::mebibyte;
-    int maxMemoryAlloc;
-
     // If totalRAM < 6GB, use (totalRAM / 1.5), else 4GB
-    if (totalRAM < (4096 * 1.5))
-        maxMemoryAlloc = (int)(totalRAM / 1.5);
+    if (const uint64_t totalRAM = HardwareInfo::totalRamMiB(); totalRAM < (4096 * 1.5))
+        return totalRAM / 1.5;
     else
-        maxMemoryAlloc = 4096;
-
-    return maxMemoryAlloc;
+        return 4096;
 }
 
 QString getSupportedJavaArchitecture()

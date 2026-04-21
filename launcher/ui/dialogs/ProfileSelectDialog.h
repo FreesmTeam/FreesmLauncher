@@ -56,7 +56,7 @@ class ProfileSelectDialog : public QDialog {
      * Gets a pointer to the account that the user selected.
      * This is null if the user clicked cancel or hasn't clicked OK yet.
      */
-    BaseAccountPtr selectedAccount() const;
+    MinecraftAccountPtr selectedAccount() const;
 
     /*!
      * Returns true if the user checked the "use as global default" checkbox.
@@ -76,10 +76,10 @@ class ProfileSelectDialog : public QDialog {
     void on_buttonBox_rejected();
 
    protected:
-    shared_qobject_ptr<AccountList> m_accounts;
+    AccountList* m_accounts;
 
     //! The account that was selected when the user clicked OK.
-    BaseAccountPtr m_selected;
+    MinecraftAccountPtr m_selected;
 
    private:
     Ui::ProfileSelectDialog* ui;

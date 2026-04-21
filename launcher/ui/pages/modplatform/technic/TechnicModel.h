@@ -62,7 +62,7 @@ class ListModel : public QAbstractListModel {
     Task::Ptr activeSearchJob() { return hasActiveSearchJob() ? jobPtr : nullptr; }
 
    private slots:
-    void searchRequestFinished();
+    void searchRequestFinished(QByteArray* responsePtr);
     void searchRequestFailed();
 
     void logoFailed(QString logo);
@@ -86,7 +86,6 @@ class ListModel : public QAbstractListModel {
         Single,
     } searchMode = List;
     NetJob::Ptr jobPtr;
-    std::shared_ptr<QByteArray> response = std::make_shared<QByteArray>();
 };
 
 }  // namespace Technic

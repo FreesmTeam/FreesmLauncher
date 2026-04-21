@@ -29,7 +29,7 @@ Net::Head::Ptr Net::Head::makeHeaderPairs(QUrl url, Options options)
     dl->m_url = url;
     dl->setObjectName(QString("HEAD:") + url.toString());
     dl->m_options = options;
-    dl->m_sink = std::make_unique<ByteArraySink>(std::make_shared<QByteArray>());
+    dl->m_sink = std::make_unique<ByteArraySink>();
     return dl;
 }
 

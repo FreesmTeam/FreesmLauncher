@@ -154,13 +154,11 @@ void InstanceImportTask::processZipPack()
             qDebug() << "Flame:" << true;
             m_modpackType = ModpackType::Flame;
             stop = true;
-            return true;
         } else if (QFileInfo fileInfo(fileName); fileInfo.fileName() == "instance.cfg") {
             qDebug() << "MultiMC:" << true;
             m_modpackType = ModpackType::MultiMC;
             root = cleanPath(fileInfo.path());
             stop = true;
-            return true;
         }
         QCoreApplication::processEvents();
         return true;
@@ -324,6 +322,7 @@ void InstanceImportTask::processFlame()
 
     connect(inst_creation_task.get(), &Task::aborted, this, &InstanceImportTask::emitAborted);
     connect(inst_creation_task.get(), &Task::abortStatusChanged, this, &Task::setAbortable);
+    connect(inst_creation_task.get(), &Task::abortButtonTextChanged, this, &Task::setAbortButtonText);
 
     connect(inst_creation_task.get(), &Task::warningLogged, this, [this](const QString& line) { m_Warnings.append(line); });
 
@@ -343,9 +342,9 @@ void InstanceImportTask::processTechnic()
 void InstanceImportTask::processMultiMC()
 {
     QString configPath = FS::PathCombine(m_stagingPath, "instance.cfg");
-    auto instanceSettings = std::make_shared<INISettingsObject>(configPath);
+    auto instanceSettings = std::make_unique<INISettingsObject>(configPath);
 
-    NullInstance instance(m_globalSettings, instanceSettings, m_stagingPath);
+    NullInstance instance(m_globalSettings, std::move(instanceSettings), m_stagingPath);
 
     // reset time played on import... because packs.
     instance.resetTimePlayed();
@@ -423,6 +422,7 @@ void InstanceImportTask::processModrinth()
 
     connect(inst_creation_task.get(), &Task::aborted, this, &InstanceImportTask::emitAborted);
     connect(inst_creation_task.get(), &Task::abortStatusChanged, this, &Task::setAbortable);
+    connect(inst_creation_task.get(), &Task::abortButtonTextChanged, this, &Task::setAbortButtonText);
 
     connect(inst_creation_task.get(), &Task::warningLogged, this, [this](const QString& line) { m_Warnings.append(line); });
 

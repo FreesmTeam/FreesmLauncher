@@ -55,7 +55,7 @@ bool readOverrideOrders(QString path, PatchOrder& order)
         return false;
     }
     if (!orderFile.open(QFile::ReadOnly)) {
-        qCritical() << "Couldn't open" << orderFile.fileName() << " for reading:" << orderFile.errorString();
+        qCritical() << "Couldn't open" << orderFile.fileName() << "for reading:" << orderFile.errorString();
         qWarning() << "Ignoring overridden order";
         return false;
     }
@@ -144,13 +144,13 @@ bool saveJsonFile(const QJsonDocument& doc, const QString& filename)
     auto data = doc.toJson();
     QSaveFile jsonFile(filename);
     if (!jsonFile.open(QIODevice::WriteOnly)) {
+        qWarning() << "Couldn't open" << filename << "for writing:" << jsonFile.errorString();
         jsonFile.cancelWriting();
-        qWarning() << "Couldn't open" << filename << "for writing";
         return false;
     }
     jsonFile.write(data);
     if (!jsonFile.commit()) {
-        qWarning() << "Couldn't save" << filename;
+        qWarning() << "Couldn't save" << filename << "error:" << jsonFile.errorString();
         return false;
     }
     return true;

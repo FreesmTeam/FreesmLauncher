@@ -209,8 +209,7 @@ VersionFilePtr OneSixVersionFormat::versionFileFromJson(const QJsonDocument& doc
             QString arg = "";
             readString(agentObj, "argument", arg);
 
-            AgentPtr agent(new Agent(lib, arg));
-            out->agents.append(agent);
+            out->agents.append(Agent{ lib, arg });
         }
     }
 
@@ -305,10 +304,10 @@ QJsonDocument OneSixVersionFormat::versionFileToJson(const VersionFilePtr& patch
     writeStringList(root, "+jvmArgs", patch->addnJvmArguments);
     if (!patch->agents.isEmpty()) {
         QJsonArray array;
-        for (auto value : patch->agents) {
-            QJsonObject agentOut = OneSixVersionFormat::libraryToJson(value->library().get());
-            if (!value->argument().isEmpty())
-                agentOut.insert("argument", value->argument());
+        for (const auto& value : patch->agents) {
+            QJsonObject agentOut = OneSixVersionFormat::libraryToJson(value.library.get());
+            if (!value.argument.isEmpty())
+                agentOut.insert("argument", value.argument);
 
             array.append(agentOut);
         }
@@ -370,8 +369,7 @@ LibraryPtr OneSixVersionFormat::plusJarModFromJson([[maybe_unused]] ProblemConta
     }
 
     // just make up something unique on the spot for the library name.
-    auto uuid = QUuid::createUuid();
-    QString id = uuid.toString().remove('{').remove('}');
+    QString id = QUuid::createUuid().toString(QUuid::WithoutBraces);
     out->setRawName(GradleSpecifier("org.multimc.jarmods:" + id + ":1"));
 
     // filename override is the old name

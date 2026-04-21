@@ -278,6 +278,9 @@ bool copyFileAttributes(QString src, QString dst)
     if (attrs == INVALID_FILE_ATTRIBUTES)
         return false;
     return SetFileAttributesW(dst.toStdWString().c_str(), attrs);
+#else
+    Q_UNUSED(src);
+    Q_UNUSED(dst);
 #endif
     return true;
 }
@@ -428,7 +431,7 @@ void create_link::make_link_list(const QString& offset)
             link_file(src, "");
         } else {
             if (m_debug)
-                qDebug() << "linking recursively:" << src << "to" << dst << ", max_depth:" << m_max_depth;
+                qDebug().nospace() << "linking recursively: " << src << " to " << dst << ", max_depth: " << m_max_depth;
             QDir src_dir(src);
             QDirIterator source_it(src, QDir::Filter::Files | QDir::Filter::Hidden, QDirIterator::Subdirectories);
 
@@ -588,7 +591,7 @@ void create_link::runPrivileged(const QString& offset)
     }
 
     ExternalLinkFileProcess* linkFileProcess = new ExternalLinkFileProcess(serverName, m_useHardLinks, this);
-    connect(linkFileProcess, &ExternalLinkFileProcess::processExited, this, [this, gotResults]() { emit finishedPrivileged(gotResults); });
+    connect(linkFileProcess, &ExternalLinkFileProcess::processExited, this, [this, &gotResults]() { emit finishedPrivileged(gotResults); });
     connect(linkFileProcess, &ExternalLinkFileProcess::finished, linkFileProcess, &QObject::deleteLater);
 
     linkFileProcess->start();
@@ -946,7 +949,10 @@ QString createShortcut(QString destination, QString target, QStringList args, QS
         qWarning() << "Couldn't create directories within application";
         return QString();
     }
-    info.open(QIODevice::WriteOnly | QIODevice::Text);
+    if (!info.open(QIODevice::WriteOnly | QIODevice::Text)) {
+        qWarning() << "Failed to open file" << info.fileName() << "for writing:" << info.errorString();
+        return QString();
+    }
 
     QFile(icon).rename(resources.path() + "/Icon.icns");
 
@@ -954,7 +960,10 @@ QString createShortcut(QString destination, QString target, QStringList args, QS
     QString exec = binaryDir.path() + "/Run.command";
 
     QFile f(exec);
-    f.open(QIODevice::WriteOnly | QIODevice::Text);
+    if (!f.open(QIODevice::WriteOnly | QIODevice::Text)) {
+        qWarning() << "Failed to open file" << f.fileName() << "for writing:" << f.errorString();
+        return QString();
+    }
     QTextStream stream(&f);
 
     auto argstring = quoteArgs(args, "\"", "\\\"");
@@ -997,7 +1006,7 @@ QString createShortcut(QString destination, QString target, QStringList args, QS
         destination += ".desktop";
     QFile f(destination);
     if (!f.open(QIODevice::WriteOnly | QIODevice::Text)) {
-        qWarning() << "Failed to open file '" << f.fileName() << "' for writing!";
+        qWarning() << "Failed to open file" << f.fileName() << "for writing:" << f.errorString();
         return QString();
     }
     QTextStream stream(&f);
@@ -1096,17 +1105,17 @@ QString createShortcut(QString destination, QString target, QStringList args, QS
             hres = ppf->Save(wsz, TRUE);
             if (FAILED(hres)) {
                 qWarning() << "IPresistFile->Save() failed";
-                qWarning() << "hres = " << hres;
+                qWarning() << "hres =" << hres;
             }
             ppf->Release();
         } else {
             qWarning() << "Failed to query IPersistFile interface from IShellLink instance";
-            qWarning() << "hres = " << hres;
+            qWarning() << "hres =" << hres;
         }
         psl->Release();
     } else {
         qWarning() << "Failed to create IShellLink instance";
-        qWarning() << "hres = " << hres;
+        qWarning() << "hres =" << hres;
     }
 
     // go away COM, nobody likes you
@@ -1395,14 +1404,14 @@ bool win_ioctl_clone(const std::wstring& src_path, const std::wstring& dst_path,
     ULONG fs_flags;
     if (!GetVolumeInformationByHandleW(hSourceFile, nullptr, 0, nullptr, nullptr, &fs_flags, nullptr, 0)) {
         ec = std::error_code(GetLastError(), std::system_category());
-        qDebug() << "Failed to get Filesystem information for " << src_path.c_str();
+        qDebug() << "Failed to get Filesystem information for" << src_path.c_str();
         CloseHandle(hSourceFile);
         return false;
     }
     if (!(fs_flags & FILE_SUPPORTS_BLOCK_REFCOUNTING)) {
         SetLastError(ERROR_NOT_CAPABLE);
         ec = std::error_code(GetLastError(), std::system_category());
-        qWarning() << "Filesystem at " << src_path.c_str() << " does not support reflink";
+        qWarning() << "Filesystem at" << src_path.c_str() << "does not support reflink";
         CloseHandle(hSourceFile);
         return false;
     }

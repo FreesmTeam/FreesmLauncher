@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-only
 /*
  *  Freesm Launcher - Minecraft Launcher
- *  Copyright (C) 2025 so5iso4ka <so5iso4ka@icloud.com>
+ *  Copyright (C) 2026 so5iso4ka <so5iso4ka@icloud.com>
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -29,8 +29,6 @@
 
 #include "DiscordIntegration.h"
 
-#include <QThread>
-
 DiscordIntegration::DiscordIntegration(bool showAlways)
     : m_socket(makeSocket())
     , m_queue(std::make_unique<DiscordQueue>())
@@ -48,12 +46,12 @@ DiscordIntegration::DiscordIntegration(bool showAlways)
 
 DiscordIntegration::~DiscordIntegration() = default;
 
-void DiscordIntegration::instanceStarted(const std::shared_ptr<BaseInstance>& instance)
+void DiscordIntegration::instanceStarted(const BaseInstance* instance)
 {
     m_queue->instanceStarted(instance);
 }
 
-void DiscordIntegration::instanceStopped(const std::shared_ptr<BaseInstance>& instance)
+void DiscordIntegration::instanceStopped(const BaseInstance* instance)
 {
     m_queue->instanceStopped(instance);
 }

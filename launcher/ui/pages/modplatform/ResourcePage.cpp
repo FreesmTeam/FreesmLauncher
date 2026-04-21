@@ -63,6 +63,7 @@ ResourcePage::ResourcePage(ResourceDownloadDialog* parent, BaseInstance& base_in
     m_ui->searchEdit->installEventFilter(this);
 
     m_ui->versionSelectionBox->view()->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
+    m_ui->versionSelectionBox->view()->setVerticalScrollMode(QAbstractItemView::ScrollPerPixel);
     m_ui->versionSelectionBox->view()->parentWidget()->setMaximumHeight(300);
 
     m_searchTimer.setTimerType(Qt::TimerType::CoarseTimer);
@@ -370,9 +371,7 @@ void ResourcePage::removeResourceFromDialog(const QString& pack_name)
     m_parentDialog->removeResource(pack_name);
 }
 
-void ResourcePage::addResourceToPage(ModPlatform::IndexedPack::Ptr pack,
-                                     ModPlatform::IndexedVersion& ver,
-                                     const std::shared_ptr<ResourceFolderModel> base_model)
+void ResourcePage::addResourceToPage(ModPlatform::IndexedPack::Ptr pack, ModPlatform::IndexedVersion& ver, ResourceFolderModel* base_model)
 {
     bool is_indexed = !APPLICATION->settings()->get("ModMetadataDisabled").toBool();
     m_model->addPack(pack, ver, base_model, is_indexed);
@@ -558,9 +557,8 @@ void ResourcePage::openProject(QVariant projectID)
             [this, okBtn](int index) { okBtn->setEnabled(m_ui->versionSelectionBox->itemData(index).toInt() >= 0); });
 
     auto jump = [this] {
-        for (int row = 0; row < m_model->rowCount({}); row++) {
-            const QModelIndex index = m_model->index(row);
-            m_ui->packView->setCurrentIndex(index);
+        if (m_model->rowCount({}) > 0) {
+            m_ui->packView->setCurrentIndex(m_model->index(0));
             return;
         }
         m_ui->packDescription->setText(tr("The resource was not found"));
