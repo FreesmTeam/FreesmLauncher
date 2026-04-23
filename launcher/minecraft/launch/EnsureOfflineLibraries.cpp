@@ -31,6 +31,22 @@ void EnsureOfflineLibraries::executeTask()
                              false);
 
     QStringList missing;
+
+    auto agents = profile->getAgents();
+    for (const auto& agent : agents) {
+        QStringList jars;
+        QStringList temp1, temp2, temp3;
+
+        agent.library->getApplicableFiles(m_instance->runtimeContext(), jars, temp1, temp2, temp3, m_instance->getLocalLibraryPath());
+
+        if (jars.isEmpty()) {
+            missing.append(agent.library->displayName(m_instance->runtimeContext()));
+            continue;
+        }
+
+        allJars.append(jars);
+    }
+
     for (const auto& jar : allJars) {
         if (!QFileInfo::exists(jar)) {
             missing.append(jar);

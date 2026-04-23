@@ -201,13 +201,7 @@ set(Launcher_UPDATER_GITHUB_REPO "https://github.com/FreesmTeam/FreesmLauncher" 
 set(Launcher_BUILD_ARTIFACT "" CACHE STRING "Artifact name to help the updater identify valid artifacts.")
 
 # The metadata server
-set(Launcher_META_URL "https://meta.prismlauncher.org/v1/" CACHE STRING "URL to fetch Launcher's meta files from.")
-
-# Ely.by metadata URL
-set(Launcher_EPL_META_URL "https://freesmlauncher.org/metadata/epl_metadata.json" CACHE STRING "URL to fetch Ely authlibs metadata")
-
-# Ely.by metadata fallback URL
-set(Launcher_EPL_META_FALLBACK_URL "https://raw.githubusercontent.com/FreesmTeam/FreesmLauncher/refs/heads/develop/epl_metadata.json" CACHE STRING "Fallback URL to fetch Ely authlibs metadata")
+set(Launcher_META_URL "https://meta.freesmlauncher.org/v1/" CACHE STRING "URL to fetch Launcher's meta files from.")
 
 # Imgur API Client ID
 set(Launcher_IMGUR_CLIENT_ID "5b97b0713fba4a3" CACHE STRING "Client ID you can get from Imgur when you register an application")

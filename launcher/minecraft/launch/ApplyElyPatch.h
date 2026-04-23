@@ -18,17 +18,22 @@
 
 #pragma once
 
-#include "ApplyLibraryOverride.h"
+#include "minecraft/launch/ApplyLibraryOverride.h"
 
-class ApplyAuthlibInjector : public ApplyLibraryOverride {
+class ApplyElyPatch : public ApplyLibraryOverride {
     Q_OBJECT
    public:
-    explicit ApplyAuthlibInjector(LaunchTask* parent, RuntimeContext& ctx, Net::Mode netMode);
-    ~ApplyAuthlibInjector() override;
+    explicit ApplyElyPatch(LaunchTask* parent, RuntimeContext& ctx, Net::Mode netMode);
+    ~ApplyElyPatch() override;
 
    protected:
     void executeTask() override;
 
    protected slots:
     void onMetaRequestDone(const Meta::VersionList::Ptr& versionList) override;
+    void apply(const Meta::Version::Ptr& version) override;
+
+private:
+    void applyAuthlibInjector();
+    bool m_fallbackToAuthlibInjector = false;
 };

@@ -168,7 +168,7 @@ class BaseInstance : public QObject {
     void setManagedPack(const QString& type, const QString& id, const QString& name, const QString& versionId, const QString& version);
     void copyManagedPack(BaseInstance& other);
 
-    virtual QStringList extraArguments();
+    virtual QStringList extraArguments(AuthSessionPtr session);
 
     /// Traits. Normally inside the version, depends on instance implementation.
     virtual QSet<QString> traits() const = 0;

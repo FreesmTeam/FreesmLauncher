@@ -16,33 +16,31 @@
  *  along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+#include <algorithm>
+
 #include "ApplyAuthlibInjector.h"
 
-#include <utility>
+ApplyAuthlibInjector::ApplyAuthlibInjector(LaunchTask* parent, RuntimeContext& ctx, Net::Mode netMode) : ApplyLibraryOverride(parent, ctx, netMode) {}
 
-#include "Application.h"
-#include "launch/LaunchTask.h"
-
-ApplyAuthlibInjector::ApplyAuthlibInjector(LaunchTask* parent, AuthSessionPtr session)
-    : LaunchStep(parent), m_session(std::move(session)), m_instance(m_parent->instance())
-{}
+ApplyAuthlibInjector::~ApplyAuthlibInjector() = default;
 
 void ApplyAuthlibInjector::executeTask()
 {
-    const QString downloadUrl = "https://github.com/yushijinhun/authlib-injector/releases/download/v1.2.5/authlib-injector-1.2.5.jar";
-    m_request = Net::Download::makeFile(downloadUrl, "authlib-injector.jar");
-
-    m_task.reset(new NetJob("Download authlib-injector", APPLICATION->network()));
-    m_task->addNetAction(m_request);
-
-    connect(m_task.get(), &NetJob::succeeded, this, &ApplyAuthlibInjector::onRequestDone);
-    connect(m_task.get(), &NetJob::failed, this, &ApplyAuthlibInjector::emitFailed);
-    connect(m_task.get(), &NetJob::aborted, this, [this] { emitFailed(tr("Aborted")); });
-
-    m_task->start();
+    startMetaTask("moe.yushi.authlibinjector");
 }
 
-void ApplyAuthlibInjector::onRequestDone()
+void ApplyAuthlibInjector::onMetaRequestDone(const Meta::VersionList::Ptr& versionList)
 {
-    emitSucceeded();
+    auto versions = versionList->versions();
+    auto it = std::ranges::find_if(versions, [](const auto& version) { return version && version->isRecommended(); });
+
+    if (it == versions.end()) {
+        emit logLine(tr("No recommended authlib-injector version could be found"), MessageLevel::Error);
+        emitFailed("No recommended authlib-injector version could be found");
+        return;
+    }
+
+    const auto& recommendedVersion = *it;
+
+    startApplyTask(recommendedVersion);
 }

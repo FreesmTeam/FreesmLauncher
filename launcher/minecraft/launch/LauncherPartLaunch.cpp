@@ -93,11 +93,7 @@ void LauncherPartLaunch::executeTask()
     }
 
     m_launchScript = instance->createLaunchScript(m_session, m_targetToJoin);
-    QStringList args = instance->javaArguments();
-    if (m_session->wants_authlib_injector) {
-        args.append("-javaagent:" + QDir::current().absoluteFilePath("authlib-injector.jar") + '=' + m_session->authlib_injector_auth_url);
-        args.append("-Dauthlibinjector.noShowServerName");
-    }
+    QStringList args = instance->javaArguments(m_session);
     QString allArgs = args.join(" ");
     emit logLine("Java arguments:\n  " + m_parent->censorPrivateInfo(allArgs) + "\n", MessageLevel::Launcher);
 

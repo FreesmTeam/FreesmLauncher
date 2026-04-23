@@ -276,10 +276,12 @@ set(MINECRAFT_SOURCES
     minecraft/update/LibrariesTask.cpp
     minecraft/update/LibrariesTask.h
 
-    minecraft/launch/ApplyLibraryOverrides.cpp
-    minecraft/launch/ApplyLibraryOverrides.h
+    minecraft/launch/ApplyLibraryOverride.cpp
+    minecraft/launch/ApplyLibraryOverride.h
     minecraft/launch/ApplyAuthlibInjector.cpp
     minecraft/launch/ApplyAuthlibInjector.h
+    minecraft/launch/ApplyElyPatch.cpp
+    minecraft/launch/ApplyElyPatch.h
     minecraft/launch/ClaimAccount.cpp
     minecraft/launch/ClaimAccount.h
     minecraft/launch/CreateGameFolders.cpp

@@ -469,7 +469,7 @@ QString BaseInstance::windowTitle() const
 }
 
 // FIXME: why is this here? move it to MinecraftInstance!!!
-QStringList BaseInstance::extraArguments()
+QStringList BaseInstance::extraArguments(AuthSessionPtr session)
 {
     return Commandline::splitArgs(settings()->get("JvmArgs").toString());
 }
