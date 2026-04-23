@@ -293,7 +293,7 @@ void MinecraftAccount::fillSession(AuthSessionPtr session, SettingsObject* setti
         session->session = "-";
     }
 
-    enum ElySkinsSetting { Never = 0, Always = 1, WithElyAccount = 2, WithoutElyAccount = 3 };
+    enum ElySkinsSetting { Never = 0, Always = 1, WithElyAccount = 2, WithElyAndOfflineAccount = 3 };
     const auto elySkinsSetting = settings->get("UseElySkins").toInt();
     switch (elySkinsSetting) {
         case Never: {
@@ -301,15 +301,15 @@ void MinecraftAccount::fillSession(AuthSessionPtr session, SettingsObject* setti
             break;
         }
         case Always: {
-            session->wants_ely_patch = true;
+            session->wants_ely_patch = accountType() != AccountType::Custom;
             break;
         }
         case WithElyAccount: {
             session->wants_ely_patch = accountType() == AccountType::Elyby;
             break;
         }
-        case WithoutElyAccount: {
-            session->wants_ely_patch = accountType() != AccountType::Elyby;
+        case WithElyAndOfflineAccount: {
+            session->wants_ely_patch = accountType() == AccountType::Elyby || accountType() == AccountType::Offline;
             break;
         }
         default: {
@@ -317,6 +317,10 @@ void MinecraftAccount::fillSession(AuthSessionPtr session, SettingsObject* setti
             session->wants_ely_patch = false;
             break;
         }
+    }
+
+    if (session->wants_ely_patch) {
+        session->authlib_injector_auth_url = "https://account.ely.by/api/authlib-injector";
     }
 
     if (data.type == AccountType::Custom) {

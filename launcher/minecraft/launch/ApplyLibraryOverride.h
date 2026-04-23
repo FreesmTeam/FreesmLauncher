@@ -18,17 +18,34 @@
 
 #pragma once
 
-#include "ApplyLibraryOverride.h"
+#include <launch/LaunchStep.h>
 
-class ApplyAuthlibInjector : public ApplyLibraryOverride {
+#include "meta/Version.h"
+#include "meta/VersionList.h"
+#include "net/Mode.h"
+
+class MinecraftInstance;
+struct RuntimeContext;
+
+class ApplyLibraryOverride : public LaunchStep {
     Q_OBJECT
    public:
-    explicit ApplyAuthlibInjector(LaunchTask* parent, RuntimeContext& ctx, Net::Mode netMode);
-    ~ApplyAuthlibInjector() override;
+    explicit ApplyLibraryOverride(LaunchTask* parent, RuntimeContext& ctx, Net::Mode netMode);
+    ~ApplyLibraryOverride() override;
+
+    bool canAbort() const override { return false; }
 
    protected:
-    void executeTask() override;
+    void startMetaTask(const QString& uid);
+    void startApplyTask(const Meta::Version::Ptr& version);
 
    protected slots:
-    void onMetaRequestDone(const Meta::VersionList::Ptr& versionList) override;
+    virtual void onMetaRequestDone(const Meta::VersionList::Ptr& versionList) = 0;
+    virtual void apply(const Meta::Version::Ptr& version);
+
+   protected:
+    MinecraftInstance* m_instance;
+    RuntimeContext* m_ctx;
+    Task::Ptr m_task;
+    Net::Mode m_netMode;
 };

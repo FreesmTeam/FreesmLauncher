@@ -600,7 +600,7 @@
                   </item>
                   <item>
                    <property name="text">
-                    <string>Always</string>
+                    <string>Always (except for custom accounts)</string>
                    </property>
                   </item>
                   <item>
@@ -610,7 +610,7 @@
                   </item>
                   <item>
                    <property name="text">
-                    <string>Without Ely.by accounts</string>
+                    <string>With Ely.by and Offline accounts</string>
                    </property>
                   </item>
                  </widget>

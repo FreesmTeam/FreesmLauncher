@@ -128,12 +128,12 @@ class MinecraftInstance : public BaseInstance {
     //////  Launch stuff //////
     QList<Task::Ptr> createUpdateTask() override;
     LaunchTask* createLaunchTask(AuthSessionPtr account, MinecraftTarget::Ptr targetToJoin) override;
-    QStringList extraArguments() override;
+    QStringList extraArguments(AuthSessionPtr session) override;
     QStringList verboseDescription(AuthSessionPtr session, MinecraftTarget::Ptr targetToJoin) override;
     QList<Mod*> getJarMods() const;
     QString createLaunchScript(AuthSessionPtr session, MinecraftTarget::Ptr targetToJoin);
     /// get arguments passed to java
-    QStringList javaArguments();
+    QStringList javaArguments(AuthSessionPtr session);
     QString getLauncher();
     bool shouldApplyOnlineFixes();
 

@@ -48,7 +48,6 @@
 #include "java/JavaVersion.h"
 
 #include "launch/ApplyAuthlibInjector.h"
-#include "launch/ApplyLibraryOverrides.h"
 #include "launch/LaunchTask.h"
 #include "launch/SetDiscordActivity.h"
 #include "launch/TaskStepWrapper.h"
@@ -59,6 +58,8 @@
 #include "launch/steps/QuitAfterGameStop.h"
 #include "launch/steps/TextPrint.h"
 
+#include "minecraft/launch/ApplyAuthlibInjector.h"
+#include "minecraft/launch/ApplyElyPatch.h"
 #include "minecraft/launch/AutoInstallJava.h"
 #include "minecraft/launch/ClaimAccount.h"
 #include "minecraft/launch/CreateGameFolders.h"
@@ -71,7 +72,6 @@
 #include "minecraft/launch/ReconstructAssets.h"
 #include "minecraft/launch/ScanModFolders.h"
 #include "minecraft/launch/VerifyJavaInstall.h"
-#include "minecraft/ScreenshotsWatcher.h"
 
 #include "minecraft/update/AssetUpdateTask.h"
 #include "minecraft/update/FoldersTask.h"
@@ -88,6 +88,8 @@
 #include "mod/TexturePackFolderModel.h"
 
 #include "WorldList.h"
+
+#include "minecraft/ScreenshotsWatcher.h"
 
 #include "AssetsUtils.h"
 #include "MinecraftLoadAndCheck.h"
@@ -523,9 +525,9 @@ static QString replaceTokensIn(const QString& text, const QMap<QString, QString>
     return result;
 }
 
-QStringList MinecraftInstance::extraArguments()
+QStringList MinecraftInstance::extraArguments(AuthSessionPtr session)
 {
-    auto list = BaseInstance::extraArguments();
+    auto list = BaseInstance::extraArguments(nullptr);
     auto version = getPackProfile();
     if (!version)
         return list;
@@ -545,7 +547,11 @@ QStringList MinecraftInstance::extraArguments()
     for (const auto& agent : agents) {
         QStringList jar, temp1, temp2, temp3;
         agent.library->getApplicableFiles(runtimeContext(), jar, temp1, temp2, temp3, getLocalLibraryPath());
-        list.append("-javaagent:" + jar[0] + (agent.argument.isEmpty() ? "" : "=" + agent.argument));
+        QString arg = agent.argument;
+        if (session && agent.library->artifactPrefix() == "moe.yushi:authlibinjector") {
+            arg = replaceTokensIn(arg, { { "authlib_injector_auth_url", session->authlib_injector_auth_url } });
+        }
+        list.append("-javaagent:" + jar[0] + (agent.argument.isEmpty() ? "" : "=" + arg));
     }
 
     {
@@ -579,14 +585,14 @@ QStringList MinecraftInstance::extraArguments()
     return list;
 }
 
-QStringList MinecraftInstance::javaArguments()
+QStringList MinecraftInstance::javaArguments(AuthSessionPtr session)
 {
     QStringList args;
 
     args << "-Duser.language=en";
 
     // custom args go first. we want to override them if we have our own here.
-    args.append(extraArguments());
+    args.append(extraArguments(std::move(session)));
 
     // OSX dock icon and name
 #ifdef Q_OS_MAC
@@ -667,7 +673,7 @@ QMap<QString, QString> MinecraftInstance::getVariables()
     out.insert("INST_DIR", QDir::toNativeSeparators(QDir(instanceRoot()).absolutePath()));
     out.insert("INST_MC_DIR", QDir::toNativeSeparators(QDir(gameRoot()).absolutePath()));
     out.insert("INST_JAVA", QDir::toNativeSeparators(QDir(settings()->get("JavaPath").toString()).absolutePath()));
-    out.insert("INST_JAVA_ARGS", javaArguments().join(' '));
+    out.insert("INST_JAVA_ARGS", javaArguments(nullptr).join(' '));
     out.insert("NO_COLOR", "1");
 #ifdef Q_OS_MACOS
     // get library for Steam overlay support
@@ -1171,8 +1177,8 @@ LaunchTask* MinecraftInstance::createLaunchTask(AuthSessionPtr session, Minecraf
     }
 
     // load meta
+    auto mode = session->launchMode != LaunchMode::Offline ? Net::Mode::Online : Net::Mode::Offline;
     {
-        auto mode = session->launchMode != LaunchMode::Offline ? Net::Mode::Online : Net::Mode::Offline;
         process->appendStep(makeShared<TaskStepWrapper>(pptr, makeShared<MinecraftLoadAndCheck>(this, mode)));
     }
 
@@ -1191,13 +1197,15 @@ LaunchTask* MinecraftInstance::createLaunchTask(AuthSessionPtr session, Minecraf
         process->appendStep(step);
     }
 
+    if (session->wants_ely_patch) {
+        process->appendStep(makeShared<ApplyElyPatch>(pptr, m_runtimeContext, mode));
+    } else if (session->wants_authlib_injector) {
+        process->appendStep(makeShared<ApplyAuthlibInjector>(pptr, m_runtimeContext, mode));
+    }
+
     // if we aren't in offline mode
     if (session->launchMode != LaunchMode::Offline) {
         process->appendStep(makeShared<ClaimAccount>(pptr, session));
-        process->appendStep(makeShared<ApplyLibraryOverrides>(pptr, session));
-        if (session->wants_authlib_injector) {
-            process->appendStep(makeShared<ApplyAuthlibInjector>(pptr, session));
-        }
         for (auto t : createUpdateTask()) {
             process->appendStep(makeShared<TaskStepWrapper>(pptr, t));
         }
