@@ -131,7 +131,7 @@ Config::Config()
 
 QString Config::versionString() const
 {
-    return QString("%1 %2.%3.%4").arg(VERSION_CODENAME).arg(VERSION_MAJOR).arg(VERSION_MINOR).arg(VERSION_PATCH);
+    return QString("%1.%2.%3").arg(VERSION_MAJOR).arg(VERSION_MINOR).arg(VERSION_PATCH);
 }
 
 QString Config::printableVersionString() const

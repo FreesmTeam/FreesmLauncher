@@ -51,7 +51,7 @@ jobs:
           mv FreesmLauncher-*.AppImage/FreesmLauncher-*-aarch64.AppImage FreesmLauncher-Linux-aarch64.AppImage
           mv FreesmLauncher-*.AppImage.zsync/FreesmLauncher-*-aarch64.AppImage.zsync FreesmLauncher-Linux-aarch64.AppImage.zsync
           mv FreesmLauncher-macOS*/FreesmLauncher.zip FreesmLauncher-macOS-${{ env.VERSION }}.zip
-          mv PrismLauncher-macOS*/FreesmLauncher.dmg FreesmLauncher-macOS-${{ env.VERSION }}.dmg
+          mv FreesmLauncher-macOS*/FreesmLauncher.dmg FreesmLauncher-macOS-${{ env.VERSION }}.dmg
 
           tar --exclude='.git' -czf FreesmLauncher-${{ env.VERSION }}.tar.gz FreesmLauncher-${{ env.VERSION }}
 

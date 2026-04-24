@@ -10,7 +10,7 @@ endif()
 
 set(Launcher_CommonName "FreesmLauncher")
 set(Launcher_DisplayName "Freesm Launcher")
-set(Launcher_AppID "org.freesmTeam.FreesmLauncher")
+set(Launcher_AppID "org.freesmlauncher.FreesmLauncher")
 set(Launcher_Domain "freesmlauncher.org")
 set(Launcher_Git "https://github.com/FreesmTeam/FreesmLauncher")
 

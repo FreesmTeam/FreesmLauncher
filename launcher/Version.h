@@ -48,7 +48,6 @@ class Version {
    public:
     QString toString() const { return m_string; }
     bool isEmpty() const { return m_string.isEmpty(); }
-    int versionDigitsNumber() const;
 
     friend QDebug operator<<(QDebug debug, const Version& v);
 

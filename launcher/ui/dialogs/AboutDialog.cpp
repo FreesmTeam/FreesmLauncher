@@ -92,7 +92,7 @@ AboutDialog::AboutDialog(QWidget* parent) : QDialog(parent), ui(new Ui::AboutDia
     ui->icon->setPixmap(APPLICATION->logo().pixmap(64));
     ui->title->setText(launcherName);
 
-    ui->versionLabel->setText(BuildConfig.printableVersionString());
+    ui->versionLabel->setText(QString("%1 %2").arg(BuildConfig.VERSION_CODENAME, BuildConfig.printableVersionString()));
 
     if (!BuildConfig.BUILD_PLATFORM.isEmpty())
         ui->platformLabel->setText(tr("Platform") + ": " + BuildConfig.BUILD_PLATFORM);
