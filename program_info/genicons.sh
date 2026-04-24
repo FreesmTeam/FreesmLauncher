@@ -1,6 +1,6 @@
 #!/bin/bash
 
-LAUNCHER_APPID="org.freesmTeam.freesmlauncher"
+LAUNCHER_APPID="org.freesmlauncher.FreesmLauncher"
 LAUNCHER_APP_BINARY_NAME="freesmlauncher"
 
 svg2png() {

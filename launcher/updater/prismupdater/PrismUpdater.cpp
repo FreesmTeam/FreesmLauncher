@@ -39,6 +39,7 @@
 #include <QProcess>
 #include <QProgressDialog>
 #include <QRegularExpression>
+#include <QSet>
 #include <memory>
 
 #include <filesystem>
@@ -60,11 +61,26 @@ namespace fs = std::filesystem;
 namespace {
 bool versionLess(const Version& lhs, const Version& rhs)
 {
-    // prefer x.y.z over x.y
-    if (lhs.versionDigitsNumber() == 2 && rhs.versionDigitsNumber() == 3)
-        return true;
-    if (lhs.versionDigitsNumber() == 3 && rhs.versionDigitsNumber() == 2)
+    auto demote = [](const Version& v) -> bool {
+        if (v.toString().startsWith("sequoia-")) {
+            return true;
+        }
+
+        static const QSet<QString> map{ "9.2-free-4", "9.2-free-3", "9.2-free-2", "9.2-free-1", "9.0-free-3",
+                                        "9.0-free-2", "9.0-free-1", "8.4",        "7.2" };
+        if (map.contains(v.toString())) {
+            return true;
+        }
+
         return false;
+    };
+
+    if (demote(lhs) && !demote(rhs)) {
+        return true;
+    }
+    if (!demote(lhs) && demote(rhs)) {
+        return false;
+    }
 
     return lhs < rhs;
 }
@@ -1172,9 +1188,8 @@ void PrismUpdaterApp::downloadReleasePage(const QString& api_url, int page)
     connect(download.get(), &Net::Download::failed, this, &PrismUpdaterApp::downloadError);
 
     m_current_task.reset(download);
-    connect(download.get(), &Net::Download::finished, this, [this]() {
-        qDebug() << "Download" << m_current_task->getUid().toString() << "finished";
-    });
+    connect(download.get(), &Net::Download::finished, this,
+            [this]() { qDebug() << "Download" << m_current_task->getUid().toString() << "finished"; });
 
     QCoreApplication::processEvents();
 
@@ -1201,13 +1216,7 @@ int PrismUpdaterApp::parseReleasePage(const QByteArray* response)
             release.draft = Json::requireBoolean(release_obj, "draft");
             release.prerelease = Json::requireBoolean(release_obj, "prerelease");
             release.body = release_obj["body"].toString();
-            {
-                QString tag_name = release.tag_name;
-                QRegularExpression re{ "^[a-z]*-" };
-                QRegularExpressionMatch match = re.match(release.tag_name);
-                tag_name.replace(match.captured(0), "");
-                release.version = Version(tag_name);
-            }
+            release.version = Version(release.tag_name);
 
             auto release_assets_obj = Json::requireArray(release_obj, "assets");
             for (auto asset_json : release_assets_obj) {

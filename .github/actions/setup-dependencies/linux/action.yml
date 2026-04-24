@@ -1,5 +1,5 @@
 name: Setup Linux dependencies
-description: Install and setup dependencies for building Prism Launcher
+description: Install and setup dependencies for building Freesm Launcher
 
 runs:
   using: composite

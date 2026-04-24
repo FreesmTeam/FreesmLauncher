@@ -140,8 +140,8 @@ jobs:
           cd ${{ env.INSTALL_DIR }}
 
           if [ -n '${{ secrets.APPLE_NOTARIZE_PASSWORD }}' ]; then
-            ditto -c -k --sequesterRsrc --keepParent "Freesm Launcher.app" ../PrismLauncher.zip
-            xcrun notarytool submit ../PrismLauncher.zip \
+            ditto -c -k --sequesterRsrc --keepParent "Freesm Launcher.app" ../FreesmLauncher.zip
+            xcrun notarytool submit ../FreesmLauncher.zip \
               --wait --progress \
               --apple-id '${{ secrets.APPLE_NOTARIZE_APPLE_ID }}' \
               --team-id '${{ secrets.APPLE_NOTARIZE_TEAM_ID }}' \
@@ -151,7 +151,7 @@ jobs:
           else
             echo ":warning: Skipping notarization as credentials are not present." >> $GITHUB_STEP_SUMMARY
           fi
-          ditto -c -k --sequesterRsrc --keepParent "Freesm Launcher.app" ../PrismLauncher.zip
+          ditto -c -k --sequesterRsrc --keepParent "Freesm Launcher.app" ../FreesmLauncher.zip
 
       # another one nerd
       - name: Make Sparkle signature (macOS)
@@ -159,7 +159,7 @@ jobs:
         run: |
           if [ '${{ secrets.SPARKLE_ED25519_KEY }}' != '' ]; then
             echo '${{ secrets.SPARKLE_ED25519_KEY }}' > ed25519-priv.pem
-            signature=$(/opt/homebrew/opt/openssl@3/bin/openssl pkeyutl -sign -rawin -in ${{ github.workspace }}/PrismLauncher.zip -inkey ed25519-priv.pem | openssl base64 | tr -d \\n)
+            signature=$(/opt/homebrew/opt/openssl@3/bin/openssl pkeyutl -sign -rawin -in ${{ github.workspace }}/FreesmLauncher.zip -inkey ed25519-priv.pem | openssl base64 | tr -d \\n)
             rm ed25519-priv.pem
             cat >> $GITHUB_STEP_SUMMARY << EOF
           ### Artifact Information :information_source:
@@ -176,4 +176,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: FreesmLauncher-${{ matrix.name }}-${{ env.VERSION }}-${{ inputs.build_type }}
-          path: PrismLauncher.zip
+          path: FreesmLauncher.zip

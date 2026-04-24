@@ -1,19 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <component type="desktop">
-  <id>org.freesmTeam.freesmlauncher</id>
-  <launchable type="desktop-id">org.freesmTeam.freesmlauncher.desktop</launchable>
+  <id>@Launcher_AppID@</id>
   <name>Freesm Launcher</name>
-  <developer_name>Freesm Launcher Contributors</developer_name>
   <summary>A custom launcher for Minecraft that allows you to easily manage multiple installations of Minecraft at once</summary>
+  <developer id="org.freesmlauncher">
+      <name>Freesm Launcher Contributors</name>
+    </developer>
   <metadata_license>CC0-1.0</metadata_license>
   <project_license>GPL-3.0-only</project_license>
-  <url type="homepage">https://github.com/FreesmTeam/FreesmLauncher</url>
-  <url type="help">https://github.com/FreesmTeam/FreesmLauncher</url>
-  <url type="bugtracker">https://github.com/FreesmTeam/FreesmLauncher/issues</url>
-  <url type="contact">https://github.com/FreesmTeam/FreesmLauncher/</url>
-  <url type="vcs-browser">https://github.com/FreesmTeam/FreesmLauncher</url>
-  <url type="contribute">https://github.com/FreesmTeam/FreesmLauncher/blob/develop/CONTRIBUTING.md</url>
-  <url type="translate">https://hosted.weblate.org/projects/freesmlauncher/freesmlauncher-launcher/</url>
   <description>
     <p>Freesm Launcher is a custom launcher for Minecraft that focuses on predictability, long term stability and simplicity.</p>
     <p>Features:</p>
@@ -68,8 +62,16 @@
   <releases>
     <release version="@Launcher_VERSION_NAME@" date="@Launcher_BUILD_TIMESTAMP@"></release>
   </releases>
+  <url type="homepage">https://github.com/FreesmTeam/FreesmLauncher</url>
+  <url type="help">https://github.com/FreesmTeam/FreesmLauncher</url>
+  <url type="bugtracker">https://github.com/FreesmTeam/FreesmLauncher/issues</url>
+  <url type="contact">https://github.com/FreesmTeam/FreesmLauncher/</url>
+  <url type="vcs-browser">https://github.com/FreesmTeam/FreesmLauncher</url>
+  <url type="contribute">https://github.com/FreesmTeam/FreesmLauncher/blob/develop/CONTRIBUTING.md</url>
+  <url type="translate">https://hosted.weblate.org/projects/freesmlauncher/freesmlauncher-launcher/</url>
   <content_rating type="oars-1.1">
     <content_attribute id="violence-fantasy">moderate</content_attribute>
     <content_attribute id="social-chat">intense</content_attribute>
   </content_rating>
+  <launchable type="desktop-id">@Launcher_AppID@.desktop</launchable>
 </component>

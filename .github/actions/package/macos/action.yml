@@ -104,7 +104,7 @@ runs:
         cd ${{ env.INSTALL_DIR }}
 
         mkdir -p src
-        cp -R "Prism Launcher.app" src/
+        cp -R "Freesm Launcher.app" src/
 
         ln -s /Applications src/
 
@@ -112,7 +112,7 @@ runs:
             -volname "Freesm Launcher ${{ inputs.version }}" \
             -srcfolder src \
             -ov -format ULMO \
-            "../PrismLauncher.dmg"
+            "../FreesmLauncher.dmg"
 
     - name: Make Sparkle signature
       shell: bash
@@ -143,5 +143,5 @@ runs:
     - name: Upload disk image
       uses: actions/upload-artifact@v7
       with:
-        name: PrismLauncher-${{ inputs.artifact-name }}-${{ inputs.version }}-${{ inputs.build-type }}.dmg
-        path: PrismLauncher.dmg
+        name: FreesmLauncher-${{ inputs.artifact-name }}-${{ inputs.version }}-${{ inputs.build-type }}.dmg
+        path: FreesmLauncher.dmg
