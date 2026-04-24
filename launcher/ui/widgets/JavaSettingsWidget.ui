@@ -219,7 +219,7 @@
                                         <string>The amount of memory Minecraft is started with.</string>
                                     </property>
                                     <property name="suffix">
-                                        <string notr="true">MiB</string>
+                                        <string notr="true"> MiB</string>
                                     </property>
                                     <property name="minimum">
                                         <number>8</number>
@@ -268,7 +268,7 @@
                                         <string>The maximum amount of memory Minecraft is allowed to use.</string>
                                     </property>
                                     <property name="suffix">
-                                        <string notr="true">MiB</string>
+                                        <string notr="true"> MiB</string>
                                     </property>
                                     <property name="minimum">
                                         <number>8</number>
@@ -317,7 +317,7 @@
                                         <string>The amount of memory available to store loaded Java classes.</string>
                                     </property>
                                     <property name="suffix">
-                                        <string notr="true">MiB</string>
+                                        <string notr="true"> MiB</string>
                                     </property>
                                     <property name="minimum">
                                         <number>4</number>
