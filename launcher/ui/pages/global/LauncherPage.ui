@@ -211,10 +211,10 @@
                <string>On Launch</string>
               </property>
               <property name="suffix">
-                  <string>hours</string>
+                  <string> hours</string>
               </property>
               <property name="prefix">
-                  <string>Every</string>
+                  <string>Every </string>
               </property>
               <property name="minimum">
                <number>0</number>
@@ -504,7 +504,7 @@
              </sizepolicy>
             </property>
             <property name="suffix">
-                <string>lines</string>
+                <string> lines</string>
             </property>
             <property name="minimum">
              <number>10000</number>

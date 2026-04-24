@@ -148,7 +148,7 @@
                                           </sizepolicy>
                                       </property>
                                       <property name="suffix">
-                                          <string>MiB</string>
+                                          <string> MiB</string>
                                       </property>
                                       <property name="minimum">
                                           <number>8</number>
