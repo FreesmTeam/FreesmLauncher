@@ -1,5 +1,10 @@
 {
+  lib,
+  symlinkJoin,
+  kdePackages,
   addDriverRunpath,
+  freesmlauncher-unwrapped,
+  stdenv,
   alsa-lib,
   flite,
   gamemode,
@@ -8,8 +13,6 @@
   jdk21,
   jdk25,
   jdk8,
-  kdePackages,
-  lib,
   libGL,
   libX11,
   libXcursor,
@@ -23,25 +26,19 @@
   openal,
   pciutils,
   pipewire,
-  freesmlauncher-unwrapped,
-  clangStdenv,
-  stdenv ? clangStdenv,
-  symlinkJoin,
   udev,
   vulkan-loader,
   xrandr,
-  additionalLibs ? [],
-  additionalPrograms ? [],
+  msaClientID ? null,
   controllerSupport ? stdenv.hostPlatform.isLinux,
   gamemodeSupport ? stdenv.hostPlatform.isLinux,
+  textToSpeechSupport ? stdenv.hostPlatform.isLinux,
   jdks ? [
     jdk25
     jdk21
     jdk17
     jdk8
   ],
-  msaClientID ? null,
-  textToSpeechSupport ? stdenv.hostPlatform.isLinux,
 }:
 assert lib.assertMsg (
   controllerSupport -> stdenv.hostPlatform.isLinux
@@ -49,95 +46,56 @@ assert lib.assertMsg (
 assert lib.assertMsg (
   textToSpeechSupport -> stdenv.hostPlatform.isLinux
 ) "textToSpeechSupport only has an effect on Linux."; let
-  freesmlauncher' = freesmlauncher-unwrapped.override {inherit msaClientID gamemodeSupport;};
+  isLinux = stdenv.hostPlatform.isLinux;
+
+  launcher = freesmlauncher-unwrapped.override {
+    inherit msaClientID gamemodeSupport;
+  };
+
+  runtimePrograms = [mesa-demos pciutils xrandr];
+  runtimeLibs =
+    [
+      stdenv.cc.cc.lib
+
+      glfw3-minecraft
+      openal
+
+      alsa-lib
+      libjack2
+      libpulseaudio
+      pipewire
+
+      libGL
+      libX11
+      libXcursor
+      libXext
+      libXrandr
+      libXxf86vm
+
+      udev
+      vulkan-loader
+    ]
+    ++ lib.optionals textToSpeechSupport [flite]
+    ++ lib.optionals gamemodeSupport [gamemode.lib]
+    ++ lib.optionals controllerSupport [libusb1];
 in
   symlinkJoin {
-    pname = "freesmlauncher-${freesmlauncher'.version}";
-    inherit
-      (freesmlauncher')
-      version
-      ;
-
-    paths = [
-      freesmlauncher'
-    ];
-
-    nativeBuildInputs = [
-      kdePackages.wrapQtAppsHook
-    ];
-
-    buildInputs =
-      [
-        kdePackages.qtbase
-        kdePackages.qtsvg
-      ]
-      ++ lib.optional (
-        lib.versionAtLeast kdePackages.qtbase.version "6" && stdenv.hostPlatform.isLinux
-      )
-      kdePackages.qtwayland;
+    pname = "freesmlauncher";
+    inherit (launcher) version meta;
+    paths = [launcher];
+    nativeBuildInputs = [kdePackages.wrapQtAppsHook];
+    buildInputs = with kdePackages;
+      [qtbase qtsvg]
+      ++ lib.optional (lib.versionAtLeast qtbase.version "6" && isLinux) qtwayland;
 
     postBuild = ''
       wrapQtAppsHook
     '';
 
-    qtWrapperArgs = let
-      runtimeLibs =
-        [
-          stdenv.cc.cc.lib
-          ## native versions
-          glfw3-minecraft
-          openal
-
-          ## openal
-          alsa-lib
-          libjack2
-          libpulseaudio
-          pipewire
-
-          ## glfw
-          libGL
-          libX11
-          libXcursor
-          libXext
-          libXrandr
-          libXxf86vm
-
-          udev # oshi
-
-          vulkan-loader # VulkanMod's lwjgl
-        ]
-        ++ lib.optional textToSpeechSupport flite
-        ++ lib.optional gamemodeSupport gamemode.lib
-        ++ lib.optional controllerSupport libusb1
-        ++ additionalLibs;
-
-      runtimePrograms =
-        [
-          mesa-demos
-          pciutils # need lspci
-          xrandr # needed for LWJGL [2.9.2, 3)
-        ]
-        ++ additionalPrograms;
-    in
-      [
-        "--prefix FREESMLAUNCHER_JAVA_PATHS : ${lib.makeSearchPath "bin/java" jdks}"
-      ]
-      ++ lib.optionals stdenv.hostPlatform.isLinux [
-        "--set LD_LIBRARY_PATH ${addDriverRunpath.driverLink}/lib:${lib.makeLibraryPath runtimeLibs}"
+    qtWrapperArgs =
+      ["--prefix FREESMLAUNCHER_JAVA_PATHS : ${lib.makeSearchPath "bin/java" jdks}"]
+      ++ lib.optionals isLinux [
         "--prefix PATH : ${lib.makeBinPath runtimePrograms}"
+        "--prefix LD_LIBRARY_PATH : ${addDriverRunpath.driverLink}/lib:${lib.makeLibraryPath runtimeLibs}"
       ];
-
-    meta = {
-      inherit
-        (freesmlauncher'.meta)
-        description
-        longDescription
-        homepage
-        changelog
-        license
-        maintainers
-        mainProgram
-        platforms
-        ;
-    };
   }

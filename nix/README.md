@@ -1,37 +1,84 @@
+# NixOS
+
 > [!IMPORTANT]
-> We are using **Garnix CI** for binary caching.
-> To add the binary cache manually, proceed to read [this](https://garnix.io/docs/ci/caching).
+> We use **Garnix CI** for binary caching.
+> To configure the cache manually, follow the official guide:
 >
-> We also use **[Cachix](https://app.cachix.org/cache/freesmlauncher#pull)** as a second cache for binary caching.
-> For more information, check out [this guide](https://docs.cachix.org/getting-started#using-binaries-with-nix).
+> - [Garnix binary cache guide](https://garnix.io/docs/ci/caching)
+>
+> We also provide a secondary cache through [**Cachix**](https://app.cachix.org/cache/freesmlauncher#pull).
+> Additional information is available in the official
+> [Cachix getting started guide](https://docs.cachix.org/getting-started#using-binaries-with-nix).
 
----
+<div align="center">
 
-### <div align="center"> Using on NixOS / Nixpkgs </div>
+# Running and installing on NixOS
 
-Currently, **Freesm** isn't in `nixpkgs` (yet?). To use it, you'll need to add it in your `flake.nix`:
+This guide explains how to run and install **FreesmLauncher** on NixOS.
+
+</div>
+
+## Running without installation
+
+```fish
+nix run github:FreesmTeam/FreesmLauncher#freesmlauncher
+```
+
+## Installation
+
+Add the flake input to your `flake.nix`:
 
 ```nix
 {
-    inputs = {
-        freesmlauncher = {
-            url = "github:FreesmTeam/FreesmLauncher";
-            inputs = {
-                nixpkgs = {
-                    follows = "nixpkgs";
-                };
-            };
-        };
+  inputs = {
+    nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
+
+    freesmlauncher = {
+      url = "github:FreesmTeam/FreesmLauncher";
+      inputs.nixpkgs.follows = "nixpkgs";
     };
-    outputs = {
-        self,
-        nixpkgs,
-        home-manager,
-        freesmlauncher,
-        ...
-    } @ inputs :
-    ... # rest of flake.
+  };
+
+  outputs = { self, nixpkgs, freesmlauncher, ... }: {
+    # your outputs
+  };
 }
 ```
 
-After that, you can add freesmlauncher to environment.systemPackages, users.users.<>.packages, or home.packages.
+### NixOS configuration
+
+```nix
+{ pkgs, system, freesmlauncher, ... }:
+
+{
+  environment.systemPackages = [
+    freesmlauncher.packages.${system}.freesmlauncher
+  ];
+}
+```
+
+### Home Manager configuration
+
+```nix
+{ pkgs, system, freesmlauncher, ... }:
+
+{
+  home.packages = [
+    freesmlauncher.packages.${system}.freesmlauncher
+  ];
+}
+```
+
+## Updating
+
+To update the flake input:
+
+```fish
+nix flake update freesmlauncher
+```
+
+Or update all inputs:
+
+```fish
+nix flake update
+```
