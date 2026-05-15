@@ -16,7 +16,6 @@
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
-    nix-filter.url = "github:numtide/nix-filter";
     libnbtplusplus = {
       url = "github:FreesmTeam/libnbtplusplus";
       flake = false;
@@ -26,7 +25,6 @@
   outputs = {
     self,
     nixpkgs,
-    nix-filter,
     libnbtplusplus,
     ...
   }: let
@@ -41,7 +39,7 @@
   in {
     overlays.default = final: prev: {
       freesmlauncher-unwrapped = final.callPackage ./nix/unwrapped.nix {
-        inherit nix-filter libnbtplusplus self;
+        inherit libnbtplusplus self;
       };
 
       freesmlauncher = final.callPackage ./nix/wrapper.nix;
@@ -51,7 +49,7 @@
       pkgs = import nixpkgs {inherit system;};
 
       freesmlauncher-unwrapped = pkgs.callPackage ./nix/unwrapped.nix {
-        inherit nix-filter libnbtplusplus self;
+        inherit libnbtplusplus self;
       };
 
       freesmlauncher = pkgs.callPackage ./nix/wrapper.nix {

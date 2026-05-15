@@ -85,12 +85,8 @@ in
     paths = [launcher];
     nativeBuildInputs = [kdePackages.wrapQtAppsHook];
     buildInputs = with kdePackages;
-      [qtbase qtsvg]
+      [qtbase qtsvg qtimageformats]
       ++ lib.optional (lib.versionAtLeast qtbase.version "6" && isLinux) qtwayland;
-
-    postBuild = ''
-      wrapQtAppsHook
-    '';
 
     qtWrapperArgs =
       ["--prefix FREESMLAUNCHER_JAVA_PATHS : ${lib.makeSearchPath "bin/java" jdks}"]
@@ -98,4 +94,13 @@ in
         "--prefix PATH : ${lib.makeBinPath runtimePrograms}"
         "--prefix LD_LIBRARY_PATH : ${addDriverRunpath.driverLink}/lib:${lib.makeLibraryPath runtimeLibs}"
       ];
+
+    postInstall = lib.optionalString stdenv.hostPlatform.isDarwin ''
+      if [ -d "$out/Applications/FreesmLauncher.app/Contents/MacOS" ]; then
+        mkdir -p "$out/bin"
+        ln -s \
+          "$out/Applications/FreesmLauncher.app/Contents/MacOS/freesmlauncher" \
+          "$out/bin/freesmlauncher"
+      fi
+    '';
   }
