@@ -1,0 +1,4 @@
+builds:
+    exclude: []
+    include:
+        - "packages.*.freesmlauncher"
