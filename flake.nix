@@ -15,21 +15,10 @@
   };
 
   inputs = {
-    nixpkgs = {
-      url = "github:NixOS/nixpkgs/nixos-unstable";
-    };
-
-    nix-filter = {
-      url = "github:numtide/nix-filter";
-    };
-
+    nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
+    nix-filter.url = "github:numtide/nix-filter";
     libnbtplusplus = {
       url = "github:FreesmTeam/libnbtplusplus";
-      flake = false;
-    };
-
-    flake-compat = {
-      url = "github:edolstra/flake-compat";
       flake = false;
     };
   };
@@ -37,82 +26,71 @@
   outputs = {
     self,
     nixpkgs,
-    libnbtplusplus,
     nix-filter,
+    libnbtplusplus,
     ...
   }: let
-    inherit (nixpkgs) lib;
-    systems = lib.systems.flakeExposed;
-    forAllSystems = lib.genAttrs systems;
-    nixpkgsFor = forAllSystems (system: nixpkgs.legacyPackages.${system});
+    systems = [
+      "x86_64-linux"
+      "aarch64-linux"
+      "x86_64-darwin"
+      "aarch64-darwin"
+    ];
+
+    forEachSystem = nixpkgs.lib.genAttrs systems;
   in {
-    formatter = forAllSystems (system: nixpkgsFor.${system}.alejandra);
-    devShells = forAllSystems (
-      system: let
-        pkgs = nixpkgsFor.${system};
-      in {
-        default = pkgs.mkShell {
-          inputsFrom = [
-            self.packages.${system}.freesmlauncher-unwrapped
-          ];
-          buildInputs = [
-            pkgs.ccache
-            pkgs.ninja
-          ];
-          shellHook = ''
-            # https://discourse.nixos.org/t/qt-development-environment-on-a-flake-system/23707/5
-            setQtEnvironment=$(mktemp)
-            random=$(openssl rand -base64 20 | sed "s/[^a-zA-Z0-9]//g")
-            makeWrapper "$(type -p sh)" "$setQtEnvironment" "''${qtWrapperArgs[@]}" --argv0 "$random"
-            sed "/$random/d" -i "$setQtEnvironment"
-            source "$setQtEnvironment"
-          '';
-        };
-      }
-    );
-
-    overlays = {
-      default = final: prev: {
-        freesmlauncher-unwrapped = prev.callPackage ./nix/unwrapped.nix {
-          inherit
-            libnbtplusplus
-            nix-filter
-            self
-            ;
-        };
-
-        freesmlauncher = final.callPackage ./nix/wrapper.nix {};
+    overlays.default = final: prev: {
+      freesmlauncher-unwrapped = final.callPackage ./nix/unwrapped.nix {
+        inherit nix-filter libnbtplusplus self;
       };
+
+      freesmlauncher = final.callPackage ./nix/wrapper.nix;
     };
 
-    packages = forAllSystems (
-      system: let
-        pkgs = nixpkgsFor.${system};
+    packages = forEachSystem (system: let
+      pkgs = import nixpkgs {inherit system;};
 
-        freesmPackages = lib.makeScope pkgs.newScope (final: self.overlays.default final pkgs);
+      freesmlauncher-unwrapped = pkgs.callPackage ./nix/unwrapped.nix {
+        inherit nix-filter libnbtplusplus self;
+      };
 
-        packages = {
-          inherit (freesmPackages) freesmlauncher-unwrapped freesmlauncher;
-          default = freesmPackages.freesmlauncher;
-        };
-      in
-        lib.filterAttrs (_: lib.meta.availableOn pkgs.stdenv.hostPlatform) packages
-    );
+      freesmlauncher = pkgs.callPackage ./nix/wrapper.nix {
+        inherit freesmlauncher-unwrapped;
+      };
 
-    legacyPackages = forAllSystems (
-      system: let
-        freesmPackages = self.packages.${system};
-        legacyPackages = self.legacyPackages.${system};
-      in {
-        freesmlauncher-debug = freesmPackages.freesmlauncher.override {
-          freesmlauncher-unwrapped = legacyPackages.freesmlauncher-unwrapped-debug;
-        };
+      freesmlauncher-unwrapped-debug = freesmlauncher-unwrapped.overrideAttrs {
+        cmakeBuildType = "Debug";
+        dontStrip = true;
+      };
 
-        freesmlauncher-unwrapped-debug = freesmPackages.freesmlauncher-unwrapped.overrideAttrs {
-          cmakeBuildType = "Debug";
-          dontStrip = true;
-        };
-      }
+      freesmlauncher-debug = pkgs.callPackage ./nix/wrapper.nix {
+        freesmlauncher-unwrapped = freesmlauncher-unwrapped-debug;
+      };
+    in {
+      inherit freesmlauncher freesmlauncher-unwrapped freesmlauncher-debug freesmlauncher-unwrapped-debug;
+
+      default = freesmlauncher;
+    });
+
+    devShells = forEachSystem (system: let
+      pkgs = import nixpkgs {
+        inherit system;
+        overlays = [self.overlays.default];
+      };
+    in {
+      default = pkgs.mkShell {
+        inputsFrom = [pkgs.freesmlauncher-unwrapped];
+
+        packages = with pkgs; [
+          ccache
+          ninja
+        ];
+      };
+    });
+
+    formatter = forEachSystem (
+      system:
+        (import nixpkgs {inherit system;}).alejandra
     );
   };
 }
