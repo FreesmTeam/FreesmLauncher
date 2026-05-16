@@ -1,11 +1,11 @@
 #pragma once
+#include "ui/pages/instance/InstanceSettingsPage.h"
+#include "ui/pages/instance/LogPage.h"
 #include <FileSystem.h>
 #include <ui/pages/instance/DataPackPage.h>
 #include "minecraft/MinecraftInstance.h"
 #include "ui/pages/BasePage.h"
 #include "ui/pages/BasePageProvider.h"
-#include "ui/pages/instance/InstanceSettingsPage.h"
-#include "ui/pages/instance/LogPage.h"
 #include "ui/pages/instance/ManagedPackPage.h"
 #include "ui/pages/instance/ModFolderPage.h"
 #include "ui/pages/instance/ModpackCreatorPage.h"

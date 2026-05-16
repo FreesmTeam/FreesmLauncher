@@ -1639,8 +1639,8 @@ if (CMAKE_CXX_COMPILER_FRONTEND_VARIANT STREQUAL "MSVC")
     target_compile_options(Launcher_logic PRIVATE /wd4100) # C4100 - unused parameter
     target_compile_options(${Launcher_Name} PRIVATE /wd4100) # C4100 - unused parameter
 else()
-    target_compile_options(Launcher_logic PRIVATE -Wno-unused-parameter -Wno-missing-field-initializers)
-    target_compile_options(${Launcher_Name} PRIVATE -Wno-unused-parameter -Wno-missing-field-initializers)
+    target_compile_options(Launcher_logic PRIVATE -Wno-unused-parameter -Wno-missing-field-initializers -Wno-error=sfinae-incomplete)
+    target_compile_options(${Launcher_Name} PRIVATE -Wno-unused-parameter -Wno-missing-field-initializers -Wno-error=sfinae-incomplete)
 endif()
 
 #### The bundle mess! ####

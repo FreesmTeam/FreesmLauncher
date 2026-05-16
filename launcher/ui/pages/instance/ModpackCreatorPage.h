@@ -20,8 +20,10 @@
 
 #include <QWidget>
 
-#include "minecraft/MinecraftInstance.h"
+#include "BaseInstance.h"
 #include "ui/pages/BasePage.h"
+
+class MinecraftInstance;
 
 namespace Ui {
 class ModpackCreatorPage;
@@ -52,6 +54,7 @@ class ModpackCreatorPage : public QWidget, public BasePage {
 
    private slots:
     void on_markAsModpackBtn_clicked();
+    void on_markAsOldVersionBtn_clicked();
     void on_generateChangelogBtn_clicked();
     void on_copyChangelogBtn_clicked();
     void on_clearHistoryBtn_clicked();

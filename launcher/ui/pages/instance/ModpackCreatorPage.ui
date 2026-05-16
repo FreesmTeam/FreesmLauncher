@@ -103,12 +103,25 @@
       <item>
        <layout class="QHBoxLayout" name="changelogButtonsLayout">
         <item>
+         <widget class="QPushButton" name="markAsOldVersionBtn">
+          <property name="text">
+           <string>Mark as Old Version</string>
+          </property>
+          <property name="toolTip">
+           <string>Save the current mod list as the baseline to compare against later</string>
+          </property>
+          <property name="minimumHeight">
+           <number>32</number>
+          </property>
+         </widget>
+        </item>
+        <item>
          <widget class="QPushButton" name="generateChangelogBtn">
           <property name="text">
            <string>Generate Changelog</string>
           </property>
           <property name="toolTip">
-           <string>Create a new version snapshot and compare with the previous one to generate a changelog</string>
+           <string>Compare the current mods with the latest saved old version</string>
           </property>
           <property name="minimumHeight">
            <number>32</number>

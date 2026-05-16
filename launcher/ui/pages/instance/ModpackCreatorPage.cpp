@@ -25,6 +25,7 @@
 #include <QTimer>
 
 #include "minecraft/mod/ModpackChangelogGenerator.h"
+#include "minecraft/MinecraftInstance.h"
 
 ModpackCreatorPage::ModpackCreatorPage(MinecraftInstance* inst, QWidget* parent)
     : QWidget(parent), ui(new Ui::ModpackCreatorPage), m_inst(inst)
@@ -33,7 +34,6 @@ ModpackCreatorPage::ModpackCreatorPage(MinecraftInstance* inst, QWidget* parent)
 
     // Load existing metadata
     auto* settings = m_inst->settings();
-    bool isModpack = settings->get("ModpackCreatorEnabled").toBool();
     QString modpackName = settings->get("ModpackCreatorName").toString();
     QString modpackAuthor = settings->get("ModpackCreatorAuthor").toString();
 
@@ -83,6 +83,15 @@ void ModpackCreatorPage::on_markAsModpackBtn_clicked()
 
     settings->set("ModpackCreatorEnabled", !isCurrentlyEnabled);
     updateUI();
+}
+
+void ModpackCreatorPage::on_markAsOldVersionBtn_clicked()
+{
+    ModpackChangelogGenerator generator(m_inst);
+    generator.createSnapshot();
+    
+    // Auto-generate the changelog immediately after taking the snapshot to show it
+    on_generateChangelogBtn_clicked();
 }
 
 void ModpackCreatorPage::on_generateChangelogBtn_clicked()
@@ -167,7 +176,7 @@ void ModpackCreatorPage::refreshVersionInfo()
     int snapshotCount = generator.getSnapshotCount();
 
     if (snapshotCount == 0) {
-        ui->versionInfoLabel->setText(tr("No snapshots yet. Click \"Generate Changelog\" to create the first one."));
+        ui->versionInfoLabel->setText(tr("No snapshots yet. Click \"Mark as Old Version\" to create the baseline."));
     } else {
         auto latest = generator.getLatestSnapshot();
         ui->versionInfoLabel->setText(

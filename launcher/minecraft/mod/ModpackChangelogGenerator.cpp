@@ -378,16 +378,16 @@ ModpackChangelog ModpackChangelogGenerator::generateChangelog()
         previousSnapshot = history.last();
     }
 
-    // Create the new snapshot
-    auto newSnapshot = createSnapshot();
+    // Create a snapshot of the current state but DO NOT save it
+    int nextVersion = previousSnapshot.versionNumber + 1;
+    auto currentSnapshot = buildSnapshotFromCurrentMods(nextVersion);
 
-    // If there was no previous snapshot, return an empty changelog
+    // If there was no previous snapshot, return all mods as added
     if (previousSnapshot.versionNumber == 0) {
         ModpackChangelog changelog;
         changelog.fromVersion = 0;
-        changelog.toVersion = newSnapshot.versionNumber;
-        // First snapshot — treat all mods as "added"
-        for (const auto& mod : newSnapshot.mods) {
+        changelog.toVersion = currentSnapshot.versionNumber;
+        for (const auto& mod : currentSnapshot.mods) {
             ChangelogEntry entry;
             entry.modName = mod.name;
             changelog.addedMods.append(entry);
@@ -395,7 +395,7 @@ ModpackChangelog ModpackChangelogGenerator::generateChangelog()
         return changelog;
     }
 
-    return compareSnapshots(previousSnapshot, newSnapshot);
+    return compareSnapshots(previousSnapshot, currentSnapshot);
 }
 
 QList<ModpackVersionSnapshot> ModpackChangelogGenerator::getVersionHistory() const
