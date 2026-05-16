@@ -399,6 +399,10 @@ set(MINECRAFT_SOURCES
     minecraft/mod/tasks/GetModDependenciesTask.h
     minecraft/mod/tasks/GetModDependenciesTask.cpp
 
+    # Modpack Creator - changelog generator
+    minecraft/mod/ModpackChangelogGenerator.h
+    minecraft/mod/ModpackChangelogGenerator.cpp
+
     # Assets
     minecraft/AssetsUtils.h
     minecraft/AssetsUtils.cpp
@@ -975,6 +979,8 @@ SET(LAUNCHER_SOURCES
     ui/pages/instance/ModFolderPage.h
     ui/pages/instance/NotesPage.cpp
     ui/pages/instance/NotesPage.h
+    ui/pages/instance/ModpackCreatorPage.cpp
+    ui/pages/instance/ModpackCreatorPage.h
     ui/pages/instance/LogPage.cpp
     ui/pages/instance/LogPage.h
     ui/pages/instance/InstanceSettingsPage.h
@@ -1283,6 +1289,7 @@ qt_wrap_ui(LAUNCHER_UI
     ui/pages/instance/OtherLogsPage.ui
     ui/pages/instance/VersionPage.ui
     ui/pages/instance/ManagedPackPage.ui
+    ui/pages/instance/ModpackCreatorPage.ui
     ui/pages/instance/WorldListPage.ui
     ui/pages/instance/ScreenshotsPage.ui
     ui/pages/modplatform/atlauncher/AtlOptionalModDialog.ui

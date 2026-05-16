@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>ModpackCreatorPage</class>
+ <widget class="QWidget" name="ModpackCreatorPage">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>700</width>
+    <height>600</height>
+   </rect>
+  </property>
+  <layout class="QVBoxLayout" name="mainLayout">
+   <property name="leftMargin">
+    <number>6</number>
+   </property>
+   <property name="topMargin">
+    <number>6</number>
+   </property>
+   <property name="rightMargin">
+    <number>6</number>
+   </property>
+   <property name="bottomMargin">
+    <number>6</number>
+   </property>
+
+   <!-- Mark as Modpack toggle button -->
+   <item>
+    <widget class="QPushButton" name="markAsModpackBtn">
+     <property name="text">
+      <string>Mark as My Modpack</string>
+     </property>
+     <property name="minimumHeight">
+      <number>36</number>
+     </property>
+     <property name="toolTip">
+      <string>Click to mark this instance as a modpack you created</string>
+     </property>
+    </widget>
+   </item>
+
+   <!-- Modpack Info Group -->
+   <item>
+    <widget class="QGroupBox" name="modpackInfoGroup">
+     <property name="title">
+      <string>Modpack Information</string>
+     </property>
+     <layout class="QFormLayout" name="modpackInfoLayout">
+      <item row="0" column="0">
+       <widget class="QLabel" name="modpackNameLabel">
+        <property name="text">
+         <string>Modpack Name:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="1">
+       <widget class="QLineEdit" name="modpackNameEdit">
+        <property name="placeholderText">
+         <string>Enter your modpack name...</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="0">
+       <widget class="QLabel" name="modpackAuthorLabel">
+        <property name="text">
+         <string>Author:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="1">
+       <widget class="QLineEdit" name="modpackAuthorEdit">
+        <property name="placeholderText">
+         <string>Enter your name...</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+
+   <!-- Changelog Group -->
+   <item>
+    <widget class="QGroupBox" name="changelogGroup">
+     <property name="title">
+      <string>Changelog Generator</string>
+     </property>
+     <layout class="QVBoxLayout" name="changelogLayout">
+      <!-- Version info label -->
+      <item>
+       <widget class="QLabel" name="versionInfoLabel">
+        <property name="text">
+         <string>No snapshots yet. Click "Generate Changelog" to create the first one.</string>
+        </property>
+        <property name="wordWrap">
+         <bool>true</bool>
+        </property>
+        <property name="styleSheet">
+         <string>color: gray; font-style: italic;</string>
+        </property>
+       </widget>
+      </item>
+      <!-- Buttons row -->
+      <item>
+       <layout class="QHBoxLayout" name="changelogButtonsLayout">
+        <item>
+         <widget class="QPushButton" name="generateChangelogBtn">
+          <property name="text">
+           <string>Generate Changelog</string>
+          </property>
+          <property name="toolTip">
+           <string>Create a new version snapshot and compare with the previous one to generate a changelog</string>
+          </property>
+          <property name="minimumHeight">
+           <number>32</number>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="copyChangelogBtn">
+          <property name="text">
+           <string>Copy to Clipboard</string>
+          </property>
+          <property name="toolTip">
+           <string>Copy the changelog text to clipboard</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <spacer name="changelogBtnSpacer">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+         </spacer>
+        </item>
+        <item>
+         <widget class="QPushButton" name="clearHistoryBtn">
+          <property name="text">
+           <string>Clear History</string>
+          </property>
+          <property name="toolTip">
+           <string>Delete all version snapshots for this modpack</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      <!-- Changelog output -->
+      <item>
+       <widget class="QPlainTextEdit" name="changelogOutput">
+        <property name="readOnly">
+         <bool>true</bool>
+        </property>
+        <property name="placeholderText">
+         <string>Changelog will appear here after generation...</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+
+  </layout>
+ </widget>
+ <tabstops>
+  <tabstop>markAsModpackBtn</tabstop>
+  <tabstop>modpackNameEdit</tabstop>
+  <tabstop>modpackAuthorEdit</tabstop>
+  <tabstop>generateChangelogBtn</tabstop>
+  <tabstop>copyChangelogBtn</tabstop>
+  <tabstop>clearHistoryBtn</tabstop>
+  <tabstop>changelogOutput</tabstop>
+ </tabstops>
+ <resources/>
+ <connections/>
+</ui>

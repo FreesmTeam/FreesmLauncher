@@ -125,6 +125,11 @@ BaseInstance::BaseInstance(SettingsObject* globalSettings, std::unique_ptr<Setti
     m_settings->registerSetting("ManagedPackVersionName", "");
     m_settings->registerSetting("ManagedPackURL", "");
 
+    // Modpack Creator Mode
+    m_settings->registerSetting("ModpackCreatorEnabled", false);
+    m_settings->registerSetting("ModpackCreatorName", "");
+    m_settings->registerSetting("ModpackCreatorAuthor", "");
+
     m_settings->registerSetting("Profiler", "");
 
     auto discordSetting = m_settings->registerSetting("OverrideDiscord", false);
@@ -206,6 +211,36 @@ void BaseInstance::copyManagedPack(BaseInstance& other)
         m_settings->set("OverrideJavaLocation", false);
         m_settings->set("JavaPath", "");
     }
+}
+
+bool BaseInstance::isModpackCreatorEnabled() const
+{
+    return m_settings->get("ModpackCreatorEnabled").toBool();
+}
+
+void BaseInstance::setModpackCreatorEnabled(bool enabled)
+{
+    m_settings->set("ModpackCreatorEnabled", enabled);
+}
+
+QString BaseInstance::getModpackCreatorName() const
+{
+    return m_settings->get("ModpackCreatorName").toString();
+}
+
+void BaseInstance::setModpackCreatorName(const QString& name)
+{
+    m_settings->set("ModpackCreatorName", name);
+}
+
+QString BaseInstance::getModpackCreatorAuthor() const
+{
+    return m_settings->get("ModpackCreatorAuthor").toString();
+}
+
+void BaseInstance::setModpackCreatorAuthor(const QString& author)
+{
+    m_settings->set("ModpackCreatorAuthor", author);
 }
 
 QStringList BaseInstance::getLinkedInstances() const

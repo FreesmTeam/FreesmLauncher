@@ -168,6 +168,13 @@ class BaseInstance : public QObject {
     void setManagedPack(const QString& type, const QString& id, const QString& name, const QString& versionId, const QString& version);
     void copyManagedPack(BaseInstance& other);
 
+    bool isModpackCreatorEnabled() const;
+    void setModpackCreatorEnabled(bool enabled);
+    QString getModpackCreatorName() const;
+    void setModpackCreatorName(const QString& name);
+    QString getModpackCreatorAuthor() const;
+    void setModpackCreatorAuthor(const QString& author);
+
     virtual QStringList extraArguments(AuthSessionPtr session);
 
     /// Traits. Normally inside the version, depends on instance implementation.

@@ -8,6 +8,7 @@
 #include "ui/pages/instance/LogPage.h"
 #include "ui/pages/instance/ManagedPackPage.h"
 #include "ui/pages/instance/ModFolderPage.h"
+#include "ui/pages/instance/ModpackCreatorPage.h"
 #include "ui/pages/instance/NotesPage.h"
 #include "ui/pages/instance/OtherLogsPage.h"
 #include "ui/pages/instance/ResourcePackPage.h"
@@ -41,6 +42,7 @@ class InstancePageProvider : protected QObject, public BasePageProvider {
         values.append(new TexturePackPage(onesix, onesix->texturePackList()));
         values.append(new ShaderPackPage(onesix, onesix->shaderPackList()));
         values.append(new NotesPage(onesix));
+        values.append(new ModpackCreatorPage(onesix));
         values.append(new WorldListPage(onesix, onesix->worldList()));
         values.append(new ServersPage(onesix));
         values.append(new ScreenshotsPage(FS::PathCombine(onesix->gameRoot(), "screenshots")));
@@ -54,3 +56,4 @@ class InstancePageProvider : protected QObject, public BasePageProvider {
    protected:
     BaseInstance* inst;
 };
+
