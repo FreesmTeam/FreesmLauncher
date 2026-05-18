@@ -15,7 +15,7 @@
   ghc_filesystem,
   libarchive,
   gamemode,
-  extra-cmake-modules,
+  pkg-config,
   msaClientID ? null,
   gamemodeSupport ? stdenv.hostPlatform.isLinux,
 }:
@@ -50,9 +50,10 @@ assert lib.assertMsg (gamemodeSupport -> stdenv.hostPlatform.isLinux)
     nativeBuildInputs = [
       cmake
       ninja
-      extra-cmake-modules
+      kdePackages.extra-cmake-modules
       jdk17
       stripJavaArchivesHook
+      pkg-config
     ];
 
     buildInputs =
