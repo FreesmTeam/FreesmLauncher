@@ -20,6 +20,7 @@
 
 #include <QPushButton>
 #include <QRegularExpression>
+#include <QRandomGenerator>
 
 #include "ui_ChooseOfflineNameDialog.h"
 
@@ -73,3 +74,32 @@ void ChooseOfflineNameDialog::on_allowInvalidUsernames_checkStateChanged(const Q
     ui->usernameTextBox->setValidator(checkState == Qt::Checked ? nullptr : m_usernameValidator);
     updateAcceptAllowed(getUsername());
 }
+
+void ChooseOfflineNameDialog::on_randomCharUser_clicked()
+{
+    const QString possibleCharacters("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789");
+    const int randomStringLength = 14; 
+    QString randomString;
+    for(int i=0; i<randomStringLength; ++i)
+    {
+       int index = QRandomGenerator::global()->generate() % possibleCharacters.length();
+       QChar nextChar = possibleCharacters.at(index);
+       randomString.append(nextChar);
+    }
+    ui->usernameTextBox->setText(randomString);
+    ui->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(true);
+}
+
+void ChooseOfflineNameDialog::on_randomFullUser_clicked()
+{
+    //todo: maybe make this words configurable and not hardcoded, smh.
+    QList<QString> PossibleUsernameHalves = {"Cookie", "Clicker", "Licker", "Lenny", "Super", "Sakupen", "Sonic", "Geometry", "Mining", "Chicken", "Sculpted", "Random", "Painted", "Fainted", "MadeIn", "Chinese", "Bing", "Hell", "Circles", "Wave", "Dash", "Crafting", "Smelting", "Jockey", "Vase", "Heaven", "Pudding", "Chilling"};
+    int UsernameArrayLength = PossibleUsernameHalves.count();
+    //int indexPossibleHalf = QRandomGenerator::global()->bounded(22);
+    int indexFirstPossibleHalf = QRandomGenerator::global()->bounded(UsernameArrayLength);
+    int indexSecondPossibleHalf = QRandomGenerator::global()->bounded(UsernameArrayLength);
+    QString GeneratedUsername = PossibleUsernameHalves[indexFirstPossibleHalf] + PossibleUsernameHalves[indexSecondPossibleHalf];
+    ui->usernameTextBox->setText(GeneratedUsername);
+    ui->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(true);
+}
+

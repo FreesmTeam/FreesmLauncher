@@ -44,6 +44,10 @@ class ChooseOfflineNameDialog final : public QDialog {
     void on_usernameTextBox_textEdited(const QString& newText) const;
     void on_allowInvalidUsernames_checkStateChanged(Qt::CheckState checkState) const;
 
+   private slots:
+    void on_randomCharUser_clicked();
+    void on_randomFullUser_clicked();
+
    private:
     Ui::ChooseOfflineNameDialog* ui;
     QRegularExpressionValidator* m_usernameValidator;
