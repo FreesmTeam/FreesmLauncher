@@ -48,6 +48,20 @@
                 </widget>
             </item>
             <item>
+                <widget class="QPushButton" name="randomCharUser">
+                    <property name="text">
+                        <string>Random Characters</string>
+                    </property>
+                </widget>
+            </item>
+            <item>
+                <widget class="QPushButton" name="randomFullUser">
+                    <property name="text">
+                        <string>Random Username</string>
+                    </property>
+                </widget>
+            </item>
+            <item>
                 <widget class="QDialogButtonBox" name="buttonBox">
                     <property name="standardButtons">
                         <set>QDialogButtonBox::StandardButton::Cancel|QDialogButtonBox::StandardButton::Ok</set>
