@@ -54,6 +54,7 @@
 #include <QRandomGenerator>
 #include <QScrollBar>
 #include <QThreadPool>
+#include <QTimer>
 #include <QtMath>
 
 #include "VisualGroup.h"
