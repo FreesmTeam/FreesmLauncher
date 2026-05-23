@@ -62,13 +62,12 @@ Based on Prism Launcher **11.0.2**
 ## Comparison
 
 
-| Feature                                  | Freesm  Launcher | Shattered  Prism | HMCL | Fjord   | PollyMC       | ElyPrism      | UltimMC | Prism-Cracked | Prism Launcher |
+| Feature                                  | Freesm  Launcher | Shattered  Prism | HMCL | Fjord   | PollyMC       | PineconeMC      | UltimMC | Prism-Cracked | Prism Launcher |
 |------------------------------------------|------------------|------------------|------|---------|---------------|---------------|---------|---------------|----------------|
 | Offline Mode without a Microsoft account | ✅                | ✅                | ✅    | ❌       | ✅             | ✅             | ✅       | ✅             | ❌              |
 | FTB packs                                | ✅                | ✅                | ❌    | ✅       | ✅             | ✅             | ❌       | ✅             | ✅              |
 | Ely.by support                           | ✅                | 🟨¹              | 🟨¹  | 🟨¹     | 🟨¹           | ✅             | 🟨¹     | ❌             | ❌              |
 | Authlib-injector support                 | ✅                | ✅                | ✅    | ✅       | ✅             | ✅            | ❌²      | ❌²            | ❌²             |
-| Custom Authlib-injector jar support      | ❌²               | ✅                | ❌²   | ✅       | ❌²            | ❌²            | ❌²      | ❌²            | ❌²             |
 | Animated Cat Packs & Cropping            | ✅                | ❌                | ❌    | ❌       | ❌             | ❌             | ❌       | ❌             | ❌              |
 | Screenshots saving to the buffer history | ✅                | ❌                | ❌    | ❌       | ❌             | ❌             | ❌       | ❌             | ❌              |
 | Fork                                     | PrismLauncher    | FjordLauncher    | ❌    | PollyMC | PrismLauncher | PrismLauncher | MultiMC | PrismLauncher | PolyMC         |
