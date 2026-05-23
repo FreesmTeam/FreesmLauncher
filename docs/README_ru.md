@@ -62,13 +62,12 @@
 ## Сравнение
 
 
-| Feature                                           | Freesm  Launcher | Shattered  Prism | HMCL | Fjord   | PollyMC       | ElyPrism      | UltimMC | Prism-Cracked | Prism Launcher |
+| Feature                                           | Freesm  Launcher | Shattered  Prism | HMCL | Fjord   | PollyMC       | PineconeMC    | UltimMC | Prism-Cracked | Prism Launcher |
 |---------------------------------------------------|------------------|------------------|------|---------|---------------|---------------|---------|---------------|----------------|
 | Офлайн-игра без аккаунта Microsoft                | ✅                | ✅                | ✅    | ❌       | ✅             | ✅             | ✅       | ✅             | ❌              |
 | FTB сборки                                        | ✅                | ✅                | ❌    | ✅       | ✅             | ✅             | ❌       | ✅             | ✅              |
 | Поддержка Ely.by                                  | ✅                | 🟨¹              | 🟨¹  | 🟨¹     | 🟨¹           | ✅             | 🟨¹     | ❌             | ❌              |
 | Поддержка Authlib-injector                        | ✅                | ✅                | ✅    | ✅       | ✅             | ✅             | ❌²      | ❌²            | ❌²             |
-| Поддержка кастомного Authlib-injector jar         | ❌²               | ✅                | ❌²   | ✅       | ❌²            | ❌²            | ❌²      | ❌²            | ❌²             |
 | Анимированные Cat паки & кадрирование изображения | ✅                | ❌                | ❌    | ❌       | ❌             | ❌             | ❌       | ❌             | ❌              |
 | Копирование скриншотов из игры в буфер обмена     | ✅                | ❌                | ❌    | ❌       | ❌             | ❌             | ❌       | ❌             | ❌              |
 | Форк                                              | PrismLauncher    | FjordLauncher    | ❌    | PollyMC | PrismLauncher | PrismLauncher | MultiMC | PrismLauncher | PolyMC         |
