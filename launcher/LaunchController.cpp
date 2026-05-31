@@ -86,11 +86,11 @@ void LaunchController::decideAccount()
     // Select the account to use. If the instance has a specific account set, that will be used. Otherwise, the default account will be used
     auto* accounts = APPLICATION->accounts();
     const auto instanceAccountId = m_instance->settings()->get("InstanceAccountId").toString();
-    const auto instanceAccountIndex = accounts->findAccountByProfileId(instanceAccountId);
-    if (instanceAccountIndex == -1 || instanceAccountId.isEmpty()) {
-        m_accountToUse = accounts->defaultAccount();
+    const auto instanceAccount = accounts->findAccountById(AccountIdentifier{ instanceAccountId });
+    if (instanceAccount.found()) {
+        m_accountToUse = accounts->at(instanceAccount.index);
     } else {
-        m_accountToUse = accounts->at(instanceAccountIndex);
+        m_accountToUse = accounts->defaultAccount();
     }
 
     if (!accounts->anyAccountIsValid()) {
@@ -342,7 +342,7 @@ bool LaunchController::reauthenticateAccount(const MinecraftAccountPtr& account,
         auto* accounts = APPLICATION->accounts();
         const bool isDefault = accounts->defaultAccount() == account;
         const auto accountType = account->accountType();
-        accounts->removeAccount(accounts->index(accounts->findAccountByProfileId(account->profileId())));
+        accounts->removeAccount(accounts->index(accounts->findAccountById(AccountIdentifier{ *account }).index));
         MinecraftAccountPtr newAccount;
         switch (accountType) {
             case AccountType::MSA:

@@ -24,36 +24,6 @@
 #include "UrlUtils.h"
 #include "net/Download.h"
 
-namespace {
-QUrl formUrl(QString userInput, QString& errorString)
-{
-    errorString.clear();
-
-    userInput = userInput.trimmed();
-
-    bool httpScheme = userInput.startsWith("http://", Qt::CaseInsensitive);
-    bool httpsScheme = userInput.startsWith("https://", Qt::CaseInsensitive);
-
-    if (userInput.contains("://") && !httpsScheme && !httpScheme) {
-        errorString = QObject::tr("Invalid URL scheme");
-        return {};
-    }
-
-    QUrl deducedUrl = QUrl::fromUserInput(userInput);
-
-    if (!deducedUrl.isValid() || deducedUrl.isLocalFile() || deducedUrl.host().isEmpty()) {
-        errorString = QObject::tr("Invalid URL");
-        return {};
-    }
-
-    if (!httpsScheme && !httpScheme) {
-        deducedUrl.setScheme("https");
-    }
-
-    return deducedUrl;
-}
-}  // namespace
-
 CustomLoginDialog::CustomLoginDialog(QWidget* parent) : QDialog(parent), ui(new Ui::CustomLoginDialog)
 {
     ui->setupUi(this);
@@ -82,7 +52,7 @@ void CustomLoginDialog::accept()
 {
     QString errorString;
 
-    const QUrl url(formUrl(ui->authUrlTextBox->text(), errorString));
+    const QUrl url(UrlUtils::httpFromUserInput(ui->authUrlTextBox->text(), &errorString));
     if (!url.isValid()) {
         emit onTaskFailed(errorString);
         return;

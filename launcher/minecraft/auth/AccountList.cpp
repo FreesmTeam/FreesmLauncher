@@ -39,8 +39,8 @@
 
 #include <QDir>
 #include <QFile>
-#include <QIcon>
 #include <QIODevice>
+#include <QIcon>
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonObject>
@@ -67,15 +67,30 @@ AccountList::AccountList(QObject* parent) : QAbstractListModel(parent)
 
 AccountList::~AccountList() noexcept {}
 
-int AccountList::findAccountByProfileId(const QString& profileId) const
+AccountFindResult AccountList::findAccountById(const AccountIdentifier& id) const
 {
+    if (!id.isValid()) {
+        return { -1, AccountFindError::InvalidId };
+    }
+
+    int idx = -1;
+
     for (int i = 0; i < count(); i++) {
         MinecraftAccountPtr account = at(i);
-        if (account->profileId() == profileId) {
-            return i;
+        if (id.matches(*account)) {
+            if (idx == -1) {
+                idx = i;
+            } else {
+                return { -1, AccountFindError::Ambiguous };
+            }
         }
     }
-    return -1;
+
+    if (idx == -1) {
+        return { -1, AccountFindError::NotFound };
+    }
+
+    return { idx, AccountFindError::NoError };
 }
 
 MinecraftAccountPtr AccountList::getAccountByProfileName(const QString& profileName) const
@@ -120,24 +135,22 @@ void AccountList::addAccount(const MinecraftAccountPtr account)
     connect(account.get(), &MinecraftAccount::changed, this, &AccountList::accountChanged);
     connect(account.get(), &MinecraftAccount::activityChanged, this, &AccountList::accountActivityChanged);
 
-    // override/replace existing account with the same profileId
-    auto profileId = account->profileId();
-    if (profileId.size()) {
-        auto existingAccount = findAccountByProfileId(profileId);
-        if (existingAccount != -1) {
-            qDebug() << "Replacing old account with a new one with the same profile ID!";
+    // override/replace existing account with the same ID
+    auto existingAccount = findAccountById(AccountIdentifier{ *account });
+    if (existingAccount.found()) {
+        qDebug() << "Replacing old account with a new one with the same profile ID!";
 
-            MinecraftAccountPtr existingAccountPtr = m_accounts[existingAccount];
-            m_accounts[existingAccount] = account;
-            if (m_defaultAccount == existingAccountPtr) {
-                m_defaultAccount = account;
-            }
-            // disconnect notifications for changes in the account being replaced
-            existingAccountPtr->disconnect(this);
-            emit dataChanged(index(existingAccount), index(existingAccount, columnCount(QModelIndex()) - 1));
-            onListChanged();
-            return;
+        auto idx = existingAccount.index;
+        MinecraftAccountPtr existingAccountPtr = m_accounts[idx];
+        m_accounts[idx] = account;
+        if (m_defaultAccount == existingAccountPtr) {
+            m_defaultAccount = account;
         }
+        // disconnect notifications for changes in the account being replaced
+        existingAccountPtr->disconnect(this);
+        emit dataChanged(index(idx), index(idx, columnCount(QModelIndex()) - 1));
+        onListChanged();
+        return;
     }
 
     // if we don't have this profileId yet, add the account to the end
@@ -503,11 +516,8 @@ bool AccountList::loadV3(QJsonObject& root)
         QJsonObject accountObj = accountVal.toObject();
         MinecraftAccountPtr account = MinecraftAccount::loadFromJsonV3(accountObj);
         if (account.get() != nullptr) {
-            auto profileId = account->profileId();
-            if (profileId.size()) {
-                if (findAccountByProfileId(profileId) != -1) {
-                    continue;
-                }
+            if (findAccountById(AccountIdentifier{ *account }).found()) {
+                continue;
             }
             connect(account.get(), &MinecraftAccount::changed, this, &AccountList::accountChanged);
             connect(account.get(), &MinecraftAccount::activityChanged, this, &AccountList::accountActivityChanged);
@@ -662,8 +672,7 @@ void AccountList::tryNext()
                     connect(m_currentTask.get(), &Task::succeeded, this, &AccountList::authSucceeded);
                     connect(m_currentTask.get(), &Task::failed, this, &AccountList::authFailed);
                     m_currentTask->start();
-                    qDebug() << "RefreshSchedule: Processing account" << account->profileName() << "with internal ID"
-                             << accountId;
+                    qDebug() << "RefreshSchedule: Processing account" << account->profileName() << "with internal ID" << accountId;
                     return;
                 }
             }

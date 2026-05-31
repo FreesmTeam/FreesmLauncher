@@ -500,8 +500,13 @@ void MinecraftSettingsWidget::saveSettings()
 
                 if (accountIndex != -1) {
                     const MinecraftAccountPtr account = APPLICATION->accounts()->at(accountIndex);
-                    if (account != nullptr)
-                        settings->set("InstanceAccountId", account->profileId());
+                    if (account != nullptr) {
+                        QString id = QString("%1:%2").arg(account->profileId(), account->typeString());
+                        if (account->accountType() == AccountType::Custom) {
+                            id.append(QString(":%1").arg(account->accountData()->authUrl));
+                        }
+                        settings->set("InstanceAccountId", id);
+                    }
                 }
             } else {
                 settings->reset("InstanceAccountId");
@@ -540,7 +545,7 @@ void MinecraftSettingsWidget::updateAccountsMenu(SettingsObject& settings)
 {
     m_ui->instanceAccountSelector->clear();
     auto accounts = APPLICATION->accounts();
-    int accountIndex = accounts->findAccountByProfileId(settings.get("InstanceAccountId").toString());
+    int accountIndex = accounts->findAccountById(AccountIdentifier{ settings.get("InstanceAccountId").toString() }).index;
 
     for (int i = 0; i < accounts->count(); i++) {
         MinecraftAccountPtr account = accounts->at(i);
