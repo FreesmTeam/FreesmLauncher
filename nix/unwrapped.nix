@@ -14,6 +14,7 @@
   tomlplusplus,
   ghc_filesystem,
   libarchive,
+  pkg-config,
   darwin,
   gamemode,
   nix-filter,
@@ -67,6 +68,7 @@ in
           kdePackages.quazip
           libarchive
           tomlplusplus
+          pkg-config
           qrencode
           zlib
         ]
