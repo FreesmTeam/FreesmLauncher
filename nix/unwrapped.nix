@@ -14,9 +14,9 @@
   tomlplusplus,
   ghc_filesystem,
   libarchive,
+  pkg-config,
   darwin,
   gamemode,
-  extra-cmake-modules,
   nix-filter,
   msaClientID ? null,
   gamemodeSupport ? stdenv.hostPlatform.isLinux,
@@ -54,7 +54,7 @@ in
       nativeBuildInputs = [
         cmake
         ninja
-        extra-cmake-modules
+        kdePackages.extra-cmake-modules
         jdk17
         stripJavaArchivesHook
       ];
@@ -68,6 +68,7 @@ in
           kdePackages.quazip
           libarchive
           tomlplusplus
+          pkg-config
           qrencode
           zlib
         ]
