@@ -223,6 +223,8 @@ set(MINECRAFT_SOURCES
     minecraft/auth/AccountData.h
     minecraft/auth/AccountList.cpp
     minecraft/auth/AccountList.h
+    minecraft/auth/AccountIdentifier.cpp
+    minecraft/auth/AccountIdentifier.h
     minecraft/auth/AuthSession.cpp
     minecraft/auth/AuthSession.h
     minecraft/auth/AuthStep.h

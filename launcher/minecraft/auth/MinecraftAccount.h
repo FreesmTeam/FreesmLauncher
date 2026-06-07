@@ -157,6 +157,8 @@ class MinecraftAccount : public QObject, public Usable {
 
     AccountData* accountData() { return &data; }
 
+    const AccountData* accountData() const { return &data; }
+
     bool shouldRefresh() const;
 
     void fillSession(AuthSessionPtr session, SettingsObject* settings);
