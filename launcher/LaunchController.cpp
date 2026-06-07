@@ -354,7 +354,7 @@ bool LaunchController::reauthenticateAccount(const MinecraftAccountPtr& account,
                 newAccount = ElybyLoginDialog::newAccount(m_parentWidget);
                 break;
             case AccountType::Custom:
-                newAccount = CustomLoginDialog::newAccount(m_parentWidget);
+                newAccount = CustomLoginDialog::reauthenticateAccount(m_parentWidget, *account);
                 break;
         }
 

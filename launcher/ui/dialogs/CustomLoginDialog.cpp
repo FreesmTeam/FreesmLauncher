@@ -185,8 +185,12 @@ void CustomLoginDialog::onTaskProgress(qint64 current, qint64 total)
 
 void CustomLoginDialog::onAuthUrlTextBoxChanged()
 {
-    ui->loginUrlTextBox->setText("/authserver/authenticate");
-    ui->refreshUrlTextBox->setText("/authserver/refresh");
+    if (ui->loginUrlTextBox->text().isEmpty()) {
+        ui->loginUrlTextBox->setText("/authserver/authenticate");
+    }
+    if (ui->refreshUrlTextBox->text().isEmpty()) {
+        ui->refreshUrlTextBox->setText("/authserver/refresh");
+    }
 }
 
 // Public interface
@@ -194,6 +198,19 @@ MinecraftAccountPtr CustomLoginDialog::newAccount(QWidget* parent, QString msg)
 {
     CustomLoginDialog dlg(parent);
     dlg.ui->label->setText(msg);
+    if (dlg.exec() == QDialog::Accepted) {
+        return dlg.m_account;
+    }
+    return nullptr;
+}
+
+MinecraftAccountPtr CustomLoginDialog::reauthenticateAccount(QWidget* parent, const MinecraftAccount& account, QString message)
+{
+    CustomLoginDialog dlg(parent);
+    dlg.ui->label->setText(message);
+    dlg.ui->authUrlTextBox->setText(account.accountData()->authUrl);
+    dlg.ui->loginUrlTextBox->setText(account.accountData()->loginUrl);
+    dlg.ui->refreshUrlTextBox->setText(account.accountData()->refreshUrl);
     if (dlg.exec() == QDialog::Accepted) {
         return dlg.m_account;
     }
