@@ -33,6 +33,9 @@ class CustomLoginDialog : public QDialog {
 
     static MinecraftAccountPtr newAccount(QWidget* parent,
                                           QString message = tr("Please enter authentication server URL, your username and password."));
+    static MinecraftAccountPtr reauthenticateAccount(QWidget* parent,
+                                                     const MinecraftAccount& account,
+                                                     QString message = tr("Please enter your username and password."));
 
    private:
     explicit CustomLoginDialog(QWidget* parent = 0);
