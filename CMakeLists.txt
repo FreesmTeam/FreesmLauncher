@@ -504,6 +504,8 @@ add_subdirectory(libraries/qdcss) # css parser
 
 ############################### Built Artifacts ###############################
 
+option(Launcher_DISABLE_WERROR "Disable -Werror (/WX) for launcher build" OFF)
+
 add_subdirectory(buildconfig)
 
 if(BUILD_TESTING)
