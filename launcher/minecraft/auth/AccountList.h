@@ -35,8 +35,9 @@
 
 #pragma once
 
-#include "minecraft/auth/MinecraftAccount.h"
+#include "minecraft/auth/AccountIdentifier.h"
 #include "minecraft/auth/AuthFlow.h"
+#include "minecraft/auth/MinecraftAccount.h"
 
 #include <QAbstractListModel>
 #include <QObject>
@@ -78,7 +79,7 @@ class AccountList : public QAbstractListModel {
     void addAccount(MinecraftAccountPtr account);
     void removeAccount(QModelIndex index);
     void moveAccount(QModelIndex index, int delta);
-    int findAccountByProfileId(const QString& profileId) const;
+    AccountFindResult findAccountById(const AccountIdentifier& id) const;
     MinecraftAccountPtr getAccountByProfileName(const QString& profileName) const;
     QStringList profileNames() const;
 
