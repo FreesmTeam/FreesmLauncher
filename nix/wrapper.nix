@@ -35,7 +35,7 @@
 assert lib.assertMsg (
   if
     (
-      jdks != jvmPack.openjdk || jdks != jvmPack.temurin || jdks != jvmPack.allPack
+      jdks != jvmPack.openjdk && jdks != jvmPack.temurin && jdks != jvmPack.allPack
     )
   then builtins.trace "used jvmPack does not provide jdk8!" true
   else true
