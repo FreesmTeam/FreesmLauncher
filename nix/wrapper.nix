@@ -35,7 +35,7 @@
 assert lib.assertMsg (
   if (
     jdks != jvmPack.openjdk || jdks != jvmPack.temurin || jdks != jvmPack.allPack
-    ) then builtins.warn "used jvmPack does not provide jdk8!" true
+    ) then builtins.trace "used jvmPack does not provide jdk8!" true
     else true
 ) "";
 assert lib.assertMsg (
