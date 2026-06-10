@@ -38,24 +38,62 @@
     ];
 
     forEachSystem = nixpkgs.lib.genAttrs systems;
+
+    mkJvmPack = pkgs: let
+      openjdk = with pkgs; [
+        openjdk8
+        openjdk17
+        openjdk21
+        openjdk25
+      ];
+
+      temurin = with pkgs.javaPackages.compiler.temurin-bin; [
+        jdk-8
+        jdk-17
+        jdk-21
+        jdk-25
+      ];
+
+      corretto = with pkgs.javaPackages.compiler; [
+        corretto17
+        corretto21
+        corretto25
+      ];
+
+      graal-ce = with pkgs.graalvmPackages; [
+        graalvm-ce
+      ];
+
+      graal-unfree = with pkgs.graalvmPackages; [
+        graalvm-oracle_17
+        graalvm-oracle_25
+      ];
+    in {
+      inherit openjdk temurin corretto graal-ce graal-unfree;
+      allPack = openjdk ++ temurin ++ corretto ++ graal-ce ++ graal-unfree;
+    };
   in {
     overlays.default = final: prev: {
       freesmlauncher-unwrapped = final.callPackage ./nix/unwrapped.nix {
         inherit nix-filter libnbtplusplus self;
       };
 
-      freesmlauncher = final.callPackage ./nix/wrapper.nix;
+      freesmlauncher = final.callPackage ./nix/wrapper.nix {
+        jvmPack = mkJvmPack final;
+      };
     };
 
     packages = forEachSystem (system: let
       pkgs = import nixpkgs {inherit system;};
+
+      jvmPack = mkJvmPack pkgs;
 
       freesmlauncher-unwrapped = pkgs.callPackage ./nix/unwrapped.nix {
         inherit nix-filter libnbtplusplus self;
       };
 
       freesmlauncher = pkgs.callPackage ./nix/wrapper.nix {
-        inherit freesmlauncher-unwrapped;
+        inherit freesmlauncher-unwrapped jvmPack;
       };
 
       freesmlauncher-unwrapped-debug = freesmlauncher-unwrapped.overrideAttrs {
@@ -67,7 +105,7 @@
         freesmlauncher-unwrapped = freesmlauncher-unwrapped-debug;
       };
     in {
-      inherit freesmlauncher freesmlauncher-unwrapped freesmlauncher-debug freesmlauncher-unwrapped-debug;
+      inherit freesmlauncher freesmlauncher-unwrapped freesmlauncher-debug freesmlauncher-unwrapped-debug jvmPack;
 
       default = freesmlauncher;
     });
