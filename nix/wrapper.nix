@@ -9,10 +9,6 @@
   flite,
   gamemode,
   glfw3-minecraft,
-  jdk17,
-  jdk21,
-  jdk25,
-  jdk8,
   libGL,
   libX11,
   libXcursor,
@@ -33,13 +29,17 @@
   controllerSupport ? stdenv.hostPlatform.isLinux,
   gamemodeSupport ? stdenv.hostPlatform.isLinux,
   textToSpeechSupport ? stdenv.hostPlatform.isLinux,
-  jdks ? [
-    jdk25
-    jdk21
-    jdk17
-    jdk8
-  ],
+  jvmPack,
+  jdks ? jvmPack.openjdk,
 }:
+assert lib.assertMsg (
+  if
+    (
+      jdks != jvmPack.openjdk && jdks != jvmPack.temurin && jdks != jvmPack.allPack
+    )
+  then builtins.trace "used jvmPack does not provide jdk8!" true
+  else true
+) "";
 assert lib.assertMsg (
   controllerSupport -> stdenv.hostPlatform.isLinux
 ) "controllerSupport only has an effect on Linux.";
