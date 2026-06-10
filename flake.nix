@@ -68,12 +68,10 @@
         graalvm-oracle_17
         graalvm-oracle_25
       ];
-
     in {
       inherit openjdk temurin corretto graal-ce graal-unfree;
       allPack = openjdk ++ temurin ++ corretto ++ graal-ce ++ graal-unfree;
     };
-
   in {
     overlays.default = final: prev: {
       freesmlauncher-unwrapped = final.callPackage ./nix/unwrapped.nix {

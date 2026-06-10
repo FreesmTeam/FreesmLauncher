@@ -33,10 +33,12 @@
   jdks ? jvmPack.openjdk,
 }:
 assert lib.assertMsg (
-  if (
-    jdks != jvmPack.openjdk || jdks != jvmPack.temurin || jdks != jvmPack.allPack
-    ) then builtins.trace "used jvmPack does not provide jdk8!" true
-    else true
+  if
+    (
+      jdks != jvmPack.openjdk || jdks != jvmPack.temurin || jdks != jvmPack.allPack
+    )
+  then builtins.trace "used jvmPack does not provide jdk8!" true
+  else true
 ) "";
 assert lib.assertMsg (
   controllerSupport -> stdenv.hostPlatform.isLinux
