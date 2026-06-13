@@ -1,9 +1,10 @@
+// AppearanceWidget.h
 // SPDX-License-Identifier: GPL-3.0-only
 /*
  *  Prism Launcher - Minecraft Launcher
  *  Copyright (C) 2025 TheKodeToad <TheKodeToad@proton.me>
  *  Copyright (C) 2022 Tayou <git@tayou.org>
- *  Copyright (C) 2025 Kaeeraa <ilhainshakov@yandex.ru>
+ *  Copyright (C) 2026 fractal <fractal@nebula-nook.ru>
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -22,8 +23,11 @@
 
 #include <QDialog>
 
+#include <qslider.h>
+#include <qspinbox.h>
 #include <translations/TranslationsModel.h>
 #include <QTextCursor>
+#include "ui/widgets/RangeSlider.h"
 
 class QTextCharFormat;
 class SettingsObject;
@@ -48,8 +52,13 @@ class AppearanceWidget : public QWidget {
     void applyIconTheme(int index);
     void applyWidgetTheme(int index);
     void applyCatTheme(int index);
-    void applySnow(bool visible);
+    void applySnowflakePack(int index);
+    static void applySnow(bool visible);
+    static void applySnowColor(const QString& color);
     void loadThemeSettings();
+
+    static void loadRangeSetting(const QString& prefix, QSpinBox* minBox, QSpinBox* maxBox, RangeSlider* slider);
+    static void loadSingleSetting(const QString& key, QSpinBox* spinBox, QSlider* slider);
 
     void updateConsolePreview();
     void updateCatPreview();

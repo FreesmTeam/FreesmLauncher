@@ -1,6 +1,8 @@
+// ThemeManager.cpp
 // SPDX-License-Identifier: GPL-3.0-only
 /*
  *  Prism Launcher - Minecraft Launcher
+ *  Copyright (C) 2026 fractal <fractal@nebula-nook.ru>
  *  Copyright (C) 2024 Tayou <git@tayou.org>
  *  Copyright (C) 2023 TheKodeToad <TheKodeToad@proton.me>
  *
@@ -17,6 +19,8 @@
  *  along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 #include "ThemeManager.h"
+#include <qsize.h>
+#include <qtypes.h>
 
 #include <QApplication>
 #include <QDir>
@@ -33,6 +37,7 @@
 #include "ui/themes/FreesmLightTheme.h"
 #include "ui/themes/FreesmTheme.h"
 #include "ui/themes/GruvboxTheme.h"
+#include "ui/themes/SnowflakePack.h"
 #include "ui/themes/SystemTheme.h"
 
 #include "Application.h"
@@ -52,6 +57,7 @@ ThemeManager::ThemeManager()
 
     initializeThemes();
     initializeCatPacks();
+    initializeSnowflakePacks();
 }
 
 ThemeManager::~ThemeManager()
@@ -222,6 +228,16 @@ QList<CatPack*> ThemeManager::getValidCatPacks()
     return ret;
 }
 
+QList<SnowflakePack*> ThemeManager::getValidSnowflakePacks()
+{
+    QList<SnowflakePack*> ret;
+    ret.reserve(static_cast<qsizetype>(m_snowflakePacks.size()));
+    for (auto&& [id, theme] : m_snowflakePacks) {
+        ret.append(theme.get());
+    }
+    return ret;
+}
+
 bool ThemeManager::isValidIconTheme(const QString& id)
 {
     return !id.isEmpty() && m_icons.find(id) != m_icons.end();
@@ -230,21 +246,6 @@ bool ThemeManager::isValidIconTheme(const QString& id)
 bool ThemeManager::isValidApplicationTheme(const QString& id)
 {
     return !id.isEmpty() && m_themes.find(id) != m_themes.end();
-}
-
-QDir ThemeManager::getIconThemesFolder()
-{
-    return m_iconThemeFolder;
-}
-
-QDir ThemeManager::getApplicationThemesFolder()
-{
-    return m_applicationThemeFolder;
-}
-
-QDir ThemeManager::getCatPacksFolder()
-{
-    return m_catPacksFolder;
 }
 
 void ThemeManager::setIconTheme(const QString& name)
@@ -377,12 +378,84 @@ void ThemeManager::initializeCatPacks()
     }
 }
 
+QString ThemeManager::getSnowflakePack(const QString& name)
+{
+    auto snowIter = m_snowflakePacks.find(!name.isEmpty() ? name : APPLICATION->settings()->get("BackgroundSnowflake").toString());
+    if (snowIter != m_snowflakePacks.end()) {
+        auto& snowflakePack = snowIter->second;
+        themeDebugLog() << "applying snowflake pack" << snowflakePack->id();
+        return snowflakePack->resourcePath();
+    }
+    themeWarningLog() << "Tried to get invalid snowflake pack:" << name;
+
+    if (!m_snowflakePacks.empty()) {
+        return m_snowflakePacks.begin()->second->resourcePath();
+    }
+
+    return {};
+}
+
+QString ThemeManager::addSnowflakePack(std::unique_ptr<SnowflakePack> snowflakePack)
+{
+    QString id = snowflakePack->id();
+    if (!m_snowflakePacks.contains(id)) {
+        m_snowflakePacks.emplace(id, std::move(snowflakePack));
+    } else {
+        themeWarningLog() << "SnowflakePack(" << id << ") not added to prevent id duplication";
+    }
+    return id;
+}
+
+void ThemeManager::initializeSnowflakePacks()
+{
+    addSnowflakePack(std::make_unique<BuiltinSnowflakePack>(BuiltinSnowflakePack::Shape::Snowflake));
+    addSnowflakePack(std::make_unique<BuiltinSnowflakePack>(BuiltinSnowflakePack::Shape::Circle));
+    addSnowflakePack(std::make_unique<BuiltinSnowflakePack>(BuiltinSnowflakePack::Shape::Star));
+
+    if (!m_snowflakePacksFolder.mkpath(".")) {
+        themeWarningLog() << "Couldn't create snowflakes folder";
+    }
+    themeDebugLog() << "Snowflakes Folder Path:" << m_snowflakePacksFolder.absolutePath();
+
+    QStringList supportedFormats;
+    for (const auto& format : QImageReader::supportedImageFormats()) {
+        supportedFormats.append("*." + format);
+    }
+    supportedFormats.append("*.gif");
+
+    auto loadFiles = [this, supportedFormats](const QDir& dir) {
+        QDirIterator fileIterator(dir.absoluteFilePath(""), supportedFormats, QDir::Files);
+        while (fileIterator.hasNext()) {
+            QFile file(fileIterator.next());
+            QFileInfo fileInfo(file);
+            themeDebugLog() << "Loading SnowflakePack from:" << fileInfo.absoluteFilePath();
+
+            if (fileInfo.suffix().toLower() == "gif") {
+                addSnowflakePack(std::make_unique<GifSnowflakePack>(fileInfo));
+                continue;
+            }
+
+            addSnowflakePack(std::make_unique<ImageSnowflakePack>(fileInfo));
+        }
+    };
+
+    loadFiles(m_snowflakePacksFolder);
+
+    QDirIterator directoryIterator(m_snowflakePacksFolder.path(), QDir::Dirs | QDir::NoDotAndDotDot);
+    while (directoryIterator.hasNext()) {
+        QDir dir(directoryIterator.next());
+        loadFiles(dir);
+    }
+}
+
 void ThemeManager::refresh()
 {
     m_themes.clear();
     m_icons.clear();
     m_catPacks.clear();
+    m_snowflakePacks.clear();
 
     initializeThemes();
     initializeCatPacks();
+    initializeSnowflakePacks();
 }

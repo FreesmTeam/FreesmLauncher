@@ -937,6 +937,7 @@ SET(LAUNCHER_SOURCES
     ui/themes/CatPack.h
     ui/themes/CatPainter.cpp
     ui/themes/CatPainter.h
+    ui/themes/SnowflakePack.h
 
     # Processes
     LaunchMode.h
@@ -1170,6 +1171,8 @@ SET(LAUNCHER_SOURCES
     ui/dialogs/skins/draw/BoxGeometry.cpp
 
     # GUI - widgets
+    ui/widgets/RangeSlider.h
+    ui/widgets/RangeSlider.cpp
     ui/widgets/CheckComboBox.cpp
     ui/widgets/CheckComboBox.h
     ui/widgets/Common.cpp

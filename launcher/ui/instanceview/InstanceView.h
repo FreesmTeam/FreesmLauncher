@@ -1,7 +1,8 @@
+// InstanceView.h
 // SPDX-License-Identifier: GPL-3.0-only
 /*
  *  Prism Launcher - Minecraft Launcher
- *  Copyright (C) 2025 Kaeeraa <ilhainshakov@yandex.ru>
+ *  Copyright (C) 2026 fractal <fractal@nebula-nook.ru>
  *  Copyright (C) 2022 Sefa Eyeoglu <contact@scrumplex.net>
  *
  *  This program is free software: you can redistribute it and/or modify
@@ -34,9 +35,11 @@
  *      See the License for the specific language governing permissions and
  *      limitations under the License.
  */
-
 #pragma once
 
+#include <qelapsedtimer.h>
+#include <qlist.h>
+#include <qpoint.h>
 #include <QCache>
 #include <QLineEdit>
 #include <QListView>
@@ -61,11 +64,8 @@ class InstanceView : public QAbstractItemView {
     using visibilityFunction = std::function<bool(const QString&)>;
     void setSourceOfGroupCollapseStatus(visibilityFunction f) { m_fVisibility = f; }
 
-    /// return geometry rectangle occupied by the specified model item
     QRect geometryRect(const QModelIndex& index) const;
-    /// return visual rectangle occupied by the specified model item
     virtual QRect visualRect(const QModelIndex& index) const override;
-    /// get the model index at the specified visual point
     virtual QModelIndex indexAt(const QPoint& point) const override;
     QString groupNameAt(const QPoint& point);
     void setSelection(const QRect& rect, QItemSelectionModel::SelectionFlags commands) override;
@@ -85,7 +85,6 @@ class InstanceView : public QAbstractItemView {
    public slots:
     virtual void updateGeometries() override;
     void setPaintSnow(bool visible);
-    void onCurrentSnowChanged(bool visible);
 
    protected slots:
     virtual void dataChanged(const QModelIndex& topLeft, const QModelIndex& bottomRight, const QList<int>& roles) override;
@@ -118,25 +117,21 @@ class InstanceView : public QAbstractItemView {
     void updateScrollbar();
 
    private:
-    struct Snowflake {
-        Snowflake() : movementX(0), movementY(0), oscillationAmplitude(0), oscillationPhase(0), radius(0), transparency(0), position(0, 0)
-        {}
-
-        double movementX;
-        double movementY;
-
-        double oscillationAmplitude;
-        double oscillationPhase;
-
-        int radius;
-        double transparency;
-        QPointF position;
-    };
-
     friend struct VisualGroup;
     QList<VisualGroup*> m_groups;
 
     visibilityFunction m_fVisibility;
+
+    struct Snowflake {
+        QPointF pos;
+        QPointF velocity;
+        qreal size{};
+        qreal opacity{};
+        float driftPhase{};
+        float driftSpeed{};
+        float driftAmplitude{};
+        QString packId;
+    };
 
     // geometry
     int m_leftMargin = 5;
@@ -150,8 +145,14 @@ class InstanceView : public QAbstractItemView {
     mutable QCache<int, QRect> m_geometryCache;
     CatPainter* m_cat = nullptr;
     bool m_snowVisible = false;
-    std::vector<Snowflake> m_snowflakes;
+    QList<Snowflake> m_snowflakes;
     QTimer* m_snowTimer = nullptr;
+    QElapsedTimer m_snowElapsedTimer;
+    float m_windPhase = 0.0F;
+    QHash<QString, QPixmap> m_snowPixmapCache;
+    QSize m_lastViewportSize;
+
+    QStringList m_availableSnowflakePacks;
 
     // point where the currently active mouse action started in geometry coordinates
     QPoint m_pressedPosition;
@@ -176,9 +177,13 @@ class InstanceView : public QAbstractItemView {
     QList<std::pair<QRect, QModelIndex>> draggablePaintPairs(const QModelIndexList& indices, QRect* r) const;
 
     void updateSnowflakesPosition();
-    Snowflake createSnowflake() const;
-
+    void generateSnow();
+    void reflowSnowflakes();
     void drawSnow(QPainter& painter);
+    static QColor getSnowColor();
+    static QString makeSnowPixmapKey(int size, const QString& packId);
+    QPixmap getSnowPixmap(int size, const QString& packId);
+    void loadSnowflakePacks();
 
     bool isDragEventAccepted(QDropEvent* event);
 

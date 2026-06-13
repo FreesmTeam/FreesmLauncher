@@ -132,6 +132,7 @@
 #include <FileSystem.h>
 #include <LocalPeer.h>
 
+#include <qcontainerfwd.h>
 #include <stdlib.h>
 #include "SysInfo.h"
 
@@ -662,6 +663,19 @@ Application::Application(int& argc, char** argv) : QApplication(argc, argv)
         m_settings->registerSetting("ApplicationTheme", QString("freesm"));
         m_settings->registerSetting("BackgroundCat", QString("typescript"));
         m_settings->registerSetting("Snow", isWinter);
+        m_settings->registerSetting("BackgroundSnowflake", QString("builtin-snowflake"));
+        m_settings->registerSetting("SnowColor", "white");
+        m_settings->registerSetting("SnowCustomColor", "#ffffff");
+        m_settings->registerSetting("SnowFallSpeedMin", 60);
+        m_settings->registerSetting("SnowFallSpeedMax", 100);
+        m_settings->registerSetting("SnowSizeMin", 2);
+        m_settings->registerSetting("SnowSizeMax", 6);
+        m_settings->registerSetting("SnowOpacityMin", 50);
+        m_settings->registerSetting("SnowOpacityMax", 100);
+        m_settings->registerSetting("WindStrengthMin", -1);
+        m_settings->registerSetting("WindStrengthMax", 1);
+        m_settings->registerSetting("SnowCount", 100);
+        m_settings->registerSetting("SnowFps", 30);
 
         // Remembered state
         m_settings->registerSetting("LastUsedGroupForNewInstance", QString());

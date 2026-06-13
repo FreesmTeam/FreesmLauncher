@@ -1,7 +1,8 @@
+// InstanceView.cpp
 // SPDX-License-Identifier: GPL-3.0-only
 /*
  *  Prism Launcher - Minecraft Launcher
- *  Copyright (C) 2025 Kaeeraa <ilhainshakov@yandex.ru>
+ *  Copyright (C) 2026 fractal <fractal@nebula-nook.ru>
  *  Copyright (C) 2022 Sefa Eyeoglu <contact@scrumplex.net>
  *
  *  This program is free software: you can redistribute it and/or modify
@@ -34,7 +35,6 @@
  *      See the License for the specific language governing permissions and
  *      limitations under the License.
  */
-
 #include "InstanceView.h"
 #include "ui/themes/ThemeManager.h"
 
@@ -59,10 +59,14 @@
 
 #include "VisualGroup.h"
 #include "ui/themes/CatPainter.h"
-#include "ui/themes/ThemeManager.h"
+#include "ui/themes/SnowflakePack.h"
 
 #include <Application.h>
 #include <InstanceList.h>
+#include <qcolor.h>
+#include <qelapsedtimer.h>
+#include <qnamespace.h>
+#include <qvariant.h>
 
 template <typename T>
 bool listsIntersect(const QList<T>& l1, const QList<T> t2)
@@ -81,11 +85,13 @@ InstanceView::InstanceView(QWidget* parent) : QAbstractItemView(parent)
     setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
     setAcceptDrops(true);
     setAutoScroll(true);
-    connect(APPLICATION, &Application::currentSnowChanged, this, &InstanceView::onCurrentSnowChanged);
+    connect(APPLICATION, &Application::currentSnowChanged, this, &InstanceView::setPaintSnow);
     setPaintSnow(APPLICATION->settings()->get("Snow").toBool());
     setPaintCat(APPLICATION->settings()->get("TheCat").toBool());
     connect(verticalScrollBar(), &QScrollBar::valueChanged, viewport(), QOverload<>::of(&QWidget::update));
     connect(horizontalScrollBar(), &QScrollBar::valueChanged, viewport(), QOverload<>::of(&QWidget::update));
+
+    loadSnowflakePacks();
 }
 
 InstanceView::~InstanceView()
@@ -94,6 +100,16 @@ InstanceView::~InstanceView()
     m_groups.clear();
     if (m_cat) {
         m_cat->deleteLater();
+    }
+}
+
+void InstanceView::loadSnowflakePacks()
+{
+    m_availableSnowflakePacks.clear();
+    auto packs = APPLICATION->themeManager()->getValidSnowflakePacks();
+    for (auto* pack : packs) {
+        const auto id = pack->id();
+        m_availableSnowflakePacks.append(id);
     }
 }
 
@@ -133,8 +149,6 @@ void InstanceView::rowsRemoved()
 void InstanceView::currentChanged(const QModelIndex& current, const QModelIndex& previous)
 {
     QAbstractItemView::currentChanged(current, previous);
-    // TODO: for accessibility support, implement+register a factory, steal QAccessibleTable from Qt and return an instance of it for
-    // InstanceView.
 #ifndef QT_NO_ACCESSIBILITY
     if (QAccessible::isActive() && current.isValid()) {
         QAccessibleEvent event(this, QAccessible::Focus);
@@ -451,100 +465,290 @@ void InstanceView::mouseDoubleClickEvent(QMouseEvent* event)
     }
 }
 
-/**
- * @brief Updates the positions of snowflakes in the view.
- *
- * This function updates the position, transparency, and oscillation phase of each snowflake,
- * simulating wind effects and ensuring snowflakes wrap around the viewport when they reach the bottom.
- */
-void InstanceView::updateSnowflakesPosition()
+QString InstanceView::makeSnowPixmapKey(int size, const QString& packId)
 {
-    static double wind = 0.0;          // Wind effect on snowflakes' horizontal movement
-    static int windChangeCounter = 0;  // Counter to change wind direction periodically
-
-    const std::size_t targetSnowflakeCount = this->viewport()->width() * this->viewport()->height() / 10000;
-
-    // Add or remove snowflakes to maintain the target count
-    if (m_snowflakes.size() < targetSnowflakeCount && QRandomGenerator::global()->generate() % 2) {
-        m_snowflakes.push_back(createSnowflake());
-    } else if (m_snowflakes.size() > targetSnowflakeCount) {
-        m_snowflakes.pop_back();
-    }
-
-    // Update each snowflake's position and oscillation phase
-    for (Snowflake& snowflake : m_snowflakes) {
-        // Calculate oscillation offset for horizontal movement
-        double oscillationOffset = snowflake.oscillationAmplitude * qSin(snowflake.oscillationPhase * M_PI / 180.0);
-        // Update snowflake position with movement, oscillation, and wind
-        snowflake.position.rx() += snowflake.movementX + oscillationOffset + wind;
-
-        snowflake.position.ry() += snowflake.movementY;
-
-        // Update oscillation phase
-        snowflake.oscillationPhase += 2;
-        if (snowflake.oscillationPhase > 360) {
-            snowflake.oscillationPhase -= 360;
-        }
-        // Reset snowflake position if it reaches the bottom of the viewport
-        if (snowflake.position.y() > this->viewport()->height()) {
-            snowflake.position.setY(0);
-            snowflake.position.setX(QRandomGenerator::global()->bounded(this->viewport()->width()));
-            snowflake.movementX = QRandomGenerator::global()->bounded(-5, 5) / 10.0;
-            snowflake.movementY = QRandomGenerator::global()->bounded(40, 60) / 10.0;
-        }
-        // Wrap snowflake horizontally if it goes out of bounds
-        if (snowflake.position.x() < 0 || snowflake.position.x() > this->viewport()->width()) {
-            snowflake.position.rx() = QRandomGenerator::global()->bounded(1, this->viewport()->width());
-        }
-    }
-
-    // Change wind direction every 100 iterations
-    windChangeCounter++;
-    if (windChangeCounter % 100 == 0) {
-        wind = QRandomGenerator::global()->bounded(-10, 10) / 100.0;
-    }
-
-    // Request a repaint of the viewport
-    this->viewport()->update();
+    return QString::number(size) + u':' + packId;
 }
 
-/**
- * @brief Sets whether snow should be painted in the view.
- *
- * @param visible Whether snow should be painted in the view.
- */
+QPixmap InstanceView::getSnowPixmap(int size, const QString& packId)
+{
+    const QString cacheKey = makeSnowPixmapKey(size, packId);
+
+    auto cached = m_snowPixmapCache.find(cacheKey);
+    if (cached != m_snowPixmapCache.end()) {
+        return cached.value();
+    }
+
+    const int pixmapSize = qMax(1, size * 2);
+    QPixmap pixmap(pixmapSize, pixmapSize);
+    pixmap.fill(Qt::transparent);
+
+    QPainter painter(&pixmap);
+    painter.setRenderHint(QPainter::Antialiasing, true);
+    painter.setRenderHint(QPainter::SmoothPixmapTransform, true);
+    painter.setPen(Qt::NoPen);
+    painter.setBrush(getSnowColor());
+
+    if (!packId.isEmpty()) {
+        auto themeManager = APPLICATION->themeManager();
+        auto packs = themeManager->getValidSnowflakePacks();
+
+        SnowflakePack* targetPack = nullptr;
+        for (auto* pack : packs) {
+            if (pack->id() == packId) {
+                targetPack = pack;
+                break;
+            }
+        }
+
+        if (targetPack) {
+            QRectF bounds(0, 0, pixmapSize, pixmapSize);
+            QPolygonF poly;
+            poly << bounds.topLeft() << bounds.topRight() << bounds.bottomRight() << bounds.bottomLeft();
+
+            targetPack->draw(painter, poly);
+        }
+    }
+
+    painter.end();
+
+    m_snowPixmapCache.insert(cacheKey, pixmap);
+    return pixmap;
+}
+
+void InstanceView::updateSnowflakesPosition()
+{
+    auto* settings = APPLICATION->settings();
+
+    if (!m_snowElapsedTimer.isValid()) {
+        m_snowElapsedTimer.start();
+        return;
+    }
+
+    const float dt = static_cast<float>(m_snowElapsedTimer.restart()) / 1000.0F;
+
+    const float minWind = static_cast<float>(settings->get("WindStrengthMin").toDouble());
+    const float maxWind = static_cast<float>(settings->get("WindStrengthMax").toDouble());
+
+    m_windPhase += dt * 0.25F;
+
+    const float windEnvelope = (std::sin(m_windPhase) * 0.5F) + 0.5F;
+    const float windStrength = minWind + (windEnvelope * (maxWind - minWind));
+
+    const int width = viewport()->width();
+    const int height = viewport()->height();
+
+    if (width <= 0 || height <= 0) {
+        return;
+    }
+
+    auto* generator = QRandomGenerator::global();
+
+    for (auto& snowflake : m_snowflakes) {
+        snowflake.driftPhase += dt * snowflake.driftSpeed;
+
+        const float drift = std::sin(snowflake.driftPhase) * snowflake.driftAmplitude;
+        const float wind = std::sin(m_windPhase * 0.35F) * windStrength;
+
+        snowflake.pos.rx() += (wind + drift) * dt;
+        snowflake.pos.ry() += snowflake.velocity.y() * dt;
+
+        const auto snowflakeSize = static_cast<float>(snowflake.size);
+
+        if (snowflake.pos.y() > static_cast<float>(height) + snowflakeSize) {
+            snowflake.pos.setY(-generator->bounded(10, 120));
+            snowflake.pos.setX(generator->bounded(width));
+
+            snowflake.driftPhase = static_cast<float>(generator->generateDouble()) * 6.2831853F;
+        }
+
+        if (snowflake.pos.x() > static_cast<float>(width) + snowflakeSize) {
+            snowflake.pos.setX(-snowflakeSize);
+        } else if (snowflake.pos.x() < -snowflakeSize) {
+            snowflake.pos.setX(static_cast<float>(width) + snowflakeSize);
+        }
+    }
+}
+
+void InstanceView::generateSnow()
+{
+    auto* const settings = APPLICATION->settings();
+    auto* const generator = QRandomGenerator::global();
+
+    const uint count = settings->get("SnowCount").toUInt();
+    const uint minSpeedY = settings->get("SnowFallSpeedMin").toUInt();
+    const uint maxSpeedY = settings->get("SnowFallSpeedMax").toUInt();
+    const uint minSize = settings->get("SnowSizeMin").toUInt();
+    const uint maxSize = settings->get("SnowSizeMax").toUInt();
+    const uint minOpacity = settings->get("SnowOpacityMin").toUInt();
+    const uint maxOpacity = settings->get("SnowOpacityMax").toUInt();
+    const float minWind = static_cast<float>(settings->get("WindStrengthMin").toDouble());
+    const float maxWind = static_cast<float>(settings->get("WindStrengthMax").toDouble());
+
+    const int width = viewport()->width();
+    const int height = viewport()->height();
+
+    if (width <= 0 || height <= 0) {
+        return;
+    }
+
+    auto randRange = [generator](float minValue, float maxValue) {
+        return minValue + (static_cast<float>(generator->generateDouble()) * (maxValue - minValue));
+    };
+
+    m_snowflakes.reserve(m_snowflakes.size() + count);
+
+    QString currentPackId = settings->get("BackgroundSnowflake").toString();
+
+    if (currentPackId.isEmpty() || !m_availableSnowflakePacks.contains(currentPackId)) {
+        if (!m_availableSnowflakePacks.isEmpty()) {
+            currentPackId = m_availableSnowflakePacks.first();
+        }
+    }
+
+    for (uint i = 0; i < count; ++i) {
+        Snowflake snowflake;
+
+        snowflake.pos = QPointF(generator->bounded(width), generator->bounded(height));
+        snowflake.velocity =
+            QPointF(randRange(-maxWind, maxWind) * 0.35F, randRange(static_cast<float>(minSpeedY), static_cast<float>(maxSpeedY)));
+
+        snowflake.size = generator->bounded(minSize, maxSize + 1);
+        snowflake.opacity = static_cast<float>(generator->bounded(minOpacity, maxOpacity + 1)) / 100.0F;
+
+        snowflake.driftPhase = static_cast<float>(generator->generateDouble() * 6.2831853);
+        snowflake.driftSpeed = randRange(0.8F, 2.2F);
+        snowflake.driftAmplitude = randRange(minWind * 0.15F, maxWind * 0.35F);
+
+        snowflake.packId = currentPackId;
+
+        m_snowflakes.push_back(snowflake);
+    }
+}
+
 void InstanceView::setPaintSnow(bool visible)
 {
     m_snowVisible = visible;
+    loadSnowflakePacks();
 
-    disconnect(m_snowTimer, &QTimer::timeout, this, nullptr);
-    delete m_snowTimer;
-    m_snowTimer = nullptr;
+    if (m_snowTimer) {
+        m_snowTimer->stop();
+        m_snowTimer->deleteLater();
+        m_snowTimer = nullptr;
+    }
 
-    if (visible) {
-        // Create a timer to update the snow positions every 16 milliseconds
-        m_snowTimer = new QTimer(this);
-        m_snowTimer->start(33);
-        connect(m_snowTimer, &QTimer::timeout, this,
-                [this] { QThreadPool::globalInstance()->start([this] { this->updateSnowflakesPosition(); }); });
+    m_snowflakes.clear();
+    m_snowPixmapCache.clear();
 
-    } else {
-        // Clear the snowflakes vector
-        m_snowflakes.clear();
-        this->viewport()->update();
+    if (!visible) {
+        viewport()->update();
+        return;
+    }
+
+    QTimer::singleShot(0, this, [this] { generateSnow(); });
+
+    m_snowElapsedTimer.restart();
+
+    m_snowTimer = new QTimer(this);
+
+    connect(m_snowTimer, &QTimer::timeout, this, [this] {
+        updateSnowflakesPosition();
+        viewport()->update();
+    });
+
+    const uint fps = APPLICATION->settings()->get("SnowFps").toUInt();
+    const uint intervalMs = 1000U / qMax(1U, fps);
+
+    m_snowTimer->setInterval(static_cast<int>(intervalMs));
+    m_snowTimer->start();
+}
+
+QColor InstanceView::getSnowColor()
+{
+    auto* settings = APPLICATION->settings();
+
+    const QVariant colorSetting = settings->get("SnowColor");
+    if (colorSetting == "blue") {
+        return { 200, 240, 255 };
+    }
+    if (colorSetting == "golden") {
+        return { 255, 215, 0 };
+    }
+    if (colorSetting == "custom") {
+        const QString customColorHex = settings->get("SnowCustomColor").toString();
+        const QColor color = QColor(customColorHex);
+
+        if (color.isValid()) {
+            return color;
+        }
+    }
+
+    return Qt::white;
+}
+
+void InstanceView::drawSnow(QPainter& painter)
+{
+    painter.setRenderHint(QPainter::Antialiasing, true);
+    painter.setRenderHint(QPainter::SmoothPixmapTransform, true);
+    painter.setBrush(getSnowColor());
+
+    auto* themeManager = APPLICATION->themeManager();
+    auto packs = themeManager->getValidSnowflakePacks();
+
+    for (const auto& snowflake : m_snowflakes) {
+        painter.setOpacity(snowflake.opacity);
+
+        const int size = static_cast<int>(snowflake.size);
+
+        SnowflakePack* targetPack = nullptr;
+        bool isGif = false;
+
+        for (auto* pack : packs) {
+            if (pack->id() == snowflake.packId) {
+                targetPack = pack;
+                if (dynamic_cast<QObject*>(pack)) {
+                    isGif = true;
+                }
+                break;
+            }
+        }
+
+        if (isGif && targetPack) {
+            QRectF bounds(snowflake.pos.x() - size, snowflake.pos.y() - size, size * 2, size * 2);
+            QPolygonF poly;
+            poly << bounds.topLeft() << bounds.topRight() << bounds.bottomRight() << bounds.bottomLeft();
+            targetPack->draw(painter, poly);
+        } else {
+            const QPixmap pixmap = getSnowPixmap(size, snowflake.packId);
+            painter.drawPixmap(QPointF(snowflake.pos.x() - size, snowflake.pos.y() - size), pixmap);
+        }
+    }
+
+    painter.setOpacity(1.0);
+}
+
+void InstanceView::reflowSnowflakes()
+{
+    const int width = viewport()->width();
+    const int height = viewport()->height();
+
+    if (width <= 0 || height <= 0) {
+        return;
+    }
+
+    auto* generator = QRandomGenerator::global();
+
+    for (auto& snowflake : m_snowflakes) {
+        if (snowflake.pos.x() > width || snowflake.pos.x() < 0) {
+            snowflake.pos.setX(generator->bounded(width));
+        }
+
+        if (snowflake.pos.y() > height || snowflake.pos.y() < 0) {
+            snowflake.pos.setY(generator->bounded(height));
+        }
     }
 }
 
-void InstanceView::onCurrentSnowChanged(bool visible)
-{
-    setPaintSnow(visible);
-}
-
-/**
- * @brief Sets whether a cat should be painted in the view.
- *
- * @param visible Whether a cat should be painted in the view.
- */
 void InstanceView::setPaintCat(bool visible)
 {
     if (m_cat) {
@@ -616,37 +820,6 @@ void InstanceView::paintEvent([[maybe_unused]] QPaintEvent* event)
         }
         itemDelegate()->paint(&painter, option, index);
     }
-
-    /*
-     * Drop indicators for manual reordering...
-     */
-#if 0
-    if (!m_lastDragPosition.isNull())
-    {
-        std::pair<VisualGroup *, VisualGroup::HitResults> pair = rowDropPos(m_lastDragPosition);
-        VisualGroup *category = pair.first;
-        VisualGroup::HitResults row = pair.second;
-        if (category)
-        {
-            int internalRow = row - category->firstItemIndex;
-            QLine line;
-            if (internalRow >= category->numItems())
-            {
-                QRect toTheRightOfRect = visualRect(category->lastItem());
-                line = QLine(toTheRightOfRect.topRight(), toTheRightOfRect.bottomRight());
-            }
-            else
-            {
-                QRect toTheLeftOfRect = visualRect(model()->index(row, 0));
-                line = QLine(toTheLeftOfRect.topLeft(), toTheLeftOfRect.bottomLeft());
-            }
-            painter.save();
-            painter.setPen(QPen(Qt::black, 3));
-            painter.drawLine(line);
-            painter.restore();
-        }
-    }
-#endif
 }
 
 void InstanceView::resizeEvent([[maybe_unused]] QResizeEvent* event)
@@ -658,6 +831,22 @@ void InstanceView::resizeEvent([[maybe_unused]] QResizeEvent* event)
         updateGeometries();
     } else {
         updateScrollbar();
+    }
+    if (m_snowVisible) {
+        const QSize newSize = viewport()->size();
+
+        if (m_lastViewportSize.isValid()) {
+            const float scaleX = float(newSize.width()) / float(m_lastViewportSize.width());
+            const float scaleY = float(newSize.height()) / float(m_lastViewportSize.height());
+
+            for (auto& snowflake : m_snowflakes) {
+                snowflake.pos.setX(snowflake.pos.x() * scaleX);
+                snowflake.pos.setY(snowflake.pos.y() * scaleY);
+            }
+        }
+
+        m_lastViewportSize = newSize;
+        reflowSnowflakes();
     }
 }
 
@@ -861,51 +1050,6 @@ QList<std::pair<QRect, QModelIndex>> InstanceView::draggablePaintPairs(const QMo
         rect |= current;
     }
     return ret;
-}
-
-InstanceView::Snowflake InstanceView::createSnowflake() const
-{
-    Snowflake snowflake;
-
-    // Random radius between 5 and 8
-    int radius = QRandomGenerator::global()->bounded(2, 4);
-    // Random transparency between 40% and 70%
-    double transparency = QRandomGenerator::global()->bounded(50, 70) / 100.0;
-
-    // Random position on the viewport
-    QPointF position(QRandomGenerator::global()->bounded(this->viewport()->width()), 0);
-
-    // Random movement speed in the x-axis
-    double movementX = QRandomGenerator::global()->bounded(-5, 5) / 10.0;
-    // Random movement speed in the y-axis
-    double movementY = QRandomGenerator::global()->bounded(40, 60) / 10.0;
-
-    snowflake.radius = radius;
-    snowflake.transparency = transparency;
-    snowflake.position = position;
-    snowflake.movementX = movementX;
-    snowflake.movementY = movementY;
-
-    // Random oscillation phase between 0 and 360
-    snowflake.oscillationPhase = QRandomGenerator::global()->bounded(0, 360);
-    // Random oscillation amplitude between 1 and 5
-    snowflake.oscillationAmplitude = QRandomGenerator::global()->bounded(1, 5) / 10.0;
-
-    return snowflake;
-}
-
-void InstanceView::drawSnow(QPainter& painter)
-{
-    painter.setRenderHint(QPainter::Antialiasing);
-    painter.setBrush(Qt::white);
-
-    for (const Snowflake& snowflake : m_snowflakes) {
-        painter.setOpacity(snowflake.transparency);
-        painter.drawEllipse(snowflake.position, snowflake.radius, snowflake.radius);
-    }
-
-    // Reset opacity
-    painter.setOpacity(1.0);
 }
 
 bool InstanceView::isDragEventAccepted([[maybe_unused]] QDropEvent* event)

@@ -39,6 +39,7 @@
 
 #pragma once
 
+#include <qvariant.h>
 #include <memory>
 
 #include <QApplication>

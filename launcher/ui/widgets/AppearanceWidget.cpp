@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-only
 /*
  *  Prism Launcher - Minecraft Launcher
+ *  Copyright (C) 2026 fractal <fractal@nebula-nook.ru>
  *  Copyright (C) 2025 TheKodeToad <TheKodeToad@proton.me>
  *  Copyright (C) 2022 Tayou <git@tayou.org>
  *
@@ -35,15 +36,22 @@
  */
 
 #include "AppearanceWidget.h"
+#include "ui/widgets/RangeSlider.h"
 #include "ui_AppearanceWidget.h"
 
 #include <DesktopServices.h>
+#include <QColorDialog>
 #include <QGraphicsOpacityEffect>
 #include "BuildConfig.h"
 #include "ui/themes/ITheme.h"
 #include "ui/themes/ThemeManager.h"
 
 #include <Application.h>
+#include <qcontainerfwd.h>
+#include <qlabel.h>
+#include <qslider.h>
+#include <qspinbox.h>
+#include <qvariant.h>
 #include "settings/SettingsObject.h"
 
 AppearanceWidget::AppearanceWidget(bool themesOnly, QWidget* parent)
@@ -77,7 +85,59 @@ AppearanceWidget::AppearanceWidget(bool themesOnly, QWidget* parent)
     connect(m_ui->iconsComboBox, &QComboBox::currentIndexChanged, this, &AppearanceWidget::applyIconTheme);
     connect(m_ui->widgetStyleComboBox, &QComboBox::currentIndexChanged, this, &AppearanceWidget::applyWidgetTheme);
     connect(m_ui->catPackComboBox, &QComboBox::currentIndexChanged, this, &AppearanceWidget::applyCatTheme);
+    connect(m_ui->snowflakePackComboBox, &QComboBox::currentIndexChanged, this, &AppearanceWidget::applySnowflakePack);
     connect(m_ui->catOpacitySlider, &QAbstractSlider::valueChanged, this, &AppearanceWidget::updateCatPreview);
+
+    const auto syncRange = [](RangeSlider& slider, QSpinBox& minBox, QSpinBox& maxBox) {
+        connect(&slider, &RangeSlider::valueChanged, [&minBox, &maxBox](int min, int max) {
+            minBox.blockSignals(true);
+            maxBox.blockSignals(true);
+            minBox.setValue(min);
+            maxBox.setValue(max);
+            minBox.blockSignals(false);
+            maxBox.blockSignals(false);
+        });
+        connect(&minBox, qOverload<int>(&QSpinBox::valueChanged), &slider,
+                [&slider, &maxBox](int val) { slider.setLowerValue(qMin(val, maxBox.value())); });
+        connect(&maxBox, qOverload<int>(&QSpinBox::valueChanged), &slider,
+                [&slider, &minBox](int val) { slider.setUpperValue(qMax(val, minBox.value())); });
+    };
+
+    syncRange(*m_ui->snowFallSpeedSlider, *m_ui->snowFallSpeedMinSpinBox, *m_ui->snowFallSpeedMaxSpinBox);
+    syncRange(*m_ui->snowSizeSlider, *m_ui->snowSizeMinSpinBox, *m_ui->snowSizeMaxSpinBox);
+    syncRange(*m_ui->snowOpacitySlider, *m_ui->snowOpacityMinSpinBox, *m_ui->snowOpacityMaxSpinBox);
+    syncRange(*m_ui->windStrengthSlider, *m_ui->windStrengthMinSpinBox, *m_ui->windStrengthMaxSpinBox);
+
+    connect(m_ui->snowCountSlider, &QSlider::valueChanged, m_ui->snowCountSpinBox, &QSpinBox::setValue);
+    connect(m_ui->snowCountSpinBox, &QSpinBox::valueChanged, m_ui->snowCountSlider, &QSlider::setValue);
+    connect(m_ui->snowFpsSlider, &QSlider::valueChanged, m_ui->snowFpsSpinBox, &QSpinBox::setValue);
+    connect(m_ui->snowFpsSpinBox, &QSpinBox::valueChanged, m_ui->snowFpsSlider, &QSlider::setValue);
+
+    connect(m_ui->snowColorComboBox, &QComboBox::currentIndexChanged, this, [](int index) {
+        switch (index) {
+            default:
+                applySnowColor("white");
+                break;
+            case 1:
+                applySnowColor("blue");
+                break;
+            case 2:
+                applySnowColor("golden");
+                break;
+            case 3:
+                applySnowColor("custom");
+                break;
+        }
+    });
+
+    connect(m_ui->snowColorPickerButton, &QPushButton::clicked, this, [this]() {
+        QColor currentColor = Qt::white;
+        QColor newColor = QColorDialog::getColor(currentColor, this, tr("Choose Snow Color"));
+        if (newColor.isValid()) {
+            m_ui->snowColorComboBox->setCurrentIndex(3);
+            APPLICATION->settings()->set("SnowCustomColor", newColor.name());
+        }
+    });
 
     connect(m_ui->iconsFolder, &QPushButton::clicked, this,
             [] { DesktopServices::openPath(APPLICATION->themeManager()->getIconThemesFolder().path()); });
@@ -85,6 +145,8 @@ AppearanceWidget::AppearanceWidget(bool themesOnly, QWidget* parent)
             [] { DesktopServices::openPath(APPLICATION->themeManager()->getApplicationThemesFolder().path()); });
     connect(m_ui->catPackFolder, &QPushButton::clicked, this,
             [] { DesktopServices::openPath(APPLICATION->themeManager()->getCatPacksFolder().path()); });
+    connect(m_ui->snowflakePackFolder, &QPushButton::clicked, this,
+            [] { DesktopServices::openPath(APPLICATION->themeManager()->getSnowflakePacksFolder().path()); });
     connect(m_ui->reloadThemesButton, &QPushButton::pressed, this, &AppearanceWidget::loadThemeSettings);
 }
 
@@ -102,12 +164,43 @@ void AppearanceWidget::applySettings()
     settings->set("CatOpacity", m_ui->catOpacitySlider->value());
     auto catFit = m_ui->catFitComboBox->currentIndex();
     settings->set("CatFit", catFit == 0 ? "fit" : catFit == 1 ? "fill" : catFit == 2 ? "cover" : "strech");
-    applySnow(m_ui->snowCheckBox->isChecked());
+
+    settings->set("SnowFallSpeedMin", m_ui->snowFallSpeedMinSpinBox->value());
+    settings->set("SnowFallSpeedMax", m_ui->snowFallSpeedMaxSpinBox->value());
+    settings->set("SnowSizeMin", m_ui->snowSizeMinSpinBox->value());
+    settings->set("SnowSizeMax", m_ui->snowSizeMaxSpinBox->value());
+    settings->set("SnowOpacityMin", m_ui->snowOpacityMinSpinBox->value());
+    settings->set("SnowOpacityMax", m_ui->snowOpacityMaxSpinBox->value());
+    settings->set("WindStrengthMin", m_ui->windStrengthMinSpinBox->value());
+    settings->set("WindStrengthMax", m_ui->windStrengthMaxSpinBox->value());
+    settings->set("SnowCount", m_ui->snowCountSpinBox->value());
+    settings->set("SnowFps", m_ui->snowFpsSpinBox->value());
+
+    auto snowColorIndex = m_ui->snowColorComboBox->currentIndex();
+    QVariant snowColor;
+    switch (snowColorIndex) {
+        default:
+            snowColor = "white";
+            break;
+        case 1:
+            snowColor = "blue";
+            break;
+        case 2:
+            snowColor = "golden";
+            break;
+        case 3:
+            snowColor = "custom";
+            break;
+    }
+    settings->set("SnowColor", snowColor);
+
+    applySnow(m_ui->snowBox->isChecked());
 }
 
 void AppearanceWidget::loadSettings()
 {
     SettingsObject* settings = APPLICATION->settings();
+
     QString fontFamily = settings->get("ConsoleFont").toString();
     QFont consoleFont(fontFamily);
     m_ui->consoleFont->setCurrentFont(consoleFont);
@@ -119,12 +212,61 @@ void AppearanceWidget::loadSettings()
     }
     m_ui->fontSizeBox->setValue(fontSize);
 
-    m_ui->snowCheckBox->setChecked(settings->get("Snow").toBool());
-
+    m_ui->snowBox->setChecked(settings->get("Snow").toBool());
     m_ui->catOpacitySlider->setValue(settings->get("CatOpacity").toInt());
 
-    auto catFit = settings->get("CatFit").toString();
-    m_ui->catFitComboBox->setCurrentIndex(catFit == "fit" ? 0 : catFit == "fill" ? 1 : catFit == "cover" ? 2 : 3);
+    QString catFit = settings->get("CatFit").toString();
+    int catFitIndex = 3;
+    if (catFit == "fit") {
+        catFitIndex = 0;
+    } else if (catFit == "fill") {
+        catFitIndex = 1;
+    } else if (catFit == "cover") {
+        catFitIndex = 2;
+    }
+    m_ui->catFitComboBox->setCurrentIndex(catFitIndex);
+
+    loadRangeSetting("SnowFallSpeed", m_ui->snowFallSpeedMinSpinBox, m_ui->snowFallSpeedMaxSpinBox, m_ui->snowFallSpeedSlider);
+    loadRangeSetting("SnowSize", m_ui->snowSizeMinSpinBox, m_ui->snowSizeMaxSpinBox, m_ui->snowSizeSlider);
+    loadRangeSetting("SnowOpacity", m_ui->snowOpacityMinSpinBox, m_ui->snowOpacityMaxSpinBox, m_ui->snowOpacitySlider);
+    loadRangeSetting("WindStrength", m_ui->windStrengthMinSpinBox, m_ui->windStrengthMaxSpinBox, m_ui->windStrengthSlider);
+
+    loadSingleSetting("SnowCount", m_ui->snowCountSpinBox, m_ui->snowCountSlider);
+    loadSingleSetting("SnowFps", m_ui->snowFpsSpinBox, m_ui->snowFpsSlider);
+
+    QString snowColorStr = settings->get("SnowColor").toString();
+    int snowColorIndex = 0;  // white
+    if (snowColorStr == "blue") {
+        snowColorIndex = 1;
+    } else if (snowColorStr == "golden") {
+        snowColorIndex = 2;
+    } else if (snowColorStr == "custom") {
+        snowColorIndex = 3;
+    }
+    m_ui->snowColorComboBox->setCurrentIndex(snowColorIndex);
+
+    applySnow(m_ui->snowBox->isChecked());
+}
+
+void AppearanceWidget::loadRangeSetting(const QString& prefix, QSpinBox* minBox, QSpinBox* maxBox, RangeSlider* slider)
+{
+    SettingsObject* settings = APPLICATION->settings();
+
+    int minVal = settings->get(prefix + "Min").toInt();
+    int maxVal = settings->get(prefix + "Max").toInt();
+    minBox->setValue(minVal);
+    maxBox->setValue(maxVal);
+    slider->setLowerValue(minVal);
+    slider->setUpperValue(maxVal);
+}
+
+void AppearanceWidget::loadSingleSetting(const QString& key, QSpinBox* spinBox, QSlider* slider)
+{
+    SettingsObject* settings = APPLICATION->settings();
+
+    int value = settings->get(key).toInt();
+    spinBox->setValue(value);
+    slider->setValue(value);
 }
 
 void AppearanceWidget::retranslateUi()
@@ -169,15 +311,30 @@ void AppearanceWidget::applyCatTheme(int index)
     updateCatPreview();
 }
 
+void AppearanceWidget::applySnowflakePack(int index)
+{
+    auto* settings = APPLICATION->settings();
+
+    QString packId = m_ui->snowflakePackComboBox->itemData(index).toString();
+
+    settings->set("BackgroundSnowflake", packId);
+}
+
 void AppearanceWidget::applySnow(bool visible)
 {
-    auto settings = APPLICATION->settings();
+    auto* settings = APPLICATION->settings();
     auto originalSnow = settings->get("Snow").toBool();
     if (originalSnow != visible) {
         settings->set("Snow", visible);
     }
 
     APPLICATION->currentSnowChanged(visible);
+}
+
+void AppearanceWidget::applySnowColor(const QString& color)
+{
+    auto* settings = APPLICATION->settings();
+    settings->set("SnowColor", color);
 }
 
 void AppearanceWidget::loadThemeSettings()
@@ -187,10 +344,12 @@ void AppearanceWidget::loadThemeSettings()
     m_ui->iconsComboBox->blockSignals(true);
     m_ui->widgetStyleComboBox->blockSignals(true);
     m_ui->catPackComboBox->blockSignals(true);
+    m_ui->snowflakePackComboBox->blockSignals(true);
 
     m_ui->iconsComboBox->clear();
     m_ui->widgetStyleComboBox->clear();
     m_ui->catPackComboBox->clear();
+    m_ui->snowflakePackComboBox->clear();
 
     SettingsObject* settings = APPLICATION->settings();
 
@@ -230,14 +389,38 @@ void AppearanceWidget::loadThemeSettings()
             QIcon catIcon = QIcon(QString("%1").arg(cat->path()));
             m_ui->catPackComboBox->addItem(catIcon, cat->name(), cat->id());
 
-            if (currentCat == cat->id())
+            if (currentCat == cat->id()) {
                 m_ui->catPackComboBox->setCurrentIndex(i);
+            }
+        }
+
+        const QString currentSnowflake = settings->get("BackgroundSnowflake").toString();
+        const auto snowflakes = APPLICATION->themeManager()->getValidSnowflakePacks();
+
+        int defaultSnowflakeIndex = -1;
+        for (int i = 0; i < snowflakes.count(); ++i) {
+            const SnowflakePack* pack = snowflakes[i];
+
+            m_ui->snowflakePackComboBox->addItem(pack->name(), pack->id());
+
+            if (currentSnowflake == pack->id()) {
+                m_ui->snowflakePackComboBox->setCurrentIndex(i);
+            }
+
+            if (pack->id() == "builtin-snowflake") {
+                defaultSnowflakeIndex = i;
+            }
+        }
+
+        if (m_ui->snowflakePackComboBox->currentIndex() < 0 && defaultSnowflakeIndex >= 0) {
+            m_ui->snowflakePackComboBox->setCurrentIndex(defaultSnowflakeIndex);
         }
     }
 
     m_ui->iconsComboBox->blockSignals(false);
     m_ui->widgetStyleComboBox->blockSignals(false);
     m_ui->catPackComboBox->blockSignals(false);
+    m_ui->snowflakePackComboBox->blockSignals(false);
 }
 
 void AppearanceWidget::updateConsolePreview()
@@ -261,7 +444,6 @@ void AppearanceWidget::updateConsolePreview()
         if (fg.isValid())
             format.setForeground(fg);
 
-        // append a paragraph/line
         auto workCursor = m_ui->consolePreview->textCursor();
         workCursor.movePosition(QTextCursor::End);
         workCursor.insertText(message, format);

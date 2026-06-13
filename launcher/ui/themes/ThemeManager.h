@@ -1,6 +1,8 @@
+// ThemeManager.h
 // SPDX-License-Identifier: GPL-3.0-only
 /*
  *  Prism Launcher - Minecraft Launcher
+ *  Copyright (C) 2026 fractal <fractal@nebula-nook.ru>
  *  Copyright (C) 2024 Tayou <git@tayou.org>
  *  Copyright (C) 2024 TheKodeToad <TheKodeToad@proton.me>
  *
@@ -26,6 +28,7 @@
 #include "IconTheme.h"
 #include "ui/themes/CatPack.h"
 #include "ui/themes/ITheme.h"
+#include "ui/themes/SnowflakePack.h"
 
 inline auto themeDebugLog() {
     return qDebug() << "[Theme]";
@@ -41,20 +44,23 @@ class ThemeManager {
 
     QList<IconTheme*> getValidIconThemes();
     QList<ITheme*> getValidApplicationThemes();
+    QList<CatPack*> getValidCatPacks();
+    QList<SnowflakePack*> getValidSnowflakePacks();
+
     bool isValidIconTheme(const QString& id);
     bool isValidApplicationTheme(const QString& id);
-    QDir getIconThemesFolder();
-    QDir getApplicationThemesFolder();
-    QDir getCatPacksFolder();
+
+    QDir getIconThemesFolder() { return m_iconThemeFolder; };
+    QDir getApplicationThemesFolder() { return m_applicationThemeFolder; };
+    QDir getCatPacksFolder() { return m_catPacksFolder; };
+    QDir getSnowflakePacksFolder() { return m_snowflakePacksFolder; };
+
     void applyCurrentlySelectedTheme(bool initial = false);
     void setIconTheme(const QString& name);
     void setApplicationTheme(const QString& name, bool initial = false);
 
-    /// @brief Returns the background based on selected and with events (Birthday, XMas, etc.)
-    /// @param catName Optional, if you need a specific background.
-    /// @return
     QString getCatPack(QString catName = "");
-    QList<CatPack*> getValidCatPacks();
+    QString getSnowflakePack(const QString& name = "");
 
     const LogColors& getLogColors() { return m_logColors; }
 
@@ -66,17 +72,21 @@ class ThemeManager {
     QDir m_iconThemeFolder{"iconthemes"};
     QDir m_applicationThemeFolder{"themes"};
     QDir m_catPacksFolder{"catpacks"};
+    QDir m_snowflakePacksFolder{"snowflakes"};
     std::map<QString, std::unique_ptr<CatPack>> m_catPacks;
+    std::map<QString, std::unique_ptr<SnowflakePack>> m_snowflakePacks;
     QPalette m_defaultPalette;
     QString m_defaultStyle;
     LogColors m_logColors;
 
     void initializeThemes();
     void initializeCatPacks();
+    void initializeSnowflakePacks();
     QString addTheme(std::unique_ptr<ITheme> theme);
     ITheme* getTheme(QString themeId);
     QString addIconTheme(IconTheme theme);
     QString addCatPack(std::unique_ptr<CatPack> catPack);
+    QString addSnowflakePack(std::unique_ptr<SnowflakePack> snowflakePack);
     void initializeIcons();
     void initializeWidgets();
 
@@ -91,6 +101,6 @@ class ThemeManager {
     NSObject* m_windowTitlebarObserver = nullptr;
 #endif
 
-    const QStringList builtinIcons{ "pe_colored", "pe_light", "pe_dark",    "pe_blue", "breeze_light", "breeze_dark", "OSX",
-                                    "iOS",        "flat",     "flat_white", "multimc", "fluent",       "fluent_dark" };
+    const QStringList builtinIcons{"pe_colored", "pe_light", "pe_dark",    "pe_blue", "breeze_light", "breeze_dark", "OSX",
+                                   "iOS",        "flat",     "flat_white", "multimc", "fluent",       "fluent_dark"};
 };
