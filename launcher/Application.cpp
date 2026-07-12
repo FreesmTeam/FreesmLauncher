@@ -775,7 +775,7 @@ Application::Application(int& argc, char** argv) : QApplication(argc, argv)
         m_settings->registerSetting("UseElySkins", 2);
 
         // Legacy settings
-        m_settings->registerSetting("OnlineFixes", false);
+        m_settings->registerSetting("OnlineFixes", true);
 
         // Native library workarounds
         m_settings->registerSetting("UseNativeOpenAL", false);
