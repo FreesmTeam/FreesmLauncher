@@ -775,7 +775,11 @@ Application::Application(int& argc, char** argv) : QApplication(argc, argv)
         m_settings->registerSetting("UseElySkins", 2);
 
         // Legacy settings
+<<<<<<< HEAD
         m_settings->registerSetting("OnlineFixes", false);
+=======
+        m_settings->registerSetting("OnlineFixes", true);
+>>>>>>> d066d787a (feat: added many features from PineconeMC)
 
         // Native library workarounds
         m_settings->registerSetting("UseNativeOpenAL", false);

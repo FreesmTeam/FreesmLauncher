@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-only
 /*
+<<<<<<< HEAD
  *  Prism Launcher - Minecraft Launcher
  *  Copyright (C) 2022 Sefa Eyeoglu <contact@scrumplex.net>
  *  Copyright (C) 2023 TheKodeToad <TheKodeToad@proton.me>
@@ -15,10 +16,28 @@
  *
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <https://www.gnu.org/licenses/>.
+=======
+ * Prism Launcher - Minecraft Launcher
+ * Copyright (C) 2022 Sefa Eyeoglu <contact@scrumplex.net>
+ * Copyright (C) 2023 TheKodeToad <TheKodeToad@proton.me>
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, version 3.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+>>>>>>> d066d787a (feat: added many features from PineconeMC)
  *
  * This file incorporates work covered by the following copyright and
  * permission notice:
  *
+<<<<<<< HEAD
  *      Copyright 2013-2021 MultiMC Contributors
  *
  *      Licensed under the Apache License, Version 2.0 (the "License");
@@ -32,6 +51,21 @@
  *      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *      See the License for the specific language governing permissions and
  *      limitations under the License.
+=======
+ * Copyright 2013-2021 MultiMC Contributors
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+>>>>>>> d066d787a (feat: added many features from PineconeMC)
  */
 
 #include "LaunchController.h"
@@ -40,6 +74,10 @@
 #include "minecraft/auth/AccountData.h"
 #include "minecraft/auth/AccountList.h"
 
+<<<<<<< HEAD
+=======
+#include "net/NetUtils.h" // <--- FIXED: Added this include line so Net::isServerError compiles safely!
+>>>>>>> d066d787a (feat: added many features from PineconeMC)
 #include "ui/InstanceWindow.h"
 #include "ui/dialogs/CustomLoginDialog.h"
 #include "ui/dialogs/CustomMessageBox.h"
@@ -239,7 +277,13 @@ QString LaunchController::askOfflineName(const QString& playerName, bool* ok) co
         *ok = false;
     }
 
+<<<<<<< HEAD
     QString message;
+=======
+    QString title = tr("Player name");
+    QString message;
+
+>>>>>>> d066d787a (feat: added many features from PineconeMC)
     switch (m_actualLaunchMode) {
         case LaunchMode::Normal:
             Q_ASSERT(false);
@@ -249,7 +293,18 @@ QString LaunchController::askOfflineName(const QString& playerName, bool* ok) co
             break;
         case LaunchMode::Offline:
             if (m_wantedLaunchMode == LaunchMode::Normal) {
+<<<<<<< HEAD
                 message = tr("You are not connected to the Internet, launching in offline mode\n\n");
+=======
+                auto netErr = m_accountToUse->accountData()->networkError;
+                if (Net::isServerError(netErr)) {
+                    title = tr("Auth servers offline");
+                    message = tr("The Minecraft authentication servers are currently unavailable, launching in offline mode.\n\n");
+                } else {
+                    title = tr("No internet connection");
+                    message = tr("You are not connected to the Internet, launching in offline mode.\n\n");
+                }
+>>>>>>> d066d787a (feat: added many features from PineconeMC)
             }
             message += tr("Choose your offline mode player name");
             break;
@@ -259,7 +314,11 @@ QString LaunchController::askOfflineName(const QString& playerName, bool* ok) co
     QString usedname = lastOfflinePlayerName.isEmpty() ? playerName : lastOfflinePlayerName;
 
     ChooseOfflineNameDialog dialog(message, m_parentWidget);
+<<<<<<< HEAD
     dialog.setWindowTitle(tr("Player name"));
+=======
+    dialog.setWindowTitle(title);
+>>>>>>> d066d787a (feat: added many features from PineconeMC)
     dialog.setUsername(usedname);
     if (dialog.exec() != QDialog::Accepted) {
         return {};
@@ -274,6 +333,10 @@ QString LaunchController::askOfflineName(const QString& playerName, bool* ok) co
     return usedname;
 }
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> d066d787a (feat: added many features from PineconeMC)
 void LaunchController::login()
 {
     decideAccount();
