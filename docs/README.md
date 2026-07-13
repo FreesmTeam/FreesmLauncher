@@ -10,7 +10,7 @@ A Prism Launcher fork that **removes offline account restrictions**, adds custom
 
 This fork is **not** endorsed by Prism Launcher
 
-Based on Prism Launcher **11.0.2**
+Based on Prism Launcher **11.0.3**
 
 <p align="center">
 <strong>English</strong> | <a style="color:#f5c2e7" href="./README_ru.md">Русский</a>
