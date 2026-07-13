@@ -931,6 +931,9 @@ void MainWindow::processURLs(QList<QUrl> urls)
 {
     // NOTE: This loop only processes one dropped file!
     for (auto& url : urls) {
+        if (url.isEmpty() || url.toString().trimmed().isEmpty())
+            continue;
+
         qDebug() << "Processing" << url;
 
         // The isLocalFile() check below doesn't work as intended without an explicit scheme.
@@ -1109,6 +1112,11 @@ void MainWindow::processURLs(QList<QUrl> urls)
 
         auto localFileName = QDir::toNativeSeparators(local_url.toLocalFile());
         QFileInfo localFileInfo(localFileName);
+
+        if (localFileName.isEmpty() || !localFileInfo.exists()) {
+            qDebug() << "Ignoring invalid path" << localFileName;
+            continue;
+        }
 
         auto type = ResourceUtils::identify(localFileInfo);
 

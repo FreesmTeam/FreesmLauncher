@@ -387,14 +387,17 @@
  <tabstops>
   <tabstop>javaPathTextBox</tabstop>
   <tabstop>javaDetectBtn</tabstop>
-     <tabstop>javaBrowseBtn</tabstop>
+  <tabstop>javaBrowseBtn</tabstop>
   <tabstop>skipCompatibilityCheckBox</tabstop>
   <tabstop>skipWizardCheckBox</tabstop>
   <tabstop>autodetectJavaCheckBox</tabstop>
   <tabstop>autodownloadJavaCheckBox</tabstop>
-     <tabstop>javaTestBtn</tabstop>
-     <tabstop>javaDownloadBtn</tabstop>
+  <tabstop>javaTestBtn</tabstop>
+  <tabstop>javaDownloadBtn</tabstop>
+  <tabstop>minMemSpinBox</tabstop>
   <tabstop>maxMemSpinBox</tabstop>
+  <tabstop>permGenSpinBox</tabstop>
+  <tabstop>lowMemWarningCheckBox</tabstop>
   <tabstop>jvmArgsTextBox</tabstop>
  </tabstops>
  <resources/>
