@@ -24,7 +24,7 @@ on:
         type: string
         default: Debug
 
-permissions: { }
+permissions: {  }
 
 jobs:
   build:
@@ -38,6 +38,8 @@ jobs:
       id-token: write
       # Required for vcpkg binary cache
       packages: write
+      # rq for GitHub Artifact Attestations
+      attestations: write
 
     strategy:
       fail-fast: false
@@ -186,3 +188,11 @@ jobs:
           azure-client-id: ${{ secrets.AZURE_CLIENT_ID }}
           azure-tenant-id: ${{ secrets.AZURE_TENANT_ID }}
           azure-subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Attest Release Packages
+        if: ${{ inputs.build-type == 'Release' }}
+        # Pinning to actions/attest-build-provenance@v2.2.3
+        # in case Dependabot update it.
+        uses: actions/attest-build-provenance@0f67c3f4856b2e3261c31976d6725780e5e4c373
+        with:
+          subject-path: '${{ github.workspace }}/**/${{ matrix.artifact-name }}*'
