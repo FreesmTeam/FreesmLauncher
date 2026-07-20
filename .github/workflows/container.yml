@@ -10,8 +10,6 @@ on:
   pull_request:
   workflow_dispatch:
 
-permissions: { }
-
 env:
   REGISTRY: ghcr.io
 
@@ -25,7 +23,7 @@ jobs:
       # attestations rq
       id-token: write
       attestations: write
-      # artifact-metadata: write
+      artifact-metadata: write
 
     outputs:
       image-name: ${{ steps.image-name.outputs.image-name }}

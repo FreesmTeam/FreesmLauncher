@@ -24,13 +24,11 @@ on:
         type: string
         default: Debug
 
-permissions: {  }
-
 jobs:
   build:
     name: Build (${{ matrix.artifact-name }})
 
-    environment: ${{ inputs.environment || '' }}
+    environment: ${{ inputs.environment }}
 
     permissions:
       contents: read
@@ -190,7 +188,7 @@ jobs:
           azure-subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
       - name: Attest Release Packages
-        if: ${{ inputs.build-type == 'Release' }}
+        if: ${{ steps.setup-dependencies.outputs.build-type == 'Release' }}
         # Pinning to actions/attest-build-provenance@v2.2.3
         # in case Dependabot update it.
         uses: actions/attest-build-provenance@0f67c3f4856b2e3261c31976d6725780e5e4c373
