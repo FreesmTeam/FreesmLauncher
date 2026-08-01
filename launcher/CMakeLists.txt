@@ -280,10 +280,8 @@ set(MINECRAFT_SOURCES
 
     minecraft/launch/ApplyLibraryOverride.cpp
     minecraft/launch/ApplyLibraryOverride.h
-    minecraft/launch/ApplyAuthlibInjector.cpp
-    minecraft/launch/ApplyAuthlibInjector.h
-    minecraft/launch/ApplyElyPatch.cpp
-    minecraft/launch/ApplyElyPatch.h
+    minecraft/launch/ApplyAuthPatch.cpp
+    minecraft/launch/ApplyAuthPatch.h
     minecraft/launch/ClaimAccount.cpp
     minecraft/launch/ClaimAccount.h
     minecraft/launch/CreateGameFolders.cpp
@@ -871,6 +869,9 @@ SET(LAUNCHER_SOURCES
     # log utils
     logs/AnonymizeLog.cpp
     logs/AnonymizeLog.h
+
+    KnownJavaAgents.cpp
+    KnownJavaAgents.h
 
     # GUI - windows
     ui/GuiUtil.h

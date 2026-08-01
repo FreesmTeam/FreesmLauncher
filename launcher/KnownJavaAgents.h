@@ -18,17 +18,18 @@
 
 #pragma once
 
-#include "ApplyLibraryOverride.h"
+#include <QString>
+#include <vector>
 
-class ApplyAuthlibInjector : public ApplyLibraryOverride {
-    Q_OBJECT
-   public:
-    explicit ApplyAuthlibInjector(LaunchTask* parent, RuntimeContext& ctx, Net::Mode netMode);
-    ~ApplyAuthlibInjector() override;
-
-   protected:
-    void executeTask() override;
-
-   protected slots:
-    void onMetaRequestDone(const Meta::VersionList::Ptr& versionList) override;
+namespace Injectors {
+struct KnownJavaAgent {
+    QString uid;
+    QString prefix;
+    QString name;
 };
+
+const std::vector<KnownJavaAgent>& getJavaAgents();
+const KnownJavaAgent* findByUid(const QString& uid);
+const KnownJavaAgent* findByPrefix(const QString& prefix);
+const KnownJavaAgent& fallback();
+}  // namespace Injectors

@@ -774,6 +774,10 @@ Application::Application(int& argc, char** argv) : QApplication(argc, argv)
         // Elyby settings
         m_settings->registerSetting("UseElySkins", 2);
 
+        // Injectors
+        m_settings->registerSetting("InjectorUid", "moe.yushi.authlibinjector");
+        m_settings->registerSetting("InjectorVersion", "");
+
         // Legacy settings
         m_settings->registerSetting("OnlineFixes", false);
 

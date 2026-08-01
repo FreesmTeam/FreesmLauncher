@@ -18,13 +18,18 @@
 
 #pragma once
 
-#include "minecraft/launch/ApplyLibraryOverride.h"
+#include <QString>
+#include <optional>
 
-class ApplyElyPatch : public ApplyLibraryOverride {
+#include "ApplyLibraryOverride.h"
+
+class ApplyAuthPatch : public ApplyLibraryOverride {
     Q_OBJECT
    public:
-    explicit ApplyElyPatch(LaunchTask* parent, RuntimeContext& ctx, Net::Mode netMode);
-    ~ApplyElyPatch() override;
+    enum class Stage { Ely, Injector };
+
+    explicit ApplyAuthPatch(LaunchTask* parent, RuntimeContext& ctx, Net::Mode netMode, Stage stage);
+    ~ApplyAuthPatch() override;
 
    protected:
     void executeTask() override;
@@ -33,7 +38,11 @@ class ApplyElyPatch : public ApplyLibraryOverride {
     void onMetaRequestDone(const Meta::VersionList::Ptr& versionList) override;
     void apply(const Meta::Version::Ptr& version) override;
 
-private:
-    void applyAuthlibInjector();
-    bool m_fallbackToAuthlibInjector = false;
+   private:
+    void executeEly();
+    void executeInjector();
+
+    Stage m_stage;
+    QString m_decidedInjectorUid;
+    std::optional<QString> m_decidedInjectorVersion;
 };
