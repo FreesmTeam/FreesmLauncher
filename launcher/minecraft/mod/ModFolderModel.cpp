@@ -57,7 +57,7 @@
 #include "minecraft/mod/ResourceFolderModel.h"
 #include "minecraft/mod/tasks/LocalModParseTask.h"
 #include "modplatform/ModIndex.h"
-#include "ui/dialogs/CustomMessageBox.h"
+#include "ui/dialogs/ModToggleConfirmDialog.h"
 
 ModFolderModel::ModFolderModel(const QDir& dir, BaseInstance* instance, bool is_indexed, bool create_dir, QObject* parent)
     : ResourceFolderModel(QDir(dir), instance, is_indexed, create_dir, parent)
@@ -419,42 +419,13 @@ bool ModFolderModel::setResourceEnabled(const QModelIndexList& indexes, EnableAc
     };
 
     if (requiredToEnable.size() > 0 || requiredToDisable.size() > 0) {
-        QString title;
-        QString message;
-        QString noButton;
-        QString yesButton;
-        if (requiredToEnable.size() > 0 && requiredToDisable.size() > 0) {
-            title = tr("Confirm toggle");
-            message = tr("Toggling these mod(s) will cause changes to other mods.\n") +
-                      tr("%n mod(s) will be enabled\n", "", requiredToEnable.size()) +
-                      tr("%n mod(s) will be disabled\n", "", requiredToDisable.size()) +
-                      tr("Do you want to automatically apply these related changes?\nIgnoring them may break the game.");
-            noButton = tr("Only Toggle Selected");
-            yesButton = tr("Toggle Required Mods");
-        } else if (requiredToEnable.size() > 0) {
-            title = tr("Confirm enable");
-            message = tr("The enabled mod(s) require %n mod(s).\n", "", requiredToEnable.size()) +
-                      tr("Would you like to enable them as well?\nIgnoring them may break the game.");
-            noButton = tr("Only Enable Selected");
-            yesButton = tr("Enable Required");
-        } else {
-            title = tr("Confirm disable");
-            message = tr("The disabled mod(s) are required by %n mod(s).\n", "", requiredToDisable.size()) +
-                      tr("Would you like to disable them as well?\nIgnoring them may break the game.");
-            noButton = tr("Only Disable Selected");
-            yesButton = tr("Disable Required");
-        }
+        auto dialog = ModToggleConfirmDialog(nullptr, requiredToEnable, requiredToDisable);
+        auto response = dialog.exec();
 
-        auto box = CustomMessageBox::selectable(nullptr, title, message, QMessageBox::Warning,
-                                                QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel, QMessageBox::No);
-        box->button(QMessageBox::No)->setText(noButton);
-        box->button(QMessageBox::Yes)->setText(yesButton);
-        auto response = box->exec();
-
-        if (response == QMessageBox::Yes) {
+        if (response == ModToggleConfirmDialog::Accepted) {
             toEnable |= requiredToEnable;
             toDisable |= requiredToDisable;
-        } else if (response == QMessageBox::Cancel) {
+        } else if (response == ModToggleConfirmDialog::Canceled) {
             return false;
         }
     }
