@@ -21,7 +21,9 @@ struct AuthSession {
     QString player_name;
     // profile ID
     QString uuid;
-    // 'msa', 'elyby', 'custom' or 'offline', depending on account type
+    // 'msa', 'elyby', 'custom' or 'offline', used for account lock
+    QString account_type;
+    // 'msa' or 'offline', depending on account type
     QString user_type;
     // is ely patch required?
     bool wants_ely_patch = false;
