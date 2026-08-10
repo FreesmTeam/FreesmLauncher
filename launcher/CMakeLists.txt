@@ -872,6 +872,8 @@ SET(LAUNCHER_SOURCES
 
     KnownJavaAgents.cpp
     KnownJavaAgents.h
+    ConfigMigration.h
+    ConfigMigration.cpp
 
     # GUI - windows
     ui/GuiUtil.h

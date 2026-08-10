@@ -87,6 +87,7 @@
 
 #include "ApplicationMessage.h"
 
+#include <array>
 #include <iostream>
 #include <mutex>
 
@@ -133,6 +134,8 @@
 #include <LocalPeer.h>
 
 #include <stdlib.h>
+
+#include "ConfigMigration.h"
 #include "SysInfo.h"
 
 #ifdef Q_OS_LINUX
@@ -263,6 +266,35 @@ void appDebugOutput(QtMsgType type, const QMessageLogContext& context, const QSt
 
     QTextStream(stderr) << out.toLocal8Bit();
     fflush(stderr);
+}
+
+QString combineAppDataPath(const QString& path)
+{
+    return FS::PathCombine(QStandardPaths::writableLocation(QStandardPaths::AppDataLocation), path);
+}
+
+void handleConfigMigration()
+{
+    if (!QFile::exists(BuildConfig.LAUNCHER_CONFIGFILE)) {
+        struct Migration {
+            QString configFile;
+            QString pathToExclude;
+        };
+
+        if (!ConfigMigration::migrate("elyprismlauncher.cfg", BuildConfig.LAUNCHER_CONFIGFILE,
+                                      ConfigMigration::ExcludeByPrefix(combineAppDataPath("../../ElyPrismLauncher")),
+                                      ConfigMigration::TransformPineconeMCSettings{})) {
+            std::array migrations{ Migration{ "prismlauncher.cfg", combineAppDataPath("../../PrismLauncher") },
+                                   Migration{ "polymc.cfg", combineAppDataPath("../../PolyMC") },
+                                   Migration{ "multimc.cfg", combineAppDataPath("../../multimc") } };
+
+            for (const auto& [conf, path] : migrations) {
+                if (ConfigMigration::migrate(conf, BuildConfig.LAUNCHER_CONFIGFILE, ConfigMigration::ExcludeByPrefix(path))) {
+                    break;
+                }
+            }
+        }
+    }
 }
 
 }  // namespace
@@ -586,20 +618,22 @@ Application::Application(int& argc, char** argv) : QApplication(argc, argv)
     }
 
     {
-        bool migrated = false;
+        struct Migration {
+            QString oldData;
+            QString name;
+            QString configFile;
+        };
 
-        if (!migrated)
-            migrated = handleDataMigration(
-                dataPath, FS::PathCombine(QStandardPaths::writableLocation(QStandardPaths::AppDataLocation), "../../PrismLauncher"),
-                "Prism Launcher", "prismlauncher.cfg");
-        if (!migrated)
-            migrated = handleDataMigration(
-                dataPath, FS::PathCombine(QStandardPaths::writableLocation(QStandardPaths::AppDataLocation), "../../PolyMC"), "PolyMC",
-                "polymc.cfg");
-        if (!migrated)
-            migrated = handleDataMigration(
-                dataPath, FS::PathCombine(QStandardPaths::writableLocation(QStandardPaths::AppDataLocation), "../../multimc"), "MultiMC",
-                "multimc.cfg");
+        std::array migrations = { Migration{ combineAppDataPath("../../ElyPrismLauncher"), "PineconeMC", "elyprismlauncher.cfg" },
+                                  Migration{ combineAppDataPath("../../PrismLauncher"), "Prism Launcher", "prismlauncher.cfg" },
+                                  Migration{ combineAppDataPath("../../PolyMC"), "PolyMC", "polymc.cfg" },
+                                  Migration{ combineAppDataPath("../../multimc"), "MultiMC", "multimc.cfg" } };
+
+        for (const auto& [oldData, name, configFile] : migrations) {
+            if (handleDataMigration(dataPath, oldData, name, configFile)) {
+                break;
+            }
+        }
     }
 
     {
@@ -649,8 +683,9 @@ Application::Application(int& argc, char** argv) : QApplication(argc, argv)
 
     // Initialize application settings
     {
-        // Provide a fallback for migration from PolyMC
-        m_settings.reset(new INISettingsObject({ BuildConfig.LAUNCHER_CONFIGFILE, "polymc.cfg", "multimc.cfg" }, this));
+        // Provide a fallback for migration from some launchers
+        handleConfigMigration();
+        m_settings.reset(new INISettingsObject(BuildConfig.LAUNCHER_CONFIGFILE));
 
         // Date
         QDate now = QDate::currentDate();
