@@ -39,6 +39,7 @@
 #include "Application.h"
 #include "BuildConfig.h"
 #include "Json.h"
+#include "KnownJavaAgents.h"
 #include "QObjectPtr.h"
 #include "settings/Setting.h"
 #include "settings/SettingsObject.h"
@@ -47,7 +48,6 @@
 #include "MMCTime.h"
 #include "java/JavaVersion.h"
 
-#include "launch/ApplyAuthlibInjector.h"
 #include "launch/LaunchTask.h"
 #include "launch/SetDiscordActivity.h"
 #include "launch/TaskStepWrapper.h"
@@ -58,8 +58,7 @@
 #include "launch/steps/QuitAfterGameStop.h"
 #include "launch/steps/TextPrint.h"
 
-#include "minecraft/launch/ApplyAuthlibInjector.h"
-#include "minecraft/launch/ApplyElyPatch.h"
+#include "minecraft/launch/ApplyAuthPatch.h"
 #include "minecraft/launch/AutoInstallJava.h"
 #include "minecraft/launch/ClaimAccount.h"
 #include "minecraft/launch/CreateGameFolders.h"
@@ -243,6 +242,11 @@ void MinecraftInstance::loadSpecificSettings()
         // Elyby
         auto elybyOverride = m_settings->registerSetting("OverrideElyby", false);
         m_settings->registerOverride(global_settings->getSetting("UseElySkins"), elybyOverride);
+
+        // Injectors
+        auto injectorsOverride = m_settings->registerSetting("OverrideInjectors", false);
+        m_settings->registerOverride(global_settings->getSetting("InjectorUid"), injectorsOverride);
+        m_settings->registerOverride(global_settings->getSetting("InjectorVersion"), injectorsOverride);
 
         // Legacy-related options
         auto legacySettings = m_settings->registerSetting("OverrideLegacySettings", false);
@@ -549,7 +553,7 @@ QStringList MinecraftInstance::extraArguments(AuthSessionPtr session)
         QStringList jar, temp1, temp2, temp3;
         agent.library->getApplicableFiles(runtimeContext(), jar, temp1, temp2, temp3, getLocalLibraryPath());
         QString arg = agent.argument;
-        if (session && agent.library->artifactPrefix() == "moe.yushi:authlibinjector") {
+        if (session && Injectors::findByPrefix(agent.library->artifactPrefix()) != nullptr) {
             arg = replaceTokensIn(arg, { { "authlib_injector_auth_url", session->authlib_injector_auth_url } });
         }
         list.append("-javaagent:" + jar[0] + (agent.argument.isEmpty() ? "" : "=" + arg));
@@ -1207,9 +1211,9 @@ LaunchTask* MinecraftInstance::createLaunchTask(AuthSessionPtr session, Minecraf
     }
 
     if (session->wants_ely_patch) {
-        process->appendStep(makeShared<ApplyElyPatch>(pptr, m_runtimeContext, mode));
+        process->appendStep(makeShared<ApplyAuthPatch>(pptr, m_runtimeContext, mode, ApplyAuthPatch::Stage::Ely));
     } else if (session->wants_authlib_injector) {
-        process->appendStep(makeShared<ApplyAuthlibInjector>(pptr, m_runtimeContext, mode));
+        process->appendStep(makeShared<ApplyAuthPatch>(pptr, m_runtimeContext, mode, ApplyAuthPatch::Stage::Injector));
     }
 
     // if we aren't in offline mode

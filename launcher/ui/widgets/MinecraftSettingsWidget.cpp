@@ -40,13 +40,18 @@
 #include "ui_MinecraftSettingsWidget.h"
 
 #include <QFileDialog>
+#include <QMenu>
+#include <algorithm>
 #include "Application.h"
 #include "BuildConfig.h"
 #include "Json.h"
+#include "KnownJavaAgents.h"
+#include "meta/Index.h"
 #include "minecraft/PackProfile.h"
 #include "minecraft/WorldList.h"
 #include "minecraft/auth/AccountList.h"
 #include "settings/Setting.h"
+#include "ui/dialogs/VersionSelectDialog.h"
 
 MinecraftSettingsWidget::MinecraftSettingsWidget(MinecraftInstance* instance, QWidget* parent)
     : QWidget(parent), m_instance(std::move(instance)), m_ui(new Ui::MinecraftSettingsWidget)
@@ -81,6 +86,7 @@ MinecraftSettingsWidget::MinecraftSettingsWidget(MinecraftInstance* instance, QW
         m_ui->gameTimeGroupBox->setCheckable(true);
         m_ui->legacySettingsGroupBox->setCheckable(true);
         m_ui->elybyGroupBox->setCheckable(true);
+        m_ui->authGroupBox->setCheckable(true);
         m_ui->discordGroupBox->setCheckable(true);
 
         m_quickPlaySingleplayer = m_instance->traits().contains("feature:is_quick_play_singleplayer");
@@ -124,6 +130,11 @@ MinecraftSettingsWidget::MinecraftSettingsWidget(MinecraftInstance* instance, QW
         }
     }
 
+    {
+        std::ranges::for_each(Injectors::getJavaAgents(),
+                              [this](const auto& injector) { m_ui->injectorImplCombo->addItem(injector.name, injector.uid); });
+    }
+
     m_ui->maximizedWarning->hide();
 
     connect(m_ui->maximizedCheckBox, &QCheckBox::toggled, this,
@@ -145,6 +156,16 @@ MinecraftSettingsWidget::MinecraftSettingsWidget(MinecraftInstance* instance, QW
 
     connect(m_ui->useNativeOpenALCheck, &QAbstractButton::toggled, m_ui->lineEditOpenALPath, &QWidget::setEnabled);
     connect(m_ui->useNativeGLFWCheck, &QAbstractButton::toggled, m_ui->lineEditGLFWPath, &QWidget::setEnabled);
+
+    connect(m_ui->injectorImplCombo, &QComboBox::currentIndexChanged, this, [this] { resetInjectorVersion(); });
+
+    connect(m_ui->injectorImplChangeVersionButton, &QAbstractButton::clicked, this, [this] { chooseInjectorVersion(); });
+
+    auto injectorMenu = new QMenu(this);
+    injectorMenu->addAction(tr("Use recommended"), this, &MinecraftSettingsWidget::resetInjectorVersion);
+    injectorMenu->addAction(tr("Choose version..."), this, &MinecraftSettingsWidget::chooseInjectorVersion);
+
+    m_ui->injectorImplChangeVersionButton->setMenu(injectorMenu);
 
     loadSettings();
 }
@@ -231,6 +252,27 @@ void MinecraftSettingsWidget::loadSettings()
     m_ui->elybyGroupBox->setChecked(m_instance == nullptr || settings->get("OverrideElyby").toBool());
     m_ui->elySkinSystemComboBox->setCurrentIndex(settings->get("UseElySkins").toInt());
 
+    m_ui->authGroupBox->setChecked(m_instance == nullptr || settings->get("OverrideInjectors").toBool());
+
+    {
+        QSignalBlocker blocker(m_ui->injectorImplCombo);
+        bool found = false;
+        for (int i = 0; i < m_ui->injectorImplCombo->count(); ++i) {
+            if (m_ui->injectorImplCombo->itemData(i, Qt::UserRole).toString() == settings->get("InjectorUid").toString()) {
+                m_ui->injectorImplCombo->setCurrentIndex(i);
+                found = true;
+                break;
+            }
+        }
+        if (found) {
+            m_injectorVersionToSave = settings->get("InjectorVersion").toString();
+        }
+        if (m_injectorVersionToSave.isEmpty()) {
+            m_ui->injectorImplChangeVersionButton->setText(tr("Recommended"));
+        } else {
+            m_ui->injectorImplChangeVersionButton->setText(m_injectorVersionToSave);
+        }
+    }
     m_ui->discordGroupBox->setChecked(m_instance == nullptr || settings->get("OverrideDiscord").toBool());
     m_ui->enableRichPresenceCheck->setChecked(settings->get("EnableDiscordRichPresence").toBool());
 
@@ -445,6 +487,20 @@ void MinecraftSettingsWidget::saveSettings()
             settings->reset("UseElySkins");
         }
 
+        bool injectors = m_instance == nullptr || m_ui->authGroupBox->isChecked();
+
+        if (m_instance != nullptr) {
+            settings->set("OverrideInjectors", injectors);
+        }
+
+        if (injectors) {
+            settings->set("InjectorUid", m_ui->injectorImplCombo->currentData(Qt::UserRole).toString());
+            settings->set("InjectorVersion", m_injectorVersionToSave);
+        } else {
+            settings->reset("InjectorUid");
+            settings->reset("InjectorVersion");
+        }
+
         bool discord = m_instance == nullptr || m_ui->discordGroupBox->isChecked();
 
         if (m_instance != nullptr)
@@ -620,4 +676,27 @@ void MinecraftSettingsWidget::selectDataPacksFolder()
 
     m_ui->dataPacksPathEdit->setText(path);
     m_instance->settings()->set("GlobalDataPacksPath", path);
+}
+
+void MinecraftSettingsWidget::chooseInjectorVersion()
+{
+    auto index = APPLICATION->metadataIndex();
+
+    auto versions = index->get(m_ui->injectorImplCombo->currentData(Qt::UserRole).toString());
+
+    VersionSelectDialog vd(versions.get(), tr("Select implementation version"), this, true);
+    vd.setCurrentVersion(m_injectorVersionToSave);
+
+    if (!vd.exec() || !vd.selectedVersion()) {
+        return;
+    }
+
+    m_injectorVersionToSave = vd.selectedVersion()->descriptor();
+    m_ui->injectorImplChangeVersionButton->setText(vd.selectedVersion()->descriptor());
+}
+
+void MinecraftSettingsWidget::resetInjectorVersion()
+{
+    m_injectorVersionToSave.clear();
+    m_ui->injectorImplChangeVersionButton->setText(tr("Recommended"));
 }

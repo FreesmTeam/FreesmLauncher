@@ -36,6 +36,7 @@
 
 #pragma once
 
+#include <QString>
 #include <QWidget>
 #include "JavaSettingsWidget.h"
 #include "minecraft/MinecraftInstance.h"
@@ -60,9 +61,12 @@ class MinecraftSettingsWidget : public QWidget {
     void saveSelectedLoaders();
     void saveDataPacksPath();
     void selectDataPacksFolder();
+    void chooseInjectorVersion();
+    void resetInjectorVersion();
 
     MinecraftInstance* m_instance;
     Ui::MinecraftSettingsWidget* m_ui;
     JavaSettingsWidget* m_javaSettings = nullptr;
     bool m_quickPlaySingleplayer = false;
+    QString m_injectorVersionToSave;
 };
