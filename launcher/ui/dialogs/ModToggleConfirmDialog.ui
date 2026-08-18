@@ -108,9 +108,6 @@
      <property name="resizeMode">
       <enum>QListView::ResizeMode::Adjust</enum>
      </property>
-     <property name="supportedDragActions">
-      <set>Qt::DropAction::IgnoreAction</set>
-     </property>
     </widget>
    </item>
    <item>
@@ -181,9 +178,6 @@
      </property>
      <property name="resizeMode">
       <enum>QListView::ResizeMode::Adjust</enum>
-     </property>
-     <property name="supportedDragActions">
-      <set>Qt::DropAction::IgnoreAction</set>
      </property>
     </widget>
    </item>
