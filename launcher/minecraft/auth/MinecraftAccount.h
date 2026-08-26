@@ -150,6 +150,23 @@ class MinecraftAccount : public QObject, public Usable {
         }
     }
 
+    QString sessionTypeString() const
+    {
+        switch (data.type) {
+            case AccountType::MSA:
+            case AccountType::Elyby:
+            case AccountType::Custom: {
+                return "msa";
+            }
+            case AccountType::Offline: {
+                return "offline";
+            }
+            default: {
+                return "unknown";
+            }
+        }
+    }
+
     QPixmap getFace(int width = 64, int height = 64) const;
 
     //! Returns the current state of the account
