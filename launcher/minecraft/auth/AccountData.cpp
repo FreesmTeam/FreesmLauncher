@@ -281,6 +281,7 @@ bool entitlementFromJSONV3(const QJsonObject& parent, MinecraftEntitlement& out)
 
 bool AccountData::resumeStateFromV3(QJsonObject data)
 {
+    bool migratingFromEPL = false;
     auto typeV = data.value("type");
     if (!typeV.isString()) {
         qWarning() << "Failed to parse account data: type is missing.";
@@ -295,6 +296,9 @@ bool AccountData::resumeStateFromV3(QJsonObject data)
         type = AccountType::Elyby;
     } else if (typeS == "Custom") {
         type = AccountType::Custom;
+    } else if (typeS == "Ely") {
+        type = AccountType::Elyby;
+        migratingFromEPL = true;
     } else {
         qWarning() << "Failed to parse account data: type is not recognized.";
         return false;
@@ -313,7 +317,12 @@ bool AccountData::resumeStateFromV3(QJsonObject data)
         case AccountType::Offline:
             break;
         case AccountType::Elyby: {
-            auto clientIDV = data.value("elyby-client-id");
+            QJsonValue clientIDV;
+            if (migratingFromEPL) {
+                clientIDV = data.value("msa-client-id");
+            } else {
+                clientIDV = data.value("elyby-client-id");
+            }
             if (clientIDV.isString()) {
                 clientID = clientIDV.toString();
             }  // leave clientID empty if it doesn't exist or isn't a string
