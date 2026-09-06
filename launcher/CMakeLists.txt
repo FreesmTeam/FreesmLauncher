@@ -1163,6 +1163,8 @@ SET(LAUNCHER_SOURCES
     ui/dialogs/ChooseOfflineNameDialog.h
     ui/dialogs/ModToggleConfirmDialog.cpp
     ui/dialogs/ModToggleConfirmDialog.h
+    ui/dialogs/UntrustedModsDialog.cpp
+    ui/dialogs/UntrustedModsDialog.h
 
     ui/dialogs/skins/SkinManageDialog.cpp
     ui/dialogs/skins/SkinManageDialog.h
@@ -1337,6 +1339,7 @@ qt_wrap_ui(LAUNCHER_UI
     ui/dialogs/skins/SkinManageDialog.ui
     ui/dialogs/ChooseOfflineNameDialog.ui
     ui/dialogs/ModToggleConfirmDialog.ui
+    ui/dialogs/UntrustedModsDialog.ui
 )
 
 qt_wrap_ui(PRISM_UPDATE_UI
