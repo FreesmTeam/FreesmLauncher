@@ -821,6 +821,8 @@ Application::Application(int& argc, char** argv) : QApplication(argc, argv)
         m_settings->registerSetting("CustomOpenALPath", "");
         m_settings->registerSetting("UseNativeGLFW", false);
         m_settings->registerSetting("CustomGLFWPath", "");
+        m_settings->registerSetting("UseNativeJemalloc", false);
+        m_settings->registerSetting("CustomJemallocPath", "");
 
         // Performance related options
         m_settings->registerSetting("EnableFeralGamemode", false);
@@ -1932,7 +1934,8 @@ void Application::detectLibraries()
 #ifdef Q_OS_LINUX
     m_detectedGLFWPath = LibraryUtils::find(BuildConfig.GLFW_LIBRARY_NAME);
     m_detectedOpenALPath = LibraryUtils::find(BuildConfig.OPENAL_LIBRARY_NAME);
-    qDebug() << "Detected native libraries:" << m_detectedGLFWPath << m_detectedOpenALPath;
+    m_detectedJemallocPath = LibraryUtils::find(BuildConfig.JEMALLOC_LIBRARY_NAME);
+    qDebug() << "Detected native libraries:" << m_detectedGLFWPath << m_detectedOpenALPath << m_detectedJemallocPath;
 #endif
 }
 
