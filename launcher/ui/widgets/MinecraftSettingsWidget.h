@@ -64,7 +64,10 @@ class MinecraftSettingsWidget : public QWidget {
     void chooseInjectorVersion();
     void resetInjectorVersion();
 
+   protected:
     MinecraftInstance* m_instance;
+
+   public:
     Ui::MinecraftSettingsWidget* m_ui;
     JavaSettingsWidget* m_javaSettings = nullptr;
     bool m_quickPlaySingleplayer = false;
