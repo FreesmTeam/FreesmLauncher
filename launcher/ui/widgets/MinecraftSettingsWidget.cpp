@@ -449,24 +449,25 @@ void MinecraftSettingsWidget::saveSettings()
     // Workarounds
     bool workarounds = m_instance == nullptr || m_ui->nativeWorkaroundsGroupBox->isChecked();
 
-    if (m_instance != nullptr)
+    if (m_instance != nullptr) {
         settings->set("OverrideNativeWorkarounds", workarounds);
+    }
 
-        if (workarounds) {
-            settings->set("UseNativeGLFW", m_ui->useNativeGLFWCheck->isChecked());
-            settings->set("CustomGLFWPath", m_ui->lineEditGLFWPath->text());
-            settings->set("UseNativeOpenAL", m_ui->useNativeOpenALCheck->isChecked());
-            settings->set("CustomOpenALPath", m_ui->lineEditOpenALPath->text());
-	    settings->set("UseNativeJemalloc", m_ui->useNativeJemallocCheck->isChecked());
-            settings->set("CustomJemallocPath", m_ui->lineEditJemallocPath->text());
-        } else {
-            settings->reset("UseNativeGLFW");
-            settings->reset("CustomGLFWPath");
-            settings->reset("UseNativeOpenAL");
-            settings->reset("CustomOpenALPath");
-	    settings->reset("UseNativeJemalloc");
-            settings->reset("CustomJemallocPath");
-        }
+    if (workarounds) {
+        settings->set("UseNativeGLFW", m_ui->useNativeGLFWCheck->isChecked());
+        settings->set("CustomGLFWPath", m_ui->lineEditGLFWPath->text());
+        settings->set("UseNativeOpenAL", m_ui->useNativeOpenALCheck->isChecked());
+        settings->set("CustomOpenALPath", m_ui->lineEditOpenALPath->text());
+	settings->set("UseNativeJemalloc", m_ui->useNativeJemallocCheck->isChecked());
+        settings->set("CustomJemallocPath", m_ui->lineEditJemallocPath->text());
+    } else {
+        settings->reset("UseNativeGLFW");
+        settings->reset("CustomGLFWPath");
+        settings->reset("UseNativeOpenAL");
+        settings->reset("CustomOpenALPath");
+	settings->reset("UseNativeJemalloc");
+        settings->reset("CustomJemallocPath");
+    }
 
     // Performance
     bool performance = m_instance == nullptr || m_ui->perfomanceGroupBox->isChecked();
