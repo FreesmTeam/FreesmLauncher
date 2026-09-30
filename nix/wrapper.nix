@@ -93,7 +93,7 @@ in
     '';
 
     qtWrapperArgs =
-      ["--prefix FREESMLAUNCHER_JAVA_PATHS : ${lib.makeSearchPath "bin/java" jdks}"]
+      lib.optional (jdks != []) "--prefix FREESMLAUNCHER_JAVA_PATHS : ${lib.makeSearchPath "bin/java" jdks}"
       ++ lib.optionals isLinux [
         "--prefix PATH : ${lib.makeBinPath runtimePrograms}"
         "--prefix LD_LIBRARY_PATH : ${addDriverRunpath.driverLink}/lib:${lib.makeLibraryPath runtimeLibs}"
