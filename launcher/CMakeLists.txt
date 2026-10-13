@@ -39,6 +39,8 @@ set(CORE_SOURCES
     QVariantUtils.h
     RuntimeContext.h
     PSaveFile.h
+    PNGUtils.h
+    PNGUtils.cpp
 
     # Basic instance manipulation tasks (derived from InstanceTask)
     InstanceCreationTask.h

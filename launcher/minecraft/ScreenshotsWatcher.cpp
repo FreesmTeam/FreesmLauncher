@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-only
 /*
  *  Freesm Launcher - Minecraft Launcher
- *  Copyright (C) 2025 so5iso4ka <so5iso4ka@icloud.com>
+ *  Copyright (C) 2026 so5iso4ka <so5iso4ka@icloud.com>
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -18,19 +18,22 @@
 
 #include <QClipboard>
 #include <QImage>
+#include <QtConcurrent>
+#include <algorithm>
 
 #include "Application.h"
 #include "FileSystem.h"
 #include "MinecraftInstance.h"
+#include "PNGUtils.h"
 
 #include "ScreenshotsWatcher.h"
 
 ScreenshotsWatcher::ScreenshotsWatcher(const QString& path) : m_watcher(QStringList{ path })
 {
     m_retryTimer.setSingleShot(true);
-    m_retryTimer.setInterval(200);
     connect(&m_retryTimer, &QTimer::timeout, this, &ScreenshotsWatcher::tryCopy);
     connect(&m_watcher, &QFileSystemWatcher::directoryChanged, this, &ScreenshotsWatcher::dirUpdated);
+    connect(&m_futureWatcher, &QFutureWatcher<LoadResult>::finished, this, &ScreenshotsWatcher::onTryFinished);
 }
 
 void ScreenshotsWatcher::dirUpdated(const QString& path)
@@ -47,34 +50,44 @@ void ScreenshotsWatcher::dirUpdated(const QString& path)
 
     m_pendingPath = file;
     m_attempt = 0;
-    m_lastSize = QFileInfo(m_pendingPath).size();
 
     scheduleRetry();
 }
 
 void ScreenshotsWatcher::tryCopy()
 {
-    const QFileInfo fileInfo(m_pendingPath);
-    if (!fileInfo.exists())
-        return;
+    m_futureWatcher.setFuture(QtConcurrent::run(QThreadPool::globalInstance(), tryLoadPNG, m_pendingPath));
+}
 
-    if (m_lastSize == 0 || m_lastSize != fileInfo.size()) {
-        m_lastSize = fileInfo.size();
-        scheduleRetry();
-        return;
-    }
-    m_lastSize = fileInfo.size();
-
-    QImage img;
-    bool loaded = img.load(m_pendingPath);
-
-    if (!loaded) {
-        scheduleRetry();
+void ScreenshotsWatcher::onTryFinished()
+{
+    auto future = m_futureWatcher.future();
+    if (!future.isValid()) {
         return;
     }
 
-    const auto clipboard = QApplication::clipboard();
-    if (clipboard == nullptr) {
+    auto [status, img, path] = future.result();
+
+    if (path != m_pendingPath) {
+        return;
+    }
+
+    switch (status) {
+        case LoadResult::Status::Ok: {
+            break;
+        }
+        case LoadResult::Status::Retry: {
+            scheduleRetry();
+            return;
+        }
+        case LoadResult::Status::Failed: {
+            qDebug() << "Unable to load the image:" << path;
+            return;
+        }
+    }
+
+    auto clipboard = QApplication::clipboard();
+    if (!clipboard) {
         qDebug() << "Clipboard is null";
         return;
     }
@@ -85,10 +98,34 @@ void ScreenshotsWatcher::tryCopy()
 void ScreenshotsWatcher::scheduleRetry()
 {
     ++m_attempt;
-    if (m_attempt > 5) {
-        qDebug() << "Image wasn't loaded after 5 retries";
+    if (m_attempt > 12) {  // 100 + 200 + 400 + 800 + 1000 * 8 = 9500ms
+        qDebug() << "Image wasn't loaded in time: " << m_pendingPath;
         return;
     }
 
-    m_retryTimer.start();
+    m_retryTimer.start(std::min(100 << (m_attempt - 1), 1000));
+}
+
+ScreenshotsWatcher::LoadResult ScreenshotsWatcher::tryLoadPNG(QString path)
+{
+    QFile file(path);
+    if (!file.open(QIODevice::ReadOnly)) {
+        return { LoadResult::Status::Retry, {}, path };
+    }
+
+    if (file.size() > qint64{ 512 * 1024 * 1024 }) {
+        return { LoadResult::Status::Failed, {}, path };
+    }
+
+    auto data = file.readAll();
+    if (!PNGUtils::isCompletePNG(data)) {
+        return { LoadResult::Status::Retry, {}, path };
+    }
+
+    QImage img;
+    if (!img.loadFromData(data, "PNG")) {
+        return { LoadResult::Status::Failed, {}, path };
+    }
+
+    return { LoadResult::Status::Ok, img, path };
 }
