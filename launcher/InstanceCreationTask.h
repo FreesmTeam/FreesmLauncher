@@ -38,6 +38,9 @@ class InstanceCreationTask : public InstanceTask {
 
    protected:
     void setError(const QString& message) { m_error_message = message; };
+    // Set only after the content task has stopped and the pending manifest has been saved.
+    void setContentIncomplete(bool incomplete) { m_contentIncomplete = incomplete; }
+    virtual bool keepOnGameDownloadFailure() const { return false; }
     void scheduleToDelete(QWidget* parent, QDir dir, QString path, bool checkDisabled = false);
 
    protected:
@@ -47,6 +50,10 @@ class InstanceCreationTask : public InstanceTask {
     ShouldDeleteSaves m_shouldDeleteSaves;
 
    private:
+    void finishIncompleteInstance(const QString& warning);
+
+    bool m_contentIncomplete = false;
+    bool m_gameDownloadFailed = false;
     QString m_error_message;
     std::unique_ptr<MinecraftInstance> m_instance;
     Task::Ptr m_gameFilesTask;
