@@ -44,6 +44,7 @@ class BaseEntity {
 
     virtual void parse(const QJsonObject& obj) = 0;
     [[nodiscard]] Task::Ptr loadTask(Net::Mode loadType = Net::Mode::Online, bool forceReload = false);
+    Task::Ptr currentLoadTask() const { return m_task; }
 
    protected:
     QString m_sha256;       // the expected sha256
@@ -64,11 +65,13 @@ class BaseEntityLoadTask : public Task {
     virtual void executeTask() override;
     virtual bool canAbort() const override;
     virtual bool abort() override;
+    bool downloadFailed() const { return m_downloadFailed; }
 
    private:
     BaseEntity* m_entity;
     Net::Mode m_mode;
     bool m_force_reload = false;
+    bool m_downloadFailed = false;
     NetJob::Ptr m_task;
 };
 }  // namespace Meta

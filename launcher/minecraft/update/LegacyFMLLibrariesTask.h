@@ -14,6 +14,7 @@ class LegacyFMLLibrariesTask : public Task {
     void executeTask() override;
 
     bool canAbort() const override;
+    bool downloadFailed() const { return m_downloadFailed; }
 
    private slots:
     void fmllibsFinished();
@@ -29,4 +30,5 @@ class LegacyFMLLibrariesTask : public Task {
     MinecraftInstance* m_inst;
     NetJob::Ptr downloadJob;
     QList<FMLlib> fmlLibsToProcess;
+    bool m_downloadFailed = false;
 };
