@@ -15,6 +15,7 @@
 #include <QFileInfo>
 #include <QJsonArray>
 #include <QTemporaryDir>
+#include <QTimer>
 
 #include "Application.h"
 #include "FileSystem.h"
@@ -437,6 +438,21 @@ void FlamePackInstallTask::executeTask()
         }
     }
     m_canPreserve = true;
+    emit readyForDownload();
+    if (m_mode == Modpack::InstallMode::Resume) {
+        // Start inside the progress dialog's event loop, not the other way around.
+        QTimer::singleShot(0, this, [this, manifest] { installFiles(manifest); });
+    } else {
+        installFiles(manifest);
+    }
+}
+
+void FlamePackInstallTask::installFiles(const Flame::Manifest& manifest)
+{
+    if (m_abort) {
+        emitAborted();
+        return;
+    }
     auto resolver = makeShared<Flame::FileResolvingTask>(manifest);
     const auto resolved = runTask(resolver);
     const auto results = resolver->getResults().files;

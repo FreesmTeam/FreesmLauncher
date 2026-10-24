@@ -18,8 +18,8 @@ bool markerExists(const QString& path)
 }
 }  // namespace
 
-ModpackResumeTask::ModpackResumeTask(MinecraftInstance* instance, bool explicitlyOffline, QWidget* parent)
-    : m_instance(instance), m_explicitlyOffline(explicitlyOffline), m_parent(parent)
+ModpackResumeTask::ModpackResumeTask(LaunchTask* parent, MinecraftInstance* instance, bool explicitlyOffline, QWidget* parentWidget)
+    : LaunchStep(parent), m_instance(instance), m_explicitlyOffline(explicitlyOffline), m_parentWidget(parentWidget)
 {
     setAbortable(true);
 }
@@ -63,10 +63,15 @@ void ModpackResumeTask::executeTask()
     }
 
     if (hasModrinth) {
-        m_task =
-            makeShared<ModrinthPackInstallTask>(m_instance, manifest->remaining(), Modpack::InstallMode::Resume, false, m_parent.data());
+        auto task = makeShared<ModrinthPackInstallTask>(m_instance, manifest->remaining(), Modpack::InstallMode::Resume, false,
+                                                        m_parentWidget.data());
+        connect(task.get(), &ModrinthPackInstallTask::readyForDownload, this, &ModpackResumeTask::reportProgress, Qt::QueuedConnection);
+        m_task = task;
     } else {
-        m_task = makeShared<FlamePackInstallTask>(m_instance, manifest->remaining(), Modpack::InstallMode::Resume, false, m_parent.data());
+        auto task =
+            makeShared<FlamePackInstallTask>(m_instance, manifest->remaining(), Modpack::InstallMode::Resume, false, m_parentWidget.data());
+        connect(task.get(), &FlamePackInstallTask::readyForDownload, this, &ModpackResumeTask::reportProgress, Qt::QueuedConnection);
+        m_task = task;
     }
     propagateFromOther(m_task.get());
     connect(m_task.get(), &Task::abortStatusChanged, this, &Task::setAbortable);
@@ -76,6 +81,14 @@ void ModpackResumeTask::executeTask()
     setAbortable(m_task->canAbort());
     setStatus(tr("Resuming modpack installation"));
     m_task->start();
+}
+
+void ModpackResumeTask::reportProgress()
+{
+    // Installers queue their content work after this request, so blocking
+    // download loops run inside the progress dialog rather than enclosing it.
+    if (isRunning() && !m_aborted)
+        emit progressReportingRequest();
 }
 
 void ModpackResumeTask::installFinished()

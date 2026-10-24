@@ -1161,7 +1161,7 @@ LaunchTask* MinecraftInstance::createLaunchTask(AuthSessionPtr session, Minecraf
     auto pptr = process.get();
 
     if (ModpackResumeTask::hasPendingManifest(instanceRoot())) {
-        process->appendStep(makeShared<TaskStepWrapper>(pptr, makeShared<ModpackResumeTask>(this, session->explicitlyOffline)));
+        process->appendStep(makeShared<ModpackResumeTask>(pptr, this, session->explicitlyOffline));
     }
 
     APPLICATION->icons()->saveIcon(iconKey(), FS::PathCombine(gameRoot(), "icon.png"), "PNG");
