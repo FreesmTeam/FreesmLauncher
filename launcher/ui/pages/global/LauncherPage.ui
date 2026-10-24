@@ -467,6 +467,16 @@
             </property>
            </widget>
           </item>
+          <item>
+           <widget class="QCheckBox" name="keepIncompleteModpackInstancesCheckBox">
+            <property name="toolTip">
+             <string>Keep new Modrinth and CurseForge instances when modpack downloads fail or are canceled, without asking. Remaining files will be downloaded before launch.</string>
+            </property>
+            <property name="text">
+             <string>Always keep incomplete modpack instances</string>
+            </property>
+           </widget>
+          </item>
          </layout>
         </widget>
        </item>
@@ -706,6 +716,7 @@
   <tabstop>dependenciesEnableBtn</tabstop>
   <tabstop>showModIncompatCheckBox</tabstop>
   <tabstop>modpackUpdatePromptBtn</tabstop>
+  <tabstop>keepIncompleteModpackInstancesCheckBox</tabstop>
   <tabstop>downloadGameFilesBtn</tabstop>
   <tabstop>lineLimitSpinBox</tabstop>
   <tabstop>checkStopLogging</tabstop>

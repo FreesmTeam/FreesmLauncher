@@ -93,3 +93,16 @@ ShouldDeleteSaves askIfShouldDeleteSaves(QWidget* parent)
     auto result = dialog->exec();
     return result == QMessageBox::Yes ? ShouldDeleteSaves::Yes : ShouldDeleteSaves::No;
 }
+
+bool askToKeepIncompleteModpack(QWidget* parent, SettingsObject* settings)
+{
+    if (settings->get("KeepIncompleteModpackInstances").toBool())
+        return true;
+
+    auto dialog = CustomMessageBox::selectable(
+        parent, QObject::tr("Keep incomplete modpack?"),
+        QObject::tr("The modpack download did not finish. Keep the incomplete instance and download the remaining files before launching?"),
+        QMessageBox::Question, QMessageBox::Yes | QMessageBox::No, QMessageBox::No);
+    dialog->setEscapeButton(QMessageBox::No);
+    return dialog->exec() == QMessageBox::Yes;
+}
