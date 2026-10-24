@@ -41,11 +41,7 @@
 
 #include "minecraft/MinecraftInstance.h"
 
-#include "modplatform/flame/FileResolvingTask.h"
-
-#include "net/NetJob.h"
-
-#include "ui/dialogs/BlockedModsDialog.h"
+#include "modplatform/flame/FlamePackInstallTask.h"
 
 class FlameCreationTask final : public InstanceCreationTask {
     Q_OBJECT
@@ -72,30 +68,24 @@ class FlameCreationTask final : public InstanceCreationTask {
     std::unique_ptr<MinecraftInstance> createInstance() override;
 
    private slots:
-    void idResolverSucceeded(QEventLoop&);
-    void setupDownloadJob(QEventLoop&);
-    void copyBlockedMods(QList<BlockedMod> const& blocked_mods);
-    void validateOtherResources(QEventLoop& loop);
     QString getVersionForLoader(QString uid, QString loaderType, QString version, QString mcVersion);
 
     [[nodiscard]] bool promptForUntrustedMods();
+
+   protected:
+    bool keepOnGameDownloadFailure() const override { return !shouldOverride(); }
 
    private:
     QWidget* m_parent = nullptr;
     bool m_trustedSource;
 
-    shared_qobject_ptr<Flame::FileResolvingTask> m_modIdResolver;
     Flame::Manifest m_pack;
 
     // Handle to allow aborting
     Task::Ptr m_processUpdateFileInfoJob = nullptr;
-    NetJob::Ptr m_filesJob = nullptr;
+    shared_qobject_ptr<FlamePackInstallTask> m_contentTask;
 
     QString m_managedId, m_managedVersionId;
 
-    QList<std::pair<QString, QString>> m_otherResources;
-
     std::optional<BaseInstance*> m_instance;
-
-    QStringList m_selectedOptionalMods;
 };
