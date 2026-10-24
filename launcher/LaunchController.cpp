@@ -39,6 +39,7 @@
 #include "launch/steps/PrintServers.h"
 #include "minecraft/auth/AccountData.h"
 #include "minecraft/auth/AccountList.h"
+#include "modplatform/ModpackResumeTask.h"
 
 #include "net/NetUtils.h"
 #include "ui/InstanceWindow.h"
@@ -67,6 +68,13 @@ void LaunchController::executeTask()
 {
     if (!m_instance) {
         emitFailed(tr("No instance specified!"));
+        return;
+    }
+
+    if (m_wantedLaunchMode == LaunchMode::Offline && ModpackResumeTask::hasPendingManifest(m_instance->instanceRoot())) {
+        const auto reason = tr("This modpack installation is incomplete. Launch online to finish installing it before playing.");
+        QMessageBox::warning(m_parentWidget, tr("Incomplete modpack installation"), reason);
+        emitFailed(reason);
         return;
     }
 
@@ -370,6 +378,7 @@ void LaunchController::launchInstance()
         return;
     }
 
+    m_session->explicitlyOffline = m_wantedLaunchMode == LaunchMode::Offline;
     m_launcher = m_instance->createLaunchTask(m_session, m_targetToJoin);
     if (!m_launcher) {
         emitFailed(tr("Couldn't instantiate a launcher."));

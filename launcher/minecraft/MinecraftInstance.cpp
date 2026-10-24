@@ -76,6 +76,7 @@
 #include "minecraft/update/FoldersTask.h"
 #include "minecraft/update/LegacyFMLLibrariesTask.h"
 #include "minecraft/update/LibrariesTask.h"
+#include "modplatform/ModpackResumeTask.h"
 
 #include "java/JavaUtils.h"
 
@@ -1158,6 +1159,10 @@ LaunchTask* MinecraftInstance::createLaunchTask(AuthSessionPtr session, Minecraf
     updateRuntimeContext();
     auto process = LaunchTask::create(this);
     auto pptr = process.get();
+
+    if (ModpackResumeTask::hasPendingManifest(instanceRoot())) {
+        process->appendStep(makeShared<TaskStepWrapper>(pptr, makeShared<ModpackResumeTask>(this, session->explicitlyOffline)));
+    }
 
     APPLICATION->icons()->saveIcon(iconKey(), FS::PathCombine(gameRoot(), "icon.png"), "PNG");
 
