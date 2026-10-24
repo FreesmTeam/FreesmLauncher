@@ -19,10 +19,11 @@
 #pragma once
 
 #include <QFileSystemWatcher>
+#include <QFutureWatcher>
+#include <QImage>
 #include <QObject>
 #include <QString>
 #include <QTimer>
-#include <cstddef>
 
 class ScreenshotsWatcher : public QObject {
     Q_OBJECT
@@ -32,13 +33,22 @@ class ScreenshotsWatcher : public QObject {
    private slots:
     void dirUpdated(const QString& path);
     void tryCopy();
+    void onTryFinished();
 
    private:
     void scheduleRetry();
 
+    struct LoadResult {
+        enum class Status { Ok, Retry, Failed };
+        Status status{ Status::Failed };
+        QImage image;
+        QString path;
+    };
+    static LoadResult tryLoadPNG(QString path);
+
     QFileSystemWatcher m_watcher;
+    QFutureWatcher<LoadResult> m_futureWatcher;
     QString m_pendingPath;
-    qsizetype m_attempt{};
-    qsizetype m_lastSize{};
+    int m_attempt{};
     QTimer m_retryTimer;
 };
