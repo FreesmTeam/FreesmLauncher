@@ -25,6 +25,7 @@
 #include "minecraft/World.h"
 #include "minecraft/mod/tasks/LocalResourceParse.h"
 #include "minecraft/mod/tasks/LocalResourceUpdateTask.h"
+#include "modplatform/flame/ContentDownloadJob.h"
 #include "modplatform/flame/FileResolvingTask.h"
 #include "net/ApiDownload.h"
 #include "net/ChecksumValidator.h"
@@ -78,34 +79,6 @@ std::optional<QCryptographicHash::Algorithm> hashAlgorithm(const Flame::File& fi
         return QCryptographicHash::Md5;
     return {};
 }
-
-// NetJob::abort() can finish before all requests have unwound. Cancel queued
-// work, but drain active requests normally before reporting a terminal state.
-class ContentDownloadJob final : public NetJob {
-   public:
-    using NetJob::NetJob;
-    bool abort() override
-    {
-        m_stopping = true;
-        m_queue.clear();
-        setAskRetry(false);
-        QMetaObject::invokeMethod(this, &ContentDownloadJob::executeNextSubTask, Qt::QueuedConnection);
-        return true;
-    }
-
-   protected:
-    void executeNextSubTask() override
-    {
-        if (!m_stopping) {
-            NetJob::executeNextSubTask();
-        } else if (isRunning() && m_doing.isEmpty()) {
-            emitAborted();
-        }
-    }
-
-   private:
-    bool m_stopping = false;
-};
 
 bool containsWorld(const QString& path)
 {
@@ -497,7 +470,7 @@ void FlamePackInstallTask::installFiles(const Flame::Manifest& manifest)
 
         QMap<QString, QList<BlockedMod>> blocked;
         QMap<QString, Flame::File> blockedFiles;
-        m_filesJob = makeShared<ContentDownloadJob>(tr("Mod Download Flame"), APPLICATION->network());
+        m_filesJob = makeShared<Flame::ContentDownloadJob>(tr("Mod Download Flame"), APPLICATION->network());
         for (const auto& file : results) {
             if (m_abort || !m_error.isEmpty())
                 break;
