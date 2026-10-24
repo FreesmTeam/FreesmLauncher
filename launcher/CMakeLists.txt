@@ -587,6 +587,7 @@ set(FLAME_SOURCES
     modplatform/flame/FlameInstanceCreationTask.cpp
     modplatform/flame/FlamePackInstallTask.h
     modplatform/flame/FlamePackInstallTask.cpp
+    modplatform/flame/ContentDownloadJob.h
     modplatform/flame/FlamePackExportTask.h
     modplatform/flame/FlamePackExportTask.cpp
 )
