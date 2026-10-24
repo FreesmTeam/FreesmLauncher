@@ -267,6 +267,12 @@ bool ModrinthPackInstallTask::saveProgress()
 
 bool ModrinthPackInstallTask::completeFile(File& file)
 {
+    // A successful request may not have committed a file (for example, HTTP 204).
+    // Leave it pending so another download URL can be tried.
+    if (!matchesHash(FS::PathCombine(m_instance->gameRoot(), file.path()), file.hash)) {
+        return false;
+    }
+
     // Optional selection changes must not leave enabled and disabled duplicates.
     if (file.optional) {
         const auto other = FS::PathCombine(m_instance->gameRoot(), file.alternatePath());
@@ -308,6 +314,9 @@ void ModrinthPackInstallTask::executeTask()
                 }
             }
             if (valid && !completeFile(file)) {
+                if (m_error.isEmpty()) {
+                    m_error = tr("The file changed while installing: %1").arg(path);
+                }
                 finish();
                 return;
             }
@@ -348,7 +357,10 @@ void ModrinthPackInstallTask::downloadNextRound()
         auto request = Net::ApiDownload::makeFile(file.downloads.dequeue(), path, Net::Download::Option::NoOptions, meta);
         request->addValidator(new Net::ChecksumValidator(QCryptographicHash::Sha512, file.hash));
         connect(request.get(), &Task::succeeded, this, [this, &file] {
-            if (!file.completed && m_error.isEmpty() && !completeFile(file)) {
+            if (file.completed || !m_error.isEmpty()) {
+                return;
+            }
+            if (!completeFile(file) && !m_error.isEmpty()) {
                 m_downloadJob->abort();
             }
         });
