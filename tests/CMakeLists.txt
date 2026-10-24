@@ -41,6 +41,7 @@ ecm_add_test(Task_test.cpp LINK_LIBRARIES Launcher_logic Qt${QT_VERSION_MAJOR}::
 
 ecm_add_test(TaskStepWrapper_test.cpp LINK_LIBRARIES Launcher_logic Qt${QT_VERSION_MAJOR}::Test
     TEST_NAME TaskStepWrapper)
+set_property(TEST TaskStepWrapper APPEND PROPERTY ENVIRONMENT "QT_QPA_PLATFORM=offscreen")
 
 ecm_add_test(INIFile_test.cpp LINK_LIBRARIES Launcher_logic Qt${QT_VERSION_MAJOR}::Test
     TEST_NAME INIFile)
