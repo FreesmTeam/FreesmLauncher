@@ -530,6 +530,9 @@ set(API_SOURCES
     modplatform/EnsureMetadataTask.h
     modplatform/EnsureMetadataTask.cpp
 
+    modplatform/ModpackResumeTask.h
+    modplatform/ModpackResumeTask.cpp
+
     modplatform/CheckUpdateTask.h
 
     modplatform/flame/FlameAPI.h
