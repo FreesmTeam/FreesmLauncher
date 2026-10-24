@@ -247,6 +247,7 @@ void LauncherPage::applySettings()
     s->set("ModDependenciesDisabled", !ui->dependenciesEnableBtn->isChecked());
     s->set("ShowModIncompat", ui->showModIncompatCheckBox->isChecked());
     s->set("SkipModpackUpdatePrompt", !ui->modpackUpdatePromptBtn->isChecked());
+    s->set("KeepIncompleteModpackInstances", ui->keepIncompleteModpackInstancesCheckBox->isChecked());
     const auto showInDiscord = ui->showInDiscordBtn->isChecked();
     s->set("AlwaysShowInDiscord", showInDiscord);
     APPLICATION->discord()->showAlways(showInDiscord);
@@ -301,6 +302,7 @@ void LauncherPage::loadSettings()
     ui->dependenciesEnableBtn->setChecked(!s->get("ModDependenciesDisabled").toBool());
     ui->showModIncompatCheckBox->setChecked(s->get("ShowModIncompat").toBool());
     ui->modpackUpdatePromptBtn->setChecked(!s->get("SkipModpackUpdatePrompt").toBool());
+    ui->keepIncompleteModpackInstancesCheckBox->setChecked(s->get("KeepIncompleteModpackInstances").toBool());
 
     ui->showInDiscordBtn->setChecked(s->get("AlwaysShowInDiscord").toBool());
 }
