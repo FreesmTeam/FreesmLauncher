@@ -137,12 +137,14 @@ void InstanceCreationTask::executeTask()
         task->addTask(loadTask);
         for (const auto& t : updateTasks) {
             // These connections must run before SequentialTask forwards the failure.
-            if (auto source = qobject_cast<LibrariesTask*>(t.get())) {
-                connect(source, &Task::failed, this, [this, source] { m_gameDownloadFailed = source->downloadFailed(); });
-            } else if (auto source = qobject_cast<LegacyFMLLibrariesTask*>(t.get())) {
-                connect(source, &Task::failed, this, [this, source] { m_gameDownloadFailed = source->downloadFailed(); });
-            } else if (auto source = qobject_cast<AssetUpdateTask*>(t.get())) {
-                connect(source, &Task::failed, this, [this, source] { m_gameDownloadFailed = source->downloadFailed(); });
+            if (auto librariesTask = qobject_cast<LibrariesTask*>(t.get())) {
+                connect(librariesTask, &Task::failed, this,
+                        [this, librariesTask] { m_gameDownloadFailed = librariesTask->downloadFailed(); });
+            } else if (auto legacyLibrariesTask = qobject_cast<LegacyFMLLibrariesTask*>(t.get())) {
+                connect(legacyLibrariesTask, &Task::failed, this,
+                        [this, legacyLibrariesTask] { m_gameDownloadFailed = legacyLibrariesTask->downloadFailed(); });
+            } else if (auto assetTask = qobject_cast<AssetUpdateTask*>(t.get())) {
+                connect(assetTask, &Task::failed, this, [this, assetTask] { m_gameDownloadFailed = assetTask->downloadFailed(); });
             }
             task->addTask(t);
         }
