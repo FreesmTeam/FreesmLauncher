@@ -29,7 +29,8 @@ void TaskStepWrapper::executeTask()
 
 void TaskStepWrapper::proceed()
 {
-    m_task->start();
+    // Let the progress dialog connect and become visible before tasks enter nested event loops.
+    QMetaObject::invokeMethod(m_task.get(), &Task::start, Qt::QueuedConnection);
 }
 
 void TaskStepWrapper::updateFinished()
