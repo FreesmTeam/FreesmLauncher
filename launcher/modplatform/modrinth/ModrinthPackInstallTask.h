@@ -30,6 +30,9 @@ class ModrinthPackInstallTask final : public Task {
     QJsonObject remainingManifest() const;
     bool canPreserve() const;
 
+   signals:
+    void readyForDownload();
+
    protected:
     void executeTask() override;
 
@@ -51,6 +54,7 @@ class ModrinthPackInstallTask final : public Task {
     };
 
     bool prepare();
+    void installFiles();
     bool validatePath(const QString& path) const;
     bool completeFile(File& file);
     bool saveProgress();
