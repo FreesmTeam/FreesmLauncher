@@ -79,6 +79,7 @@ void NetRequest::executeTask()
         return;
     }
 
+    m_reply.reset();
     QNetworkRequest request(m_url);
     m_state = m_sink->init(request);
     switch (m_state) {
@@ -102,10 +103,10 @@ void NetRequest::executeTask()
             return;
     }
 
-#if defined(LAUNCHER_APPLICATION)
-    auto user_agent = APPLICATION->getUserAgent();
-#else
     auto user_agent = BuildConfig.USER_AGENT;
+#if defined(LAUNCHER_APPLICATION)
+    if (auto app = APPLICATION_DYN)
+        user_agent = app->getUserAgent();
 #endif
 
     request.setHeader(QNetworkRequest::UserAgentHeader, user_agent.toUtf8());
@@ -113,10 +114,10 @@ void NetRequest::executeTask()
         header_proxy->writeHeaders(request);
     }
 
-#if defined(LAUNCHER_APPLICATION)
-    request.setTransferTimeout(APPLICATION->settings()->get("RequestTimeout").toInt() * 1000);
-#else
     request.setTransferTimeout();
+#if defined(LAUNCHER_APPLICATION)
+    if (auto app = APPLICATION_DYN)
+        request.setTransferTimeout(app->settings()->get("RequestTimeout").toInt() * 1000);
 #endif
 
     m_last_progress_time = m_clock.now();
