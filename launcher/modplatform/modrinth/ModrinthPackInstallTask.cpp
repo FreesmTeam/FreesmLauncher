@@ -292,6 +292,21 @@ void ModrinthPackInstallTask::executeTask()
         finish();
         return;
     }
+    emit readyForDownload();
+    if (m_mode == Modpack::InstallMode::Resume) {
+        // The queued progress request must run before the blocking content work.
+        QTimer::singleShot(0, this, &ModrinthPackInstallTask::installFiles);
+    } else {
+        installFiles();
+    }
+}
+
+void ModrinthPackInstallTask::installFiles()
+{
+    if (m_aborted) {
+        finish();
+        return;
+    }
     for (auto& file : m_files) {
         if (file.unsupported) {
             file.completed = true;

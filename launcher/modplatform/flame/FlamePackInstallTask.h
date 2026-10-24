@@ -28,10 +28,14 @@ class FlamePackInstallTask final : public Task {
     QJsonObject remainingManifest() const { return m_pending.remaining(); }
     bool canPreserve() const;
 
+   signals:
+    void readyForDownload();
+
    protected:
     void executeTask() override;
 
    private:
+    void installFiles(const Flame::Manifest& manifest);
     bool runTask(const Task::Ptr& task);
     bool checkPath(const QString& path);
     bool validFile(const Flame::File& file, const QString& path) const;
