@@ -3,7 +3,7 @@
 #include <optional>
 
 #include <QByteArray>
-#include <QCryptographicHash>
+#include <QJsonObject>
 #include <QQueue>
 #include <QString>
 #include <QUrl>
@@ -17,7 +17,6 @@ class ModrinthCreationTask final : public InstanceCreationTask {
     struct File {
         QString path;
 
-        QCryptographicHash::Algorithm hashAlgorithm;
         QByteArray hash;
         QQueue<QUrl> downloads;
         bool required = true;
@@ -44,10 +43,11 @@ class ModrinthCreationTask final : public InstanceCreationTask {
     bool updateInstance() override;
     std::unique_ptr<MinecraftInstance> createInstance() override;
 
+   protected:
+    bool keepOnGameDownloadFailure() const override { return !shouldOverride(); }
+
    private:
     bool parseManifest(const QString&, std::vector<File>&, bool setInternalData = true, bool showOptionalDialog = true);
-
-    [[nodiscard]] bool promptForUntrustedMods();
 
    private:
     QWidget* m_parent = nullptr;
@@ -58,6 +58,8 @@ class ModrinthCreationTask final : public InstanceCreationTask {
 
     std::vector<File> m_files;
     Task::Ptr m_task;
+    QJsonObject m_manifest;
+    bool m_installingContent = false;
 
     std::optional<BaseInstance*> m_instance;
 

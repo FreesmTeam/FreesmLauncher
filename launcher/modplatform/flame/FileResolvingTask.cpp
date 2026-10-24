@@ -19,6 +19,7 @@
 #include "FileResolvingTask.h"
 #include <algorithm>
 
+#include "FileSystem.h"
 #include "Json.h"
 #include "modplatform/ModIndex.h"
 #include "modplatform/flame/FlameAPI.h"
@@ -47,7 +48,10 @@ bool Flame::FileResolvingTask::abort()
 
 void Flame::FileResolvingTask::executeTask()
 {
+    m_filesResolved = false;
+    m_downloadFailed = false;
     if (m_manifest.files.isEmpty()) {  // no file to resolve so leave it empty and emit success immediately
+        m_filesResolved = true;
         emitSucceeded();
         return;
     }
@@ -68,6 +72,7 @@ void Flame::FileResolvingTask::executeTask()
         netJobFinished(response);
     });
     connect(m_task.get(), &Task::failed, this, [this, step_progress](QString reason) {
+        m_downloadFailed = true;
         step_progress->state = TaskStepState::Failed;
         stepProgress(*step_progress);
         emitFailed(reason);
@@ -124,20 +129,30 @@ void Flame::FileResolvingTask::netJobFinished(QByteArray* response)
         qCritical() << "Non-JSON data returned from the CF API";
         qCritical() << e.cause();
 
-        emitFailed(tr("Invalid data returned from the API."));
+        emitFailed(tr("Invalid file data returned by the CurseForge API: %1").arg(e.cause()));
 
         return;
     }
 
     QStringList hashes;
+    QMap<int, ModPlatform::IndexedVersion> versions;
     for (QJsonValueRef file : array) {
         try {
             auto obj = Json::requireObject(file);
+            const auto fileid = Json::requireInteger(obj, "id");
+            const auto projectid = Json::requireInteger(obj, "modId");
+            if (!m_manifest.files.contains(fileid) || versions.contains(fileid) || m_manifest.files[fileid].projectId != projectid)
+                throw Json::JsonException(tr("Unexpected or duplicate file ID %1 returned by the API.").arg(fileid));
+            const auto name = Json::requireString(obj, "fileName");
+            if (name.isEmpty() || name == "." || name == ".." || name.contains('/') || name.contains('\\') ||
+                name != FS::RemoveInvalidPathChars(name))
+                throw Json::JsonException(tr("Invalid filename returned by the API: %1").arg(name));
             auto version = FlameMod::loadIndexedPackVersion(obj);
-            auto fileid = version.fileId.toInt();
-            Q_ASSERT(fileid != 0);
-            Q_ASSERT(m_manifest.files.contains(fileid));
-            m_manifest.files[fileid].version = version;
+            const auto hash = version.hash.toLatin1();
+            if (!((version.hash_type == "sha1" && hash.size() == 40) || (version.hash_type == "md5" && hash.size() == 32)) ||
+                QByteArray::fromHex(hash).toHex() != hash.toLower())
+                throw Json::JsonException(tr("Invalid file hash returned by the API for file %1.").arg(fileid));
+            versions.insert(fileid, version);
             auto url = QUrl(version.downloadUrl, QUrl::TolerantMode);
             if (!url.isValid() && "sha1" == version.hash_type && !version.hash.isEmpty()) {
                 hashes.push_back(version.hash);
@@ -146,11 +161,20 @@ void Flame::FileResolvingTask::netJobFinished(QByteArray* response)
             qCritical() << "Non-JSON data returned from the CF API";
             qCritical() << e.cause();
 
-            emitFailed(tr("Invalid data returned from the API."));
+            emitFailed(tr("Invalid file data returned by the CurseForge API: %1").arg(e.cause()));
 
             return;
         }
     }
+    if (versions.size() != m_manifest.files.size()) {
+        emitFailed(tr("The API did not return information for all requested files."));
+        return;
+    }
+    for (auto file = versions.constBegin(); file != versions.constEnd(); ++file)
+        m_manifest.files[file.key()].version = file.value();
+    // Only a completely validated file response may become a metadata-only
+    // failure later. Never infer this from partially populated file fields.
+    m_filesResolved = true;
     if (hashes.isEmpty()) {
         getFlameProjects();
         return;
@@ -235,6 +259,11 @@ void Flame::FileResolvingTask::getFlameProjects()
             qWarning() << "Error while parsing JSON response from Modrinth projects task at" << parse_error.offset
                        << "reason:" << parse_error.errorString();
             qWarning() << *response;
+            step_progress->state = TaskStepState::Failed;
+            stepProgress(*step_progress);
+            emitFailed(tr("Could not parse the CurseForge project response at offset %1: %2")
+                           .arg(parse_error.offset)
+                           .arg(parse_error.errorString()));
             return;
         }
 
@@ -261,6 +290,10 @@ void Flame::FileResolvingTask::getFlameProjects()
         } catch (Json::JsonException& e) {
             qDebug() << e.cause();
             qDebug() << doc;
+            step_progress->state = TaskStepState::Failed;
+            stepProgress(*step_progress);
+            emitFailed(tr("Invalid project data returned by the CurseForge API: %1").arg(e.cause()));
+            return;
         }
         step_progress->state = TaskStepState::Succeeded;
         stepProgress(*step_progress);

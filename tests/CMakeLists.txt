@@ -39,6 +39,10 @@ ecm_add_test(ParseUtils_test.cpp LINK_LIBRARIES Launcher_logic Qt${QT_VERSION_MA
 ecm_add_test(Task_test.cpp LINK_LIBRARIES Launcher_logic Qt${QT_VERSION_MAJOR}::Test
     TEST_NAME Task)
 
+ecm_add_test(TaskStepWrapper_test.cpp LINK_LIBRARIES Launcher_logic Qt${QT_VERSION_MAJOR}::Test
+    TEST_NAME TaskStepWrapper)
+set_property(TEST TaskStepWrapper APPEND PROPERTY ENVIRONMENT "QT_QPA_PLATFORM=offscreen")
+
 ecm_add_test(INIFile_test.cpp LINK_LIBRARIES Launcher_logic Qt${QT_VERSION_MAJOR}::Test
     TEST_NAME INIFile)
 
@@ -47,6 +51,11 @@ ecm_add_test(JavaVersion_test.cpp LINK_LIBRARIES Launcher_logic Qt${QT_VERSION_M
 
 ecm_add_test(Packwiz_test.cpp LINK_LIBRARIES Launcher_logic Qt${QT_VERSION_MAJOR}::Test
     TEST_NAME Packwiz)
+
+ecm_add_test(PendingModpackManifest_test.cpp ../launcher/modplatform/helpers/PendingModpackManifest.cpp
+    LINK_LIBRARIES Qt${QT_VERSION_MAJOR}::Core Qt${QT_VERSION_MAJOR}::Test
+    TEST_NAME PendingModpackManifest)
+target_include_directories(PendingModpackManifest PRIVATE "${CMAKE_SOURCE_DIR}/launcher")
 
 ecm_add_test(Index_test.cpp LINK_LIBRARIES Launcher_logic Qt${QT_VERSION_MAJOR}::Test
     TEST_NAME Index)

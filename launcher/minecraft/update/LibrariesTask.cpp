@@ -12,6 +12,7 @@ LibrariesTask::LibrariesTask(MinecraftInstance* inst)
 
 void LibrariesTask::executeTask()
 {
+    m_downloadFailed = false;
     setStatus(tr("Downloading required library files..."));
     qDebug() << m_inst->name() << ": downloading libraries";
     MinecraftInstance* inst = (MinecraftInstance*)m_inst;
@@ -78,6 +79,7 @@ bool LibrariesTask::canAbort() const
 
 void LibrariesTask::jarlibFailed(QString reason)
 {
+    m_downloadFailed = downloadJob->hasNetworkFailure();
     emitFailed(tr("Game update failed: it was impossible to fetch the required libraries.\nReason:\n%1").arg(reason));
 }
 

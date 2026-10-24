@@ -33,6 +33,8 @@ struct AuthSession {
     QString authlib_injector_auth_url;
     // the actual launch mode for this session
     LaunchMode launchMode;
+    // whether the user explicitly requested an offline launch
+    bool explicitlyOffline = false;
 };
 
 using AuthSessionPtr = std::shared_ptr<AuthSession>;

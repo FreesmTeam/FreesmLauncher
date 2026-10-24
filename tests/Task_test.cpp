@@ -1,7 +1,18 @@
+#include <QDir>
+#include <QFile>
+#include <QNetworkAccessManager>
+#include <QNetworkProxy>
+#include <QSignalSpy>
+#include <QTcpServer>
+#include <QTcpSocket>
+#include <QTemporaryDir>
 #include <QTest>
 #include <QThread>
 #include <QTimer>
 
+#include <modplatform/flame/ContentDownloadJob.h>
+#include <net/Download.h>
+#include <net/NetJob.h>
 #include <tasks/ConcurrentTask.h>
 #include <tasks/MultipleOptionsTask.h>
 #include <tasks/SequentialTask.h>
@@ -243,6 +254,115 @@ class TaskTest : public QObject {
 
         t.start();
         QVERIFY2(QTest::qWaitFor([&t]() { return t.isFinished(); }, 1000), "Task didn't finish as it should.");
+    }
+
+    void test_networkRetryLocalFailureClearsNetworkError()
+    {
+        QTemporaryDir temp;
+        QVERIFY(temp.isValid());
+        QVERIFY(QDir(temp.path()).mkdir("downloads"));
+        const auto parentPath = temp.filePath("downloads");
+
+        QTcpServer portReservation;
+        QVERIFY(portReservation.listen(QHostAddress::LocalHost, 0));
+        const auto port = portReservation.serverPort();
+
+        QNetworkAccessManager network;
+        network.setProxy(QNetworkProxy::NoProxy);
+        NetJob job("Network retry followed by local failure", &network);
+        job.setAskRetry(false);
+        auto download = Net::Download::makeFile(QUrl(QString("http://127.0.0.1:%1/file").arg(port)), parentPath + "/file");
+        job.addNetAction(download);
+
+        int failureCount = 0;
+        QObject observer;
+        connect(download.get(), &Task::failed, &observer, [&] {
+            if (++failureCount != 1)
+                return;
+
+            QVERIFY(download->error() != QNetworkReply::NoError);
+            QVERIFY(download->error() != QNetworkReply::OperationCanceledError);
+            // Move the directory aside, including any still-open temporary save file.
+            QVERIFY(QDir(temp.path()).rename("downloads", "failed-downloads"));
+            QFile blocker(parentPath);
+            QVERIFY(blocker.open(QIODevice::WriteOnly));
+        });
+
+        portReservation.close();
+        job.start();
+
+        QVERIFY2(QTest::qWaitFor([&job] { return job.isFinished(); }, 10000), "NetJob did not finish its retries.");
+        QVERIFY(!job.wasSuccessful());
+        QVERIFY(failureCount > 1);
+        QCOMPARE(download->error(), QNetworkReply::NoError);
+        QVERIFY(!job.hasNetworkFailure());
+    }
+
+    void test_curseForgeAbortInterruptsActiveDownload()
+    {
+        QTemporaryDir temp;
+        QVERIFY(temp.isValid());
+        QTcpServer server;
+        QVERIFY(server.listen(QHostAddress::LocalHost, 0));
+        int requests = 0;
+        connect(&server, &QTcpServer::newConnection, this, [&] {
+            auto* socket = server.nextPendingConnection();
+            connect(socket, &QTcpSocket::readyRead, socket, [&, socket] {
+                socket->readAll();
+                if (socket->property("responded").toBool())
+                    return;
+                socket->setProperty("responded", true);
+                ++requests;
+                // Send only a small part of a large response, then keep it open.
+                socket->write("HTTP/1.1 200 OK\r\nContent-Length: 67108864\r\nConnection: close\r\n\r\n");
+                socket->write(QByteArray(65536, 'x'));
+                auto* stream = new QTimer(socket);
+                connect(stream, &QTimer::timeout, socket, [socket] { socket->write(QByteArray(4096, 'x')); });
+                connect(socket, &QTcpSocket::disconnected, stream, &QTimer::stop);
+                stream->start(20);
+            });
+        });
+
+        QNetworkAccessManager network;
+        network.setProxy(QNetworkProxy::NoProxy);
+        Flame::ContentDownloadJob job("Cancel large CurseForge download", &network, 1);
+        const auto url = QString("http://127.0.0.1:%1/").arg(server.serverPort());
+        auto active = Net::Download::makeFile(QUrl(url + "active"), temp.filePath("active.jar"));
+        auto queued = Net::Download::makeFile(QUrl(url + "queued"), temp.filePath("queued.jar"));
+        job.addNetAction(active);
+        job.addNetAction(queued);
+        QSignalSpy activeFinished(active.get(), &Task::finished);
+        bool settledBeforeJobFinished = false;
+        connect(&job, &Task::finished, this, [&] {
+            settledBeforeJobFinished =
+                activeFinished.count() == 1 && QDir(temp.path()).entryList(QDir::Files | QDir::Hidden | QDir::NoDotAndDotDot).isEmpty();
+        });
+
+        job.start();
+        const bool receivedPartialFile = QTest::qWaitFor([&] { return active->getProgress() > 0; }, 3000);
+        const bool abortAccepted = job.abort();
+        const bool stoppedPromptly = QTest::qWaitFor([&] { return job.isFinished(); }, 1000);
+        // Always release the deliberately stalled response, including on the old code.
+        if (!stoppedPromptly) {
+            active->abort();
+            QVERIFY(QTest::qWaitFor([&] { return job.isFinished(); }, 1000));
+        }
+        const auto activeState = active->getState();
+        const auto queuedState = queued->getState();
+        // Requests own their replies: delete them while the network manager is alive.
+        job.clear();
+        active.reset();
+        queued.reset();
+        QCoreApplication::sendPostedEvents(nullptr, QEvent::DeferredDelete);
+
+        QVERIFY(receivedPartialFile);
+        QVERIFY(abortAccepted);
+        QVERIFY2(stoppedPromptly, "Cancellation waited for the server to finish sending the file.");
+        QCOMPARE(job.getState(), Task::State::AbortedByUser);
+        QCOMPARE(activeState, Task::State::AbortedByUser);
+        QCOMPARE(queuedState, Task::State::Inactive);
+        QCOMPARE(requests, 1);
+        QVERIFY(settledBeforeJobFinished);
     }
 
     void test_stackOverflowInConcurrentTask()
