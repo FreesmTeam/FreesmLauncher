@@ -130,13 +130,29 @@ auto NetJob::abort() -> bool
     return fullyAborted;
 }
 
-auto NetJob::getFailedActions() -> QList<Net::NetRequest*>
+auto NetJob::getFailedActions() const -> QList<Net::NetRequest*>
 {
     QList<Net::NetRequest*> failed;
     for (auto index : m_failed) {
         failed.push_back(dynamic_cast<Net::NetRequest*>(index.get()));
     }
     return failed;
+}
+
+bool NetJob::hasNetworkFailure() const
+{
+    const auto failed = getFailedActions();
+    if (failed.isEmpty())
+        return false;
+
+    for (const auto* request : failed) {
+        if (!request)
+            return false;
+        const auto error = request->error();
+        if (error == QNetworkReply::NoError || error == QNetworkReply::OperationCanceledError)
+            return false;
+    }
+    return true;
 }
 
 auto NetJob::getFailedFiles() -> QList<QString>

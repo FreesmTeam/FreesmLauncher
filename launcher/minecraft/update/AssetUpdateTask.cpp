@@ -18,6 +18,7 @@ AssetUpdateTask::AssetUpdateTask(MinecraftInstance* inst)
 
 void AssetUpdateTask::executeTask()
 {
+    m_downloadFailed = false;
     setStatus(tr("Updating assets index..."));
     auto components = m_inst->getPackProfile();
     auto profile = components->getProfile();
@@ -93,12 +94,14 @@ void AssetUpdateTask::assetIndexFinished()
 
 void AssetUpdateTask::assetIndexFailed(QString reason)
 {
+    m_downloadFailed = downloadJob->hasNetworkFailure();
     qDebug() << m_inst->name() << ": Failed asset index download";
     emitFailed(tr("Failed to download the assets index:\n%1").arg(reason));
 }
 
 void AssetUpdateTask::assetsFailed(QString reason)
 {
+    m_downloadFailed = downloadJob->hasNetworkFailure();
     emitFailed(tr("Failed to download assets:\n%1").arg(reason));
 }
 

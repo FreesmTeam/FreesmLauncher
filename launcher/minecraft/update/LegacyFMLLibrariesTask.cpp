@@ -16,6 +16,8 @@ LegacyFMLLibrariesTask::LegacyFMLLibrariesTask(MinecraftInstance* inst)
 }
 void LegacyFMLLibrariesTask::executeTask()
 {
+    m_downloadFailed = false;
+    fmlLibsToProcess.clear();
     // Get the mod list
     MinecraftInstance* inst = (MinecraftInstance*)m_inst;
     auto components = inst->getPackProfile();
@@ -110,6 +112,7 @@ void LegacyFMLLibrariesTask::fmllibsFinished()
 }
 void LegacyFMLLibrariesTask::fmllibsFailed(QString reason)
 {
+    m_downloadFailed = downloadJob->hasNetworkFailure();
     QStringList failed = downloadJob->getFailedFiles();
     QString failed_all = failed.join("\n");
     emitFailed(tr("Failed to download the following files:\n%1\n\nReason:%2\nPlease try again.").arg(failed_all, reason));
