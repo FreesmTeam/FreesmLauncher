@@ -82,8 +82,8 @@ void InstanceCreationTask::executeTask()
 
     if (m_contentIncomplete && !shouldOverride()) {
         finishIncompleteInstance(
-            tr("Modpack installation is incomplete. Remaining files must be downloaded before playing; game files "
-               "have not been downloaded yet."));
+            tr("Modpack installation is incomplete. Remaining files must be downloaded before playing.")
+        );
         return;
     }
     if (m_abort) {
