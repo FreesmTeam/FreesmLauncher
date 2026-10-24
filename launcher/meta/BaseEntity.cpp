@@ -113,6 +113,7 @@ BaseEntityLoadTask::BaseEntityLoadTask(BaseEntity* parent, Net::Mode mode, bool 
 
 void BaseEntityLoadTask::executeTask()
 {
+    m_downloadFailed = false;
     const QString fname = QDir("meta").absoluteFilePath(m_entity->localFilename());
     auto hashMatches = false;
     // the file exists on disk try to load it
@@ -176,7 +177,10 @@ void BaseEntityLoadTask::executeTask()
     dl->addValidator(new ParsingValidator(m_entity));
     m_task->addNetAction(dl);
     m_task->setAskRetry(false);
-    connect(m_task.get(), &Task::failed, this, &BaseEntityLoadTask::emitFailed);
+    connect(m_task.get(), &Task::failed, this, [this](const QString& reason) {
+        m_downloadFailed = m_task->hasNetworkFailure();
+        emitFailed(reason);
+    });
     connect(m_task.get(), &Task::succeeded, this, [this]() {
         m_entity->m_load_status = BaseEntity::LoadStatus::Remote;
         m_entity->m_file_sha256 = m_entity->m_sha256;

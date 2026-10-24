@@ -1,7 +1,15 @@
+#include <QDir>
+#include <QFile>
+#include <QNetworkAccessManager>
+#include <QNetworkProxy>
+#include <QTcpServer>
+#include <QTemporaryDir>
 #include <QTest>
 #include <QThread>
 #include <QTimer>
 
+#include <net/Download.h>
+#include <net/NetJob.h>
 #include <tasks/ConcurrentTask.h>
 #include <tasks/MultipleOptionsTask.h>
 #include <tasks/SequentialTask.h>
@@ -243,6 +251,48 @@ class TaskTest : public QObject {
 
         t.start();
         QVERIFY2(QTest::qWaitFor([&t]() { return t.isFinished(); }, 1000), "Task didn't finish as it should.");
+    }
+
+    void test_networkRetryLocalFailureClearsNetworkError()
+    {
+        QTemporaryDir temp;
+        QVERIFY(temp.isValid());
+        QVERIFY(QDir(temp.path()).mkdir("downloads"));
+        const auto parentPath = temp.filePath("downloads");
+
+        QTcpServer portReservation;
+        QVERIFY(portReservation.listen(QHostAddress::LocalHost, 0));
+        const auto port = portReservation.serverPort();
+
+        QNetworkAccessManager network;
+        network.setProxy(QNetworkProxy::NoProxy);
+        NetJob job("Network retry followed by local failure", &network);
+        job.setAskRetry(false);
+        auto download = Net::Download::makeFile(QUrl(QString("http://127.0.0.1:%1/file").arg(port)), parentPath + "/file");
+        job.addNetAction(download);
+
+        int failureCount = 0;
+        QObject observer;
+        connect(download.get(), &Task::failed, &observer, [&] {
+            if (++failureCount != 1)
+                return;
+
+            QVERIFY(download->error() != QNetworkReply::NoError);
+            QVERIFY(download->error() != QNetworkReply::OperationCanceledError);
+            // Move the directory aside, including any still-open temporary save file.
+            QVERIFY(QDir(temp.path()).rename("downloads", "failed-downloads"));
+            QFile blocker(parentPath);
+            QVERIFY(blocker.open(QIODevice::WriteOnly));
+        });
+
+        portReservation.close();
+        job.start();
+
+        QVERIFY2(QTest::qWaitFor([&job] { return job.isFinished(); }, 10000), "NetJob did not finish its retries.");
+        QVERIFY(!job.wasSuccessful());
+        QVERIFY(failureCount > 1);
+        QCOMPARE(download->error(), QNetworkReply::NoError);
+        QVERIFY(!job.hasNetworkFailure());
     }
 
     void test_stackOverflowInConcurrentTask()
