@@ -290,7 +290,7 @@ std::unique_ptr<MinecraftInstance> ModrinthCreationTask::createInstance()
             setAbortable(false);
         }
         setError(content->failReason());
-        if (!shouldOverride() && content->canPreserve() && askToKeepIncompleteModpack(m_parent, m_globalSettings)) {
+        if (!shouldOverride() && content->canPreserve()) {
             Modpack::PendingManifest pending(Modpack::Format::Modrinth, content->remainingManifest());
             QString error;
             if (!pending.save(Modpack::pendingManifestPath(instance->instanceRoot(), Modpack::Format::Modrinth), &error)) {

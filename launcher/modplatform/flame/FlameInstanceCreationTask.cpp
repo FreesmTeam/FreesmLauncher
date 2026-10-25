@@ -538,22 +538,16 @@ std::unique_ptr<MinecraftInstance> FlameCreationTask::createInstance()
     bool did_succeed = content->wasSuccessful() && !m_abort;
     if (!did_succeed && !shouldOverride() && content->canPreserve()) {
         setAbortable(false);
-        if (askToKeepIncompleteModpack(m_parent, m_globalSettings)) {
-            if (!content->canPreserve()) {
-                setError(tr("The incomplete instance contains an unsafe path and cannot be saved."));
-                return nullptr;
-            }
-            Modpack::PendingManifest pending(Modpack::Format::CurseForge, content->remainingManifest());
-            QString error;
-            if (!pending.save(Modpack::pendingManifestPath(instance->instanceRoot(), Modpack::Format::CurseForge), &error)) {
-                setError(tr("Could not save remaining modpack files:\n%1").arg(error));
-                return nullptr;
-            }
-            instance->saveNow();
-            setContentIncomplete(true);
-            m_abort = false;
-            return instance;
+        Modpack::PendingManifest pending(Modpack::Format::CurseForge, content->remainingManifest());
+        QString error;
+        if (!pending.save(Modpack::pendingManifestPath(instance->instanceRoot(), Modpack::Format::CurseForge), &error)) {
+            setError(tr("Could not save remaining modpack files:\n%1").arg(error));
+            return nullptr;
         }
+        instance->saveNow();
+        setContentIncomplete(true);
+        m_abort = false;
+        return instance;
     }
     if (!did_succeed && !m_abort)
         setError(content->failReason());
