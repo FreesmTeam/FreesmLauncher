@@ -10,7 +10,6 @@ enum class ShouldUpdate { Update, SkipUpdating, Cancel };
 [[nodiscard]] ShouldUpdate askIfShouldUpdate(QWidget* parent, QString original_version_name);
 enum class ShouldDeleteSaves { NotAsked, Yes, No };
 [[nodiscard]] ShouldDeleteSaves askIfShouldDeleteSaves(QWidget* parent);
-bool askToKeepIncompleteModpack(QWidget* parent, SettingsObject* settings);
 
 struct InstanceName {
    public:
