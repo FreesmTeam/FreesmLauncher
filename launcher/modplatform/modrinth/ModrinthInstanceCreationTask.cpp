@@ -1,4 +1,5 @@
 #include "ModrinthInstanceCreationTask.h"
+#include "ModrinthPackInstallTask.h"
 
 #include "Application.h"
 #include "FileSystem.h"
@@ -9,26 +10,16 @@
 #include "minecraft/MinecraftInstance.h"
 #include "minecraft/PackProfile.h"
 
-#include "minecraft/mod/Mod.h"
-#include "modplatform/EnsureMetadataTask.h"
 #include "modplatform/helpers/OverrideUtils.h"
 
-#include "net/ChecksumValidator.h"
-
-#include "net/ApiDownload.h"
-#include "net/ApiHeaderProxy.h"
-#include "net/NetJob.h"
-
-#include "modplatform/ModIndex.h"
 #include "settings/INISettingsObject.h"
 
 #include "ui/dialogs/CustomMessageBox.h"
-#include "ui/dialogs/UntrustedModsDialog.h"
 #include "ui/pages/modplatform/OptionalModDialog.h"
 
 #include <QAbstractButton>
 #include <QFileInfo>
-#include <QHash>
+#include <QJsonArray>
 #include <vector>
 
 bool ModrinthCreationTask::abort()
@@ -37,6 +28,12 @@ bool ModrinthCreationTask::abort()
         return false;
     }
 
+    if (m_installingContent) {
+        // The child owns the stop barrier. Do not signal InstanceStaging until
+        // all sinks have closed and the keep/discard decision has been made.
+        m_abort = true;
+        return m_task->abort();
+    }
     if (m_task) {
         m_task->abort();
     }
@@ -170,14 +167,16 @@ std::unique_ptr<MinecraftInstance> ModrinthCreationTask::createInstance()
     QString parentFolder(FS::PathCombine(m_stagingPath, "mrpack"));
 
     QString indexPath = FS::PathCombine(m_stagingPath, "modrinth.index.json");
-    if (m_files.empty() && !parseManifest(indexPath, m_files, true, true)) {
+    if (m_files.empty() && !parseManifest(indexPath, m_files, true, shouldOverride())) {
         return nullptr;
     }
 
     // Keep index file in case we need it some other time (like when changing versions)
     QString newIndexPlace(FS::PathCombine(parentFolder, "modrinth.index.json"));
-    FS::ensureFilePathExists(newIndexPlace);
-    FS::move(indexPath, newIndexPlace);
+    if (!FS::ensureFilePathExists(newIndexPlace) || !FS::move(indexPath, newIndexPlace)) {
+        setError(tr("Could not save the original modpack index."));
+        return nullptr;
+    }
 
     auto mcPath = FS::PathCombine(m_stagingPath, m_root_path);
 
@@ -206,9 +205,10 @@ std::unique_ptr<MinecraftInstance> ModrinthCreationTask::createInstance()
         }
     }
 
-    if (!promptForUntrustedMods()) {
-        m_abort = true;
-        emitAborted();
+    // Keep the existing update root (including .minecraft) visible to gameRoot()
+    // even when this archive has no overrides to create that directory first.
+    if (!FS::ensureFolderPathExists(mcPath)) {
+        setError(tr("Could not create the Minecraft directory."));
         return nullptr;
     }
 
@@ -220,22 +220,17 @@ std::unique_ptr<MinecraftInstance> ModrinthCreationTask::createInstance()
     components->buildingFromScratch();
     components->setComponentVersion("net.minecraft", m_minecraft_version, true);
 
-    QString loader;
     if (!m_fabric_version.isEmpty()) {
         components->setComponentVersion("net.fabricmc.fabric-loader", m_fabric_version);
-        loader = ModPlatform::getModLoaderAsString(ModPlatform::ModLoaderType::Fabric);
     }
     if (!m_quilt_version.isEmpty()) {
         components->setComponentVersion("org.quiltmc.quilt-loader", m_quilt_version);
-        loader = ModPlatform::getModLoaderAsString(ModPlatform::ModLoaderType::Quilt);
     }
     if (!m_forge_version.isEmpty()) {
         components->setComponentVersion("net.minecraftforge", m_forge_version);
-        loader = ModPlatform::getModLoaderAsString(ModPlatform::ModLoaderType::Forge);
     }
     if (!m_neoForge_version.isEmpty()) {
         components->setComponentVersion("net.neoforged", m_neoForge_version);
-        loader = ModPlatform::getModLoaderAsString(ModPlatform::ModLoaderType::NeoForge);
     }
 
     if (m_instIcon != "default") {
@@ -254,107 +249,71 @@ std::unique_ptr<MinecraftInstance> ModrinthCreationTask::createInstance()
     instance->setName(name());
     instance->saveNow();
 
-    auto downloadMods = makeShared<NetJob>(tr("Mod Download Modrinth"), APPLICATION->network());
-
-    auto rootModpackPath = FS::PathCombine(m_stagingPath, m_root_path);
-    auto rootModpackUrl = QUrl::fromLocalFile(rootModpackPath);
-    // TODO make this work with other sorts of resource
-    QHash<QString, Resource*> resources;
-    for (auto& file : m_files) {
-        auto fileName = file.path;
-        fileName = FS::RemoveInvalidPathChars(fileName);
-        auto filePath = FS::PathCombine(rootModpackPath, fileName);
-        if (!rootModpackUrl.isParentOf(QUrl::fromLocalFile(filePath))) {
-            // This means we somehow got out of the root folder, so abort here to prevent exploits
-            setError(tr("One of the files has a path that leads to an arbitrary location (%1). This is a security risk and isn't allowed.")
-                         .arg(fileName));
-            return nullptr;
-        }
-        if (fileName.startsWith("mods/")) {
-            auto* mod = new Mod(filePath);
-            ModDetails d;
-            d.mod_id = filePath;
-            mod->setDetails(d);
-            resources[file.hash.toHex()] = mod;
-        }
-        if (file.downloads.empty()) {
-            setError(tr("The file '%1' is missing a download link. This is invalid in the pack format.").arg(fileName));
-            return nullptr;
-        }
-        qDebug() << "Will try to download" << file.downloads.front() << "to" << filePath;
-
-        Net::ModrinthDownloadMeta meta{
-            .reason = m_instance.has_value() ? "update" : "modpack",
-            .gameVersion = m_minecraft_version,
-            .loader = loader,
-        };
-
-        QUrl downloadUrl = file.downloads.dequeue();
-        auto dl = Net::ApiDownload::makeFile(downloadUrl, filePath, Net::Download::Option::NoOptions, meta);
-        dl->addValidator(new Net::ChecksumValidator(file.hashAlgorithm, file.hash));
-        downloadMods->addNetAction(dl);
-        if (!file.downloads.empty()) {
-            // FIXME: This really needs to be put into a ConcurrentTask of
-            // MultipleOptionsTask's , once those exist :)
-            auto param = dl.toWeakRef();
-            connect(dl.get(), &Task::failed, [&file, filePath, param, downloadMods, meta] {
-                QUrl fallbackUrl = file.downloads.dequeue();
-                auto ndl = Net::ApiDownload::makeFile(fallbackUrl, filePath, Net::Download::Option::NoOptions, meta);
-                ndl->addValidator(new Net::ChecksumValidator(file.hashAlgorithm, file.hash));
-                downloadMods->addNetAction(ndl);
-                if (auto shared = param.lock()) {
-                    shared->succeeded();
+    auto contentManifest = m_manifest;
+    if (shouldOverride()) {
+        // Keep the existing update difference/optional-selection algorithm. Its
+        // already-selected runtime paths are not a persisted remaining manifest.
+        QJsonArray selectedFiles;
+        for (const auto& file : m_files) {
+            for (const auto& value : m_manifest["files"].toArray()) {
+                auto entry = value.toObject();
+                auto path = entry["path"].toString().replace('\\', '/');
+                if (path == file.path || path + ".disabled" == file.path) {
+                    entry["path"] = file.path;
+                    entry["env"] = QJsonObject{ { "client", "required" } };
+                    selectedFiles.append(entry);
+                    break;
                 }
-            });
+            }
         }
+        contentManifest["files"] = selectedFiles;
     }
-
-    bool endedWell = false;
-
-    connect(downloadMods.get(), &NetJob::succeeded, this, [&endedWell]() { endedWell = true; });
-    connect(downloadMods.get(), &NetJob::failed, [this, &endedWell](const QString& reason) {
-        endedWell = false;
-        setError(reason);
-    });
-    connect(downloadMods.get(), &NetJob::finished, &loop, &QEventLoop::quit);
-    connect(downloadMods.get(), &NetJob::progress, [this](qint64 current, qint64 total) {
-        setDetails(tr("%1 out of %2 complete").arg(current).arg(total));
-        setProgress(current, total);
-    });
-    connect(downloadMods.get(), &NetJob::stepProgress, this, &ModrinthCreationTask::propagateStepProgress);
-
-    setStatus(tr("Downloading mods..."));
-    downloadMods->start();
-    m_task = downloadMods;
-
-    loop.exec();
-
+    auto content =
+        makeShared<ModrinthPackInstallTask>(instance.get(), contentManifest, Modpack::InstallMode::Create, m_trustedSource, m_parent);
+    content->m_isUpdate = shouldOverride();
+    connect(content.get(), &Task::finished, &loop, &QEventLoop::quit);
+    propagateFromOther(content.get());
+    m_task = content;
+    m_installingContent = true;
+    content->start();
+    if (!content->isFinished()) {
+        loop.exec();
+    }
+    m_installingContent = false;
+    m_task.reset();
+    const bool endedWell = content->wasSuccessful();
+    for (const auto& warning : content->warnings()) {
+        logWarning(warning);
+    }
     if (!endedWell) {
-        for (auto* resource : resources) {
-            delete resource;
+        if (!shouldOverride()) {
+            setAbortable(false);
+        }
+        setError(content->failReason());
+        if (!shouldOverride() && content->canPreserve()) {
+            Modpack::PendingManifest pending(Modpack::Format::Modrinth, content->remainingManifest());
+            QString error;
+            if (!pending.save(Modpack::pendingManifestPath(instance->instanceRoot(), Modpack::Format::Modrinth), &error)) {
+                // A failed save is an error, even when the initial interruption was cancellation.
+                m_abort = false;
+                setError(tr("Could not save remaining modpack files: %1").arg(error));
+                return nullptr;
+            }
+            components->saveNow();
+            instance->saveNow();
+            // The common creation task validates the saved profile and config
+            // through public APIs before committing the incomplete instance.
+            setContentIncomplete(true);
+            return instance;
+        }
+        if (content->getState() == Task::State::AbortedByUser || m_abort) {
+            m_abort = true;
+            // Let the common task emit the terminal signal only after local
+            // instance/profile destructors have finished saving the staging tree.
+            setError({});
         }
         return nullptr;
     }
-
-    QEventLoop ensureMetaLoop;
-    QDir folder = FS::PathCombine(instance->modsRoot(), ".index");
-    auto ensureMetadataTask = makeShared<EnsureMetadataTask>(resources, folder, ModPlatform::ResourceProvider::MODRINTH);
-    connect(ensureMetadataTask.get(), &Task::succeeded, this, [&endedWell]() { endedWell = true; });
-    connect(ensureMetadataTask.get(), &Task::finished, &ensureMetaLoop, &QEventLoop::quit);
-    connect(ensureMetadataTask.get(), &Task::progress, [this](qint64 current, qint64 total) {
-        setDetails(tr("%1 out of %2 complete").arg(current).arg(total));
-        setProgress(current, total);
-    });
-    connect(ensureMetadataTask.get(), &Task::stepProgress, this, &ModrinthCreationTask::propagateStepProgress);
-
-    ensureMetadataTask->start();
-    m_task = ensureMetadataTask;
-
-    ensureMetaLoop.exec();
-    for (auto* resource : resources) {
-        delete resource;
-    }
-    resources.clear();
 
     // Update information of the already installed instance, if any.
     if (m_instance && endedWell) {
@@ -392,6 +351,7 @@ bool ModrinthCreationTask::parseManifest(const QString& indexPath, std::vector<F
             }
 
             if (setInternalData) {
+                m_manifest = obj;
                 if (m_managed_version_id.isEmpty()) {
                     m_managed_version_id = obj["versionId"].toString();
                 }
@@ -418,7 +378,6 @@ bool ModrinthCreationTask::parseManifest(const QString& indexPath, std::vector<F
 
                 QJsonObject hashes = Json::requireObject(modInfo, "hashes");
                 file.hash = QByteArray::fromHex(Json::requireString(hashes, "sha512").toLatin1());
-                file.hashAlgorithm = QCryptographicHash::Sha512;
 
                 // Do not use requireUrl, which uses StrictMode, instead use QUrl's default TolerantMode
                 // (as Modrinth seems to incorrectly handle spaces)
@@ -501,38 +460,4 @@ bool ModrinthCreationTask::parseManifest(const QString& indexPath, std::vector<F
     }
 
     return true;
-}
-
-bool ModrinthCreationTask::promptForUntrustedMods()
-{
-    if (m_trustedSource) {
-        return true;
-    }
-
-    QStringList untrustedMods;
-
-    for (const auto& file : m_files) {
-        for (const auto& url : file.downloads) {
-            if (url.scheme() != "https" || url.host() != BuildConfig.MODRINTH_DOWNLOAD_HOST) {
-                untrustedMods.append(file.path);
-                break;
-            }
-        }
-    }
-
-    const QDir mcDir{ FS::PathCombine(m_stagingPath, m_root_path) };
-    const QString modsPath{ FS::PathCombine(m_stagingPath, m_root_path, "mods") };
-    if (QDir(modsPath).exists()) {
-        QDirIterator iter{ modsPath, QDir::Files, QDirIterator::Subdirectories | QDirIterator::FollowSymlinks };
-        while (iter.hasNext()) {
-            untrustedMods.append(mcDir.relativeFilePath(iter.next()));
-        }
-    }
-
-    if (untrustedMods.empty()) {
-        return true;
-    }
-
-    UntrustedModsDialog dialog{ untrustedMods, m_parent };
-    return dialog.exec() == QDialog::Accepted;
 }
