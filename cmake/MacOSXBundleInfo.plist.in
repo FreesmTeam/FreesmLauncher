@@ -90,7 +90,7 @@
             <string>${Launcher_Name}</string>
             <key>CFBundleURLSchemes</key>
             <array>
-            <string>freesmlauncher</string>
+            <string>prismlauncher</string>
             <string>${MACOSX_BUNDLE_EXECUTABLE_NAME}</string>
             </array>
         </dict>
