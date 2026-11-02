@@ -72,9 +72,6 @@ class FlameCreationTask final : public InstanceCreationTask {
 
     [[nodiscard]] bool promptForUntrustedMods();
 
-   protected:
-    bool keepOnGameDownloadFailure() const override { return !shouldOverride(); }
-
    private:
     QWidget* m_parent = nullptr;
     bool m_trustedSource;

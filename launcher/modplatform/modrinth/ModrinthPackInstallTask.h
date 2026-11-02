@@ -7,7 +7,7 @@
 #include <memory>
 #include <vector>
 
-#include "modplatform/helpers/PendingModpackManifest.h"
+#include "modplatform/helpers/ModpackCache.h"
 #include "net/NetJob.h"
 #include "tasks/Task.h"
 
@@ -19,19 +19,10 @@ class ModrinthPackInstallTask final : public Task {
     Q_OBJECT
 
    public:
-    ModrinthPackInstallTask(MinecraftInstance* instance,
-                            QJsonObject manifest,
-                            Modpack::InstallMode mode,
-                            bool trustedSource,
-                            QWidget* parent = nullptr);
+    ModrinthPackInstallTask(MinecraftInstance* instance, QJsonObject manifest, bool trustedSource, QWidget* parent = nullptr);
     ~ModrinthPackInstallTask() override;
 
     bool abort() override;
-    QJsonObject remainingManifest() const;
-    bool canPreserve() const;
-
-   signals:
-    void readyForDownload();
 
    protected:
     void executeTask() override;
@@ -43,6 +34,7 @@ class ModrinthPackInstallTask final : public Task {
         QString enabledPath;
         QString disabledPath;
         QByteArray hash;
+        MetaEntryPtr cacheEntry;
         QQueue<QUrl> downloads;
         bool optional = false;
         bool enabled = true;
@@ -57,18 +49,15 @@ class ModrinthPackInstallTask final : public Task {
     void installFiles();
     bool validatePath(const QString& path) const;
     bool completeFile(File& file);
-    bool saveProgress();
     void downloadNextRound();
     void finishDownloads();
     void finish();
 
     MinecraftInstance* m_instance;
-    Modpack::PendingManifest m_pending;
-    Modpack::InstallMode m_mode;
+    QJsonObject m_manifest;
     bool m_trustedSource;
     QWidget* m_parent;
     bool m_isUpdate = false;
-    bool m_validated = false;
     bool m_aborted = false;
     QString m_error;
     std::vector<File> m_files;

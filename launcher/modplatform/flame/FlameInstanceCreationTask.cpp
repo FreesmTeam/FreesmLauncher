@@ -74,8 +74,7 @@ bool FlameCreationTask::abort()
     if (m_contentTask) {
         m_abort = true;
         m_contentTask->abort();
-        // createInstance() waits for the content task before offering to keep
-        // staging. Never let an early abort signal delete that directory.
+        // Wait for the content task before an abort signal deletes staging.
         return true;
     }
     if (m_processUpdateFileInfoJob)
@@ -524,8 +523,7 @@ std::unique_ptr<MinecraftInstance> FlameCreationTask::createInstance()
     }
     if (m_abort)
         return nullptr;
-    m_contentTask =
-        makeShared<FlamePackInstallTask>(instance.get(), content_manifest, Modpack::InstallMode::Create, m_trustedSource, m_parent);
+    m_contentTask = makeShared<FlamePackInstallTask>(instance.get(), content_manifest, m_parent);
     auto content = m_contentTask;
     connect(content.get(), &Task::finished, &loop, &QEventLoop::quit, Qt::QueuedConnection);
     connect(content.get(), &Task::warningLogged, this, &FlameCreationTask::logWarning);
@@ -536,21 +534,15 @@ std::unique_ptr<MinecraftInstance> FlameCreationTask::createInstance()
     m_contentTask.reset();
 
     bool did_succeed = content->wasSuccessful() && !m_abort;
-    if (!did_succeed && !shouldOverride() && content->canPreserve()) {
-        setAbortable(false);
-        Modpack::PendingManifest pending(Modpack::Format::CurseForge, content->remainingManifest());
-        QString error;
-        if (!pending.save(Modpack::pendingManifestPath(instance->instanceRoot(), Modpack::Format::CurseForge), &error)) {
-            setError(tr("Could not save remaining modpack files:\n%1").arg(error));
-            return nullptr;
+    if (!did_succeed) {
+        if (content->getState() == Task::State::AbortedByUser || m_abort) {
+            m_abort = true;
+            setError({});
+        } else {
+            setError(content->failReason());
         }
-        instance->saveNow();
-        setContentIncomplete(true);
-        m_abort = false;
-        return instance;
+        return nullptr;
     }
-    if (!did_succeed && !m_abort)
-        setError(content->failReason());
 
     // Update information of the already installed instance, if any.
     if (m_instance && did_succeed) {

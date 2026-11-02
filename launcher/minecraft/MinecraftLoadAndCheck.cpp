@@ -1,5 +1,4 @@
 #include "MinecraftLoadAndCheck.h"
-#include "ComponentUpdateTask.h"
 #include "MinecraftInstance.h"
 #include "PackProfile.h"
 
@@ -7,10 +6,6 @@ MinecraftLoadAndCheck::MinecraftLoadAndCheck(MinecraftInstance* inst, Net::Mode 
 
 void MinecraftLoadAndCheck::executeTask()
 {
-    m_downloadFailed = false;
-    if (m_task)
-        disconnect(m_task.get(), nullptr, this, nullptr);
-    m_task.reset();
     // add offline metadata load task
     auto components = m_inst->getPackProfile();
     if (auto result = components->reload(m_netmode); !result) {
@@ -24,11 +19,7 @@ void MinecraftLoadAndCheck::executeTask()
         return;
     }
     connect(m_task.get(), &Task::succeeded, this, &MinecraftLoadAndCheck::emitSucceeded);
-    connect(m_task.get(), &Task::failed, this, [this](const QString& reason) {
-        auto task = qobject_cast<ComponentUpdateTask*>(m_task.get());
-        m_downloadFailed = task && task->downloadFailed();
-        emitFailed(reason);
-    });
+    connect(m_task.get(), &Task::failed, this, &MinecraftLoadAndCheck::emitFailed);
     connect(m_task.get(), &Task::aborted, this, &MinecraftLoadAndCheck::emitAborted);
     propagateFromOther(m_task.get());
 }

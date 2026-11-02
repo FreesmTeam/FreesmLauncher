@@ -49,7 +49,6 @@ bool Flame::FileResolvingTask::abort()
 void Flame::FileResolvingTask::executeTask()
 {
     m_filesResolved = false;
-    m_downloadFailed = false;
     if (m_manifest.files.isEmpty()) {  // no file to resolve so leave it empty and emit success immediately
         m_filesResolved = true;
         emitSucceeded();
@@ -72,7 +71,6 @@ void Flame::FileResolvingTask::executeTask()
         netJobFinished(response);
     });
     connect(m_task.get(), &Task::failed, this, [this, step_progress](QString reason) {
-        m_downloadFailed = true;
         step_progress->state = TaskStepState::Failed;
         stepProgress(*step_progress);
         emitFailed(reason);
