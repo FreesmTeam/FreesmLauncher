@@ -20,7 +20,6 @@ class ComponentUpdateTask : public Task {
     bool canAbort() const override;
     bool abort() override;
     Net::Mode netMode();
-    bool downloadFailed() const { return m_downloadFailed; }
 
    protected:
     void executeTask() override;
@@ -34,10 +33,9 @@ class ComponentUpdateTask : public Task {
     void finalizeComponents();
 
     void remoteLoadSucceeded(size_t index);
-    void remoteLoadFailed(size_t index, const QString& msg, bool downloadFailed = false);
+    void remoteLoadFailed(size_t index, const QString& msg);
     void checkIfAllFinished();
 
    private:
     std::unique_ptr<ComponentUpdateTaskData> d;
-    bool m_downloadFailed = false;
 };

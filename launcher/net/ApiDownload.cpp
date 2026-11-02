@@ -24,10 +24,10 @@
 
 namespace Net {
 
-Download::Ptr ApiDownload::makeCached(QUrl url, MetaEntryPtr entry, Download::Options options)
+Download::Ptr ApiDownload::makeCached(QUrl url, MetaEntryPtr entry, Download::Options options, ModrinthDownloadMeta meta)
 {
     auto dl = Download::makeCached(std::move(url), std::move(entry), options);
-    dl->addHeaderProxy(std::make_unique<ApiHeaderProxy>());
+    dl->addHeaderProxy(std::make_unique<ApiHeaderProxy>(std::move(meta)));
     return dl;
 }
 

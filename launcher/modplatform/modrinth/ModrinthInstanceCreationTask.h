@@ -43,9 +43,6 @@ class ModrinthCreationTask final : public InstanceCreationTask {
     bool updateInstance() override;
     std::unique_ptr<MinecraftInstance> createInstance() override;
 
-   protected:
-    bool keepOnGameDownloadFailure() const override { return !shouldOverride(); }
-
    private:
     bool parseManifest(const QString&, std::vector<File>&, bool setInternalData = true, bool showOptionalDialog = true);
 
