@@ -8,7 +8,6 @@
 #include "ProblemProvider.h"
 #include "Version.h"
 #include "cassert"
-#include "meta/BaseEntity.h"
 #include "meta/Index.h"
 #include "meta/Version.h"
 #include "minecraft/MinecraftInstance.h"
@@ -82,13 +81,6 @@ Net::Mode ComponentUpdateTask::netMode()
 
 void ComponentUpdateTask::executeTask()
 {
-    m_downloadFailed = false;
-    for (const auto& status : d->remoteLoadStatusList) {
-        if (status.task)
-            disconnect(status.task.get(), nullptr, this, nullptr);
-    }
-    d->remoteLoadStatusList.clear();
-    d->remoteTasksInProgress = 0;
     qCDebug(instanceProfileResolveC) << "Loading components";
     setStatus(tr("Loading components"));
     loadComponents();
@@ -105,7 +97,7 @@ LoadResult composeLoadResult(LoadResult a, LoadResult b)
     return a;
 }
 
-static LoadResult loadComponent(ComponentPtr component, Task::Ptr& loadTask, QList<Task::Ptr>& metadataTasks, Net::Mode netmode)
+static LoadResult loadComponent(ComponentPtr component, Task::Ptr& loadTask, Net::Mode netmode)
 {
     if (component->m_loaded) {
         qCDebug(instanceProfileResolveC) << component->getName() << "is already loaded";
@@ -139,15 +131,7 @@ static LoadResult loadComponent(ComponentPtr component, Task::Ptr& loadTask, QLi
             component->m_loaded = true;
             result = LoadResult::LoadedLocal;
         } else {
-            auto index = APPLICATION->metadataIndex();
-            loadTask = index->loadVersion(component->m_uid, component->m_version, netmode);
-            // Keep these exact tasks: another component can replace an entity's current load task.
-            if (netmode == Net::Mode::Online) {
-                if (index->status() != Meta::BaseEntity::LoadStatus::Remote)
-                    metadataTasks.append(index->currentLoadTask());
-                metadataTasks.append(index->get(component->m_uid)->currentLoadTask());
-            }
-            metadataTasks.append(metaVersion->currentLoadTask());
+            loadTask = APPLICATION->metadataIndex()->loadVersion(component->m_uid, component->m_version, netmode);
             loadTask->start();
             if (netmode == Net::Mode::Online)
                 result = LoadResult::RequiresRemote;
@@ -199,7 +183,6 @@ void ComponentUpdateTask::loadComponents()
     // load all the components OR their lists...
     for (auto component : d->m_profile->d->components) {
         Task::Ptr loadTask;
-        QList<Task::Ptr> metadataTasks;
         LoadResult singleResult;
         RemoteLoadStatus::Type loadType;
         component->resetComponentProblems();
@@ -222,7 +205,7 @@ void ComponentUpdateTask::loadComponents()
             }
         }
 #else
-        singleResult = loadComponent(component, loadTask, metadataTasks, d->netmode);
+        singleResult = loadComponent(component, loadTask, d->netmode);
         loadType = RemoteLoadStatus::Type::Version;
 #endif
         if (singleResult == LoadResult::LoadedLocal) {
@@ -233,20 +216,7 @@ void ComponentUpdateTask::loadComponents()
             qCDebug(instanceProfileResolveC) << d->m_profile->d->m_instance->name() << "|"
                                              << "Remote loading is being run for" << component->getName();
             connect(loadTask.get(), &Task::succeeded, this, [this, taskIndex]() { remoteLoadSucceeded(taskIndex); });
-            connect(loadTask.get(), &Task::failed, this, [this, taskIndex, metadataTasks](const QString& error) {
-                bool downloadFailed = false;
-                for (const auto& task : metadataTasks) {
-                    if (!task || task->getState() != Task::State::Failed)
-                        continue;
-                    auto metadataTask = qobject_cast<Meta::BaseEntityLoadTask*>(task.get());
-                    if (!metadataTask || !metadataTask->downloadFailed()) {
-                        downloadFailed = false;
-                        break;
-                    }
-                    downloadFailed = true;
-                }
-                remoteLoadFailed(taskIndex, error, downloadFailed);
-            });
+            connect(loadTask.get(), &Task::failed, this, [this, taskIndex](const QString& error) { remoteLoadFailed(taskIndex, error); });
             connect(loadTask.get(), &Task::aborted, this, [this, taskIndex]() { remoteLoadFailed(taskIndex, tr("Aborted")); });
             RemoteLoadStatus status;
             status.type = loadType;
@@ -795,7 +765,7 @@ void ComponentUpdateTask::remoteLoadSucceeded(size_t taskIndex)
     checkIfAllFinished();
 }
 
-void ComponentUpdateTask::remoteLoadFailed(size_t taskIndex, const QString& msg, bool downloadFailed)
+void ComponentUpdateTask::remoteLoadFailed(size_t taskIndex, const QString& msg)
 {
     if (static_cast<size_t>(d->remoteLoadStatusList.size()) < taskIndex) {
         qCWarning(instanceProfileResolveC) << "Got task index outside of results" << taskIndex;
@@ -810,8 +780,6 @@ void ComponentUpdateTask::remoteLoadFailed(size_t taskIndex, const QString& msg,
         return;
     }
     qCDebug(instanceProfileResolveC) << "Remote task" << taskIndex << "failed:" << msg;
-    // Only classify the combined failure as a download failure if every failed load agrees.
-    m_downloadFailed = (d->remoteLoadSuccessful || m_downloadFailed) && downloadFailed;
     d->remoteLoadSuccessful = false;
     taskSlot.succeeded = false;
     taskSlot.finished = true;

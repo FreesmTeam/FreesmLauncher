@@ -12,7 +12,6 @@ class AssetUpdateTask : public Task {
     void executeTask() override;
 
     bool canAbort() const override;
-    bool downloadFailed() const { return m_downloadFailed; }
 
    public:
     static QString resourceUrl();
@@ -28,5 +27,4 @@ class AssetUpdateTask : public Task {
    private:
     MinecraftInstance* m_inst;
     NetJob::Ptr downloadJob;
-    bool m_downloadFailed = false;
 };

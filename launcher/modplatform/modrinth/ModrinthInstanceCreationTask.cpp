@@ -30,7 +30,7 @@ bool ModrinthCreationTask::abort()
 
     if (m_installingContent) {
         // The child owns the stop barrier. Do not signal InstanceStaging until
-        // all sinks have closed and the keep/discard decision has been made.
+        // all sinks have closed.
         m_abort = true;
         return m_task->abort();
     }
@@ -268,8 +268,7 @@ std::unique_ptr<MinecraftInstance> ModrinthCreationTask::createInstance()
         }
         contentManifest["files"] = selectedFiles;
     }
-    auto content =
-        makeShared<ModrinthPackInstallTask>(instance.get(), contentManifest, Modpack::InstallMode::Create, m_trustedSource, m_parent);
+    auto content = makeShared<ModrinthPackInstallTask>(instance.get(), contentManifest, m_trustedSource, m_parent);
     content->m_isUpdate = shouldOverride();
     connect(content.get(), &Task::finished, &loop, &QEventLoop::quit);
     propagateFromOther(content.get());
@@ -286,30 +285,9 @@ std::unique_ptr<MinecraftInstance> ModrinthCreationTask::createInstance()
         logWarning(warning);
     }
     if (!endedWell) {
-        if (!shouldOverride()) {
-            setAbortable(false);
-        }
         setError(content->failReason());
-        if (!shouldOverride() && content->canPreserve()) {
-            Modpack::PendingManifest pending(Modpack::Format::Modrinth, content->remainingManifest());
-            QString error;
-            if (!pending.save(Modpack::pendingManifestPath(instance->instanceRoot(), Modpack::Format::Modrinth), &error)) {
-                // A failed save is an error, even when the initial interruption was cancellation.
-                m_abort = false;
-                setError(tr("Could not save remaining modpack files: %1").arg(error));
-                return nullptr;
-            }
-            components->saveNow();
-            instance->saveNow();
-            // The common creation task validates the saved profile and config
-            // through public APIs before committing the incomplete instance.
-            setContentIncomplete(true);
-            return instance;
-        }
         if (content->getState() == Task::State::AbortedByUser || m_abort) {
             m_abort = true;
-            // Let the common task emit the terminal signal only after local
-            // instance/profile destructors have finished saving the staging tree.
             setError({});
         }
         return nullptr;

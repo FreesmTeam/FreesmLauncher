@@ -32,7 +32,6 @@ class FileResolvingTask : public Task {
 
     const Flame::Manifest& getResults() const { return m_manifest; }
     bool filesResolved() const { return m_filesResolved; }
-    bool downloadFailed() const { return m_downloadFailed; }
 
    protected:
     virtual void executeTask() override;
@@ -47,6 +46,5 @@ class FileResolvingTask : public Task {
     Flame::Manifest m_manifest;
     Task::Ptr m_task;
     bool m_filesResolved = false;
-    bool m_downloadFailed = false;
 };
 }  // namespace Flame

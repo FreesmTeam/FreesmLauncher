@@ -15,7 +15,6 @@
 #include <QFileInfo>
 #include <QJsonArray>
 #include <QTemporaryDir>
-#include <QTimer>
 
 #include "Application.h"
 #include "FileSystem.h"
@@ -31,7 +30,6 @@
 #include "net/ChecksumValidator.h"
 #include "tasks/ConcurrentTask.h"
 #include "ui/dialogs/BlockedModsDialog.h"
-#include "ui/dialogs/UntrustedModsDialog.h"
 #include "ui/pages/modplatform/OptionalModDialog.h"
 
 namespace {
@@ -94,16 +92,8 @@ bool containsWorld(const QString& path)
 }
 }  // namespace
 
-FlamePackInstallTask::FlamePackInstallTask(MinecraftInstance* instance,
-                                           QJsonObject manifest,
-                                           Modpack::InstallMode mode,
-                                           bool trustedSource,
-                                           QWidget* parent)
-    : m_instance(instance)
-    , m_pending(Modpack::Format::CurseForge, std::move(manifest))
-    , m_mode(mode)
-    , m_trustedSource(trustedSource)
-    , m_parent(parent)
+FlamePackInstallTask::FlamePackInstallTask(MinecraftInstance* instance, QJsonObject manifest, QWidget* parent)
+    : m_instance(instance), m_manifest(std::move(manifest)), m_parent(parent)
 {}
 
 bool FlamePackInstallTask::abort()
@@ -119,24 +109,17 @@ bool FlamePackInstallTask::abort()
     return true;
 }
 
-bool FlamePackInstallTask::canPreserve() const
-{
-    return m_canPreserve && safeTree(m_instance->instanceRoot());
-}
-
-void FlamePackInstallTask::fail(const QString& reason, bool unsafe)
+void FlamePackInstallTask::fail(const QString& reason)
 {
     if (m_error.isEmpty())
         m_error = reason;
-    if (unsafe)
-        m_canPreserve = false;
 }
 
 bool FlamePackInstallTask::checkPath(const QString& path)
 {
     if (safePath(m_instance->instanceRoot(), path))
         return true;
-    fail(tr("Unsafe modpack path: %1").arg(path), true);
+    fail(tr("Unsafe modpack path: %1").arg(path));
     return false;
 }
 
@@ -162,45 +145,21 @@ bool FlamePackInstallTask::validFile(const Flame::File& file, const QString& pat
            hash.result().toHex().compare(file.version.hash.toLatin1(), Qt::CaseInsensitive) == 0;
 }
 
-QString FlamePackInstallTask::reusableFile(const Flame::File& file, bool disabled)
+bool FlamePackInstallTask::installCachedFile(const Flame::File& file, const MetaEntryPtr& entry, const QString& path, bool disabled)
 {
-    QStringList folders{ file.targetFolder };
-    if (file.resourceType != ModPlatform::ResourceType::Mod)
-        folders << "mods" << "resourcepacks" << "texturepacks" << "datapacks" << "shaderpacks" << "saves";
-    folders.removeDuplicates();
-    for (const auto& folder : folders) {
-        const auto enabledPath = FS::PathCombine(m_instance->gameRoot(), folder, file.version.fileName);
-        const auto path = enabledPath + (disabled ? ".disabled" : "");
-        const auto alternate = enabledPath + (disabled ? "" : ".disabled");
-        if (!checkPath(path) || !checkPath(alternate))
-            return {};
-        if (!validFile(file, path) && validFile(file, alternate)) {
-            if ((QFile::exists(path) && !QFile::remove(path)) || !FS::move(alternate, path)) {
-                fail(tr("Could not restore the selected state of %1.").arg(path));
-                return {};
-            }
-        }
-        if (validFile(file, path))
-            return path;
-    }
-    return {};
-}
-
-bool FlamePackInstallTask::saveProgress()
-{
-    if (m_mode != Modpack::InstallMode::Resume)
-        return true;
-    // Keep even an empty marker here; ModpackResumeTask owns its removal after
-    // the complete content task has succeeded.
-    const auto path = Modpack::pendingManifestPath(m_instance->instanceRoot(), Modpack::Format::CurseForge);
-    QString error;
-    if (!checkPath(path) || !m_pending.save(path, &error)) {
-        fail(tr("Could not save remaining modpack files: %1").arg(error), true);
-        if (m_filesJob)
-            m_filesJob->abort();
+    const auto algorithm = *hashAlgorithm(file);
+    const auto expected = QByteArray::fromHex(file.version.hash.toLatin1());
+    if (!Modpack::Cache::matchesHash(entry->getFullPath(), algorithm, expected)) {
+        Modpack::Cache::invalidate(entry);
+        fail(tr("Cached file is missing or failed hash validation: %1").arg(file.version.fileName));
         return false;
     }
-    return true;
+    QString error;
+    if (!checkPath(path) || !Modpack::Cache::copyVerified(entry->getFullPath(), path, algorithm, expected, &error)) {
+        fail(tr("Could not install cached resource: %1").arg(error));
+        return false;
+    }
+    return completeFile(file, path, disabled);
 }
 
 bool FlamePackInstallTask::installWorld(const QString& path, bool disabled, QString* installedPath)
@@ -226,7 +185,7 @@ bool FlamePackInstallTask::installWorld(const QString& path, bool disabled, QStr
             const auto name = entry->filename();
             if (QDir::isAbsolutePath(name) || name.contains('\\') || name.split('/').contains("..") ||
                 !checkPath(QDir(extracted).filePath(name))) {
-                fail(tr("Unsafe world archive path: %1").arg(name), true);
+                fail(tr("Unsafe world archive path: %1").arg(name));
                 return false;
             }
             if (!foundLevel && entry->isFile() && QFileInfo(name).fileName().compare("level.dat", Qt::CaseInsensitive) == 0) {
@@ -240,7 +199,7 @@ bool FlamePackInstallTask::installWorld(const QString& path, bool disabled, QStr
         return false;
     }
     if (!safeTree(extracted)) {
-        fail(tr("The installed resource contains an unsafe symbolic link."), true);
+        fail(tr("The installed resource contains an unsafe symbolic link."));
         return false;
     }
     World world{ QFileInfo(extracted) };
@@ -258,8 +217,8 @@ bool FlamePackInstallTask::installWorld(const QString& path, bool disabled, QStr
         fail(tr("Could not install world: %1").arg(path));
         return false;
     }
-    // Successful mkdir reserves a fresh directory. Only this call's directory
-    // may be rolled back if the move or the following marker save fails.
+    // Successful mkdir reserves a fresh directory. Roll back only this directory
+    // if moving the extracted world fails.
     *installedPath = target;
     if (!FS::move(extracted, target)) {
         fail(tr("Could not install world: %1").arg(path));
@@ -277,7 +236,7 @@ void FlamePackInstallTask::rollbackWorld(const QString& path)
     if (!checkPath(path) || !FS::deletePath(path)) {
         const auto reason = tr("Could not remove the uncommitted world directory: %1").arg(path);
         logWarning(reason);
-        fail(reason, true);
+        fail(reason);
     }
 }
 
@@ -353,18 +312,11 @@ bool FlamePackInstallTask::completeFile(const Flame::File& file, QString path, b
     if (type == ModPlatform::ResourceType::World && !installWorld(path, disabled, &installedWorld))
         return false;
     if (type == ModPlatform::ResourceType::World && !safeTree(m_instance->instanceRoot())) {
-        fail(tr("The installed resource contains an unsafe symbolic link."), true);
+        fail(tr("The installed resource contains an unsafe symbolic link."));
         rollbackWorld(installedWorld);
         return false;
     }
 
-    const auto previous = m_pending;
-    m_pending.markCompleted(key);
-    if (!saveProgress()) {
-        m_pending = previous;
-        rollbackWorld(installedWorld);
-        return false;
-    }
     m_completed.insert(key);
     if (type == ModPlatform::ResourceType::Mod)
         m_metadataFiles.append(file);
@@ -373,15 +325,13 @@ bool FlamePackInstallTask::completeFile(const Flame::File& file, QString path, b
 
 void FlamePackInstallTask::executeTask()
 {
-    const auto original = m_pending.remaining();
     Flame::Manifest manifest;
-    if (original.value("manifestType").toString() != "minecraftModpack" || original.value("manifestVersion").toInt() != 1 ||
-        !original.value("files").isArray() || !safeTree(m_instance->instanceRoot()) || !checkPath(m_instance->gameRoot()) ||
-        !checkPath(Modpack::pendingManifestPath(m_instance->instanceRoot(), Modpack::Format::CurseForge))) {
+    if (m_manifest.value("manifestType").toString() != "minecraftModpack" || m_manifest.value("manifestVersion").toInt() != 1 ||
+        !m_manifest.value("files").isArray() || !safeTree(m_instance->instanceRoot()) || !checkPath(m_instance->gameRoot())) {
         emitFailed(tr("Invalid or unsafe CurseForge manifest."));
         return;
     }
-    for (const auto& value : original.value("files").toArray()) {
+    for (const auto& value : m_manifest.value("files").toArray()) {
         const auto entry = value.toObject();
         Flame::File file;
         file.projectId = entry.value("projectID").toInt();
@@ -394,30 +344,7 @@ void FlamePackInstallTask::executeTask()
         }
         manifest.files.insert(file.fileId, file);
     }
-    if (m_mode == Modpack::InstallMode::Resume && !m_trustedSource) {
-        QStringList mods;
-        QDirIterator it(QDir(m_instance->gameRoot()).filePath("mods"), QDir::Files, QDirIterator::Subdirectories);
-        while (it.hasNext())
-            mods.append(QDir(m_instance->gameRoot()).relativeFilePath(it.next()));
-        if (!mods.isEmpty()) {
-            UntrustedModsDialog dialog(mods, m_parent);
-            m_dialog = &dialog;
-            const auto accepted = dialog.exec() == QDialog::Accepted;
-            m_dialog = nullptr;
-            if (!accepted) {
-                emitAborted();
-                return;
-            }
-        }
-    }
-    m_canPreserve = true;
-    emit readyForDownload();
-    if (m_mode == Modpack::InstallMode::Resume) {
-        // Start inside the progress dialog's event loop, not the other way around.
-        QTimer::singleShot(0, this, [this, manifest] { installFiles(manifest); });
-    } else {
-        installFiles(manifest);
-    }
+    installFiles(manifest);
 }
 
 void FlamePackInstallTask::installFiles(const Flame::Manifest& manifest)
@@ -433,7 +360,7 @@ void FlamePackInstallTask::installFiles(const Flame::Manifest& manifest)
         if (resolver->filesResolved())
             logWarning(tr("Could not load project metadata: %1").arg(resolver->failReason()));
         else
-            fail(tr("Unable to resolve mod IDs:\n%1").arg(resolver->failReason()), !resolver->downloadFailed());
+            fail(tr("Unable to resolve mod IDs:\n%1").arg(resolver->failReason()));
     }
     if (m_error.isEmpty() && resolver->filesResolved()) {
         QStringList optionalFiles;
@@ -442,12 +369,12 @@ void FlamePackInstallTask::installFiles(const Flame::Manifest& manifest)
             const auto name = file.version.fileName;
             if (name.isEmpty() || name == "." || name == ".." || name.contains('/') || name.contains('\\') ||
                 name != FS::RemoveInvalidPathChars(name) || !hashAlgorithm(file)) {
-                fail(tr("Invalid file information returned for CurseForge file %1.").arg(file.fileId), true);
+                fail(tr("Invalid file information returned for CurseForge file %1.").arg(file.fileId));
                 break;
             }
             const auto destination = FS::PathCombine(file.targetFolder, name);
             if (destinations.contains(destination) || destinations.contains(destination + ".disabled")) {
-                fail(tr("Multiple CurseForge files have the same destination: %1").arg(destination), true);
+                fail(tr("Multiple CurseForge files have the same destination: %1").arg(destination));
                 break;
             }
             destinations.insert(destination);
@@ -470,20 +397,25 @@ void FlamePackInstallTask::installFiles(const Flame::Manifest& manifest)
 
         QMap<QString, QList<BlockedMod>> blocked;
         QMap<QString, Flame::File> blockedFiles;
+        QMap<QString, MetaEntryPtr> cacheEntries;
         m_filesJob = makeShared<Flame::ContentDownloadJob>(tr("Mod Download Flame"), APPLICATION->network());
         for (const auto& file : results) {
             if (m_abort || !m_error.isEmpty())
                 break;
-            auto relative = FS::PathCombine(file.targetFolder, file.version.fileName);
+            const auto relative = FS::PathCombine(file.targetFolder, file.version.fileName);
             const auto disabled = !file.required && !selected.contains(relative);
             const auto path = QDir(m_instance->gameRoot()).filePath(relative) + (disabled ? ".disabled" : "");
-            // Reuse hash-verified downloads in either state, including resources
-            // already moved before a previous progress save failed.
-            const auto existing = reusableFile(file, disabled);
-            if (!m_error.isEmpty())
+            const auto algorithm = *hashAlgorithm(file);
+            const auto expected = QByteArray::fromHex(file.version.hash.toLatin1());
+            auto entry = Modpack::Cache::resolveEntry(*APPLICATION->metacache(), Modpack::Cache::Platform::CurseForge, algorithm, expected);
+            if (!entry) {
+                fail(tr("Invalid cache information for CurseForge file %1.").arg(file.fileId));
                 break;
-            if (!existing.isEmpty()) {
-                if (!completeFile(file, existing, disabled))
+            }
+            cacheEntries.insert(fileKey(file), entry);
+            // Check the cache before asking for a restricted file again.
+            if (!entry->isStale()) {
+                if (!installCachedFile(file, entry, path, disabled))
                     break;
                 continue;
             }
@@ -499,16 +431,14 @@ void FlamePackInstallTask::installFiles(const Flame::Manifest& manifest)
                 blockedFiles.insert(FS::PathCombine(mod.targetFolder, mod.name), file);
                 continue;
             }
-            if (!FS::ensureFilePathExists(path)) {
-                fail(tr("Could not create resource directory: %1").arg(path), true);
-                break;
-            }
-            auto download = Net::ApiDownload::makeFile(file.version.downloadUrl, path);
-            download->addValidator(new Net::ChecksumValidator(*hashAlgorithm(file), file.version.hash));
+            auto download = Net::ApiDownload::makeCached(file.version.downloadUrl, entry, Net::Download::Option::MakeEternal);
+            download->addValidator(new Net::ChecksumValidator(algorithm, expected));
             connect(
                 download.get(), &Task::succeeded, this,
-                [this, file, path, disabled] {
-                    if (m_canPreserve && !completeFile(file, path, disabled) && m_filesJob)
+                [this, file, entry, path, disabled] {
+                    if (m_abort || !m_error.isEmpty())
+                        return;
+                    if (!installCachedFile(file, entry, path, disabled) && m_filesJob)
                         m_filesJob->abort();
                 },
                 Qt::QueuedConnection);
@@ -526,22 +456,19 @@ void FlamePackInstallTask::installFiles(const Flame::Manifest& manifest)
                 if (m_abort || !m_error.isEmpty())
                     break;
                 const auto file = blockedFiles.value(FS::PathCombine(mod.targetFolder, mod.name));
+                const auto entry = cacheEntries.value(fileKey(file));
                 const auto path = FS::PathCombine(m_instance->gameRoot(), mod.targetFolder, mod.name) + (mod.disabled ? ".disabled" : "");
-                // Matching in the dialog is not sufficient: verify the source
-                // again and check the copy/move and installed file as well.
-                QFile source(mod.localPath);
-                QCryptographicHash hash(*hashAlgorithm(file));
-                if (!mod.matched || !source.open(QIODevice::ReadOnly) || !hash.addData(&source) ||
-                    hash.result().toHex().compare(file.version.hash.toLatin1(), Qt::CaseInsensitive) != 0) {
-                    fail(tr("A required manually downloaded file is missing: %1").arg(mod.name));
+                QString error;
+                if (!mod.matched ||
+                    !Modpack::Cache::storeFile(*APPLICATION->metacache(), entry, mod.localPath, *hashAlgorithm(file),
+                                               QByteArray::fromHex(file.version.hash.toLatin1()), &error) ||
+                    !installCachedFile(file, entry, path, mod.disabled)) {
+                    fail(tr("Could not install manually downloaded file: %1\n%2").arg(mod.name, error));
                     break;
                 }
-                source.close();
-                if (!checkPath(path) || !FS::ensureFilePathExists(path) ||
-                    !(mod.move ? FS::move(mod.localPath, path) : FS::copy(mod.localPath, path)()) ||
-                    !completeFile(file, path, mod.disabled)) {
-                    fail(tr("Could not install manually downloaded file: %1").arg(mod.name));
-                    break;
+                if (mod.move && QFileInfo(mod.localPath).absoluteFilePath() != QFileInfo(entry->getFullPath()).absoluteFilePath() &&
+                    !QFile::remove(mod.localPath)) {
+                    logWarning(tr("The file was installed, but its original copy could not be removed: %1").arg(mod.localPath));
                 }
             }
         }
@@ -553,9 +480,8 @@ void FlamePackInstallTask::installFiles(const Flame::Manifest& manifest)
         m_filesJob.reset();
     }
 
-    // Metadata is presentation, not installation state. Its failure must not
-    // put already validated downloads back into the remaining manifest.
-    if (!m_abort && m_canPreserve && !m_metadataFiles.isEmpty()) {
+    // Display metadata must not turn already installed content into a failed download.
+    if (!m_abort && m_error.isEmpty() && !m_metadataFiles.isEmpty()) {
         auto metadata = makeShared<ConcurrentTask>("CreateModMetadata", APPLICATION->settings()->get("NumberOfConcurrentTasks").toInt());
         const auto folder = FS::PathCombine(m_instance->gameRoot(), "mods", ".index");
         if (checkPath(folder) && FS::ensureFolderPathExists(folder)) {
@@ -565,11 +491,11 @@ void FlamePackInstallTask::installFiles(const Flame::Manifest& manifest)
             }
             if (!runTask(metadata))
                 logWarning(tr("Could not save mod metadata: %1").arg(metadata->failReason()));
-        } else if (m_canPreserve) {
+        } else {
             logWarning(tr("Could not create the mod metadata directory."));
         }
     }
-    if (m_error.isEmpty() && !m_abort && !m_pending.remaining().value("files").toArray().isEmpty())
+    if (m_error.isEmpty() && !m_abort && m_completed.size() != manifest.files.size())
         fail(tr("Some modpack files have not been installed."));
     if (!m_error.isEmpty())
         emitFailed(m_error);

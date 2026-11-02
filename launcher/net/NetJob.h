@@ -61,8 +61,7 @@ class NetJob : public ConcurrentTask {
     auto canAbort() const -> bool override;
     auto addNetAction(Net::NetRequest::Ptr action) -> bool;
 
-    auto getFailedActions() const -> QList<Net::NetRequest*>;
-    bool hasNetworkFailure() const;
+    auto getFailedActions() -> QList<Net::NetRequest*>;
     auto getFailedFiles() -> QList<QString>;
     void setAskRetry(bool askRetry);
 

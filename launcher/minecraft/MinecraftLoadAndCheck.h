@@ -28,7 +28,6 @@ class MinecraftLoadAndCheck : public Task {
     void executeTask() override;
 
     bool canAbort() const override;
-    bool downloadFailed() const { return m_downloadFailed; }
    public slots:
     bool abort() override;
 
@@ -36,5 +35,4 @@ class MinecraftLoadAndCheck : public Task {
     MinecraftInstance* m_inst = nullptr;
     Task::Ptr m_task;
     Net::Mode m_netmode;
-    bool m_downloadFailed = false;
 };

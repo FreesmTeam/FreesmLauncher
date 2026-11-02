@@ -531,9 +531,6 @@ set(API_SOURCES
     modplatform/EnsureMetadataTask.h
     modplatform/EnsureMetadataTask.cpp
 
-    modplatform/ModpackResumeTask.h
-    modplatform/ModpackResumeTask.cpp
-
     modplatform/CheckUpdateTask.h
 
     modplatform/flame/FlameAPI.h
@@ -544,8 +541,8 @@ set(API_SOURCES
     modplatform/helpers/HashUtils.cpp
     modplatform/helpers/OverrideUtils.h
     modplatform/helpers/OverrideUtils.cpp
-    modplatform/helpers/PendingModpackManifest.h
-    modplatform/helpers/PendingModpackManifest.cpp
+    modplatform/helpers/ModpackCache.h
+    modplatform/helpers/ModpackCache.cpp
 
     modplatform/helpers/ExportToModList.h
     modplatform/helpers/ExportToModList.cpp

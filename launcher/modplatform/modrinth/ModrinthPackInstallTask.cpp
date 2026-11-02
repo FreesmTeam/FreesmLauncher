@@ -60,40 +60,15 @@ class DrainingNetJob final : public NetJob {
    private:
     bool m_stopping = false;
 };
-
-bool matchesHash(const QString& path, const QByteArray& hash)
-{
-    QFile file(path);
-    QCryptographicHash hasher(QCryptographicHash::Sha512);
-    return file.open(QIODevice::ReadOnly) && hasher.addData(&file) && hasher.result() == hash;
-}
 }  // namespace
 
-ModrinthPackInstallTask::ModrinthPackInstallTask(MinecraftInstance* instance,
-                                                 QJsonObject manifest,
-                                                 Modpack::InstallMode mode,
-                                                 bool trustedSource,
-                                                 QWidget* parent)
-    : m_instance(instance)
-    , m_pending(Modpack::Format::Modrinth, std::move(manifest))
-    , m_mode(mode)
-    , m_trustedSource(trustedSource)
-    , m_parent(parent)
+ModrinthPackInstallTask::ModrinthPackInstallTask(MinecraftInstance* instance, QJsonObject manifest, bool trustedSource, QWidget* parent)
+    : m_instance(instance), m_manifest(std::move(manifest)), m_trustedSource(trustedSource), m_parent(parent)
 {
     setAbortable(true);
 }
 
 ModrinthPackInstallTask::~ModrinthPackInstallTask() = default;
-
-QJsonObject ModrinthPackInstallTask::remainingManifest() const
-{
-    return m_pending.remaining();
-}
-
-bool ModrinthPackInstallTask::canPreserve() const
-{
-    return !m_isUpdate && m_validated && isFinished();
-}
 
 bool ModrinthPackInstallTask::abort()
 {
@@ -118,7 +93,7 @@ bool ModrinthPackInstallTask::validatePath(const QString& path) const
         return false;
     }
     // Check every existing component, not just lexical containment: overrides or
-    // a user-edited resume directory may contain a symlink to outside the instance.
+    // a user-edited directory may contain a symlink to outside the instance.
     auto current = target;
     while (current.startsWith(root + '/') || current == root) {
         if (QFileInfo(current).isSymLink()) {
@@ -134,14 +109,12 @@ bool ModrinthPackInstallTask::validatePath(const QString& path) const
 
 bool ModrinthPackInstallTask::prepare()
 {
-    const auto manifest = m_pending.remaining();
+    const auto& manifest = m_manifest;
     QStringList optionalPaths;
     QStringList untrusted;
     QSet<QString> targets;
     try {
-        const auto pendingPath = Modpack::pendingManifestPath(m_instance->instanceRoot(), Modpack::Format::Modrinth);
-        if (!validatePath("mods/.index") || QFileInfo(pendingPath).isSymLink() ||
-            QFileInfo(QFileInfo(pendingPath).absolutePath()).isSymLink()) {
+        if (!validatePath("mods/.index")) {
             throw JSONValidationError(tr("The modpack directory contains an unsafe symbolic link."));
         }
         if (Json::requireInteger(manifest, "formatVersion") != 1 || Json::requireString(manifest, "game") != "minecraft") {
@@ -248,28 +221,21 @@ bool ModrinthPackInstallTask::prepare()
     if (m_aborted) {
         return false;
     }
-    m_validated = true;
-    return true;
-}
-
-bool ModrinthPackInstallTask::saveProgress()
-{
-    if (m_mode != Modpack::InstallMode::Resume) {
-        return true;
-    }
-    QString error;
-    if (!m_pending.save(Modpack::pendingManifestPath(m_instance->instanceRoot(), Modpack::Format::Modrinth), &error)) {
-        m_error = tr("Could not save remaining modpack files: %1").arg(error);
-        return false;
-    }
     return true;
 }
 
 bool ModrinthPackInstallTask::completeFile(File& file)
 {
-    // A successful request may not have committed a file (for example, HTTP 204).
-    // Leave it pending so another download URL can be tried.
-    if (!matchesHash(FS::PathCombine(m_instance->gameRoot(), file.path()), file.hash)) {
+    // A successful HTTP request (for example, 204) need not have committed a file.
+    const auto cachePath = file.cacheEntry->getFullPath();
+    if (!Modpack::Cache::matchesHash(cachePath, QCryptographicHash::Sha512, file.hash)) {
+        Modpack::Cache::invalidate(file.cacheEntry);
+        return false;
+    }
+    QString error;
+    const auto target = FS::PathCombine(m_instance->gameRoot(), file.path());
+    if (!validatePath(file.path()) || !Modpack::Cache::copyVerified(cachePath, target, QCryptographicHash::Sha512, file.hash, &error)) {
+        m_error = tr("Could not install cached file %1: %2").arg(file.path(), error);
         return false;
     }
 
@@ -282,8 +248,7 @@ bool ModrinthPackInstallTask::completeFile(File& file)
         }
     }
     file.completed = true;
-    m_pending.markCompleted(file.key);
-    return saveProgress();
+    return true;
 }
 
 void ModrinthPackInstallTask::executeTask()
@@ -292,13 +257,7 @@ void ModrinthPackInstallTask::executeTask()
         finish();
         return;
     }
-    emit readyForDownload();
-    if (m_mode == Modpack::InstallMode::Resume) {
-        // The queued progress request must run before the blocking content work.
-        QTimer::singleShot(0, this, &ModrinthPackInstallTask::installFiles);
-    } else {
-        installFiles();
-    }
+    installFiles();
 }
 
 void ModrinthPackInstallTask::installFiles()
@@ -310,36 +269,19 @@ void ModrinthPackInstallTask::installFiles()
     for (auto& file : m_files) {
         if (file.unsupported) {
             file.completed = true;
-            m_pending.markCompleted(file.key);
             continue;
         }
-        const auto path = FS::PathCombine(m_instance->gameRoot(), file.path());
-        // Updates retain their old difference-based download behavior.
-        if (!m_isUpdate) {
-            bool valid = matchesHash(path, file.hash);
-            if (file.optional && !valid) {
-                const auto otherPath = FS::PathCombine(m_instance->gameRoot(), file.alternatePath());
-                if (matchesHash(otherPath, file.hash)) {
-                    if ((QFile::exists(path) && !QFile::remove(path)) || !QFile::rename(otherPath, path)) {
-                        m_error = tr("Could not move optional file from %1 to %2.").arg(otherPath, path);
-                        finish();
-                        return;
-                    }
-                    valid = true;
-                }
-            }
-            if (valid && !completeFile(file)) {
-                if (m_error.isEmpty()) {
-                    m_error = tr("The file changed while installing: %1").arg(path);
-                }
-                finish();
-                return;
-            }
+        file.cacheEntry = Modpack::Cache::resolveEntry(*APPLICATION->metacache(), Modpack::Cache::Platform::Modrinth,
+                                                       QCryptographicHash::Sha512, file.hash);
+        if (!file.cacheEntry) {
+            m_error = tr("Invalid cache information for %1.").arg(file.key);
+            finish();
+            return;
         }
-    }
-    if (!saveProgress()) {
-        finish();
-        return;
+        if (!file.cacheEntry->isStale() && !completeFile(file) && !m_error.isEmpty()) {
+            finish();
+            return;
+        }
     }
     downloadNextRound();
 }
@@ -351,7 +293,7 @@ void ModrinthPackInstallTask::downloadNextRound()
         return;
     }
     auto job = makeShared<DrainingNetJob>(tr("Mod Download Modrinth"), APPLICATION->network());
-    const auto dependencies = m_pending.remaining()["dependencies"].toObject();
+    const auto dependencies = m_manifest["dependencies"].toObject();
     QString loader;
     if (dependencies.contains("fabric-loader"))
         loader = ModPlatform::getModLoaderAsString(ModPlatform::ModLoaderType::Fabric);
@@ -368,11 +310,10 @@ void ModrinthPackInstallTask::downloadNextRound()
         if (file.completed || file.downloads.isEmpty()) {
             continue;
         }
-        const auto path = FS::PathCombine(m_instance->gameRoot(), file.path());
-        auto request = Net::ApiDownload::makeFile(file.downloads.dequeue(), path, Net::Download::Option::NoOptions, meta);
+        auto request = Net::ApiDownload::makeCached(file.downloads.dequeue(), file.cacheEntry, Net::Download::Option::MakeEternal, meta);
         request->addValidator(new Net::ChecksumValidator(QCryptographicHash::Sha512, file.hash));
         connect(request.get(), &Task::succeeded, this, [this, &file] {
-            if (file.completed || !m_error.isEmpty()) {
+            if (m_aborted || file.completed || !m_error.isEmpty()) {
                 return;
             }
             if (!completeFile(file) && !m_error.isEmpty()) {
@@ -448,8 +389,6 @@ void ModrinthPackInstallTask::finish()
     } else if (m_aborted) {
         emitAborted();
     } else {
-        // ModpackResumeTask owns marker deletion after successful content work.
-        // Resume progress, including an empty files array, stays persisted until then.
         emitSucceeded();
     }
 }
