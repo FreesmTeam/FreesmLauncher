@@ -1,5 +1,8 @@
 project(tests)
 
+ecm_add_test(ModrinthDownload_test.cpp LINK_LIBRARIES Launcher_logic Qt${QT_VERSION_MAJOR}::Test
+    TEST_NAME ModrinthDownload)
+
 ecm_add_test(ModpackCache_test.cpp LINK_LIBRARIES Launcher_logic Qt${QT_VERSION_MAJOR}::Test
     TEST_NAME ModpackCache)
 

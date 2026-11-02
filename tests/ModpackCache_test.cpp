@@ -7,6 +7,7 @@
 
 #include "FileSystem.h"
 #include "modplatform/helpers/ModpackCache.h"
+#include "modplatform/modrinth/ModrinthDownload.h"
 #include "net/ApiDownload.h"
 
 class CountingNetworkManager final : public QNetworkAccessManager {
@@ -212,9 +213,9 @@ class ModpackCacheTest : public QObject {
         QString error;
         QVERIFY(Modpack::Cache::storeFile(cache, entry, source, QCryptographicHash::Sha512, expected, &error));
         CountingNetworkManager network;
-        Net::ModrinthDownloadMeta meta{ .reason = "modpack", .gameVersion = "1.20.1", .loader = "fabric" };
-        auto download =
-            Net::ApiDownload::makeCached(QUrl("http://127.0.0.1:1/unreachable"), entry, Net::Download::Option::MakeEternal, meta);
+        Modrinth::DownloadMeta meta{ .reason = "modpack", .gameVersion = "1.20.1", .loader = "fabric" };
+        auto download = Net::ApiDownload::makeCached(QUrl("http://127.0.0.1:1/unreachable"), entry, Net::Download::Option::MakeEternal);
+        download->addHeaderProxy(std::make_unique<Modrinth::DownloadHeaderProxy>(meta));
         download->setNetwork(&network);
         download->start();
         QVERIFY(download->wasSuccessful());
