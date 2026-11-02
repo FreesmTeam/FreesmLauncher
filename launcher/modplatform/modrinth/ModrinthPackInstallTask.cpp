@@ -15,6 +15,7 @@
 #include "minecraft/MinecraftInstance.h"
 #include "minecraft/mod/Mod.h"
 #include "modplatform/EnsureMetadataTask.h"
+#include "modplatform/modrinth/ModrinthDownload.h"
 #include "net/ApiDownload.h"
 #include "net/ChecksumValidator.h"
 #include "ui/dialogs/UntrustedModsDialog.h"
@@ -303,14 +304,15 @@ void ModrinthPackInstallTask::downloadNextRound()
         loader = ModPlatform::getModLoaderAsString(ModPlatform::ModLoaderType::Forge);
     if (dependencies.contains("neoforge"))
         loader = ModPlatform::getModLoaderAsString(ModPlatform::ModLoaderType::NeoForge);
-    Net::ModrinthDownloadMeta meta{ .reason = m_isUpdate ? "update" : "modpack",
-                                    .gameVersion = dependencies["minecraft"].toString(),
-                                    .loader = loader };
+    Modrinth::DownloadMeta meta{ .reason = m_isUpdate ? "update" : "modpack",
+                                 .gameVersion = dependencies["minecraft"].toString(),
+                                 .loader = loader };
     for (auto& file : m_files) {
         if (file.completed || file.downloads.isEmpty()) {
             continue;
         }
-        auto request = Net::ApiDownload::makeCached(file.downloads.dequeue(), file.cacheEntry, Net::Download::Option::MakeEternal, meta);
+        auto request = Net::ApiDownload::makeCached(file.downloads.dequeue(), file.cacheEntry, Net::Download::Option::MakeEternal);
+        request->addHeaderProxy(std::make_unique<Modrinth::DownloadHeaderProxy>(meta));
         request->addValidator(new Net::ChecksumValidator(QCryptographicHash::Sha512, file.hash));
         connect(request.get(), &Task::succeeded, this, [this, &file] {
             if (m_aborted || file.completed || !m_error.isEmpty()) {

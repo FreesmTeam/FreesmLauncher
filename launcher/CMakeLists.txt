@@ -589,6 +589,7 @@ set(FLAME_SOURCES
 )
 
 set(MODRINTH_SOURCES
+    modplatform/modrinth/ModrinthDownload.h
     modplatform/modrinth/ModrinthPackIndex.cpp
     modplatform/modrinth/ModrinthPackIndex.h
     modplatform/modrinth/ModrinthCheckUpdate.cpp

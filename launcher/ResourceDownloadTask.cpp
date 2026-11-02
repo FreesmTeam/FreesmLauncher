@@ -31,11 +31,12 @@
 #include "minecraft/mod/ShaderPackFolderModel.h"
 #include "modplatform/ModIndex.h"
 #include "modplatform/helpers/HashUtils.h"
+#include "modplatform/modrinth/ModrinthDownload.h"
 #include "net/ApiDownload.h"
 #include "net/ChecksumValidator.h"
 
 namespace {
-Net::ModrinthDownloadMeta createModrinthMeta(BaseInstance* instance, QString reason)
+Modrinth::DownloadMeta createModrinthMeta(BaseInstance* instance, QString reason)
 {
     auto* mcInstance = dynamic_cast<MinecraftInstance*>(instance);
     if (!mcInstance) {
@@ -74,9 +75,9 @@ ResourceDownloadTask::ResourceDownloadTask(ModPlatform::IndexedPack::Ptr pack,
     m_filesNetJob.reset(new NetJob(tr("Resource download"), APPLICATION->network()));
     m_filesNetJob->setStatus(tr("Downloading resource:\n%1").arg(m_pack_version.downloadUrl));
 
-    auto action = Net::ApiDownload::makeFile(m_pack_version.downloadUrl, m_pack_model->dir().absoluteFilePath(getFilename()),
-                                             Net::Download::Option::NoOptions,
-                                             createModrinthMeta(m_pack_model->instance(), std::move(downloadReason)));
+    auto action = Net::ApiDownload::makeFile(m_pack_version.downloadUrl, m_pack_model->dir().absoluteFilePath(getFilename()));
+    action->addHeaderProxy(
+        std::make_unique<Modrinth::DownloadHeaderProxy>(createModrinthMeta(m_pack_model->instance(), std::move(downloadReason))));
     if (!m_pack_version.hash_type.isEmpty() && !m_pack_version.hash.isEmpty()) {
         switch (Hashing::algorithmFromString(m_pack_version.hash_type)) {
             case Hashing::Algorithm::Md4:
