@@ -65,9 +65,7 @@ ElyStep::ElyStep(AccountData* data, bool silent) : AuthStep(data), m_silent(sile
     m_oauth2.setScope("account_info offline_access minecraft_server_session");
     m_oauth2.setClientIdentifier(m_clientId);
     m_oauth2.setNetworkAccessManager(APPLICATION->network());
-#if QT_VERSION >= QT_VERSION_CHECK(6, 8, 0)
-    m_oauth2.setPkceMethod(QOAuth2AuthorizationCodeFlow::PkceMethod::None);
-#endif
+    m_oauth2.setPkceMethod(QOAuth2AuthorizationCodeFlow::PkceMethod::S256);
 
     connect(&m_oauth2, &QOAuth2AuthorizationCodeFlow::granted, this, [this] {
         m_data->clientID = m_oauth2.clientIdentifier();
@@ -130,10 +128,6 @@ void ElyStep::perform()
 #if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)  // QMultiMap param changed in 6.0
         m_oauth2.setModifyParametersFunction([](QAbstractOAuth::Stage stage, QMultiMap<QString, QVariant>* map) {
             map->insert("prompt", "select_account");
-            if (const auto it = map->find("redirect_uri"); it != map->end()) {
-                const auto host = it->toString().replace("localhost", "127.0.0.1");
-                *it = host;
-            }
         });
 #else
         m_oauth2.setModifyParametersFunction(
