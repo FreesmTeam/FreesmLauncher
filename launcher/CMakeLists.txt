@@ -542,6 +542,8 @@ set(API_SOURCES
     modplatform/helpers/HashUtils.cpp
     modplatform/helpers/OverrideUtils.h
     modplatform/helpers/OverrideUtils.cpp
+    modplatform/helpers/ModpackCache.h
+    modplatform/helpers/ModpackCache.cpp
 
     modplatform/helpers/ExportToModList.h
     modplatform/helpers/ExportToModList.cpp
@@ -580,17 +582,23 @@ set(FLAME_SOURCES
     modplatform/flame/FlameCheckUpdate.h
     modplatform/flame/FlameInstanceCreationTask.h
     modplatform/flame/FlameInstanceCreationTask.cpp
+    modplatform/flame/FlamePackInstallTask.h
+    modplatform/flame/FlamePackInstallTask.cpp
+    modplatform/flame/ContentDownloadJob.h
     modplatform/flame/FlamePackExportTask.h
     modplatform/flame/FlamePackExportTask.cpp
 )
 
 set(MODRINTH_SOURCES
+    modplatform/modrinth/ModrinthDownload.h
     modplatform/modrinth/ModrinthPackIndex.cpp
     modplatform/modrinth/ModrinthPackIndex.h
     modplatform/modrinth/ModrinthCheckUpdate.cpp
     modplatform/modrinth/ModrinthCheckUpdate.h
     modplatform/modrinth/ModrinthInstanceCreationTask.cpp
     modplatform/modrinth/ModrinthInstanceCreationTask.h
+    modplatform/modrinth/ModrinthPackInstallTask.h
+    modplatform/modrinth/ModrinthPackInstallTask.cpp
     modplatform/modrinth/ModrinthPackExportTask.cpp
     modplatform/modrinth/ModrinthPackExportTask.h
 )

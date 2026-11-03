@@ -31,6 +31,7 @@ class FileResolvingTask : public Task {
     bool abort() override;
 
     const Flame::Manifest& getResults() const { return m_manifest; }
+    bool filesResolved() const { return m_filesResolved; }
 
    protected:
     virtual void executeTask() override;
@@ -44,5 +45,6 @@ class FileResolvingTask : public Task {
    private: /* data */
     Flame::Manifest m_manifest;
     Task::Ptr m_task;
+    bool m_filesResolved = false;
 };
 }  // namespace Flame

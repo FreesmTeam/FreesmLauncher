@@ -23,38 +23,11 @@
 #include "BuildConfig.h"
 #include "net/HeaderProxy.h"
 
-#include <QJsonDocument>
-#include <QJsonObject>
-
 namespace Net {
-
-struct ModrinthDownloadMeta {
-    QString reason;
-    QString gameVersion;
-    QString loader;
-
-    bool isEmpty() const { return reason.isEmpty(); }
-
-    QByteArray toJson() const
-    {
-        QJsonObject obj;
-        if (!reason.isEmpty()) {
-            obj["reason"] = reason;
-        }
-        if (!gameVersion.isEmpty()) {
-            obj["game_version"] = gameVersion;
-        }
-        if (!loader.isEmpty()) {
-            obj["loader"] = loader;
-        }
-        return QJsonDocument(obj).toJson(QJsonDocument::Compact);
-    }
-};
 
 class ApiHeaderProxy : public HeaderProxy {
    public:
     ApiHeaderProxy() = default;
-    explicit ApiHeaderProxy(ModrinthDownloadMeta meta) : m_meta(std::move(meta)) {}
     ~ApiHeaderProxy() override = default;
 
    public:
@@ -73,14 +46,8 @@ class ApiHeaderProxy : public HeaderProxy {
             }
         }
 
-        if (host == BuildConfig.MODRINTH_DOWNLOAD_HOST && !m_meta.isEmpty()) {
-            hdrs.append({ .headerName = "modrinth-download-meta", .headerValue = m_meta.toJson() });
-        }
         return hdrs;
     };
-
-   private:
-    ModrinthDownloadMeta m_meta;
 };
 
 }  // namespace Net
