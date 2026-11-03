@@ -92,7 +92,7 @@ void ElyDeviceCodeStep::authenticateUser()
     m_request = std::move(request);
     m_request->addHeaderProxy(std::make_unique<Net::RawHeaderProxy>(headers));
 
-    connect(m_task.get(), &Task::finished, this, [this, response] { authenticationFinished(response); });
+    connect(m_request.get(), &Task::finished, this, [this, response] { authenticationFinished(response); });
 
     m_request->setNetwork(APPLICATION->network());
     m_request->start();
