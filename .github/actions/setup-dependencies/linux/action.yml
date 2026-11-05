@@ -13,7 +13,10 @@ runs:
           dpkg-dev \
           ninja-build extra-cmake-modules pkg-config scdoc \
           cmark gamemode-dev libarchive-dev libcmark-dev libqrencode-dev zlib1g-dev \
-          libxcb-cursor-dev libtomlplusplus-dev
+          libxcb-cursor-dev libtomlplusplus-dev \
+          patchelf xvfb strace libtiff-dev \
+          libgl1 libopengl0 libxkbcommon-x11-0 libxcb-icccm4 libxcb-image0 \
+          libxcb-keysyms1 libxcb-randr0 libxcb-render-util0 libxcb-xinerama0 libxcb-xkb1
 
     - name: Setup AppImage tooling
       shell: bash
@@ -36,9 +39,12 @@ runs:
         esac
 
         gh release download \
-          --repo VHSgunzo/sharun \
-          --pattern "sharun-$APPIMAGE_ARCH-aio" \
+          --repo pkgforge-dev/Anylinux-sharun \
+          --pattern "sharun-$APPIMAGE_ARCH" \
           --output ~/bin/sharun
+
+        # quick-sharun wrapper used to deploy dependencies with the supreme sharun fork
+        wget -O ~/bin/quick-sharun https://raw.githubusercontent.com/pkgforge-dev/Anylinux-AppImages/main/useful-tools/quick-sharun.sh
 
         # FIXME!: revert this to probonopd/go-appimage once https://github.com/probonopd/go-appimage/pull/377 is merged!
         gh release download continuous \
