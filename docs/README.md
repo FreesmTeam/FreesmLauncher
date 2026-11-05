@@ -33,14 +33,14 @@ Based on Prism Launcher **11.1.1**
 
   <div align="center">
     <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;">
-      <img src="screenshots/freesmlauncher_home_screenshot.png" alt="Dark theme dashboard" width="512" />
-      <img src="screenshots/freesmlauncher_home_screenshot_opacity.png" alt="Dashboard with opacity" width="512" />
-      <img src="screenshots/freesmlauncher_home_mita.gif" alt="Mita catpack" width="512" />
-      <img src="screenshots/freesmlauncher_home_maxwell.gif" alt="Maxwell catpack" width="512" />
-      <img src="screenshots/freesmlauncher_settings_accounts_screenshot.png" alt="Accounts settings" width="512" />
-      <img src="screenshots/freesmlauncher_instance_add_screenshot.png" alt="Add instance" width="512" />
-      <img src="screenshots/freesmlauncher_instance_settings_screenshot.png" alt="Instance settings" width="512" />
-      <img src="screenshots/freesmlauncher_settings_theme_screenshot.png" alt="Theme settings" width="512" />
+        <img src="assets/screenshots/home/base.webp" alt="Dark theme dashboard" width="512" />
+        <img src="assets/screenshots/home/opacity.webp" alt="Dashboard with opacity" width="512" />
+        <img src="assets/screenshots/home/mita.webp" alt="Mita catpack" width="512" />
+        <img src="assets/screenshots/home/maxwell.webp" alt="Maxwell catpack" width="512" />
+        <img src="assets/screenshots/settings/accounts.webp" alt="Accounts settings" width="512" />
+        <img src="assets/screenshots/instance/add.webp" alt="Add instance" width="512" />
+        <img src="assets/screenshots/instance/settings.webp" alt="Instance settings" width="512" />
+        <img src="assets/screenshots/settings/theme.webp" alt="Theme settings" width="512" />
     </div>
   </div>
 
@@ -61,16 +61,15 @@ Based on Prism Launcher **11.1.1**
 
 ## Comparison
 
-
-| Feature                                  | Freesm  Launcher | Shattered  Prism | HMCL | Fjord   | PollyMC       | PineconeMC      | UltimMC | Prism-Cracked | Prism Launcher |
-|------------------------------------------|------------------|------------------|------|---------|---------------|---------------|---------|---------------|----------------|
-| Offline Mode without a Microsoft account | ✅                | ✅                | ✅    | ❌       | ✅             | ✅             | ✅       | ✅             | ❌              |
-| FTB packs                                | ✅                | ✅                | ❌    | ✅       | ✅             | ✅             | ❌       | ✅             | ✅              |
-| Ely.by support                           | ✅                | 🟨¹              | 🟨¹  | 🟨¹     | 🟨¹           | ✅             | 🟨¹     | ❌             | ❌              |
-| Authlib-injector support                 | ✅                | ✅                | ✅    | ✅       | ✅             | ✅            | ❌²      | ❌²            | ❌²             |
-| Animated Cat Packs & Cropping            | ✅                | ❌                | ❌    | ❌       | ❌             | ❌             | ❌       | ❌             | ❌              |
-| Screenshots saving to the buffer history | ✅                | ❌                | ❌    | ❌       | ❌             | ❌             | ❌       | ❌             | ❌              |
-| Fork                                     | PrismLauncher    | FjordLauncher    | ❌    | PollyMC | PrismLauncher | PrismLauncher | MultiMC | PrismLauncher | PolyMC         |
+| Feature                                  | Freesm Launcher | Shattered Prism | HMCL | Fjord   | PollyMC       | PineconeMC    | UltimMC | Prism-Cracked | Prism Launcher |
+| ---------------------------------------- | --------------- | --------------- | ---- | ------- | ------------- | ------------- | ------- | ------------- | -------------- |
+| Offline Mode without a Microsoft account | ✅              | ✅              | ✅   | ❌      | ✅            | ✅            | ✅      | ✅            | ❌             |
+| FTB packs                                | ✅              | ✅              | ❌   | ✅      | ✅            | ✅            | ❌      | ✅            | ✅             |
+| Ely.by support                           | ✅              | 🟨¹             | 🟨¹  | 🟨¹     | 🟨¹           | ✅            | 🟨¹     | ❌            | ❌             |
+| Authlib-injector support                 | ✅              | ✅              | ✅   | ✅      | ✅            | ✅            | ❌²     | ❌²           | ❌²            |
+| Animated Cat Packs & Cropping            | ✅              | ❌              | ❌   | ❌      | ❌            | ❌            | ❌      | ❌            | ❌             |
+| Screenshots saving to the buffer history | ✅              | ❌              | ❌   | ❌      | ❌            | ❌            | ❌      | ❌            | ❌             |
+| Fork                                     | PrismLauncher   | FjordLauncher   | ❌   | PollyMC | PrismLauncher | PrismLauncher | MultiMC | PrismLauncher | PolyMC         |
 
 ¹ doesn't use official Ely.by authlib patches
 
@@ -90,8 +89,8 @@ Please understand that these builds are not intended for most users. There may b
 
 There are development builds available through:
 
-* [GitHub Actions](https://github.com/FreesmTeam/FreesmLauncher/actions) (includes builds from pull requests opened by contributors).
-* [nightly.link](https://nightly.link/FreesmTeam/FreesmLauncher/workflows/trigger_builds/develop) (this will always point only to the latest version of the `develop` branch).
+- [GitHub Actions](https://github.com/FreesmTeam/FreesmLauncher/actions) (includes builds from pull requests opened by contributors).
+- [nightly.link](https://nightly.link/FreesmTeam/FreesmLauncher/workflows/trigger_builds/develop) (this will always point only to the latest version of the `develop` branch).
 
 These builds contain debug information in the binaries, so their file sizes are relatively larger. Prebuilt Development builds are provided for **Linux, Windows, and macOS**.
 
