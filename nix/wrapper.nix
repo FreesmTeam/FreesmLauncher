@@ -33,9 +33,11 @@
   jdks ? jvmPack.openjdk,
 }:
 assert lib.assertMsg (
-  if
+  if jdks == []
+  then builtins.trace "jdks is empty, no bundled Java will be provided!" true
+  else if
     (
-      jdks != [] && jdks != jvmPack.openjdk && jdks != jvmPack.temurin && jdks != jvmPack.allPack
+      jdks != jvmPack.openjdk && jdks != jvmPack.temurin && jdks != jvmPack.allPack
     )
   then builtins.trace "used jvmPack does not provide jdk8!" true
   else true
