@@ -51,6 +51,7 @@
 #include "minecraft/OneSixVersionFormat.h"
 #include "minecraft/PackProfile.h"
 #include "modplatform/atlauncher/ATLPackManifest.h"
+#include "modplatform/helpers/ModpackCache.h"
 #include "net/ChecksumValidator.h"
 #include "settings/INISettingsObject.h"
 
@@ -658,10 +659,15 @@ void PackInstallTask::installConfigs()
 
     auto path = QString("Configs/%1/%2.zip").arg(m_pack_safe_name).arg(m_version_name);
     auto url = QString(BuildConfig.ATL_DOWNLOAD_SERVER_URL + "packs/%1/versions/%2/Configs.zip").arg(m_pack_safe_name).arg(m_version_name);
-    auto entry = APPLICATION->metacache()->resolveEntry("ATLauncherPacks", path);
-    entry->setStale(true);
+    auto entry = Modpack::Cache::resolveEntry(*APPLICATION->metacache(), Modpack::Cache::Platform::ATLauncher, QCryptographicHash::Sha1,
+                                              QByteArray::fromHex(m_version.configs.sha1.toLatin1()));
+    const auto options = entry ? Net::Download::Option::MakeEternal : Net::Download::Option::NoOptions;
+    if (!entry) {
+        entry = APPLICATION->metacache()->resolveEntry("ATLauncherPacks", path);
+        entry->setStale(true);
+    }
 
-    auto dl = Net::ApiDownload::makeCached(url, entry);
+    auto dl = Net::ApiDownload::makeCached(url, entry, options);
     if (!m_version.configs.sha1.isEmpty()) {
         dl->addValidator(new Net::ChecksumValidator(QCryptographicHash::Sha1, m_version.configs.sha1));
     }
@@ -764,23 +770,26 @@ void PackInstallTask::downloadMods()
 
         QFileInfo fileName(mod.file);
         auto cacheName = fileName.completeBaseName() + "-" + mod.md5 + "." + fileName.suffix();
+        auto entry = Modpack::Cache::resolveEntry(*APPLICATION->metacache(), Modpack::Cache::Platform::ATLauncher, QCryptographicHash::Md5,
+                                                  QByteArray::fromHex(mod.md5.toLatin1()));
+        const auto options = entry ? Net::Download::Option::MakeEternal : Net::Download::Option::NoOptions;
+        if (!entry) {
+            entry = APPLICATION->metacache()->resolveEntry("ATLauncherPacks", cacheName);
+            entry->setStale(true);
+        }
 
         if (mod.type == ModType::Extract || mod.type == ModType::TexturePackExtract || mod.type == ModType::ResourcePackExtract) {
-            auto entry = APPLICATION->metacache()->resolveEntry("ATLauncherPacks", cacheName);
-            entry->setStale(true);
             modsToExtract.insert(entry->getFullPath(), mod);
 
-            auto dl = Net::ApiDownload::makeCached(url, entry);
+            auto dl = Net::ApiDownload::makeCached(url, entry, options);
             if (!mod.md5.isEmpty()) {
                 dl->addValidator(new Net::ChecksumValidator(QCryptographicHash::Md5, mod.md5));
             }
             jobPtr->addNetAction(dl);
         } else if (mod.type == ModType::Decomp) {
-            auto entry = APPLICATION->metacache()->resolveEntry("ATLauncherPacks", cacheName);
-            entry->setStale(true);
             modsToDecomp.insert(entry->getFullPath(), mod);
 
-            auto dl = Net::ApiDownload::makeCached(url, entry);
+            auto dl = Net::ApiDownload::makeCached(url, entry, options);
             if (!mod.md5.isEmpty()) {
                 dl->addValidator(new Net::ChecksumValidator(QCryptographicHash::Md5, mod.md5));
             }
@@ -791,10 +800,7 @@ void PackInstallTask::downloadMods()
                 continue;
             }
 
-            auto entry = APPLICATION->metacache()->resolveEntry("ATLauncherPacks", cacheName);
-            entry->setStale(true);
-
-            auto dl = Net::ApiDownload::makeCached(url, entry);
+            auto dl = Net::ApiDownload::makeCached(url, entry, options);
             if (!mod.md5.isEmpty()) {
                 dl->addValidator(new Net::ChecksumValidator(QCryptographicHash::Md5, mod.md5));
             }
@@ -820,7 +826,7 @@ void PackInstallTask::downloadMods()
 
             // Download after Forge handling, to avoid downloading Forge twice.
             qDebug() << "Will download" << url << "to" << path;
-            modsToCopy[entry->getFullPath()] = path;
+            modsToCopy.insert(entry->getFullPath(), path);
         }
     }
     if (!blockedMods.isEmpty()) {
@@ -887,7 +893,7 @@ void PackInstallTask::downloadMods()
                         jarmods.push_back(path);
                     }
 
-                    modsToCopy[blocked.localPath] = path;
+                    modsToCopy.insert(blocked.localPath, path);
                 }
             }
         } else {
@@ -937,9 +943,9 @@ void PackInstallTask::onModsExtracted()
     }
 }
 
-bool PackInstallTask::extractMods(const QMap<QString, VersionMod>& toExtract,
-                                  const QMap<QString, VersionMod>& toDecomp,
-                                  const QMap<QString, QString>& toCopy)
+bool PackInstallTask::extractMods(const QMultiMap<QString, VersionMod>& toExtract,
+                                  const QMultiMap<QString, VersionMod>& toDecomp,
+                                  const QMultiMap<QString, QString>& toCopy)
 {
     qDebug() << "PackInstallTask::extractMods:" << QThread::currentThreadId();
 

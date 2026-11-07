@@ -44,7 +44,26 @@ MetaEntryPtr resolveEntry(HttpMetaCache& cache, Platform platform, QCryptographi
     }
     if (expected.isEmpty() || expected.size() != QCryptographicHash::hashLength(algorithm))
         return {};
-    const auto platformName = platform == Platform::Modrinth ? QStringLiteral("modrinth") : QStringLiteral("curseforge");
+    QString platformName;
+    switch (platform) {
+        case Platform::Modrinth:
+            platformName = QStringLiteral("modrinth");
+            break;
+        case Platform::CurseForge:
+            platformName = QStringLiteral("curseforge");
+            break;
+        case Platform::ATLauncher:
+            platformName = QStringLiteral("atlauncher");
+            break;
+        case Platform::FTB:
+            platformName = QStringLiteral("ftb");
+            break;
+        case Platform::Technic:
+            platformName = QStringLiteral("technic");
+            break;
+        default:
+            return {};
+    }
     const auto key = QStringLiteral("modpack-files/%1/%2/%3").arg(platformName, algorithmName, QString::fromLatin1(expected.toHex()));
     auto entry = cache.resolveEntry(QStringLiteral("general"), key);
     if (!entry->isStale() && !matchesHash(entry->getFullPath(), algorithm, expected))

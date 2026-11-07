@@ -39,6 +39,7 @@
 #include <net/NetJob.h>
 #include <tasks/Task.h>
 
+#include <QStringList>
 #include <QUrl>
 
 namespace Technic {
@@ -78,7 +79,7 @@ class SolderPackInstallTask : public InstanceTask {
     QString m_version;
     QString m_minecraftVersion;
     QTemporaryDir m_outputDir;
-    int m_modCount;
+    QStringList m_modPaths;
     QFuture<bool> m_extractFuture;
     QFutureWatcher<bool> m_extractFutureWatcher;
 };

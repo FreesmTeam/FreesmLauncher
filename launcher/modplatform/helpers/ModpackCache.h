@@ -5,7 +5,7 @@
 #include "net/HttpMetaCache.h"
 
 namespace Modpack::Cache {
-enum class Platform { Modrinth, CurseForge };
+enum class Platform { Modrinth, CurseForge, ATLauncher, FTB, Technic };
 
 bool matchesHash(const QString& path, QCryptographicHash::Algorithm algorithm, const QByteArray& expected);
 void invalidate(const MetaEntryPtr& entry);
