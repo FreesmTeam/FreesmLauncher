@@ -40,8 +40,10 @@
 #include <MMCZip.h>
 #include <QtConcurrentRun>
 
+#include "Application.h"
 #include "SolderPackManifest.h"
 #include "TechnicPackProcessor.h"
+#include "modplatform/helpers/ModpackCache.h"
 #include "net/ApiDownload.h"
 #include "net/ChecksumValidator.h"
 
@@ -109,11 +111,16 @@ void Technic::SolderPackInstallTask::fileListSucceeded(QByteArray* response)
 
     m_filesNetJob.reset(new NetJob(tr("Downloading modpack"), m_network));
 
+    m_modPaths.clear();
     int i = 0;
     for (const auto& mod : build.mods) {
         auto path = FS::PathCombine(m_outputDir.path(), QString("%1").arg(i));
 
-        auto dl = Net::ApiDownload::makeFile(mod.url, path);
+        auto entry = Modpack::Cache::resolveEntry(*APPLICATION->metacache(), Modpack::Cache::Platform::Technic, QCryptographicHash::Md5,
+                                                  QByteArray::fromHex(mod.md5.toLatin1()));
+        auto dl = entry ? Net::ApiDownload::makeCached(mod.url, entry, Net::Download::Option::MakeEternal)
+                        : Net::ApiDownload::makeFile(mod.url, path);
+        m_modPaths.append(entry ? entry->getFullPath() : path);
         if (!mod.md5.isEmpty()) {
             dl->addValidator(new Net::ChecksumValidator(QCryptographicHash::Md5, mod.md5));
         }
@@ -121,8 +128,6 @@ void Technic::SolderPackInstallTask::fileListSucceeded(QByteArray* response)
 
         i++;
     }
-
-    m_modCount = build.mods.size();
 
     connect(m_filesNetJob.get(), &NetJob::succeeded, this, &Technic::SolderPackInstallTask::downloadSucceeded);
     connect(m_filesNetJob.get(), &NetJob::progress, this, &Technic::SolderPackInstallTask::downloadProgressChanged);
@@ -139,16 +144,13 @@ void Technic::SolderPackInstallTask::downloadSucceeded()
     setStatus(tr("Extracting modpack"));
     m_filesNetJob.reset();
     m_extractFuture = QtConcurrent::run([this]() {
-        int i = 0;
         QString extractDir = FS::PathCombine(m_stagingPath, "minecraft");
         FS::ensureFolderPathExists(extractDir);
 
-        while (m_modCount > i) {
-            auto path = FS::PathCombine(m_outputDir.path(), QString("%1").arg(i));
+        for (const auto& path : m_modPaths) {
             if (!MMCZip::extractDir(path, extractDir)) {
                 return false;
             }
-            i++;
         }
         return true;
     });

@@ -1,13 +1,7 @@
 project(tests)
 
-ecm_add_test(ModrinthDownload_test.cpp LINK_LIBRARIES Launcher_logic Qt${QT_VERSION_MAJOR}::Test
-    TEST_NAME ModrinthDownload)
-
-ecm_add_test(ModpackCache_test.cpp LINK_LIBRARIES Launcher_logic Qt${QT_VERSION_MAJOR}::Test
-    TEST_NAME ModpackCache)
-
-ecm_add_test(ModpackDownload_test.cpp LINK_LIBRARIES Launcher_logic Qt${QT_VERSION_MAJOR}::Test
-    TEST_NAME ModpackDownload)
+ecm_add_test(ModpackPlatformCache_test.cpp LINK_LIBRARIES Launcher_logic Qt${QT_VERSION_MAJOR}::Test
+    TEST_NAME ModpackPlatformCache)
 
 ecm_add_test(FileSystem_test.cpp LINK_LIBRARIES Launcher_logic Qt${QT_VERSION_MAJOR}::Test
     TEST_NAME FileSystem)

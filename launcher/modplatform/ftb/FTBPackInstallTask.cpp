@@ -44,6 +44,7 @@
 #include "minecraft/PackProfile.h"
 #include "modplatform/flame/FileResolvingTask.h"
 #include "modplatform/flame/PackManifest.h"
+#include "modplatform/helpers/ModpackCache.h"
 #include "net/ChecksumValidator.h"
 #include "settings/INISettingsObject.h"
 
@@ -307,7 +308,10 @@ void PackInstallTask::downloadPack()
 
         QFileInfo file_info(file.name);
 
-        auto dl = Net::Download::makeFile(file.url, path);
+        auto entry = ::Modpack::Cache::resolveEntry(*APPLICATION->metacache(), ::Modpack::Cache::Platform::FTB, QCryptographicHash::Sha1,
+                                                    QByteArray::fromHex(file.sha1.toLatin1()));
+        auto dl = entry ? Net::Download::makeCached(file.url, entry, Net::Download::Option::MakeEternal)
+                        : Net::Download::makeFile(file.url, path);
         if (!file.sha1.isEmpty()) {
             dl->addValidator(new Net::ChecksumValidator(QCryptographicHash::Sha1, file.sha1));
         }
@@ -330,6 +334,24 @@ void PackInstallTask::downloadPack()
 void PackInstallTask::onModDownloadSucceeded()
 {
     m_net_job.reset();
+    setAbortable(false);
+    for (const auto& file : m_version.files) {
+        if (file.serverOnly || file.url.isEmpty())
+            continue;
+
+        const auto expected = QByteArray::fromHex(file.sha1.toLatin1());
+        auto entry =
+            ::Modpack::Cache::resolveEntry(*APPLICATION->metacache(), ::Modpack::Cache::Platform::FTB, QCryptographicHash::Sha1, expected);
+        if (!entry)
+            continue;
+
+        const auto path = FS::PathCombine(m_stagingPath, ".minecraft", file.path, file.name);
+        QString error;
+        if (!::Modpack::Cache::copyVerified(entry->getFullPath(), path, QCryptographicHash::Sha1, expected, &error)) {
+            emitFailed(error);
+            return;
+        }
+    }
     if (!m_blockedMods.isEmpty()) {
         copyBlockedMods();
     }

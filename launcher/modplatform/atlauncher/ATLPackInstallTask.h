@@ -113,9 +113,9 @@ class PackInstallTask : public InstanceTask {
     void installConfigs();
     void extractConfigs();
     void downloadMods();
-    bool extractMods(const QMap<QString, VersionMod>& toExtract,
-                     const QMap<QString, VersionMod>& toDecomp,
-                     const QMap<QString, QString>& toCopy);
+    bool extractMods(const QMultiMap<QString, VersionMod>& toExtract,
+                     const QMultiMap<QString, VersionMod>& toDecomp,
+                     const QMultiMap<QString, QString>& toCopy);
     void install();
 
    private:
@@ -131,9 +131,9 @@ class PackInstallTask : public InstanceTask {
     QString m_version_name;
     PackVersion m_version;
 
-    QMap<QString, VersionMod> modsToExtract;
-    QMap<QString, VersionMod> modsToDecomp;
-    QMap<QString, QString> modsToCopy;
+    QMultiMap<QString, VersionMod> modsToExtract;
+    QMultiMap<QString, VersionMod> modsToDecomp;
+    QMultiMap<QString, QString> modsToCopy;
 
     QString archivePath;
     QStringList jarmods;
