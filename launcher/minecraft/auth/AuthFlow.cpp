@@ -5,23 +5,24 @@
 #include <QNetworkRequest>
 #include <utility>
 
+#include "Application.h"
 #include "minecraft/auth/AccountData.h"
 #include "tasks/Task.h"
 
+// Shared
+#include "steps/GetSkinStep.h"
+#include "steps/MinecraftProfileStep.h"
+#include "steps/OAuth2AuthCodeStep.h"
+#include "steps/OAuth2DeviceAuthStep.h"
+
 // MSA
 #include "steps/EntitlementsStep.h"
-#include "steps/GetSkinStep.h"
 #include "steps/LauncherLoginStep.h"
-#include "steps/MSADeviceCodeStep.h"
-#include "steps/MSAStep.h"
-#include "steps/MinecraftProfileStep.h"
 #include "steps/XboxAuthorizationStep.h"
 #include "steps/XboxUserStep.h"
 
 // Elyby
-#include "steps/ElyDeviceCodeStep.h"
-#include "steps/ElyStep.h"
-#include "steps/MinecraftProfileStepEly.h"
+#include "steps/ElyYggdrasilTokenStep.h"
 
 // Custom
 #include "steps/CustomGetSkinStep.h"
@@ -30,38 +31,59 @@
 
 AuthFlow::AuthFlow(AccountData* data, Action action, QString password) : Task(), m_data(data)
 {
-    switch (data->type) {
+    const auto type = data->type;
+    const bool usesOAuth2 = type == AccountType::MSA || type == AccountType::Elyby;
+    if (usesOAuth2) {
+        OAuth2ServerInfo info;
+        if (type == AccountType::MSA) {
+            info = OAuth2ServerInfo{
+                .displayName = "Microsoft",
+                .clientId = APPLICATION->getMSAClientID(),
+                .scopes = "XboxLive.SignIn XboxLive.offline_access",
+                .authorizationUrl = QUrl("https://login.microsoftonline.com/consumers/oauth2/v2.0/authorize"),
+                .accessTokenUrl = QUrl("https://login.microsoftonline.com/consumers/oauth2/v2.0/token"),
+                .deviceCodeUrl = QUrl("https://login.microsoftonline.com/consumers/oauth2/v2.0/devicecode"),
+            };
+        } else if (type == AccountType::Elyby) {
+            info = OAuth2ServerInfo{
+                .displayName = "Ely.by",
+                .clientId = APPLICATION->getElybyClientID(),
+                .scopes = "account_info offline_access minecraft_server_session",
+                .authorizationUrl = QUrl("https://account.ely.by/oauth2/v1"),
+                .accessTokenUrl = QUrl("https://account.ely.by/api/oauth2/v1/token"),
+                .deviceCodeUrl = QUrl("https://account.ely.by/api/oauth2/v1/devicecode"),
+            };
+        }
+
+        if (action == Action::DeviceCode) {
+            auto oauthStep = makeShared<OAuth2DeviceAuthStep>(m_data, info);
+            connect(oauthStep.get(), &OAuth2DeviceAuthStep::authorizeWithBrowser, this, &AuthFlow::authorizeWithBrowserWithExtra);
+            connect(this, &Task::aborted, oauthStep.get(), &OAuth2DeviceAuthStep::abort);
+            m_steps.append(oauthStep);
+        } else {
+            auto oauthStep = makeShared<OAuth2AuthCodeStep>(m_data, info, action == Action::Refresh);
+            connect(oauthStep.get(), &OAuth2AuthCodeStep::authorizeWithBrowser, this, &AuthFlow::authorizeWithBrowser);
+            m_steps.append(oauthStep);
+        }
+    }
+
+    switch (type) {
         case AccountType::MSA: {
-            if (action == Action::DeviceCode) {
-                auto oauthStep = makeShared<MSADeviceCodeStep>(m_data);
-                connect(oauthStep.get(), &MSADeviceCodeStep::authorizeWithBrowser, this, &AuthFlow::authorizeWithBrowserWithExtra);
-                connect(this, &Task::aborted, oauthStep.get(), &MSADeviceCodeStep::abort);
-                m_steps.append(oauthStep);
-            } else {
-                auto oauthStep = makeShared<MSAStep>(m_data, action == Action::Refresh);
-                connect(oauthStep.get(), &MSAStep::authorizeWithBrowser, this, &AuthFlow::authorizeWithBrowser);
-                m_steps.append(oauthStep);
-            }
+            const QUrl profileUrl("https://api.minecraftservices.com/minecraft/profile");
+
             m_steps.append(makeShared<XboxUserStep>(m_data));
             m_steps.append(
                 makeShared<XboxAuthorizationStep>(m_data, &m_data->mojangservicesToken, "rp://api.minecraftservices.com/", "Mojang"));
             m_steps.append(makeShared<LauncherLoginStep>(m_data));
             m_steps.append(makeShared<EntitlementsStep>(m_data));
-            m_steps.append(makeShared<MinecraftProfileStep>(m_data));
+            m_steps.append(makeShared<MinecraftProfileStep>(m_data, profileUrl));
             m_steps.append(makeShared<GetSkinStep>(m_data));
         } break;
         case AccountType::Elyby: {
-            if (action == Action::DeviceCode) {
-                auto oauthStep = makeShared<ElyDeviceCodeStep>(m_data);
-                connect(oauthStep.get(), &ElyDeviceCodeStep::authorizeWithBrowser, this, &AuthFlow::authorizeWithBrowserWithExtra);
-                connect(this, &Task::aborted, oauthStep.get(), &ElyDeviceCodeStep::abort);
-                m_steps.append(oauthStep);
-            } else {
-                auto oauthStep = makeShared<ElyStep>(m_data, action == Action::Refresh);
-                connect(oauthStep.get(), &ElyStep::authorizeWithBrowser, this, &AuthFlow::authorizeWithBrowser);
-                m_steps.append(oauthStep);
-            }
-            m_steps.append(makeShared<MinecraftProfileStepEly>(m_data));
+            const QUrl profileUrl("https://account.ely.by/api/mojang/services/minecraft/profile");
+
+            m_steps.append(makeShared<ElyYggdrasilTokenStep>(m_data));
+            m_steps.append(makeShared<MinecraftProfileStep>(m_data, profileUrl));
             m_steps.append(makeShared<GetSkinStep>(m_data));
         } break;
         case AccountType::Custom: {

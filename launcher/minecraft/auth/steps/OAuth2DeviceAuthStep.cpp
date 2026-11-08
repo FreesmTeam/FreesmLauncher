@@ -33,47 +33,44 @@
  *      limitations under the License.
  */
 
-#include "MSADeviceCodeStep.h"
+#include "OAuth2DeviceAuthStep.h"
 
 #include <QDateTime>
 #include <QUrlQuery>
+#include <utility>
 
 #include "Application.h"
 #include "Json.h"
 #include "net/RawHeaderProxy.h"
 
 // https://learn.microsoft.com/en-us/entra/identity-platform/v2-oauth2-device-code
-MSADeviceCodeStep::MSADeviceCodeStep(AccountData* data, bool startTimers) : AuthStep(data)
+OAuth2DeviceAuthStep::OAuth2DeviceAuthStep(AccountData* data, OAuth2ServerInfo info) : AuthStep(data), m_info(std::move(info))
 {
-    if (startTimers) {
-        m_clientId = APPLICATION->getMSAClientID();
-        connect(&m_expiration_timer, &QTimer::timeout, this, &MSADeviceCodeStep::abort);
-        connect(&m_pool_timer, &QTimer::timeout, this, &MSADeviceCodeStep::authenticateUser);
-    }
+    connect(&m_expiration_timer, &QTimer::timeout, this, &OAuth2DeviceAuthStep::abort);
+    connect(&m_pool_timer, &QTimer::timeout, this, &OAuth2DeviceAuthStep::authenticateUser);
 }
 
-QString MSADeviceCodeStep::describe()
+QString OAuth2DeviceAuthStep::describe()
 {
-    return tr("Logging in with Microsoft account(device code).");
+    return tr("Logging in with %1 account(device code).").arg(m_info.displayName);
 }
 
-void MSADeviceCodeStep::perform()
+void OAuth2DeviceAuthStep::perform()
 {
     QUrlQuery data;
-    data.addQueryItem("client_id", m_clientId);
-    data.addQueryItem("scope", "XboxLive.SignIn XboxLive.offline_access");
+    data.addQueryItem("client_id", m_info.clientId);
+    data.addQueryItem("scope", m_info.scopes);
     auto payload = data.query(QUrl::FullyEncoded).toUtf8();
-    QUrl url("https://login.microsoftonline.com/consumers/oauth2/v2.0/devicecode");
     auto headers = QList<Net::HeaderPair>{
         { "Content-Type", "application/x-www-form-urlencoded" },
         { "Accept", "application/json" },
     };
-    auto [request, response] = Net::Upload::makeByteArray(url, payload);
+    auto [request, response] = Net::Upload::makeByteArray(m_info.deviceCodeUrl, payload);
     m_request = request;
     m_request->addHeaderProxy(std::make_unique<Net::RawHeaderProxy>(headers));
     m_request->enableAutoRetry(true);
 
-    m_task.reset(new NetJob("MSADeviceCodeStep", APPLICATION->network()));
+    m_task.reset(new NetJob("OAuth2DeviceAuthStep", APPLICATION->network()));
     m_task->setAskRetry(false);
     m_task->addNetAction(m_request);
 
@@ -113,7 +110,7 @@ DeviceAuthorizationResponse parseDeviceAuthorizationResponse(const QByteArray& d
     };
 }
 
-void MSADeviceCodeStep::deviceAuthorizationFinished(QByteArray* response)
+void OAuth2DeviceAuthStep::deviceAuthorizationFinished(QByteArray* response)
 {
     if (!m_request->wasSuccessful() || m_request->error() != QNetworkReply::NoError) {
         qWarning() << "Device authorization failed:" << m_request->error() << m_request->errorString();
@@ -147,7 +144,7 @@ void MSADeviceCodeStep::deviceAuthorizationFinished(QByteArray* response)
     startPoolTimer();
 }
 
-void MSADeviceCodeStep::abort()
+void OAuth2DeviceAuthStep::abort()
 {
     m_expiration_timer.stop();
     m_pool_timer.stop();
@@ -158,7 +155,7 @@ void MSADeviceCodeStep::abort()
     emit finished(AccountTaskState::STATE_FAILED_HARD, tr("Task aborted"));
 }
 
-void MSADeviceCodeStep::startPoolTimer()
+void OAuth2DeviceAuthStep::startPoolTimer()
 {
     if (m_is_aborted) {
         return;
@@ -172,19 +169,18 @@ void MSADeviceCodeStep::startPoolTimer()
     m_pool_timer.start();
 }
 
-void MSADeviceCodeStep::authenticateUser()
+void OAuth2DeviceAuthStep::authenticateUser()
 {
     QUrlQuery data;
-    data.addQueryItem("client_id", m_clientId);
+    data.addQueryItem("client_id", m_info.clientId);
     data.addQueryItem("grant_type", "urn:ietf:params:oauth:grant-type:device_code");
     data.addQueryItem("device_code", m_device_code);
     auto payload = data.query(QUrl::FullyEncoded).toUtf8();
-    QUrl url("https://login.microsoftonline.com/consumers/oauth2/v2.0/token");
     auto headers = QList<Net::HeaderPair>{
         { "Content-Type", "application/x-www-form-urlencoded" },
         { "Accept", "application/json" },
     };
-    auto [request, response] = Net::Upload::makeByteArray(url, payload);
+    auto [request, response] = Net::Upload::makeByteArray(m_info.accessTokenUrl, payload);
     m_request = request;
     m_request->addHeaderProxy(std::make_unique<Net::RawHeaderProxy>(headers));
 
@@ -229,7 +225,7 @@ AuthenticationResponse parseAuthenticationResponse(const QByteArray& data)
              obj.toVariantMap() };
 }
 
-void MSADeviceCodeStep::authenticationFinished(QByteArray* response)
+void OAuth2DeviceAuthStep::authenticationFinished(QByteArray* response)
 {
     if (m_request->error() == QNetworkReply::TimeoutError) {
         // rfc8628#section-3.5
@@ -270,11 +266,11 @@ void MSADeviceCodeStep::authenticationFinished(QByteArray* response)
     }
 
     m_expiration_timer.stop();
-    m_data->clientID = m_clientId;
+    m_data->clientID = m_info.clientId;
     m_data->msaToken.issueInstant = QDateTime::currentDateTimeUtc();
     m_data->msaToken.notAfter = QDateTime::currentDateTime().addSecs(rsp.expires_in);
     m_data->msaToken.extra = rsp.extra;
     m_data->msaToken.refresh_token = rsp.refresh_token;
     m_data->msaToken.token = rsp.access_token;
-    emit finished(AccountTaskState::STATE_WORKING, tr("Got MSA token"));
+    emit finished(AccountTaskState::STATE_WORKING, tr("Got %1 token").arg(m_info.displayName));
 }
