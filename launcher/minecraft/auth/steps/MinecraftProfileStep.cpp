@@ -1,13 +1,14 @@
 #include "MinecraftProfileStep.h"
 
 #include <QNetworkRequest>
+#include <utility>
 
 #include "Application.h"
 #include "minecraft/auth/Parsers.h"
 #include "net/NetUtils.h"
 #include "net/RawHeaderProxy.h"
 
-MinecraftProfileStep::MinecraftProfileStep(AccountData* data) : AuthStep(data) {}
+MinecraftProfileStep::MinecraftProfileStep(AccountData* data, QUrl profileUrl) : AuthStep(data), m_profileUrl(std::move(profileUrl)) {}
 
 QString MinecraftProfileStep::describe()
 {
@@ -16,12 +17,11 @@ QString MinecraftProfileStep::describe()
 
 void MinecraftProfileStep::perform()
 {
-    QUrl url("https://api.minecraftservices.com/minecraft/profile");
     auto headers = QList<Net::HeaderPair>{ { "Content-Type", "application/json" },
                                            { "Accept", "application/json" },
                                            { "Authorization", QString("Bearer %1").arg(m_data->yggdrasilToken.token).toUtf8() } };
 
-    auto [request, response] = Net::Download::makeByteArray(url);
+    auto [request, response] = Net::Download::makeByteArray(m_profileUrl);
     m_request = request;
     m_request->addHeaderProxy(std::make_unique<Net::RawHeaderProxy>(headers));
     m_request->enableAutoRetry(true);

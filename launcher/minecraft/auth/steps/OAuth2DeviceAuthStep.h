@@ -38,14 +38,15 @@
 #include <QTimer>
 
 #include "minecraft/auth/AuthStep.h"
+#include "minecraft/auth/OAuth2ServerInfo.h"
 #include "net/NetJob.h"
 #include "net/Upload.h"
 
-class MSADeviceCodeStep : public AuthStep {
+class OAuth2DeviceAuthStep : public AuthStep {
     Q_OBJECT
    public:
-    explicit MSADeviceCodeStep(AccountData* data, bool startTimers = true);
-    virtual ~MSADeviceCodeStep() noexcept = default;
+    explicit OAuth2DeviceAuthStep(AccountData* data, OAuth2ServerInfo info);
+    virtual ~OAuth2DeviceAuthStep() noexcept = default;
 
     void perform() override;
 
@@ -65,7 +66,7 @@ class MSADeviceCodeStep : public AuthStep {
     void deviceAuthorizationFinished(QByteArray* response);
     void authenticationFinished(QByteArray* response);
 
-    QString m_clientId;
+    OAuth2ServerInfo m_info;
     Net::Upload::Ptr m_request;
     NetJob::Ptr m_task;
     QString m_device_code;

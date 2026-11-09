@@ -240,29 +240,28 @@ set(MINECRAFT_SOURCES
     minecraft/auth/AuthFlow.cpp
     minecraft/auth/AuthFlow.h
 
+    minecraft/auth/OAuth2ServerInfo.h
+
+    minecraft/auth/steps/MinecraftProfileStep.cpp
+    minecraft/auth/steps/MinecraftProfileStep.h
+    minecraft/auth/steps/OAuth2DeviceAuthStep.cpp
+    minecraft/auth/steps/OAuth2DeviceAuthStep.h
+    minecraft/auth/steps/OAuth2AuthCodeStep.cpp
+    minecraft/auth/steps/OAuth2AuthCodeStep.h
+
     minecraft/auth/steps/EntitlementsStep.cpp
     minecraft/auth/steps/EntitlementsStep.h
     minecraft/auth/steps/GetSkinStep.cpp
     minecraft/auth/steps/GetSkinStep.h
     minecraft/auth/steps/LauncherLoginStep.cpp
     minecraft/auth/steps/LauncherLoginStep.h
-    minecraft/auth/steps/MinecraftProfileStep.cpp
-    minecraft/auth/steps/MinecraftProfileStep.h
-    minecraft/auth/steps/MSADeviceCodeStep.cpp
-    minecraft/auth/steps/MSADeviceCodeStep.h
-    minecraft/auth/steps/MSAStep.cpp
-    minecraft/auth/steps/MSAStep.h
     minecraft/auth/steps/XboxAuthorizationStep.cpp
     minecraft/auth/steps/XboxAuthorizationStep.h
     minecraft/auth/steps/XboxUserStep.cpp
     minecraft/auth/steps/XboxUserStep.h
 
-    minecraft/auth/steps/ElyDeviceCodeStep.cpp
-    minecraft/auth/steps/ElyDeviceCodeStep.h
-    minecraft/auth/steps/ElyStep.cpp
-    minecraft/auth/steps/ElyStep.h
-    minecraft/auth/steps/MinecraftProfileStepEly.cpp
-    minecraft/auth/steps/MinecraftProfileStepEly.h
+    minecraft/auth/steps/ElyYggdrasilTokenStep.cpp
+    minecraft/auth/steps/ElyYggdrasilTokenStep.h
 
     minecraft/auth/steps/CustomAuthStep.cpp
     minecraft/auth/steps/CustomAuthStep.h

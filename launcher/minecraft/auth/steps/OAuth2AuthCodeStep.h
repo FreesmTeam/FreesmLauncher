@@ -37,13 +37,14 @@
 #include <QObject>
 
 #include "minecraft/auth/AuthStep.h"
+#include "minecraft/auth/OAuth2ServerInfo.h"
 
 #include <QtNetworkAuth/qoauth2authorizationcodeflow.h>
-class MSAStep : public AuthStep {
+class OAuth2AuthCodeStep : public AuthStep {
     Q_OBJECT
    public:
-    explicit MSAStep(AccountData* data, bool silent = false);
-    virtual ~MSAStep() noexcept = default;
+    explicit OAuth2AuthCodeStep(AccountData* data, OAuth2ServerInfo info, bool silent = false);
+    virtual ~OAuth2AuthCodeStep() noexcept = default;
 
     void perform() override;
 
@@ -54,6 +55,6 @@ class MSAStep : public AuthStep {
 
    private:
     bool m_silent;
-    QString m_clientId;
+    OAuth2ServerInfo m_info;
     QOAuth2AuthorizationCodeFlow m_oauth2;
 };

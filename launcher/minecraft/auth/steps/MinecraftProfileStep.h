@@ -9,7 +9,7 @@ class MinecraftProfileStep : public AuthStep {
     Q_OBJECT
 
    public:
-    explicit MinecraftProfileStep(AccountData* data);
+    explicit MinecraftProfileStep(AccountData* data, QUrl profileUrl);
     virtual ~MinecraftProfileStep() noexcept = default;
 
     void perform() override;
@@ -20,6 +20,7 @@ class MinecraftProfileStep : public AuthStep {
     void onRequestDone(QByteArray* response);
 
    protected:
+    QUrl m_profileUrl;
     Net::Download::Ptr m_request;
     NetJob::Ptr m_task;
 };
