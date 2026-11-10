@@ -228,11 +228,32 @@ void MinecraftAccount::authFailed(QString reason)
 
 QString MinecraftAccount::displayName() const
 {
+    QString typeString;
+    switch (accountType()) {
+        case AccountType::MSA: {
+            typeString = tr("MSA", "Account type");
+        } break;
+        case AccountType::Elyby: {
+            typeString = tr("Ely.by", "Account type");
+        } break;
+        case AccountType::Offline: {
+            typeString = tr("Offline", "Account type");
+        } break;
+        case AccountType::Custom: {
+            const QUrl url(data.authUrl);
+            typeString = url.isValid() ? url.host() : tr("Custom", "Account type");
+        } break;
+        default: {
+            Q_ASSERT_X(false, "MinecraftAccount::displayName", "No type string mapping for current account type");
+            return {};
+        }
+    }
+    const QString nameWithType = QString("%1 [%2]").arg(profileName(), typeString);
     if (const QList validStates{ AccountState::Unchecked, AccountState::Working, AccountState::Offline, AccountState::Online };
         !validStates.contains(accountState())) {
-        return QString("⚠ %1").arg(profileName());
+        return QString("⚠ %1").arg(nameWithType);
     }
-    return profileName();
+    return nameWithType;
 }
 
 bool MinecraftAccount::isActive() const
