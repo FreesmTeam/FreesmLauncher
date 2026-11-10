@@ -95,7 +95,7 @@ CreateShortcutDialog::CreateShortcutDialog(BaseInstance* instance, QWidget* pare
             // Entry name: World Name [Game Mode] - Last Played: DateTime
             QString entry_name = tr("%1 [%2] - Last Played: %3")
                                      .arg(world.name(), world.gameType().toTranslatedString(), world.lastPlayed().toString(Qt::ISODate));
-            ui->worldSelectionBox->addItem(entry_name, world.name());
+            ui->worldSelectionBox->addItem(entry_name, world.folderName());
         }
     }
 
