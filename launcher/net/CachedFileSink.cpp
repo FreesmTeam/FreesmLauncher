@@ -10,10 +10,10 @@
 
 namespace Net {
 CachedFileSink::CachedFileSink(HttpMetaCache& cache, MetaEntryPtr entry, QString targetPath, Checksum checksum, bool eternal)
-    : MetaCacheSink(entry, new ChecksumValidator(QCryptographicHash::Md5), eternal, &cache),
-      m_entry(std::move(entry)),
-      m_targetPath(std::move(targetPath)),
-      m_checksum(std::move(checksum))
+    : MetaCacheSink(entry, new ChecksumValidator(QCryptographicHash::Md5), eternal, &cache)
+    , m_entry(std::move(entry))
+    , m_targetPath(std::move(targetPath))
+    , m_checksum(std::move(checksum))
 {
     addValidator(new ChecksumValidator(m_checksum.algorithm, m_checksum.value));
 }

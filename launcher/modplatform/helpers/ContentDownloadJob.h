@@ -4,7 +4,7 @@
 
 #include "net/NetJob.h"
 
-namespace Flame {
+namespace Modpack {
 
 // Interrupt downloads, but wait for their sinks to close before reporting a
 // terminal state, unlike NetJob::abort() which can finish before requests unwind.
@@ -43,4 +43,4 @@ class ContentDownloadJob final : public NetJob {
     bool m_stopping = false;
 };
 
-}  // namespace Flame
+}  // namespace Modpack
