@@ -14,9 +14,9 @@
 #include "modplatform/helpers/ContentDownloadJob.h"
 #include "modplatform/helpers/ModpackCache.h"
 #include "modplatform/helpers/OverrideUtils.h"
-#include "modplatform/modrinth/ModrinthDownload.h"
 
 #include "net/ApiDownload.h"
+#include "net/ApiHeaderProxy.h"
 
 #include "modplatform/ModIndex.h"
 #include "settings/INISettingsObject.h"
@@ -276,7 +276,7 @@ std::unique_ptr<MinecraftInstance> ModrinthCreationTask::createInstance()
         }
     }
 
-    Modrinth::DownloadMeta meta{
+    Net::ModrinthDownloadMeta meta{
         .reason = m_instance.has_value() ? "update" : "modpack",
         .gameVersion = m_minecraft_version,
         .loader = loader,
@@ -302,9 +302,9 @@ std::unique_ptr<MinecraftInstance> ModrinthCreationTask::createInstance()
                 setError(tr("Invalid checksum for %1.").arg(file.path));
                 break;
             }
-            auto dl = Net::ApiDownload::makeCachedToFile(file.downloads.dequeue(), entry, paths.value(&file),
-                                                         { file.hashAlgorithm, file.hash }, Net::Download::Option::MakeEternal);
-            dl->addHeaderProxy(std::make_unique<Modrinth::DownloadHeaderProxy>(meta));
+            auto dl = Net::Download::makeCachedToFile(file.downloads.dequeue(), entry, paths.value(&file),
+                                                      { file.hashAlgorithm, file.hash }, Net::Download::Option::MakeEternal);
+            dl->addHeaderProxy(std::make_unique<Net::ApiHeaderProxy>(meta));
             connect(dl.get(), &Task::succeeded, this, [&completed, &file] { completed.insert(&file); });
             downloadMods->addNetAction(dl);
             hasFallback |= !file.downloads.empty();

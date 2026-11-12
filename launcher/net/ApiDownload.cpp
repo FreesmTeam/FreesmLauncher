@@ -24,16 +24,16 @@
 
 namespace Net {
 
-Download::Ptr ApiDownload::makeCached(QUrl url, MetaEntryPtr entry, Download::Options options)
+Download::Ptr ApiDownload::makeCachedToFile(QUrl url, MetaEntryPtr entry, QString targetPath, Checksum checksum, Download::Options options)
 {
-    auto dl = Download::makeCached(std::move(url), std::move(entry), options);
+    auto dl = Download::makeCachedToFile(std::move(url), std::move(entry), std::move(targetPath), std::move(checksum), options);
     dl->addHeaderProxy(std::make_unique<ApiHeaderProxy>());
     return dl;
 }
 
-Download::Ptr ApiDownload::makeCachedToFile(QUrl url, MetaEntryPtr entry, QString targetPath, Checksum checksum, Download::Options options)
+Download::Ptr ApiDownload::makeCached(QUrl url, MetaEntryPtr entry, Download::Options options)
 {
-    auto dl = Download::makeCachedToFile(std::move(url), std::move(entry), std::move(targetPath), std::move(checksum), options);
+    auto dl = Download::makeCached(std::move(url), std::move(entry), options);
     dl->addHeaderProxy(std::make_unique<ApiHeaderProxy>());
     return dl;
 }
@@ -45,10 +45,10 @@ std::pair<Download::Ptr, QByteArray*> ApiDownload::makeByteArray(QUrl url, Downl
     return { dl, response };
 }
 
-Download::Ptr ApiDownload::makeFile(QUrl url, QString path, Download::Options options)
+Download::Ptr ApiDownload::makeFile(QUrl url, QString path, Download::Options options, ModrinthDownloadMeta meta)
 {
     auto dl = Download::makeFile(std::move(url), std::move(path), options);
-    dl->addHeaderProxy(std::make_unique<ApiHeaderProxy>());
+    dl->addHeaderProxy(std::make_unique<ApiHeaderProxy>(std::move(meta)));
     return dl;
 }
 
