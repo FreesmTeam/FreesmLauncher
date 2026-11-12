@@ -73,7 +73,7 @@ auto Download::makeCachedToFile(QUrl url, MetaEntryPtr entry, QString targetPath
     dl->setObjectName(QString("CACHE FILE:") + url.toString());
     dl->m_options = options;
     dl->m_sink = std::make_unique<CachedFileSink>(*APPLICATION->metacache(), std::move(entry), std::move(targetPath), std::move(checksum),
-                                               options.testFlag(Option::MakeEternal));
+                                                  options.testFlag(Option::MakeEternal));
     return dl;
 }
 #endif

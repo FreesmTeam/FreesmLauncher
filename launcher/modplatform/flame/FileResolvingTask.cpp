@@ -48,9 +48,7 @@ bool Flame::FileResolvingTask::abort()
 
 void Flame::FileResolvingTask::executeTask()
 {
-    m_filesResolved = false;
     if (m_manifest.files.isEmpty()) {  // no file to resolve so leave it empty and emit success immediately
-        m_filesResolved = true;
         emitSucceeded();
         return;
     }
@@ -170,9 +168,6 @@ void Flame::FileResolvingTask::netJobFinished(QByteArray* response)
     }
     for (auto file = versions.constBegin(); file != versions.constEnd(); ++file)
         m_manifest.files[file.key()].version = file.value();
-    // Only a completely validated file response may become a metadata-only
-    // failure later. Never infer this from partially populated file fields.
-    m_filesResolved = true;
     if (hashes.isEmpty()) {
         getFlameProjects();
         return;

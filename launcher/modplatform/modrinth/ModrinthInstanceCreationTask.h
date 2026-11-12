@@ -3,7 +3,7 @@
 #include <optional>
 
 #include <QByteArray>
-#include <QJsonObject>
+#include <QCryptographicHash>
 #include <QQueue>
 #include <QString>
 #include <QUrl>
@@ -17,6 +17,7 @@ class ModrinthCreationTask final : public InstanceCreationTask {
     struct File {
         QString path;
 
+        QCryptographicHash::Algorithm hashAlgorithm;
         QByteArray hash;
         QQueue<QUrl> downloads;
         bool required = true;
@@ -46,6 +47,8 @@ class ModrinthCreationTask final : public InstanceCreationTask {
    private:
     bool parseManifest(const QString&, std::vector<File>&, bool setInternalData = true, bool showOptionalDialog = true);
 
+    [[nodiscard]] bool promptForUntrustedMods();
+
    private:
     QWidget* m_parent = nullptr;
     bool m_trustedSource;
@@ -55,8 +58,6 @@ class ModrinthCreationTask final : public InstanceCreationTask {
 
     std::vector<File> m_files;
     Task::Ptr m_task;
-    QJsonObject m_manifest;
-    bool m_installingContent = false;
 
     std::optional<BaseInstance*> m_instance;
 
