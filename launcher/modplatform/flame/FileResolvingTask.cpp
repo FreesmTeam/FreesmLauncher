@@ -125,7 +125,7 @@ void Flame::FileResolvingTask::netJobFinished(QByteArray* response)
         qCritical() << "Non-JSON data returned from the CF API";
         qCritical() << e.cause();
 
-        emitFailed(tr("Invalid file data returned by the CurseForge API: %1").arg(e.cause()));
+        emitFailed(tr("Invalid data returned from the API."));
 
         return;
     }
@@ -157,7 +157,7 @@ void Flame::FileResolvingTask::netJobFinished(QByteArray* response)
             qCritical() << "Non-JSON data returned from the CF API";
             qCritical() << e.cause();
 
-            emitFailed(tr("Invalid file data returned by the CurseForge API: %1").arg(e.cause()));
+            emitFailed(tr("Invalid data returned from the API."));
 
             return;
         }
@@ -252,11 +252,6 @@ void Flame::FileResolvingTask::getFlameProjects()
             qWarning() << "Error while parsing JSON response from Modrinth projects task at" << parse_error.offset
                        << "reason:" << parse_error.errorString();
             qWarning() << *response;
-            step_progress->state = TaskStepState::Failed;
-            stepProgress(*step_progress);
-            emitFailed(tr("Could not parse the CurseForge project response at offset %1: %2")
-                           .arg(parse_error.offset)
-                           .arg(parse_error.errorString()));
             return;
         }
 
@@ -283,10 +278,6 @@ void Flame::FileResolvingTask::getFlameProjects()
         } catch (Json::JsonException& e) {
             qDebug() << e.cause();
             qDebug() << doc;
-            step_progress->state = TaskStepState::Failed;
-            stepProgress(*step_progress);
-            emitFailed(tr("Invalid project data returned by the CurseForge API: %1").arg(e.cause()));
-            return;
         }
         step_progress->state = TaskStepState::Succeeded;
         stepProgress(*step_progress);

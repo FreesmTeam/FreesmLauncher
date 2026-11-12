@@ -300,7 +300,7 @@ QString FlameCreationTask::getVersionForLoader(QString uid, QString loaderType, 
     }
 
     if (loaderVersion.isEmpty()) {
-        setError(tr("No loader version set for modpack!"));
+        emitFailed(tr("No loader version set for modpack!"));
         return {};
     }
 
@@ -491,7 +491,7 @@ std::unique_ptr<MinecraftInstance> FlameCreationTask::createInstance()
 
     m_modIdResolver.reset(new Flame::FileResolvingTask(m_pack));
     connect(m_modIdResolver.get(), &Flame::FileResolvingTask::succeeded, this, [this, &loop] { idResolverSucceeded(loop); });
-    connect(m_modIdResolver.get(), &Flame::FileResolvingTask::failed, this, [this, &loop](QString reason) {
+    connect(m_modIdResolver.get(), &Flame::FileResolvingTask::failed, [this, &loop](QString reason) {
         m_modIdResolver.reset();
         setError(tr("Unable to resolve mod IDs:\n") + reason);
         loop.quit();

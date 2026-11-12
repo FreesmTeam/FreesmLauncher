@@ -170,7 +170,7 @@ std::unique_ptr<MinecraftInstance> ModrinthCreationTask::createInstance()
     QString parentFolder(FS::PathCombine(m_stagingPath, "mrpack"));
 
     QString indexPath = FS::PathCombine(m_stagingPath, "modrinth.index.json");
-    if (!m_instance && m_files.empty() && !parseManifest(indexPath, m_files, true, true)) {
+    if (m_files.empty() && !parseManifest(indexPath, m_files, true, true)) {
         return nullptr;
     }
 
@@ -258,20 +258,21 @@ std::unique_ptr<MinecraftInstance> ModrinthCreationTask::createInstance()
     QHash<QString, Resource*> resources;
     QHash<File*, QString> paths;
     for (auto& file : m_files) {
-        auto fileName = FS::RemoveInvalidPathChars(file.path);
+        auto fileName = file.path;
+        fileName = FS::RemoveInvalidPathChars(fileName);
         auto filePath = FS::PathCombine(rootModpackPath, fileName);
         if (!rootModpackUrl.isParentOf(QUrl::fromLocalFile(filePath))) {
+            // This means we somehow got out of the root folder, so abort here to prevent exploits
             setError(tr("One of the files has a path that leads to an arbitrary location (%1). This is a security risk and isn't allowed.")
                          .arg(fileName));
-            qDeleteAll(resources);
             return nullptr;
         }
         paths.insert(&file, filePath);
         if (fileName.startsWith("mods/")) {
             auto* mod = new Mod(filePath);
-            ModDetails details;
-            details.mod_id = filePath;
-            mod->setDetails(details);
+            ModDetails d;
+            d.mod_id = filePath;
+            mod->setDetails(d);
             resources[file.hash.toHex()] = mod;
         }
     }
@@ -361,9 +362,9 @@ std::unique_ptr<MinecraftInstance> ModrinthCreationTask::createInstance()
 
     if (!ensureMetadataTask->isFinished())
         ensureMetaLoop.exec();
-    endedWell = !m_abort;
-    if (!ensureMetadataTask->wasSuccessful() && !m_abort)
-        logWarning(tr("Could not load mod display metadata: %1").arg(ensureMetadataTask->failReason()));
+    endedWell = ensureMetadataTask->wasSuccessful() && !m_abort;
+    if (!endedWell && !m_abort)
+        setError(ensureMetadataTask->failReason());
     for (auto* resource : resources) {
         delete resource;
     }

@@ -103,10 +103,10 @@ void NetRequest::executeTask()
             return;
     }
 
-    auto user_agent = BuildConfig.USER_AGENT;
 #if defined(LAUNCHER_APPLICATION)
-    if (auto app = APPLICATION_DYN)
-        user_agent = app->getUserAgent();
+    auto user_agent = APPLICATION->getUserAgent();
+#else
+    auto user_agent = BuildConfig.USER_AGENT;
 #endif
 
     request.setHeader(QNetworkRequest::UserAgentHeader, user_agent.toUtf8());
@@ -114,10 +114,10 @@ void NetRequest::executeTask()
         header_proxy->writeHeaders(request);
     }
 
-    request.setTransferTimeout();
 #if defined(LAUNCHER_APPLICATION)
-    if (auto app = APPLICATION_DYN)
-        request.setTransferTimeout(app->settings()->get("RequestTimeout").toInt() * 1000);
+    request.setTransferTimeout(APPLICATION->settings()->get("RequestTimeout").toInt() * 1000);
+#else
+    request.setTransferTimeout();
 #endif
 
     m_last_progress_time = m_clock.now();
