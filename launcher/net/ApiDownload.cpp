@@ -31,6 +31,13 @@ Download::Ptr ApiDownload::makeCached(QUrl url, MetaEntryPtr entry, Download::Op
     return dl;
 }
 
+Download::Ptr ApiDownload::makeCachedToFile(QUrl url, MetaEntryPtr entry, QString targetPath, Checksum checksum, Download::Options options)
+{
+    auto dl = Download::makeCachedToFile(std::move(url), std::move(entry), std::move(targetPath), std::move(checksum), options);
+    dl->addHeaderProxy(std::make_unique<ApiHeaderProxy>());
+    return dl;
+}
+
 std::pair<Download::Ptr, QByteArray*> ApiDownload::makeByteArray(QUrl url, Download::Options options)
 {
     auto [dl, response] = Download::makeByteArray(std::move(url), options);

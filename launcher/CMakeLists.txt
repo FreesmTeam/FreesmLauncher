@@ -117,6 +117,8 @@ endif()
 
 set(NET_SOURCES
     # network stuffs
+    net/CachedFileSink.h
+    net/CachedFileSink.cpp
     net/ByteArraySink.h
     net/ChecksumValidator.h
     net/Download.cpp

@@ -40,6 +40,7 @@
 
 #include <utility>
 
+#include "ChecksumValidator.h"
 #include "HttpMetaCache.h"
 
 #include "QObjectPtr.h"
@@ -56,6 +57,8 @@ class Download : public NetRequest {
 
 #if defined(LAUNCHER_APPLICATION)
     static auto makeCached(QUrl url, MetaEntryPtr entry, Options options = Option::NoOptions) -> Download::Ptr;
+    static auto makeCachedToFile(QUrl url, MetaEntryPtr entry, QString targetPath, Checksum checksum, Options options = Option::NoOptions)
+        -> Download::Ptr;
 #endif
 
     /**
