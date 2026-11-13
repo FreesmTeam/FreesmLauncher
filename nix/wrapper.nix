@@ -33,7 +33,9 @@
   jdks ? jvmPack.openjdk,
 }:
 assert lib.assertMsg (
-  if
+  if jdks == []
+  then builtins.trace "jdks is empty, no bundled Java will be provided!" true
+  else if
     (
       jdks != jvmPack.openjdk && jdks != jvmPack.temurin && jdks != jvmPack.allPack
     )
@@ -93,7 +95,7 @@ in
     '';
 
     qtWrapperArgs =
-      ["--prefix FREESMLAUNCHER_JAVA_PATHS : ${lib.makeSearchPath "bin/java" jdks}"]
+      lib.optional (jdks != []) "--prefix FREESMLAUNCHER_JAVA_PATHS : ${lib.makeSearchPath "bin/java" jdks}"
       ++ lib.optionals isLinux [
         "--prefix PATH : ${lib.makeBinPath runtimePrograms}"
         "--prefix LD_LIBRARY_PATH : ${addDriverRunpath.driverLink}/lib:${lib.makeLibraryPath runtimeLibs}"
