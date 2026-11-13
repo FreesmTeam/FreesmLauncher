@@ -10,8 +10,6 @@ on:
   pull_request:
   workflow_dispatch:
 
-permissions: { }
-
 env:
   REGISTRY: ghcr.io
 
@@ -22,6 +20,10 @@ jobs:
     permissions:
       contents: read
       packages: write
+      # attestations rq
+      id-token: write
+      attestations: write
+      artifact-metadata: write
 
     outputs:
       image-name: ${{ steps.image-name.outputs.image-name }}
@@ -105,6 +107,15 @@ jobs:
           if-no-files-found: error
           retention-days: 1
 
+      - name: Attest Devcontainer Image
+        if: ${{ github.event_name != 'pull_request' }}
+        # Pinning to actions/attest-build-provenance@v2.2.3
+        uses: actions/attest-build-provenance@0f67c3f4856b2e3261c31976d6725780e5e4c373
+        with:
+          subject-name: ${{ steps.image-name.outputs.image-name }}
+          subject-digest: ${{ steps.id-push-image.outputs.digest }}
+          push-to-registry: true
+
   manifest:
     name: Create manifest
 
@@ -114,6 +125,10 @@ jobs:
     permissions:
       contents: read
       packages: write
+      # attestation rq
+      id-token: write
+      attestations: write
+      # artifact-metadata: write
 
     runs-on: ubuntu-24.04
 
@@ -172,3 +187,10 @@ jobs:
           username: ${{ github.repository_owner }}
           password: ${{ github.token }}
           tls-verify: true
+
+      - name: Attest Multi-Arch Manifest
+        uses: actions/attest-build-provenance@0f67c3f4856b2e3261c31976d6725780e5e4c373
+        with:
+          subject-name: ${{ needs.build.outputs.image-name }}
+          subject-digest: ${{ steps.push-manifest.outputs.digest }}
+          push-to-registry: true
