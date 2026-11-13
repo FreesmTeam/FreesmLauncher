@@ -174,7 +174,7 @@ MinecraftInstance::MinecraftInstance(SettingsObject* globalSettings, std::unique
 {
     m_components.reset(new PackProfile(this));
     // TODO: move it elsewhere
-    connect(this, &BaseInstance::runningStatusChanged, [this]() { updateScreenshotsWatcherState(); });
+    connect(this, &BaseInstance::runningStatusChanged, this, &MinecraftInstance::updateScreenshotsWatcherState);
 }
 
 MinecraftInstance::~MinecraftInstance() {}
@@ -1386,15 +1386,16 @@ QList<Mod*> MinecraftInstance::getJarMods() const
     return mods;
 }
 
-void MinecraftInstance::updateScreenshotsWatcherState()
+void MinecraftInstance::updateScreenshotsWatcherState(bool running)
 {
-    if (m_settings->get("CopyIngameScreenshots").toBool()) {
-        if (m_isRunning) {
-            m_screenshots_watcher.reset(new ScreenshotsWatcher(gameRoot() + "/screenshots"));
-            qDebug() << "Started watching " << gameRoot() + "/screenshots";
-        } else {
-            m_screenshots_watcher.reset();
+    if (running && m_settings->get("CopyIngameScreenshots").toBool()) {
+        if (!m_screenshots_watcher) {
+            const QString path = FS::PathCombine(gameRoot(), "screenshots");
+            m_screenshots_watcher = std::make_unique<ScreenshotsWatcher>(path);
+            qDebug() << "Started watching" << path;
         }
+    } else {
+        m_screenshots_watcher.reset();
     }
 }
 
