@@ -109,8 +109,6 @@ class MinecraftInstance : public BaseInstance {
 
     void updateRuntimeContext() override;
 
-    void updateScreenshotsWatcherState();
-
     //////  Profile management //////
     PackProfile* getPackProfile() const;
 
@@ -161,6 +159,9 @@ class MinecraftInstance : public BaseInstance {
     virtual QStringList processMinecraftArgs(AuthSessionPtr account, MinecraftTarget::Ptr targetToJoin) const;
 
     virtual JavaVersion getJavaVersion();
+
+   protected slots:
+    void updateScreenshotsWatcherState(bool running);
 
    protected:
     QMap<QString, QString> createCensorFilterFromSession(AuthSessionPtr session);
