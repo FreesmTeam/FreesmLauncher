@@ -619,13 +619,9 @@ void FlameCreationTask::setupDownloadJob(QEventLoop& loop)
             const auto algorithm = result.version.hash_type == "sha1" ? QCryptographicHash::Sha1 : QCryptographicHash::Md5;
             const auto expected = QByteArray::fromHex(result.version.hash.toLatin1());
             auto entry = Modpack::Cache::resolveEntry(*APPLICATION->metacache(), Modpack::Cache::Platform::CurseForge, algorithm, expected);
-            if (!entry) {
-                setError(tr("Invalid checksum for %1.").arg(fileName));
-                loop.quit();
-                return;
-            }
-            auto dl = Net::ApiDownload::makeCachedToFile(result.version.downloadUrl, entry, path, { algorithm, expected },
-                                                         Net::Download::Option::MakeEternal);
+            auto dl = entry ? Net::ApiDownload::makeCachedToFile(result.version.downloadUrl, entry, path, { algorithm, expected },
+                                                                 Net::Download::Option::MakeEternal)
+                            : Net::ApiDownload::makeFile(result.version.downloadUrl, path);
             m_filesJob->addNetAction(dl);
         }
     }
