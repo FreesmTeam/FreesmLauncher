@@ -19,7 +19,6 @@
 #include "FileResolvingTask.h"
 #include <algorithm>
 
-#include "FileSystem.h"
 #include "Json.h"
 #include "modplatform/ModIndex.h"
 #include "modplatform/flame/FlameAPI.h"
@@ -131,24 +130,14 @@ void Flame::FileResolvingTask::netJobFinished(QByteArray* response)
     }
 
     QStringList hashes;
-    QMap<int, ModPlatform::IndexedVersion> versions;
     for (QJsonValueRef file : array) {
         try {
             auto obj = Json::requireObject(file);
-            const auto fileid = Json::requireInteger(obj, "id");
-            const auto projectid = Json::requireInteger(obj, "modId");
-            if (!m_manifest.files.contains(fileid) || versions.contains(fileid) || m_manifest.files[fileid].projectId != projectid)
-                throw Json::JsonException(tr("Unexpected or duplicate file ID %1 returned by the API.").arg(fileid));
-            const auto name = Json::requireString(obj, "fileName");
-            if (name.isEmpty() || name == "." || name == ".." || name.contains('/') || name.contains('\\') ||
-                name != FS::RemoveInvalidPathChars(name))
-                throw Json::JsonException(tr("Invalid filename returned by the API: %1").arg(name));
             auto version = FlameMod::loadIndexedPackVersion(obj);
-            const auto hash = version.hash.toLatin1();
-            if (!((version.hash_type == "sha1" && hash.size() == 40) || (version.hash_type == "md5" && hash.size() == 32)) ||
-                QByteArray::fromHex(hash).toHex() != hash.toLower())
-                throw Json::JsonException(tr("Invalid file hash returned by the API for file %1.").arg(fileid));
-            versions.insert(fileid, version);
+            auto fileid = version.fileId.toInt();
+            Q_ASSERT(fileid != 0);
+            Q_ASSERT(m_manifest.files.contains(fileid));
+            m_manifest.files[fileid].version = version;
             auto url = QUrl(version.downloadUrl, QUrl::TolerantMode);
             if (!url.isValid() && "sha1" == version.hash_type && !version.hash.isEmpty()) {
                 hashes.push_back(version.hash);
@@ -162,12 +151,6 @@ void Flame::FileResolvingTask::netJobFinished(QByteArray* response)
             return;
         }
     }
-    if (versions.size() != m_manifest.files.size()) {
-        emitFailed(tr("The API did not return information for all requested files."));
-        return;
-    }
-    for (auto file = versions.constBegin(); file != versions.constEnd(); ++file)
-        m_manifest.files[file.key()].version = file.value();
     if (hashes.isEmpty()) {
         getFlameProjects();
         return;

@@ -74,7 +74,7 @@ class FlameCreationTask final : public InstanceCreationTask {
    private slots:
     void idResolverSucceeded(QEventLoop&);
     void setupDownloadJob(QEventLoop&);
-    bool copyBlockedMods(const QList<BlockedMod>& blocked_mods);
+    void copyBlockedMods(QList<BlockedMod> const& blocked_mods);
     void validateOtherResources(QEventLoop& loop);
     QString getVersionForLoader(QString uid, QString loaderType, QString version, QString mcVersion);
 
