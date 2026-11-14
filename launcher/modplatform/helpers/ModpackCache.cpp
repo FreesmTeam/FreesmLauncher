@@ -58,9 +58,6 @@ MetaEntryPtr resolveEntry(HttpMetaCache& cache, Platform platform, QCryptographi
         case Platform::FTB:
             platformName = QStringLiteral("ftb");
             break;
-        case Platform::Technic:
-            platformName = QStringLiteral("technic");
-            break;
         default:
             return {};
     }

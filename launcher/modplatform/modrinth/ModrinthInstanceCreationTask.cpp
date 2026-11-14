@@ -11,12 +11,12 @@
 
 #include "minecraft/mod/Mod.h"
 #include "modplatform/EnsureMetadataTask.h"
-#include "modplatform/helpers/ContentDownloadJob.h"
 #include "modplatform/helpers/ModpackCache.h"
 #include "modplatform/helpers/OverrideUtils.h"
 
 #include "net/ApiDownload.h"
 #include "net/ApiHeaderProxy.h"
+#include "net/NetJob.h"
 
 #include "modplatform/ModIndex.h"
 #include "settings/INISettingsObject.h"
@@ -28,7 +28,6 @@
 #include <QAbstractButton>
 #include <QFileInfo>
 #include <QHash>
-#include <QSet>
 #include <vector>
 
 bool ModrinthCreationTask::abort()
@@ -208,6 +207,7 @@ std::unique_ptr<MinecraftInstance> ModrinthCreationTask::createInstance()
 
     if (!promptForUntrustedMods()) {
         m_abort = true;
+        emitAborted();
         return nullptr;
     }
 
@@ -253,10 +253,12 @@ std::unique_ptr<MinecraftInstance> ModrinthCreationTask::createInstance()
     instance->setName(name());
     instance->saveNow();
 
+    auto downloadMods = makeShared<NetJob>(tr("Mod Download Modrinth"), APPLICATION->network());
+
     auto rootModpackPath = FS::PathCombine(m_stagingPath, m_root_path);
     auto rootModpackUrl = QUrl::fromLocalFile(rootModpackPath);
+    // TODO make this work with other sorts of resource
     QHash<QString, Resource*> resources;
-    QHash<File*, QString> paths;
     for (auto& file : m_files) {
         auto fileName = file.path;
         fileName = FS::RemoveInvalidPathChars(fileName);
@@ -267,7 +269,6 @@ std::unique_ptr<MinecraftInstance> ModrinthCreationTask::createInstance()
                          .arg(fileName));
             return nullptr;
         }
-        paths.insert(&file, filePath);
         if (fileName.startsWith("mods/")) {
             auto* mod = new Mod(filePath);
             ModDetails d;
@@ -275,81 +276,78 @@ std::unique_ptr<MinecraftInstance> ModrinthCreationTask::createInstance()
             mod->setDetails(d);
             resources[file.hash.toHex()] = mod;
         }
+        if (file.downloads.empty()) {
+            setError(tr("The file '%1' is missing a download link. This is invalid in the pack format.").arg(fileName));
+            return nullptr;
+        }
+        qDebug() << "Will try to download" << file.downloads.front() << "to" << filePath;
+
+        Net::ModrinthDownloadMeta meta{
+            .reason = m_instance.has_value() ? "update" : "modpack",
+            .gameVersion = m_minecraft_version,
+            .loader = loader,
+        };
+
+        auto entry =
+            Modpack::Cache::resolveEntry(*APPLICATION->metacache(), Modpack::Cache::Platform::Modrinth, file.hashAlgorithm, file.hash);
+        if (!entry) {
+            setError(tr("Invalid checksum for %1.").arg(file.path));
+            return nullptr;
+        }
+
+        QUrl downloadUrl = file.downloads.dequeue();
+        auto dl = Net::Download::makeCachedToFile(downloadUrl, entry, filePath, { file.hashAlgorithm, file.hash },
+                                                  Net::Download::Option::MakeEternal);
+        dl->addHeaderProxy(std::make_unique<Net::ApiHeaderProxy>(meta));
+        downloadMods->addNetAction(dl);
+        if (!file.downloads.empty()) {
+            // FIXME: This really needs to be put into a ConcurrentTask of
+            // MultipleOptionsTask's , once those exist :)
+            auto param = dl.toWeakRef();
+            connect(dl.get(), &Task::failed, [&file, filePath, param, downloadMods, meta, entry] {
+                QUrl fallbackUrl = file.downloads.dequeue();
+                auto ndl = Net::Download::makeCachedToFile(fallbackUrl, entry, filePath, { file.hashAlgorithm, file.hash },
+                                                           Net::Download::Option::MakeEternal);
+                ndl->addHeaderProxy(std::make_unique<Net::ApiHeaderProxy>(meta));
+                downloadMods->addNetAction(ndl);
+                if (auto shared = param.lock()) {
+                    shared->succeeded();
+                }
+            });
+        }
     }
 
-    Net::ModrinthDownloadMeta meta{
-        .reason = m_instance.has_value() ? "update" : "modpack",
-        .gameVersion = m_minecraft_version,
-        .loader = loader,
-    };
-    QSet<File*> completed;
-    QString lastFailure;
     bool endedWell = false;
-    while (!m_abort && getError().isEmpty()) {
-        auto downloadMods = makeShared<Modpack::ContentDownloadJob>(tr("Mod Download Modrinth"), APPLICATION->network());
-        bool hasFallback = false;
-        for (auto& file : m_files) {
-            if (completed.contains(&file))
-                continue;
-            if (file.downloads.empty()) {
-                setError(lastFailure.isEmpty()
-                             ? tr("The file '%1' is missing a download link. This is invalid in the pack format.").arg(file.path)
-                             : lastFailure);
-                break;
-            }
-            auto entry =
-                Modpack::Cache::resolveEntry(*APPLICATION->metacache(), Modpack::Cache::Platform::Modrinth, file.hashAlgorithm, file.hash);
-            if (!entry) {
-                setError(tr("Invalid checksum for %1.").arg(file.path));
-                break;
-            }
-            auto dl = Net::Download::makeCachedToFile(file.downloads.dequeue(), entry, paths.value(&file),
-                                                      { file.hashAlgorithm, file.hash }, Net::Download::Option::MakeEternal);
-            dl->addHeaderProxy(std::make_unique<Net::ApiHeaderProxy>(meta));
-            connect(dl.get(), &Task::succeeded, this, [&completed, &file] { completed.insert(&file); });
-            downloadMods->addNetAction(dl);
-            hasFallback |= !file.downloads.empty();
-        }
-        if (!getError().isEmpty())
-            break;
-        // Try alternative URLs before offering a manual retry. Completed files stay completed.
-        downloadMods->setAskRetry(!hasFallback);
-        connect(downloadMods.get(), &Task::failed, this, [&lastFailure](const QString& reason) { lastFailure = reason; });
-        connect(downloadMods.get(), &Task::finished, &loop, &QEventLoop::quit);
-        connect(downloadMods.get(), &Task::progress, this, [this](qint64 current, qint64 total) {
-            setDetails(tr("%1 out of %2 complete").arg(current).arg(total));
-            setProgress(current, total);
-        });
-        connect(downloadMods.get(), &Task::stepProgress, this, &ModrinthCreationTask::propagateStepProgress);
-        setStatus(tr("Downloading mods..."));
-        m_task = downloadMods;
-        downloadMods->start();
-        if (!downloadMods->isFinished())
-            loop.exec();
-        m_task.reset();
-        if (!m_abort && completed.size() == static_cast<qsizetype>(m_files.size())) {
-            endedWell = true;
-            break;
-        }
-    }
-    if (endedWell) {
-        for (const auto& path : paths) {
-            const auto alternate = path.endsWith(".disabled") ? path.chopped(9) : path + ".disabled";
-            if (QFile::exists(alternate) && !QFile::remove(alternate)) {
-                setError(tr("Could not remove duplicate optional file: %1").arg(alternate));
-                endedWell = false;
-                break;
-            }
-        }
-    }
+
+    connect(downloadMods.get(), &NetJob::succeeded, this, [&endedWell]() { endedWell = true; });
+    connect(downloadMods.get(), &NetJob::failed, [this, &endedWell](const QString& reason) {
+        endedWell = false;
+        setError(reason);
+    });
+    connect(downloadMods.get(), &NetJob::finished, &loop, &QEventLoop::quit);
+    connect(downloadMods.get(), &NetJob::progress, [this](qint64 current, qint64 total) {
+        setDetails(tr("%1 out of %2 complete").arg(current).arg(total));
+        setProgress(current, total);
+    });
+    connect(downloadMods.get(), &NetJob::stepProgress, this, &ModrinthCreationTask::propagateStepProgress);
+
+    setStatus(tr("Downloading mods..."));
+    downloadMods->start();
+    m_task = downloadMods;
+
+    loop.exec();
+
     if (!endedWell) {
-        qDeleteAll(resources);
+        for (auto* resource : resources) {
+            delete resource;
+        }
         return nullptr;
     }
 
     QEventLoop ensureMetaLoop;
     QDir folder = FS::PathCombine(instance->modsRoot(), ".index");
     auto ensureMetadataTask = makeShared<EnsureMetadataTask>(resources, folder, ModPlatform::ResourceProvider::MODRINTH);
+    connect(ensureMetadataTask.get(), &Task::succeeded, this, [&endedWell]() { endedWell = true; });
     connect(ensureMetadataTask.get(), &Task::finished, &ensureMetaLoop, &QEventLoop::quit);
     connect(ensureMetadataTask.get(), &Task::progress, [this](qint64 current, qint64 total) {
         setDetails(tr("%1 out of %2 complete").arg(current).arg(total));
@@ -357,14 +355,10 @@ std::unique_ptr<MinecraftInstance> ModrinthCreationTask::createInstance()
     });
     connect(ensureMetadataTask.get(), &Task::stepProgress, this, &ModrinthCreationTask::propagateStepProgress);
 
-    // Keep resources alive until display metadata work settles, even when cancelled.
     ensureMetadataTask->start();
+    m_task = ensureMetadataTask;
 
-    if (!ensureMetadataTask->isFinished())
-        ensureMetaLoop.exec();
-    endedWell = ensureMetadataTask->wasSuccessful() && !m_abort;
-    if (!endedWell && !m_abort)
-        setError(ensureMetadataTask->failReason());
+    ensureMetaLoop.exec();
     for (auto* resource : resources) {
         delete resource;
     }
@@ -466,7 +460,7 @@ bool ModrinthCreationTask::parseManifest(const QString& indexPath, std::vector<F
                     }
                     OptionalModDialog optionalModDialog(m_parent, oFiles);
                     if (optionalModDialog.exec() == QDialog::Rejected) {
-                        m_abort = true;
+                        emitAborted();
                         return false;
                     }
 

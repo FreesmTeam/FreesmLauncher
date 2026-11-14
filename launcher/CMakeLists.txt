@@ -543,7 +543,6 @@ set(API_SOURCES
     modplatform/helpers/HashUtils.cpp
     modplatform/helpers/OverrideUtils.h
     modplatform/helpers/OverrideUtils.cpp
-    modplatform/helpers/ContentDownloadJob.h
     modplatform/helpers/ModpackCache.h
     modplatform/helpers/ModpackCache.cpp
 
