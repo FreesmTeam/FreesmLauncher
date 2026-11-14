@@ -51,6 +51,7 @@
 #include "ui/dialogs/MSALoginDialog.h"
 
 #include "Application.h"
+#include "DesktopServices.h"
 
 AccountListPage::AccountListPage(QWidget* parent) : QMainWindow(parent), ui(new Ui::AccountListPage)
 {
@@ -237,13 +238,14 @@ void AccountListPage::updateButtonStates()
     bool accountIsOnline = false;
     bool accountCanMoveUp = false;
     bool accountCanMoveDown = false;
-    AccountType accountType = AccountType::Offline;
+    bool accountCanChangeSkins = false;
     if (hasSelection) {
         QModelIndex selected = selection.first();
         MinecraftAccountPtr account = selected.data(AccountList::PointerRole).value<MinecraftAccountPtr>();
         accountIsReady = !account->isActive();
         accountIsOnline = account->accountType() != AccountType::Offline;
-        accountType = account->accountType();
+        const auto accountType = account->accountType();
+        accountCanChangeSkins = accountType == AccountType::MSA || accountType == AccountType::Elyby;
 
         accountCanMoveUp = selected.row() > 0;
         int indexOfLast = m_accounts->count() - 1;
@@ -251,7 +253,7 @@ void AccountListPage::updateButtonStates()
     }
     ui->actionRemove->setEnabled(accountIsReady);
     ui->actionSetDefault->setEnabled(accountIsReady);
-    ui->actionManageSkins->setEnabled(accountIsReady && accountIsOnline && accountType == AccountType::MSA);
+    ui->actionManageSkins->setEnabled(accountIsReady && accountIsOnline && accountCanChangeSkins);
     ui->actionRefresh->setEnabled(accountIsReady && accountIsOnline);
 
     if (m_accounts->defaultAccount().get() == nullptr) {
@@ -272,8 +274,12 @@ void AccountListPage::on_actionManageSkins_triggered()
     if (selection.size() > 0) {
         QModelIndex selected = selection.first();
         MinecraftAccountPtr account = selected.data(AccountList::PointerRole).value<MinecraftAccountPtr>();
-        SkinManageDialog dialog(this, account);
-        dialog.exec();
+        if (account->accountType() == AccountType::MSA) {
+            SkinManageDialog dialog(this, account);
+            dialog.exec();
+        } else if (account->accountType() == AccountType::Elyby) {
+            DesktopServices::openUrl(QUrl("https://ely.by/skins"));
+        }
     }
 }
 
