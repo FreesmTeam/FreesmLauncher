@@ -6,10 +6,10 @@ concurrency:
 
 on:
   merge_group:
-    types: [ checks_requested ]
+    types: [checks_requested]
   pull_request:
 
-permissions: { }
+permissions: {}
 
 jobs:
   clang-tidy:
@@ -20,6 +20,7 @@ jobs:
     permissions:
       contents: read
       security-events: write
+      actions: read
 
     steps:
       - name: Checkout repository
@@ -35,12 +36,30 @@ jobs:
 
       - name: Install Nix
         uses: cachix/install-nix-action@v31
+        with:
+          extra_nix_config: |
+            accept-flake-config = true
+
+      - name: Wait for cachix workflow
+        if: github.event_name != 'pull_request'
+        uses: lewagon/wait-on-check-action@v1.3.4
+        with:
+          ref: ${{ github.sha }}
+          check-name: cachix
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+          wait-interval: 10
+          allowed-conclusions: success
+          verbose: true
 
       - name: Run build
         # TODO(@getchoo): Figure out how to make this work with PCH
         run: |
           nix develop --command bash -c '
-            cmake -B build -D Launcher_USE_PCH=OFF -D CMAKE_CXX_COMPILER_LAUNCHER=sccache && cmake --build build
+            cmake -B build \
+              -D CMAKE_EXPORT_COMPILE_COMMANDS=ON \
+              -D Launcher_USE_PCH=OFF \
+              -D CMAKE_CXX_COMPILER_LAUNCHER=sccache \
+              && cmake --build build
           '
 
       # TODO: Use SARIF after https://github.com/psastras/sarif-rs/issues/638 is fixed
@@ -49,5 +68,5 @@ jobs:
           BASE_REF: ${{ github.event.pull_request.base.sha || github.event.merge_group.base_sha }}
         run: |
           nix develop --command bash -c '
-            clang-tidy -verify-config && git diff -U0 --no-color "$BASE_REF" | clang-tidy-diff.py -p1 -quiet -only-check-in-db
+            clang-tidy -verify-config && git diff -U0 --no-color "$BASE_REF" | clang-tidy-diff -p1 -quiet -only-check-in-db
           '
