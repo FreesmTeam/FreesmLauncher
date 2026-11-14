@@ -11,9 +11,8 @@
 
 #include "minecraft/mod/Mod.h"
 #include "modplatform/EnsureMetadataTask.h"
+#include "modplatform/helpers/ModpackCache.h"
 #include "modplatform/helpers/OverrideUtils.h"
-
-#include "net/ChecksumValidator.h"
 
 #include "net/ApiDownload.h"
 #include "net/ApiHeaderProxy.h"
@@ -289,18 +288,27 @@ std::unique_ptr<MinecraftInstance> ModrinthCreationTask::createInstance()
             .loader = loader,
         };
 
+        auto entry =
+            Modpack::Cache::resolveEntry(*APPLICATION->metacache(), Modpack::Cache::Platform::Modrinth, file.hashAlgorithm, file.hash);
+        if (!entry) {
+            setError(tr("Invalid checksum for %1.").arg(file.path));
+            return nullptr;
+        }
+
         QUrl downloadUrl = file.downloads.dequeue();
-        auto dl = Net::ApiDownload::makeFile(downloadUrl, filePath, Net::Download::Option::NoOptions, meta);
-        dl->addValidator(new Net::ChecksumValidator(file.hashAlgorithm, file.hash));
+        auto dl = Net::Download::makeCachedToFile(downloadUrl, entry, filePath, { file.hashAlgorithm, file.hash },
+                                                  Net::Download::Option::MakeEternal);
+        dl->addHeaderProxy(std::make_unique<Net::ApiHeaderProxy>(meta));
         downloadMods->addNetAction(dl);
         if (!file.downloads.empty()) {
             // FIXME: This really needs to be put into a ConcurrentTask of
             // MultipleOptionsTask's , once those exist :)
             auto param = dl.toWeakRef();
-            connect(dl.get(), &Task::failed, [&file, filePath, param, downloadMods, meta] {
+            connect(dl.get(), &Task::failed, [&file, filePath, param, downloadMods, meta, entry] {
                 QUrl fallbackUrl = file.downloads.dequeue();
-                auto ndl = Net::ApiDownload::makeFile(fallbackUrl, filePath, Net::Download::Option::NoOptions, meta);
-                ndl->addValidator(new Net::ChecksumValidator(file.hashAlgorithm, file.hash));
+                auto ndl = Net::Download::makeCachedToFile(fallbackUrl, entry, filePath, { file.hashAlgorithm, file.hash },
+                                                           Net::Download::Option::MakeEternal);
+                ndl->addHeaderProxy(std::make_unique<Net::ApiHeaderProxy>(meta));
                 downloadMods->addNetAction(ndl);
                 if (auto shared = param.lock()) {
                     shared->succeeded();

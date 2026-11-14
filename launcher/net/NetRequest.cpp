@@ -79,6 +79,7 @@ void NetRequest::executeTask()
         return;
     }
 
+    m_reply.reset();
     QNetworkRequest request(m_url);
     m_state = m_sink->init(request);
     switch (m_state) {

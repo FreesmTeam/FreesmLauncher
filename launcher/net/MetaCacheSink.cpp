@@ -48,8 +48,8 @@ namespace Net {
  */
 #define MAX_TIME_TO_EXPIRE 1 * 7 * 24 * 60 * 60
 
-MetaCacheSink::MetaCacheSink(MetaEntryPtr entry, ChecksumValidator* md5sum, bool is_eternal)
-    : Net::FileSink(entry->getFullPath()), m_entry(entry), m_md5Node(md5sum), m_is_eternal(is_eternal)
+MetaCacheSink::MetaCacheSink(MetaEntryPtr entry, ChecksumValidator* md5sum, bool is_eternal, HttpMetaCache* cache)
+    : Net::FileSink(entry->getFullPath()), m_entry(entry), m_md5Node(md5sum), m_is_eternal(is_eternal), m_cache(cache)
 {
     addValidator(md5sum);
 }
@@ -124,7 +124,8 @@ Task::State MetaCacheSink::finalizeCache(QNetworkReply& reply)
     }
 
     m_entry->setStale(false);
-    APPLICATION->metacache()->updateEntry(m_entry);
+    auto cache = m_cache ? m_cache : APPLICATION->metacache();
+    cache->updateEntry(m_entry);
 
     return Task::State::Succeeded;
 }

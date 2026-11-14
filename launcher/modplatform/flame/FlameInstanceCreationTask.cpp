@@ -51,6 +51,7 @@
 #include "minecraft/MinecraftInstance.h"
 #include "minecraft/PackProfile.h"
 
+#include "modplatform/helpers/ModpackCache.h"
 #include "modplatform/helpers/OverrideUtils.h"
 
 #include "settings/INISettingsObject.h"
@@ -615,7 +616,12 @@ void FlameCreationTask::setupDownloadJob(QEventLoop& loop)
 
         if (!result.version.downloadUrl.isEmpty()) {
             qDebug() << "Will download" << result.version.downloadUrl << "to" << path;
-            auto dl = Net::ApiDownload::makeFile(result.version.downloadUrl, path);
+            const auto algorithm = result.version.hash_type == "sha1" ? QCryptographicHash::Sha1 : QCryptographicHash::Md5;
+            const auto expected = QByteArray::fromHex(result.version.hash.toLatin1());
+            auto entry = Modpack::Cache::resolveEntry(*APPLICATION->metacache(), Modpack::Cache::Platform::CurseForge, algorithm, expected);
+            auto dl = entry ? Net::ApiDownload::makeCachedToFile(result.version.downloadUrl, entry, path, { algorithm, expected },
+                                                                 Net::Download::Option::MakeEternal)
+                            : Net::ApiDownload::makeFile(result.version.downloadUrl, path);
             m_filesJob->addNetAction(dl);
         }
     }

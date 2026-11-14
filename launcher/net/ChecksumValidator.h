@@ -40,6 +40,11 @@
 #include <QCryptographicHash>
 
 namespace Net {
+struct Checksum {
+    QCryptographicHash::Algorithm algorithm;
+    QByteArray value;
+};
+
 class ChecksumValidator : public Validator {
    public:
     ChecksumValidator(QCryptographicHash::Algorithm algorithm, QString expectedHex)

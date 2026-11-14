@@ -24,6 +24,13 @@
 
 namespace Net {
 
+Download::Ptr ApiDownload::makeCachedToFile(QUrl url, MetaEntryPtr entry, QString targetPath, Checksum checksum, Download::Options options)
+{
+    auto dl = Download::makeCachedToFile(std::move(url), std::move(entry), std::move(targetPath), std::move(checksum), options);
+    dl->addHeaderProxy(std::make_unique<ApiHeaderProxy>());
+    return dl;
+}
+
 Download::Ptr ApiDownload::makeCached(QUrl url, MetaEntryPtr entry, Download::Options options)
 {
     auto dl = Download::makeCached(std::move(url), std::move(entry), options);
