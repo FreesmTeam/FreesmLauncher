@@ -9,7 +9,7 @@
 
 bool InstanceCreationTask::abort()
 {
-    if (!canAbort() || !isRunning()) {
+    if (!canAbort()) {
         return false;
     }
 
@@ -18,27 +18,15 @@ bool InstanceCreationTask::abort()
         return m_gameFilesTask->abort();
     }
 
-    // createInstance() may be running a nested event loop. Wait for its content
-    // task to stop before InstanceStaging can remove the directory.
-    return true;
+    return InstanceTask::abort();
 }
 
 void InstanceCreationTask::executeTask()
 {
-    m_abort = false;
-    m_error_message.clear();
-    m_gameFilesTask.reset();
-    m_instance.reset();
     setAbortable(true);
 
-    auto updated = updateInstance();
-    if (!isRunning())
-        return;
-    if (updated) {
-        if (m_abort)
-            emitAborted();
-        else
-            emitSucceeded();
+    if (updateInstance()) {
+        emitSucceeded();
         return;
     }
 
@@ -49,13 +37,9 @@ void InstanceCreationTask::executeTask()
     }
 
     m_instance = createInstance();
-    if (!isRunning())
-        return;
     if (!m_instance) {
-        if (m_abort && m_error_message.isEmpty()) {
-            emitAborted();
+        if (m_abort)
             return;
-        }
 
         qWarning() << "Instance creation failed!";
         if (!m_error_message.isEmpty()) {
@@ -65,13 +49,6 @@ void InstanceCreationTask::executeTask()
             emitFailed(tr("Error while creating new instance."));
         }
 
-        return;
-    }
-
-    if (m_abort) {
-        // Destroy the profile before InstanceStaging removes its directory.
-        m_instance.reset();
-        emitAborted();
         return;
     }
 
@@ -119,8 +96,6 @@ void InstanceCreationTask::executeTask()
             task->addTask(t);
         }
         connect(task.get(), &Task::finished, this, [this, task] {
-            if (!isRunning())
-                return;
             if (task->wasSuccessful() || m_abort) {
                 emitSucceeded();
             } else {
