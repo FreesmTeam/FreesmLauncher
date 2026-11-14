@@ -148,7 +148,7 @@ bool FlameCreationTask::updateInstance()
         // Remove repeated files, we don't need to download them!
         auto files_iterator = files.begin();
         while (files_iterator != files.end()) {
-            const auto& file = files_iterator;
+            auto const& file = files_iterator;
 
             auto old_file = old_files.find(file.key());
             if (old_file != old_files.end()) {
@@ -646,14 +646,14 @@ void FlameCreationTask::setupDownloadJob(QEventLoop& loop)
 
 /// @brief copy the matched blocked mods to the instance staging area
 /// @param blocked_mods list of the blocked mods and their matched paths
-void FlameCreationTask::copyBlockedMods(const QList<BlockedMod>& blocked_mods)
+void FlameCreationTask::copyBlockedMods(QList<BlockedMod> const& blocked_mods)
 {
     setStatus(tr("Copying Blocked Mods..."));
     setAbortable(false);
     int i = 0;
     int total = blocked_mods.length();
     setProgress(i, total);
-    for (const auto& mod : blocked_mods) {
+    for (auto const& mod : blocked_mods) {
         if (!mod.matched) {
             qDebug() << mod.name << "was not matched to a local file, skipping copy";
             continue;
