@@ -120,6 +120,7 @@
         inputsFrom = [pkgs.freesmlauncher-unwrapped];
 
         packages = with pkgs; [
+          llvmPackages_23.clang-tools
           ccache
           ninja
         ];
