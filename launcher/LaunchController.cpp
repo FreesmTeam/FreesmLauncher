@@ -135,6 +135,11 @@ LaunchDecision LaunchController::decideLaunchMode()
         return LaunchDecision::Continue;
     }
 
+    if (m_wantedLaunchMode == LaunchMode::Offline) {
+        m_actualLaunchMode = LaunchMode::Offline;
+        return LaunchDecision::Continue;
+    }
+
     MinecraftAccountPtr accountToCheck = m_accountToUse;
 
     auto state = accountToCheck->accountState();
