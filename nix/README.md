@@ -1,12 +1,7 @@
 # NixOS
 
 > [!IMPORTANT]
-> We use **Garnix CI** for binary caching.
-> To configure the cache manually, follow the official guide:
->
-> - [Garnix binary cache guide](https://garnix.io/docs/ci/caching)
->
-> We also provide a secondary cache through [**Cachix**](https://app.cachix.org/cache/freesmlauncher#pull).
+> We provide a binary cache through [**Cachix**](https://app.cachix.org/cache/freesmlauncher#pull).
 > Additional information is available in the official
 > [Cachix getting started guide](https://docs.cachix.org/getting-started#using-binaries-with-nix).
 

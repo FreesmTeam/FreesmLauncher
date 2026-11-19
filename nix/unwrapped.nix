@@ -41,7 +41,7 @@ in
           ../CMakeLists.txt
         ];
 
-        # Some fetchers leave submodules directories empty instead of omitting them, causing Garnix CI cache misses.
+        # Omit any empty submodule directory so postUnpack can create the symlink.
         exclude = [
           "libraries/libnbtplusplus"
         ];
