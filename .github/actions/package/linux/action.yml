@@ -80,24 +80,24 @@ runs:
           echo ":warning: Skipped code signing for Linux AppImage, as gpg key was not present." >> $GITHUB_STEP_SUMMARY
         fi
 
-        sharun lib4bin \
-          --hard-links \
-          --with-hooks \
-          --dst-dir "$INSTALL_APPIMAGE_DIR" \
-          "$INSTALL_APPIMAGE_DIR"/bin/* "$QT_PLUGIN_PATH"/*/*.so
+        export APPDIR="$INSTALL_APPIMAGE_DIR"
+        export DESKTOP="$INSTALL_APPIMAGE_DIR/share/applications/org.freesmlauncher.FreesmLauncher.desktop"
+        export ICON="$INSTALL_APPIMAGE_DIR/share/icons/hicolor/256x256/apps/org.freesmlauncher.FreesmLauncher.png"
+        for p in "$QT_PLUGIN_PATH"/*/*.so; do
+          if ldd "$p" 2>/dev/null | grep -q "not found"; then
+            echo "Skipping $p (missing dependencies)"
+            rm -f "$p"
+          fi
+        done
+        quick-sharun "$INSTALL_APPIMAGE_DIR"/bin/* "$QT_PLUGIN_PATH"/*/*.so
 
         cp ~/bin/AppImageUpdate.AppImage "$INSTALL_APPIMAGE_DIR"/bin/
         # FIXME(@getchoo): gamemode doesn't seem to be very portable with DBus. Find a way to make it work!
         find "$INSTALL_APPIMAGE_DIR" -name '*gamemode*' -exec rm {} +
 
-        #disable OpenGL and Vulkan launcher features until https://github.com/VHSgunzo/sharun/issues/35
-        echo "FREESMLAUNCHER_DISABLE_GLVULKAN=1" >> "$INSTALL_APPIMAGE_DIR"/.env
         #makes the launcher use portals for file picking
         echo "QT_QPA_PLATFORMTHEME=xdgdesktopportal" >> "$INSTALL_APPIMAGE_DIR"/.env
         ln -s org.freesmlauncher.FreesmLauncher.metainfo.xml "$INSTALL_APPIMAGE_DIR"/share/metainfo/org.freesmlauncher.FreesmLauncher.appdata.xml
-        ln -s share/applications/org.freesmlauncher.FreesmLauncher.desktop "$INSTALL_APPIMAGE_DIR"
-        ln -s share/icons/hicolor/256x256/apps/org.freesmlauncher.FreesmLauncher.png "$INSTALL_APPIMAGE_DIR"
-        mv "$INSTALL_APPIMAGE_DIR"/{sharun,AppRun}
         ls -la "$INSTALL_APPIMAGE_DIR"
 
         if [[ "${{ github.ref_type }}" == "tag" ]]; then
@@ -121,11 +121,17 @@ runs:
         cmake --install ${{ env.BUILD_DIR }} --config ${{ inputs.build-type }} --prefix ${{ env.INSTALL_PORTABLE_DIR }}
         cmake --install ${{ env.BUILD_DIR }} --config ${{ inputs.build-type }} --prefix ${{ env.INSTALL_PORTABLE_DIR }} --component portable
 
-        sharun lib4bin \
-          --with-hooks \
-          --hard-links \
-          --dst-dir "$INSTALL_PORTABLE_DIR" \
-          "$INSTALL_PORTABLE_DIR"/bin/* "$QT_PLUGIN_PATH"/*/*.so
+        export APPDIR="$INSTALL_PORTABLE_DIR"
+        export DESKTOP="$INSTALL_PORTABLE_DIR/share/applications/org.freesmlauncher.FreesmLauncher.desktop"
+        export ICON="$INSTALL_PORTABLE_DIR/share/icons/hicolor/256x256/apps/org.freesmlauncher.FreesmLauncher.png"
+        export STRACE_MODE=0
+        for p in "$QT_PLUGIN_PATH"/*/*.so; do
+          if ldd "$p" 2>/dev/null | grep -q "not found"; then
+            echo "Skipping $p (missing dependencies)"
+            rm -f "$p"
+          fi
+        done
+        quick-sharun "$INSTALL_PORTABLE_DIR"/bin/* "$QT_PLUGIN_PATH"/*/*.so
 
         # FIXME(@getchoo): gamemode doesn't seem to be very portable with DBus. Find a way to make it work!
         find "$INSTALL_PORTABLE_DIR" -name '*gamemode*' -exec rm {} +
