@@ -44,6 +44,10 @@
 #include <memory>
 
 #include "ByteArraySink.h"
+#if defined(LAUNCHER_APPLICATION)
+#include "Application.h"
+#include "CachedFileSink.h"
+#endif
 #include "ChecksumValidator.h"
 #include "MetaCacheSink.h"
 
@@ -59,6 +63,17 @@ auto Download::makeCached(QUrl url, MetaEntryPtr entry, Options options) -> Down
     auto md5Node = new ChecksumValidator(QCryptographicHash::Md5);
     auto cachedNode = new MetaCacheSink(entry, md5Node, options.testFlag(Option::MakeEternal));
     dl->m_sink.reset(cachedNode);
+    return dl;
+}
+
+auto Download::makeCachedToFile(QUrl url, MetaEntryPtr entry, QString targetPath, Checksum checksum, Options options) -> Download::Ptr
+{
+    auto dl = makeShared<Download>();
+    dl->m_url = url;
+    dl->setObjectName(QString("CACHE FILE:") + url.toString());
+    dl->m_options = options;
+    dl->m_sink = std::make_unique<CachedFileSink>(*APPLICATION->metacache(), std::move(entry), std::move(targetPath), std::move(checksum),
+                                                  options.testFlag(Option::MakeEternal));
     return dl;
 }
 #endif

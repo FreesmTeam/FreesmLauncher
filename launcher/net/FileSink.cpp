@@ -95,7 +95,11 @@ Task::State FileSink::abort()
 {
     if (m_output_file) {
         m_output_file->cancelWriting();
+        // cancelWriting only prevents commit; destruction closes the handle and
+        // removes the temporary file before the request emits its terminal signal.
+        m_output_file.reset();
     }
+    m_wroteAnyData = false;
     failAllValidators();
     return Task::State::Failed;
 }
