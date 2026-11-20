@@ -31,9 +31,9 @@ jobs:
       matrix:
         include:
           - arch: arm64
-            os: ubuntu-24.04-arm
+            os: ubuntu-26.04-arm
           - arch: amd64
-            os: ubuntu-24.04
+            os: ubuntu-26.04
 
     runs-on: ${{ matrix.os }}
 
@@ -43,15 +43,8 @@ jobs:
         run: |
           echo "image-name=${REGISTRY}/${GITHUB_REPOSITORY_OWNER,,}/devcontainer" >> "$GITHUB_OUTPUT"
 
-      - name: Install Podman
-        uses: redhat-actions/podman-install@main
-        # TODO(@getchoo): Always use this when the action properly supports ARM
-        if: ${{ runner.arch == 'X64' || runner.arch == 'X86' }}
-        with:
-          github-token: ${{ github.token }}
-
       - name: Checkout repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: Determine metadata for image
         id: image-metadata
@@ -71,17 +64,18 @@ jobs:
 
       - name: Build image
         id: build-image
-        uses: redhat-actions/buildah-build@v2
+        uses: redhat-actions/buildah-build@v3
         with:
           containerfiles: |
             ./Containerfile
           tags: ${{ steps.image-metadata.outputs.tags }}
           labels: ${{ steps.image-metadata.outputs.labels }}
+          squash: false
 
       - name: Push image
         id: push-image
         if: ${{ github.event_name != 'pull_request' }}
-        uses: redhat-actions/push-to-registry@v2
+        uses: redhat-actions/push-to-registry@v3
         with:
           tags: ${{ steps.build-image.outputs.tags }}
           username: ${{ github.repository_owner }}
@@ -115,7 +109,7 @@ jobs:
       contents: read
       packages: write
 
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
 
     steps:
       - name: Download digests
@@ -125,15 +119,8 @@ jobs:
           pattern: digests-*
           merge-multiple: true
 
-      - name: Install Podman
-        # TODO(@getchoo): Always use this when the action properly supports ARM
-        if: ${{ runner.arch == 'X64' || runner.arch == 'X86' }}
-        uses: redhat-actions/podman-install@main
-        with:
-          github-token: ${{ github.token }}
-
       - name: Login to registry
-        uses: redhat-actions/podman-login@v1
+        uses: redhat-actions/podman-login@v2
         with:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.repository_owner }}
@@ -166,7 +153,7 @@ jobs:
           done <<< "$DOCKER_METADATA_OUTPUT_TAGS"
 
       - name: Push manifest
-        uses: redhat-actions/push-to-registry@v2
+        uses: redhat-actions/push-to-registry@v3
         with:
           tags: ${{ steps.manifest-metadata.outputs.tags }}
           username: ${{ github.repository_owner }}

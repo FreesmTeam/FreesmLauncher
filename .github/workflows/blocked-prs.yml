@@ -19,7 +19,7 @@ permissions: { }
 jobs:
   blocked_status:
     name: Check Blocked Status
-    runs-on: ubuntu-slim
+    runs-on: ubuntu-26.04
 
     steps:
       - name: Generate token
