@@ -23,14 +23,14 @@ jobs:
       fail-fast: true
       matrix:
         include:
-          - os: ubuntu-22.04
+          - os: ubuntu-26.04
             qt_ver: 5
             qt_host: linux
             qt_arch: ""
             qt_version: "5.15.2"
             qt_modules: "qtnetworkauth"
 
-          - os: ubuntu-22.04
+          - os: ubuntu-26.04
             qt_ver: 6
             qt_host: linux
             qt_arch: ""
@@ -47,7 +47,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           submodules: true
 
@@ -71,7 +71,6 @@ jobs:
           target: "desktop"
           arch: ${{ matrix.qt_arch }}
           modules: ${{ matrix.qt_modules }}
-          tools: ${{ matrix.qt_tools }}
           cache: ${{ inputs.is_qt_cached }}
 
       - name: Prepare AppImage (Linux)
@@ -115,7 +114,7 @@ jobs:
           mkdir -p ${{ env.INSTALL_APPIMAGE_DIR }}/usr/lib
           mkdir -p ${{ env.INSTALL_APPIMAGE_DIR }}/usr/plugins/iconengines
 
-          cp -r ${{ runner.workspace }}/Qt/${{ matrix.qt_version }}/gcc_64/plugins/iconengines/* ${{ env.INSTALL_APPIMAGE_DIR }}/usr/plugins/iconengines
+          cp -r "$QT_ROOT_DIR"/plugins/iconengines/* ${{ env.INSTALL_APPIMAGE_DIR }}/usr/plugins/iconengines
 
           cp /usr/lib/x86_64-linux-gnu/libcrypto.so.* ${{ env.INSTALL_APPIMAGE_DIR }}/usr/lib/
           cp /usr/lib/x86_64-linux-gnu/libssl.so.* ${{ env.INSTALL_APPIMAGE_DIR }}/usr/lib/
@@ -163,28 +162,28 @@ jobs:
 
       - name: Upload binary tarball (Linux, portable, Qt 5)
         if: matrix.qt_ver != 6
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: FreesmLauncher-${{ runner.os }}-Qt5-Portable-${{ env.VERSION }}-${{ inputs.build_type }}
           path: FreesmLauncher-portable.tar.gz
 
       - name: Upload binary tarball (Linux, portable, Qt 6)
         if: matrix.qt_ver != 5
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: FreesmLauncher-${{ runner.os }}-Qt6-Portable-${{ env.VERSION }}-${{ inputs.build_type }}
           path: FreesmLauncher-portable.tar.gz
 
       - name: Upload AppImage (Linux)
         if: matrix.qt_ver != 5
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: FreesmLauncher-${{ runner.os }}-${{ env.VERSION }}-${{ inputs.build_type }}-x86_64.AppImage
           path: FreesmLauncher-${{ runner.os }}-${{ env.VERSION }}-${{ inputs.build_type }}-x86_64.AppImage
 
       - name: Upload AppImage Zsync (Linux)
         if: matrix.qt_ver != 5
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: FreesmLauncher-${{ runner.os }}-${{ env.VERSION }}-${{ inputs.build_type }}-x86_64.AppImage.zsync
           path: FreesmLauncher-Linux-x86_64.AppImage.zsync

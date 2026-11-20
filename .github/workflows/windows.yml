@@ -63,7 +63,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           submodules: true
 
@@ -97,13 +97,13 @@ jobs:
 
       - name: Setup ccache
         if: matrix.msystem == ''
-        uses: hendrikmuhs/ccache-action@v1.2.17
+        uses: hendrikmuhs/ccache-action@v1
         with:
           key: ${{ matrix.os }}-qt${{ matrix.qt_ver }}-${{ matrix.architecture }}
 
       - name: Retrieve ccache cache (Windows MinGW-w64)
         if: matrix.msystem != ''
-        uses: actions/cache@v4.2.3
+        uses: actions/cache@v6
         with:
           path: '${{ github.workspace }}\.ccache'
           key: ${{ matrix.os }}-mingw-w64-ccache-${{ github.run_id }}
@@ -153,7 +153,6 @@ jobs:
           target: "desktop"
           arch: ${{ matrix.qt_arch }}
           modules: ${{ matrix.qt_modules }}
-          tools: ${{ matrix.qt_tools }}
           cache: ${{ inputs.is_qt_cached }}
 
       - name: Install MSVC (Windows MSVC)
@@ -278,19 +277,19 @@ jobs:
           }
 
       - name: Upload binary zip (Windows)
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: FreesmLauncher-${{ matrix.name }}-${{ env.VERSION }}-${{ inputs.build_type }}
           path: ${{ env.INSTALL_DIR }}/**
 
       - name: Upload binary zip (Windows, portable)
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: FreesmLauncher-${{ matrix.name }}-Portable-${{ env.VERSION }}-${{ inputs.build_type }}
           path: ${{ env.INSTALL_PORTABLE_DIR }}/**
 
       - name: Upload installer (Windows)
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: FreesmLauncher-${{ matrix.name }}-Setup-${{ env.VERSION }}-${{ inputs.build_type }}
           path: FreesmLauncher-Setup.exe

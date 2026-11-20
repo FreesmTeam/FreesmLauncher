@@ -26,12 +26,12 @@ jobs:
     needs: build_release
     permissions:
       contents: write
-    runs-on: ubuntu-slim
+    runs-on: ubuntu-26.04
     outputs:
       upload_url: ${{ steps.create_release.outputs.upload_url }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           submodules: "true"
           path: "FreesmLauncher-source"
@@ -94,7 +94,7 @@ jobs:
 
       - name: Create release
         id: create_release
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v3
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           tag_name: ${{ github.ref }}

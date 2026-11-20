@@ -43,12 +43,12 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - os: ubuntu-24.04
+          - os: ubuntu-26.04
             artifact-name: Linux
             cmake-preset: linux
             qt-version: 6.10.2
 
-          - os: ubuntu-24.04-arm
+          - os: ubuntu-26.04-arm
             artifact-name: Linux-aarch64
             cmake-preset: linux
             qt-version: 6.10.2
@@ -104,7 +104,7 @@ jobs:
       ##
 
       - name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           submodules: true
 
