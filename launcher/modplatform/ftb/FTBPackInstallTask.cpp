@@ -44,6 +44,7 @@
 #include "minecraft/PackProfile.h"
 #include "modplatform/flame/FileResolvingTask.h"
 #include "modplatform/flame/PackManifest.h"
+#include "modplatform/helpers/ModpackCache.h"
 #include "net/ChecksumValidator.h"
 #include "settings/INISettingsObject.h"
 
@@ -307,8 +308,13 @@ void PackInstallTask::downloadPack()
 
         QFileInfo file_info(file.name);
 
-        auto dl = Net::Download::makeFile(file.url, path);
-        if (!file.sha1.isEmpty()) {
+        auto entry = ::Modpack::Cache::resolveEntry(*APPLICATION->metacache(), ::Modpack::Cache::Platform::FTB, QCryptographicHash::Sha1,
+                                                    QByteArray::fromHex(file.sha1.toLatin1()));
+        auto dl = entry ? Net::Download::makeCachedToFile(file.url, entry, path,
+                                                          { QCryptographicHash::Sha1, QByteArray::fromHex(file.sha1.toLatin1()) },
+                                                          Net::Download::Option::MakeEternal)
+                        : Net::Download::makeFile(file.url, path);
+        if (!entry && !file.sha1.isEmpty()) {
             dl->addValidator(new Net::ChecksumValidator(QCryptographicHash::Sha1, file.sha1));
         }
 

@@ -42,7 +42,7 @@
 namespace Net {
 class MetaCacheSink : public FileSink {
    public:
-    MetaCacheSink(MetaEntryPtr entry, ChecksumValidator* md5sum, bool is_eternal = false);
+    MetaCacheSink(MetaEntryPtr entry, ChecksumValidator* md5sum, bool is_eternal = false, HttpMetaCache* cache = nullptr);
     virtual ~MetaCacheSink() = default;
 
     auto hasLocalData() -> bool override;
@@ -55,5 +55,6 @@ class MetaCacheSink : public FileSink {
     MetaEntryPtr m_entry;
     ChecksumValidator* m_md5Node;
     bool m_is_eternal;
+    HttpMetaCache* m_cache;
 };
 }  // namespace Net

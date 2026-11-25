@@ -117,6 +117,8 @@ endif()
 
 set(NET_SOURCES
     # network stuffs
+    net/CachedFileSink.h
+    net/CachedFileSink.cpp
     net/ByteArraySink.h
     net/ChecksumValidator.h
     net/Download.cpp
@@ -541,6 +543,8 @@ set(API_SOURCES
     modplatform/helpers/HashUtils.cpp
     modplatform/helpers/OverrideUtils.h
     modplatform/helpers/OverrideUtils.cpp
+    modplatform/helpers/ModpackCache.h
+    modplatform/helpers/ModpackCache.cpp
 
     modplatform/helpers/ExportToModList.h
     modplatform/helpers/ExportToModList.cpp
