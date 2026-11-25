@@ -5,6 +5,13 @@ runs:
   using: composite
 
   steps:
+    # The launcher JARs still target Java 7, which JDK 25 cannot compile.
+    - name: Set up JDK 17
+      uses: actions/setup-java@v6
+      with:
+        distribution: zulu
+        java-version: '17'
+
     - name: Install host dependencies
       shell: bash
       run: |

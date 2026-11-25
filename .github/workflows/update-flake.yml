@@ -12,15 +12,19 @@ permissions:
   pull-requests: write
 
 jobs:
+  config:
+    uses: ./.github/workflows/config.yml
+
   update-flake:
+    needs: config
     if: github.repository == 'FreesmTeam/FreesmLauncher'
-    runs-on: ubuntu-latest
+    runs-on: ${{ needs.config.outputs.ubuntu-latest-lts }}
 
     steps:
-      - uses: actions/checkout@v4
-      - uses: DeterminateSystems/nix-installer-action@v16
-      - uses: DeterminateSystems/flake-checker-action@v5
-      - uses: DeterminateSystems/update-flake-lock@v24
+      - uses: actions/checkout@v7
+      - uses: DeterminateSystems/nix-installer-action@v23
+      - uses: DeterminateSystems/flake-checker-action@v14
+      - uses: DeterminateSystems/update-flake-lock@v29
         with:
           commit-msg: "chore(nix): update `flake.lock` via CI/CD"
           pr-title: "chore(nix): update `flake.lock`"
@@ -39,8 +43,8 @@ jobs:
             [10] : Pull Request
           git-author-name: John Nix
           git-author-email: github-actions[bot]@users.noreply.github.com
-          git-commiter-name: John Nix
-          git-commiter-email: github-actions[bot]@users.noreply.github.com
+          git-committer-name: John Nix
+          git-committer-email: github-actions[bot]@users.noreply.github.com
           pr-reviewers: |
             s0me1newithhand7s
-         
+

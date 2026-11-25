@@ -3,29 +3,22 @@ name: Commit lint
 on: [push, pull_request]
 
 jobs:
+  config:
+    uses: ./.github/workflows/config.yml
+
   commitlint:
-    runs-on: ubuntu-22.04
+    needs: config
+    runs-on: ${{ needs.config.outputs.ubuntu-latest-lts }}
     steps:
-      - uses: actions/checkout@v4.2.2
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 0
-      - name: Install required dependencies
-        run: |
-          sudo apt update
-          sudo apt install -y sudo
-          sudo apt install -y git curl
-          curl -sL https://deb.nodesource.com/setup_14.x | sudo -E bash -
-          DEBIAN_FRONTEND=noninteractive sudo apt install -y nodejs
-      - name: Debug [Versions]
-        run: |
-          git --version
-          node --version
-          npm --version
-          npx commitlint --version
+      - name: Set up Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: '26'
       - name: Install commitlint
-        run: |
-          npm install conventional-changelog-conventionalcommits
-          npm install commitlint@latest
+        run: npm install --no-save @commitlint/cli@21 conventional-changelog-conventionalcommits@10
 
       - name: Validate current commit (last commit) with commitlint
         if: github.event_name == 'push'

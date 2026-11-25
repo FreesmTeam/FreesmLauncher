@@ -57,7 +57,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           submodules: true
 
@@ -81,11 +81,10 @@ jobs:
           target: "desktop"
           arch: ${{ matrix.qt_arch }}
           modules: ${{ matrix.qt_modules }}
-          tools: ${{ matrix.qt_tools }}
           cache: ${{ inputs.is_qt_cached }}
 
       - name: Setup java (macOS)
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v6
         with:
           distribution: "temurin"
           java-version: "17"
@@ -173,7 +172,7 @@ jobs:
           fi
 
       - name: Upload binary tarball (macOS)
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: FreesmLauncher-${{ matrix.name }}-${{ env.VERSION }}-${{ inputs.build_type }}
           path: FreesmLauncher.zip

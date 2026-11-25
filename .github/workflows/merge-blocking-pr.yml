@@ -14,9 +14,13 @@ on:
 permissions: { }
 
 jobs:
+  config:
+    uses: ./.github/workflows/config.yml
+
   update-blocked-status:
     name: Update Blocked Status
-    runs-on: ubuntu-slim
+    needs: config
+    runs-on: ${{ needs.config.outputs.ubuntu-latest-lts }}
 
     # a pr that was a `blocking:<id>` label was merged.
     # find the open pr's it was blocked by and trigger a refresh of their state

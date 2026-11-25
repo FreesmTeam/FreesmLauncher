@@ -12,10 +12,14 @@ on:
 permissions: { }
 
 jobs:
+  config:
+    uses: ./.github/workflows/config.yml
+
   clang-tidy:
     name: Run Clang-Tidy
+    needs: config
 
-    runs-on: ubuntu-latest
+    runs-on: ${{ needs.config.outputs.ubuntu-latest-lts }}
 
     permissions:
       contents: read
@@ -23,15 +27,16 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           fetch-depth: 0 # Required for diffing later on
           submodules: "true"
 
       - name: Setup sccache
-        uses: hendrikmuhs/ccache-action@v1.2.22
+        uses: hendrikmuhs/ccache-action@v1
         with:
           variant: sccache
+          max-size: 500M
 
       - name: Install Nix
         uses: cachix/install-nix-action@v31

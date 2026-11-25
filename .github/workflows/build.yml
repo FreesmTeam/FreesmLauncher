@@ -27,8 +27,12 @@ on:
 permissions: { }
 
 jobs:
+  config:
+    uses: ./.github/workflows/config.yml
+
   build:
     name: Build (${{ matrix.artifact-name }})
+    needs: config
 
     environment: ${{ inputs.environment || '' }}
 
@@ -43,12 +47,12 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - os: ubuntu-24.04
+          - os: ${{ needs.config.outputs.ubuntu-build-lts }}
             artifact-name: Linux
             cmake-preset: linux
             qt-version: 6.10.2
 
-          - os: ubuntu-24.04-arm
+          - os: ${{ needs.config.outputs.ubuntu-build-lts-arm }}
             artifact-name: Linux-aarch64
             cmake-preset: linux
             qt-version: 6.10.2
@@ -104,7 +108,7 @@ jobs:
       ##
 
       - name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           submodules: true
 
