@@ -36,6 +36,7 @@ jobs:
         uses: hendrikmuhs/ccache-action@v1
         with:
           variant: sccache
+          max-size: 500M
 
       - name: Install Nix
         uses: cachix/install-nix-action@v31
