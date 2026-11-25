@@ -35,39 +35,26 @@ void CachedFileSink::invalidate()
 CachedFileSink::CopyResult CachedFileSink::copyToTarget()
 {
     QFile input(m_filename);
-    if (!input.open(QIODevice::ReadOnly))
+    if (!input.open(QIODevice::ReadOnly)) {
         return CopyResult::InvalidCache;
+    }
+
+    QCryptographicHash hash(m_checksum.algorithm);
+    hash.addData(&input);
+    if (hash.result() != m_checksum.value) {
+        return CopyResult::InvalidCache;
+    }
 
     if (!FS::ensureFilePathExists(m_targetPath)) {
         m_fail_reason = QObject::tr("Could not create the parent directory for %1.").arg(m_targetPath);
         return CopyResult::Failed;
     }
-    QSaveFile output(m_targetPath);
-    output.setDirectWriteFallback(false);
-    if (!output.open(QIODevice::WriteOnly)) {
-        m_fail_reason = QObject::tr("Could not write %1: %2").arg(m_targetPath, output.errorString());
+
+    if (!input.copy(m_targetPath)) {
+        m_fail_reason = QObject::tr("Could not write %1: %2").arg(m_targetPath, input.errorString());
         return CopyResult::Failed;
     }
-    QCryptographicHash hash(m_checksum.algorithm);
-    QByteArray buffer(64 * 1024, '\0');
-    for (;;) {
-        const auto size = input.read(buffer.data(), buffer.size());
-        if (size < 0)
-            return CopyResult::InvalidCache;
-        if (size == 0)
-            break;
-        hash.addData(QByteArrayView(buffer.constData(), size));
-        if (output.write(buffer.constData(), size) != size) {
-            m_fail_reason = QObject::tr("Could not write %1: %2").arg(m_targetPath, output.errorString());
-            return CopyResult::Failed;
-        }
-    }
-    if (hash.result() != m_checksum.value)
-        return CopyResult::InvalidCache;
-    if (!output.commit()) {
-        m_fail_reason = QObject::tr("Could not commit %1: %2").arg(m_targetPath, output.errorString());
-        return CopyResult::Failed;
-    }
+
     return CopyResult::Succeeded;
 }
 
