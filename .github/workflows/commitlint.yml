@@ -3,8 +3,12 @@ name: Commit lint
 on: [push, pull_request]
 
 jobs:
+  config:
+    uses: ./.github/workflows/config.yml
+
   commitlint:
-    runs-on: ubuntu-26.04
+    needs: config
+    runs-on: ${{ needs.config.outputs.ubuntu-latest-lts }}
     steps:
       - uses: actions/checkout@v7
         with:

@@ -8,6 +8,9 @@ on:
 permissions: { }
 
 jobs:
+  config:
+    uses: ./.github/workflows/config.yml
+
   build_release:
     name: Build Release
     uses: ./.github/workflows/build.yml
@@ -23,10 +26,10 @@ jobs:
     secrets: inherit
 
   create_release:
-    needs: build_release
+    needs: [build_release, config]
     permissions:
       contents: write
-    runs-on: ubuntu-26.04
+    runs-on: ${{ needs.config.outputs.ubuntu-latest-lts }}
     outputs:
       upload_url: ${{ steps.create_release.outputs.upload_url }}
     steps:

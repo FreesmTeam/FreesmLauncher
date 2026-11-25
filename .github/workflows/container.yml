@@ -16,8 +16,12 @@ env:
   REGISTRY: ghcr.io
 
 jobs:
+  config:
+    uses: ./.github/workflows/config.yml
+
   build:
     name: Build (${{ matrix.arch }})
+    needs: config
 
     permissions:
       contents: read
@@ -31,9 +35,9 @@ jobs:
       matrix:
         include:
           - arch: arm64
-            os: ubuntu-26.04-arm
+            os: ${{ needs.config.outputs.ubuntu-latest-lts-arm }}
           - arch: amd64
-            os: ubuntu-26.04
+            os: ${{ needs.config.outputs.ubuntu-latest-lts }}
 
     runs-on: ${{ matrix.os }}
 
@@ -102,14 +106,14 @@ jobs:
   manifest:
     name: Create manifest
 
-    needs: [ build ]
+    needs: [build, config]
     if: ${{ github.event_name != 'pull_request' }}
 
     permissions:
       contents: read
       packages: write
 
-    runs-on: ubuntu-26.04
+    runs-on: ${{ needs.config.outputs.ubuntu-latest-lts }}
 
     steps:
       - name: Download digests

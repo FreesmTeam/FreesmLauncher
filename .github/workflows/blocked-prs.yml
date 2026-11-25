@@ -17,9 +17,13 @@ on:
 permissions: { }
 
 jobs:
+  config:
+    uses: ./.github/workflows/config.yml
+
   blocked_status:
     name: Check Blocked Status
-    runs-on: ubuntu-26.04
+    needs: config
+    runs-on: ${{ needs.config.outputs.ubuntu-latest-lts }}
 
     steps:
       - name: Generate token

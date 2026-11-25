@@ -12,9 +12,13 @@ permissions:
   pull-requests: write
 
 jobs:
+  config:
+    uses: ./.github/workflows/config.yml
+
   update-flake:
+    needs: config
     if: github.repository == 'FreesmTeam/FreesmLauncher'
-    runs-on: ubuntu-26.04
+    runs-on: ${{ needs.config.outputs.ubuntu-latest-lts }}
 
     steps:
       - uses: actions/checkout@v7

@@ -1,0 +1,35 @@
+name: Runner configuration
+
+on:
+  workflow_call:
+    outputs:
+      ubuntu-latest-lts:
+        value: ${{ jobs.runners.outputs.ubuntu-latest-lts }}
+      ubuntu-latest-lts-arm:
+        value: ${{ jobs.runners.outputs.ubuntu-latest-lts-arm }}
+      ubuntu-build-lts:
+        value: ${{ jobs.runners.outputs.ubuntu-build-lts }}
+      ubuntu-build-lts-arm:
+        value: ${{ jobs.runners.outputs.ubuntu-build-lts-arm }}
+
+permissions: { }
+
+jobs:
+  runners:
+    runs-on: ubuntu-slim
+    outputs:
+      ubuntu-latest-lts: ${{ steps.labels.outputs.ubuntu-latest-lts }}
+      ubuntu-latest-lts-arm: ${{ steps.labels.outputs.ubuntu-latest-lts-arm }}
+      ubuntu-build-lts: ${{ steps.labels.outputs.ubuntu-build-lts }}
+      ubuntu-build-lts-arm: ${{ steps.labels.outputs.ubuntu-build-lts-arm }}
+    steps:
+      - name: Set runner labels
+        id: labels
+        shell: bash
+        run: |
+          # Keep Linux release builds one LTS behind CI (currently glibc 2.39).
+          printf '%s\n' \
+            'ubuntu-latest-lts=ubuntu-26.04' \
+            'ubuntu-latest-lts-arm=ubuntu-26.04-arm' \
+            'ubuntu-build-lts=ubuntu-24.04' \
+            'ubuntu-build-lts-arm=ubuntu-24.04-arm' >> "$GITHUB_OUTPUT"

@@ -11,14 +11,18 @@ on:
 permissions: { }
 
 jobs:
+  config:
+    uses: ./.github/workflows/config.yml
+
   backport:
+    needs: config
     permissions:
       contents: write # for korthout/backport-action to create branch
       pull-requests: write # for korthout/backport-action to create PR to backport
       actions: write # for korthout/backport-action to create PR with workflow changes
     name: Backport Pull Request
     if: github.repository_owner == 'FreesmTeam' && github.event.pull_request.merged == true && (github.event_name != 'labeled' || startsWith('backport', github.event.label.name))
-    runs-on: ubuntu-26.04
+    runs-on: ${{ needs.config.outputs.ubuntu-latest-lts }}
     steps:
       - uses: actions/checkout@v7
       - name: Create backport PRs

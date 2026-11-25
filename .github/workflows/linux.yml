@@ -18,20 +18,22 @@ on:
         required: false
 
 jobs:
+  config:
+    uses: ./.github/workflows/config.yml
+
   linux:
+    needs: config
     strategy:
       fail-fast: true
       matrix:
         include:
-          - os: ubuntu-26.04
-            qt_ver: 5
+          - qt_ver: 5
             qt_host: linux
             qt_arch: ""
             qt_version: "5.15.2"
             qt_modules: "qtnetworkauth"
 
-          - os: ubuntu-26.04
-            qt_ver: 6
+          - qt_ver: 6
             qt_host: linux
             qt_arch: ""
             qt_version: "6.8.1"
@@ -44,7 +46,7 @@ jobs:
       BUILD_DIR: "build"
       CCACHE_VAR: ""
 
-    runs-on: ${{ matrix.os }}
+    runs-on: ${{ needs.config.outputs.ubuntu-build-lts }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v7

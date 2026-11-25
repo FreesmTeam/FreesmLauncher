@@ -13,8 +13,12 @@ on:
 permissions: { }
 
 jobs:
+  config:
+    uses: ./.github/workflows/config.yml
+
   CodeQL:
-    runs-on: ubuntu-26.04
+    needs: config
+    runs-on: ${{ needs.config.outputs.ubuntu-latest-lts }}
 
     permissions:
       contents: read

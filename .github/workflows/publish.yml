@@ -7,13 +7,17 @@ on:
 permissions: { }
 
 jobs:
+  config:
+    uses: ./.github/workflows/config.yml
+
   winget:
     name: Winget
+    needs: config
 
     permissions:
       contents: read
 
-    runs-on: ubuntu-26.04
+    runs-on: ${{ needs.config.outputs.ubuntu-latest-lts }}
 
     steps:
       - name: Publish on Winget
